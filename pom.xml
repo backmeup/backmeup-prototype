@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.backmeup</groupId>
+	<artifactId>app</artifactId>
+	<version>0.0.1</version>
+	<packaging>pom</packaging>
+	<properties>
+		<weld.version>1.1.7.Final</weld.version>
+		<jersey.version>1.12</jersey.version>
+	</properties>
+	<modules>
+		<!-- build the interfaces + model first -->
+		<module>org.backmeup.model</module>
+		<module>org.backmeup.dal</module>
+		<module>org.backmeup.job</module>
+		<module>org.backmeup.plugin</module>
+		<module>org.backmeup.plugin.api</module>
+		<module>org.backmeup.logic</module>
+
+		<!-- build the implementations -->
+		<module>org.backmeup.dal.jpa.impl</module>
+		<module>org.backmeup.job.impl</module>
+		<module>org.backmeup.plugin.osgi.impl</module>
+		<module>org.backmeup.logic.dummy.impl</module>
+		<module>org.backmeup.logic.impl</module>
+		<module>org.backmeup.rest</module>
+		<module>org.backmeup.grizzly</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

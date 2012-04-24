@@ -32,6 +32,6 @@ Instructions on how to set up Maven on your machine are [available here]
 
 ## Further Information 
 
-More technical and developer information is begin made available in the
+More technical and developer information is being made available in the
 [Wiki] (https://github.com/backmeup/backmeup-prototype/wiki).
 

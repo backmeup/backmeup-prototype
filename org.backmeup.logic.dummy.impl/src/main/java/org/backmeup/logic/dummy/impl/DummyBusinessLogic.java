@@ -214,7 +214,7 @@ public class DummyBusinessLogic implements BusinessLogic {
 		status.add(new Status(bJob, "Ein Status", "INFO", new Date(100)));
 		status.add(new Status(bJob, "Noch ein Status", "INFO", new Date(100)));
 		List<FileItem> files = new ArrayList<FileItem>();
-		files.add(new FileItem("http://thumbnails.at?ìd=1234", "sennenhund.jpg", new Date(100), 1234L));
+		files.add(new FileItem("http://thumbnails.at?url=1234", "sennenhund.jpg", new Date(100), 1234L));
 		status.add(new Status(bJob, "Busy status", "STORE", new Date(100), "BUSY", files));
 		searches = new HashMap<Long, SearchResponse>();
 	}

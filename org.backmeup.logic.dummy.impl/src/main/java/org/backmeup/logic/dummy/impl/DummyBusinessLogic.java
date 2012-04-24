@@ -177,7 +177,7 @@ public class DummyBusinessLogic implements BusinessLogic {
 		actions = new HashMap<String, ActionDescribable>();
 		actions.put("org.backmeup.rsa", new ActionDescribable() {			
 			public String getTitle() {
-				return "Verschlüsselung";
+				return "Verschluesselung";
 			}
 
 			
@@ -187,7 +187,7 @@ public class DummyBusinessLogic implements BusinessLogic {
 
 			
 			public String getDescription() {
-				return "Verschlüsselt Ihre Daten mit RSA";
+				return "Verschluesselt Ihre Daten mit RSA";
 			}
 		});
 
@@ -456,7 +456,7 @@ public class DummyBusinessLogic implements BusinessLogic {
 	public List<String> getActionOptions(String actionId) {
 		if ("org.backmeup.rsa".equals(actionId)) {
 			List<String> results = new ArrayList<String>();
-			results.add("512-Bit-Verschlüsselung (sonst 256)");
+			results.add("512-Bit-Verschluesselung (sonst 256)");
 			return results;
 		}
 		return null;

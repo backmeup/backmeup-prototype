@@ -22,13 +22,13 @@ Instructions on how to set up Maven on your machine are [available here]
 
 3. To start the grizzly-rest-server, change to folder org.backmeup.grizzly and type `mvn -P standard exec:exec`
 
-3.1 To start the dummy-rest-server, change to folder org.backmeup.grizzly and type `mvn -P dummy exec:exec`
+3.1. To start the dummy-rest-server, change to folder org.backmeup.grizzly and type `mvn -P dummy exec:exec`
 
-3.2 To start the rest server in debug mode, use the additional debug profile: `mvn -P standard,debug exec:exec` (the debug-port will be 1044)
+3.2. To start the rest server in debug mode, use the additional debug profile: `mvn -P standard,debug exec:exec` (the debug-port will be 1044)
 
 4. All parts are eclipse-projects aswell. To add them to your workspace use the eclipse command `Add Existing Projects`
 
-4.1 To use maven within eclipse, install the Maven Integration (m2e) Plugin (http://www.eclipse.org/m2e/)
+4.1. To use maven within eclipse, install the Maven Integration (m2e) Plugin (http://www.eclipse.org/m2e/)
 
 ## Further Information 
 

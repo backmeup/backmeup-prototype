@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: model
+Bundle-SymbolicName: org.backmeup.model
+Bundle-Version: 0.0.1
+Bundle-ClassPath: model-0.0.1.jar,
+ lib/hibernate-jpa-2.0-api-1.0.1.Final.jar
+Export-Package: org.backmeup.model;version="0.0.1";uses:="org.backmeup.model.spi",
+ org.backmeup.model.spi;version="0.0.1"
+Embed-Dependency: *
+Import-Package: javax.sql
+Embedded-Artifacts: lib/hibernate-jpa-2.0-api-1.0.1.Final.jar;g="org.hibernate.javax.persistence";a="hibernate-jpa-2.0-api";v="1.0.1.Final"
+Created-By: Apache Maven Bundle Plugin
+Embed-Directory: lib
+Tool: Bnd-1.50.0
+Bnd-LastModified: 1334041491450
+Build-Jdk: 1.6.0_29
+Built-By: s1110454043

@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: plugin.api
+Bundle-SymbolicName: org.backmeup.plugin.api
+Bundle-Version: 0.0.1
+Bundle-ClassPath: plugin.api-0.0.1.jar,
+ lib/commons-io-2.1.jar
+Export-Package: org.backmeup.plugin.api.connectors;version="0.0.1";uses:="org.backmeup.plugin.api.storage",
+ org.backmeup.plugin.api.storage;version="0.0.1",
+ org.backmeup.plugin.api.storage.filesystem;version="0.0.1";uses:="org.backmeup.plugin.api.storage",
+ org.backmeup.plugin.spi;version="0.0.1"
+Tool: Bnd-1.50.0
+Build-Jdk: 1.6.0_29
+Embed-Directory: lib
+Created-By: Apache Maven Bundle Plugin
+Embed-Dependency: *
+Bnd-LastModified: 1334143209186
+Built-By: s1110454043
+Embedded-Artifacts: lib/commons-io-2.1.jar;g="commons-io";a="commons-io";v="2.1"

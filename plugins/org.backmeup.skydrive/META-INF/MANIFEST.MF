@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Skydrive
+Bundle-SymbolicName: org.backmeup.skydrive
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: lib/json_simple-1.1.jar,
+ lib/scribe-1.2.3.jar,
+ .
+Import-Package: org.backmeup.model;version="0.0.1",
+ org.backmeup.model.spi;version="0.0.1",
+ org.backmeup.plugin.api.connectors;version="0.0.1",
+ org.backmeup.plugin.api.storage;version="0.0.1",
+ org.backmeup.plugin.api.storage.filesystem;version="0.0.1",
+ org.backmeup.plugin.spi;version="0.0.1"

@@ -18,17 +18,31 @@ Instructions on how to set up Maven on your machine are [available here]
 
 1. Change to the project folder to which you cloned the project repository
 
-2. Build all parts of the project: `mvn clean package install`
+2. Build parts of the project: `mvn clean package install`
 
-3. To start the grizzly-rest-server, change to folder org.backmeup.grizzly and type `mvn -P standard exec:exec`
+3. Build plugins: 
+```
+cd plugins
+mvn clean package install
+```
 
-3.1. To start the dummy-rest-server, change to folder org.backmeup.grizzly and type `mvn -P dummy exec:exec`
+3.1 Setup standard-plugins and built plugins (dropbox and skydrive currently):
+```
+cd org.backmeup.grizzly
+mkdir autodeploy
+cp ../standard-plugins/*.jar autodeploy
+cp ../plugins/build/*.jar autodeploy
+```
 
-3.2. To start the rest server in debug mode, use the additional debug profile: `mvn -P standard,debug exec:exec` (the debug-port will be 1044)
+4. To start the grizzly-rest-server, change to folder org.backmeup.grizzly and type `mvn -P standard exec:exec`
 
-4. All parts are eclipse-projects aswell. To add them to your workspace use the eclipse command `Add Existing Projects`
+4.1. To start the dummy-rest-server, change to folder org.backmeup.grizzly and type `mvn -P dummy exec:exec`
 
-4.1. To use maven within eclipse, install the Maven Integration (m2e) Plugin (http://www.eclipse.org/m2e/)
+4.2. To start the rest server in debug mode, use the additional debug profile: `mvn -P standard,debug exec:exec` (the debug-port will be 1044)
+
+5. All parts are eclipse-projects aswell. To add them to your workspace use the eclipse command `Add Existing Projects`
+
+5.1. To use maven within eclipse, install the Maven Integration (m2e) Plugin (http://www.eclipse.org/m2e/)
 
 ## Further Information 
 

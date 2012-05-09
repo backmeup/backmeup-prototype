@@ -35,8 +35,6 @@ public abstract class StorageReader {
 	
 	public abstract void open(String path) throws StorageException;
 	
-	public abstract String getPath() throws StorageException;
-	
 	public abstract Iterator<DataObject> getDataObjects() throws StorageException;
 			
 	public abstract void close() throws StorageException;

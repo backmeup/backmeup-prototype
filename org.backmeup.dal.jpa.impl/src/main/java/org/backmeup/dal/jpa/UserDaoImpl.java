@@ -8,6 +8,13 @@ import javax.persistence.Query;
 import org.backmeup.dal.UserDao;
 import org.backmeup.model.User;
 
+/**
+ * The ProfileDaoImpl realizes the ProfileDao interface with 
+ * JPA specific operations.
+ * 
+ * @author fschoeppl
+ *
+ */
 public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 
 	public UserDaoImpl(EntityManager em) {

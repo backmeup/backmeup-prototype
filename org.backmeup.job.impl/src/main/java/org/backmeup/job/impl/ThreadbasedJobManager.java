@@ -1,6 +1,8 @@
 package org.backmeup.job.impl;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -9,6 +11,7 @@ import java.util.Properties;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.backmeup.job.JobManager;
 import org.backmeup.model.BackupJob;
@@ -16,10 +19,10 @@ import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileEntry;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.User;
+import org.backmeup.model.exceptions.BackMeUpException;
 import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.connectors.Datasink;
-import org.backmeup.plugin.api.connectors.DatasinkException;
 import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.api.connectors.DatasourceException;
 import org.backmeup.plugin.api.connectors.Progressable;
@@ -29,6 +32,16 @@ import org.backmeup.plugin.api.storage.StorageWriter;
 import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorageReader;
 import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorageWriter;
 
+/**
+ * The ThreadbasedJobManager creates a thread which 
+ * will periodically checks for a new backup job, 
+ * executing it and printing all errors to stderr.
+ * 
+ * It will be replaced by a robust high scaling version.
+ * 
+ * @author fschoeppl
+ *
+ */
 @ApplicationScoped
 public class ThreadbasedJobManager implements JobManager {
 
@@ -36,18 +49,20 @@ public class ThreadbasedJobManager implements JobManager {
 		public void progress(String message) {
 			System.out.println(message);
 		}
-	}
+	} 
 	
-	//private DataAccessLayer dal;
-	private ThreadJobExecutor je = new ThreadJobExecutor();
+	private ThreadJobExecutor je;
 	private List<BackupJob> jobs;
 	@Inject
 	private Plugin plugins;
-	private int maxid;
+	private int maxid; 
+	@Inject
+  @Named("job.temporaryDirectory")
+  private String temporaryDirectory;
 	
 	public ThreadbasedJobManager() {
 		this.jobs = Collections.synchronizedList(new ArrayList<BackupJob>());
-		je.start();
+		temporaryDirectory = "temp";
 	}
 	
 	public BackupJob createBackupJob(User user,
@@ -59,8 +74,9 @@ public class ThreadbasedJobManager implements JobManager {
 		return bj;
 	}
  
-	private class ThreadJobExecutor extends Thread {
+	public class ThreadJobExecutor extends Thread {
 		private volatile boolean running;
+		
 		
 		public ThreadJobExecutor() {
 			running = true;
@@ -76,6 +92,10 @@ public class ThreadbasedJobManager implements JobManager {
 		}
 		
 		public void run() {
+  		if (temporaryDirectory == null) {
+  		  throw new IllegalStateException("A temporary folder must be specified within bl.properties: temporaryDirectory = somefolder");
+  		}
+  		temporaryDirectory = temporaryDirectory + "/cache";
 			while (!jobs.isEmpty() || isRunning()) {
 				try {
 					Thread.sleep(1000);
@@ -91,12 +111,14 @@ public class ThreadbasedJobManager implements JobManager {
 					Properties sinkProps = convertToProperties(job.getSinkProfile());
 					for (ProfileOptions po : job.getSourceProfiles()) {
 						Datasource source = plugins.getDatasource(po.getProfile().getDesc());
-						Properties sourceProperties = convertToProperties(po.getProfile());
+						Properties sourceProperties = convertToProperties(po.getProfile());						
 						try {
 							StorageWriter writer = new LocalFilesystemStorageWriter();
 							StorageReader reader = new LocalFilesystemStorageReader();
 							try {
-								File f = new File("C:/Fabian/temp/Cache/"+po.getProfile().getProfileName()+"_"+(new Date()).getTime());
+							  DateFormat format = new SimpleDateFormat("yyyy_MM_dd hh_mm");
+							  String time = format.format(new Date());
+								File f = new File(temporaryDirectory + "/" + po.getProfile().getProfileName() + "_" + time);
 								f.mkdirs();
 								writer.open(f.getPath());
 								reader.open(f.getPath());					
@@ -109,8 +131,8 @@ public class ThreadbasedJobManager implements JobManager {
 							e.printStackTrace();
 						} catch (StorageException e) {
 							e.printStackTrace();
-						} catch (DatasinkException e) {
-							e.printStackTrace();
+						} catch (BackMeUpException me) {
+						  me.printStackTrace();
 						}
 					}					
 				}
@@ -131,9 +153,7 @@ public class ThreadbasedJobManager implements JobManager {
 		while(je.isAlive()) {
 			try {
 				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (InterruptedException e) {			
 			}
 		}
 	}
@@ -144,5 +164,11 @@ public class ThreadbasedJobManager implements JobManager {
 
 	public void setPlugins(Plugin plugins) {
 		this.plugins = plugins;
-	}  
+	}
+
+  @Override
+  public void start() {
+    je = new ThreadJobExecutor();
+    je.start();
+  }  
 }

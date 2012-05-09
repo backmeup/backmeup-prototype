@@ -6,6 +6,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+/**
+ * The User class represents a user of backmeup.
+ * 
+ * @author fschoeppl
+ *
+ */
 @Entity
 public class User {
 	@Id	

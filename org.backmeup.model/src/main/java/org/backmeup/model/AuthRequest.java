@@ -3,6 +3,18 @@ package org.backmeup.model;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The AuthRequest class is used as a result of the BusinessLogic#preAuth method.
+ * Depending on what kind of data source/sink has been registered,
+ * following properties will be set:
+ * - if redirectURL is not null, the client must open a browser and enter this URL
+ * - if requiredInputs is not null, the client must enter all the values specified
+ *   within this list. 
+ *  
+ * @see org.backmeup.logic.BusinessLogic#preAuth
+ * @author fschoeppl
+ *
+ */
 public class AuthRequest {
 	private List<String> requiredInputs;
 	private Map<String, String> typeMapping;

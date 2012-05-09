@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" default-activation="lazy">
-	<bean id="skydriveAuthenticator" class="org.backmeup.skydrive.Authenticator"/>
-	<bean id="skydriveFileService" class="org.backmeup.skydrive.SkyDriveDatasource"/>
-	<bean id="skydriveDatasink" class="org.backmeup.skydrive.SkyDriveDatasink"/>
-</blueprint>

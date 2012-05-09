@@ -4,16 +4,17 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	id="WebApp_ID" version="2.5">
 	<servlet>
-  	<servlet-name>BackMeUp REST API</servlet-name>
-  	<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
-  	<init-param>
-  		<param-name>com.sun.jersey.config.property.packages</param-name>
-  		<param-value>org.backmeup.rest;org.codehaus.jackson.jaxrs</param-value>
-  	</init-param>
-  	<load-on-startup>1</load-on-startup>
-  </servlet>  
-  <servlet-mapping>
-  	<servlet-name>BackMeUp REST API</servlet-name>
-  	<url-pattern>/backmeup/*</url-pattern>
-  </servlet-mapping>
+		<servlet-name>BackMeUp REST API</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<init-param>
+			<param-name>com.sun.jersey.config.property.packages</param-name>
+			<param-value>org.backmeup.rest;org.codehaus.jackson.jaxrs</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BackMeUp REST API
+		</servlet-name>
+		<url-pattern>/backmeup/*</url-pattern>
+	</servlet-mapping>
 </web-app>

@@ -36,9 +36,9 @@
 						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Name>${project.name}</Bundle-Name>
 						<Bundle-Version>${project.version}</Bundle-Version>
-						<Export-Package>org.backmeup.*,org.backmeup.spi.*,org.backmeup.exceptions.*</Export-Package>
-						<Embed-Dependency>*</Embed-Dependency>
+						<Export-Package>org.backmeup.*,org.backmeup.spi.*,org.backmeup.exceptions.*</Export-Package>						
 						<Embed-Directory>lib</Embed-Directory>
+						<Import-Package>!javax.*</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>

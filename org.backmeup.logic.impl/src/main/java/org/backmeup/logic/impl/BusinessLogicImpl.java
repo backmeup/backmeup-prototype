@@ -40,6 +40,20 @@ import org.backmeup.plugin.spi.Authorizable.AuthorizationType;
 import org.backmeup.plugin.spi.InputBased;
 import org.backmeup.plugin.spi.OAuthBased;
 
+/**
+ * Implements the BusinessLogic interface
+ * by delegating most operations to following layers:
+ * - DataAccessLayer
+ * - JobManager
+ * - PluginLayer 
+ * 
+ * If an error occurs within a method an exception
+ * will be thrown that must be handled by the client
+ * of the business logic.
+ * 
+ * @author fschoeppl
+ *
+ */
 @ApplicationScoped
 public class BusinessLogicImpl implements BusinessLogic {
 
@@ -47,7 +61,6 @@ public class BusinessLogicImpl implements BusinessLogic {
 	private DataAccessLayer dal;
 	
 	private Plugin plugins;
-	@Inject
 	private JobManager jobManager;
 	
 	private UserDao userDao;
@@ -393,8 +406,10 @@ public class BusinessLogicImpl implements BusinessLogic {
 		return jobManager;
 	}
 
-	public void setJobManager(JobManager jobManager) {
+	@Inject
+	public void setJobManager(JobManager jobManager) {	  
 		this.jobManager = jobManager;
+		this.jobManager.start();
 	}
 
 	public EntityManagerFactory getEntityManagerFactory() {

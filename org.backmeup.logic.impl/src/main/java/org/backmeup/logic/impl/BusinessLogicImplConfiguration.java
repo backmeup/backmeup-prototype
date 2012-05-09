@@ -6,7 +6,15 @@ import java.util.Properties;
 
 import javax.enterprise.inject.Produces;
 import javax.inject.Named;
-
+/**
+ * The BusinessLogicImplConfiguration class provides
+ * access to the bl.properties file.
+ * The bl.properties file must at least contain 
+ * the callbackUrl property.
+ * 
+ * @author fschoeppl
+ *
+ */
 public class BusinessLogicImplConfiguration {
 	private Properties loadProperties() {
 		Properties props = new Properties();

@@ -13,6 +13,16 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
+/**
+ * The DeployMonitor class starts a thread
+ * which will periodically check the
+ * osgi.deploymentDirectory (found within plugins.properties)
+ * installing new bundles found there. If a bundle gets deleted,
+ * it will also be deleted within OSGi. 
+ * 
+ * @author fschoeppl
+ *
+ */
 public class DeployMonitor implements Runnable {
 
 	private Map<File, Bundle> deployed = new HashMap<File, Bundle>();

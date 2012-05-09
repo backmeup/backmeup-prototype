@@ -6,6 +6,16 @@ import javax.ws.rs.ext.Providers;
 
 import org.backmeup.logic.BusinessLogic;
 
+/**
+ * All rest classes derive from this class to 
+ * gain access to the BusinessLogic.
+ * 
+ * Note: The derived classes always delegate the incoming REST call
+ *       to the business logic.
+ * 
+ * @author fschoeppl
+ *
+ */
 public class Base {
 	@Context
 	private Providers providers;

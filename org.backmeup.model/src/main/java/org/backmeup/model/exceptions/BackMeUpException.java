@@ -1,5 +1,12 @@
 package org.backmeup.model.exceptions;
 
+/**
+ * The root of all exceptions 
+ * that occur in the BackMeUp core.
+ * 
+ * @author fschoeppl
+ *
+ */
 public class BackMeUpException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 

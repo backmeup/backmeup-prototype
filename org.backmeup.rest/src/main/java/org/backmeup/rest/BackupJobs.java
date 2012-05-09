@@ -23,6 +23,12 @@ import org.backmeup.rest.data.ProtocolDetailsContainer;
 import org.backmeup.rest.data.ProtocolOverviewContainer;
 import org.backmeup.rest.data.StatusContainer;
 
+/**
+ * All Job specific operations will be handled here.
+ *  
+ * @author fschoeppl
+ *
+ */
 @Path("/jobs")
 public class BackupJobs extends Base {
 

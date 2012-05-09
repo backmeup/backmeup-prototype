@@ -1,28 +1,23 @@
 package org.backmeup.model.exceptions;
 
-
+/**
+ * All exception that will be thrown within a Plugin 
+ * must be wrapped within this class or derived from this
+ * class.
+ * 
+ * @author fschoeppl
+ *
+ */
 public class PluginException extends BackMeUpException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
+  protected String pluginId;
 
-	public PluginException() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+  public PluginException(String pluginId, String message, Throwable cause) {
+    super(message, cause);
+    this.pluginId = pluginId;
+  }
 
-	public PluginException(String message, Throwable cause) {
-		super(message, cause);
-		// TODO Auto-generated constructor stub
-	}
-
-	public PluginException(String message) {
-		super(message);
-		// TODO Auto-generated constructor stub
-	}
-
-	public PluginException(Throwable cause) {
-		super(cause);
-		// TODO Auto-generated constructor stub
-	}
-	
-
+  public PluginException(String pluginId, String message) {
+    this(pluginId, "Plugin '" + pluginId + "': " + message, null);
+  }
 }

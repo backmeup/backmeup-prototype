@@ -2,6 +2,13 @@ package org.backmeup.model;
 
 import java.util.List;
 
+/**
+ * This class contains a protocol overview
+ * about a certain user.
+ * 
+ * @author fschoeppl
+ *
+ */
 public class ProtocolOverview {
 	private String totalCount;
 	private String totalStored;

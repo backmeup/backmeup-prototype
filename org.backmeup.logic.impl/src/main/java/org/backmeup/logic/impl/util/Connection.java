@@ -7,7 +7,13 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.FlushModeType;
 
 import org.backmeup.dal.DataAccessLayer;
-
+/**
+ * The Connection class makes the JPA transaction handling
+ * easier for the BusinessLogicImpl class.
+ * 
+ * @author fschoeppl
+ *
+ */
 @ApplicationScoped
 public class Connection {
 	private EntityManagerFactory emFactory;

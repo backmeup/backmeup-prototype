@@ -3,7 +3,14 @@ package org.backmeup.model;
 import java.util.Date;
 import java.util.List;
 
-//@JsonSerialize(include = Inclusion.NON_NULL)
+/**
+ * This class contains information about a certain
+ * file. E.g. on which sinks is the file, when
+ * has the file been uploaded. 
+ * 
+ * @author fschoeppl
+ *
+ */
 public class ProtocolDetails {
 	private FileInfo fileInfo;
 	private List<Sink> sinks;
@@ -43,7 +50,6 @@ public class ProtocolDetails {
 		this.similar = similar;
 	}
 
-	//@JsonSerialize(include = Inclusion.NON_NULL)
 	public static class Sink {
 		private String title;
 		private Date timeStamp;

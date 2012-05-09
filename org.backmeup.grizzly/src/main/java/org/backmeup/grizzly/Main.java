@@ -9,6 +9,13 @@ import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 import com.sun.jersey.api.core.PackagesResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
 
+/**
+ * The Main class starts grizzly with the REST api.
+ * The server will be started on port 9998.
+ * 
+ * @author fschoeppl
+ *
+ */
 public class Main {
 	private static URI getBaseURI() {
 		return UriBuilder.fromUri("http://localhost/").port(9998).build();
@@ -18,6 +25,7 @@ public class Main {
 
 	private static HttpServer startServer() throws Exception {
 		System.out.println("Starting grizzly...");
+		// make sure all provider classes and rest classes will be loaded by grizzly
 		ResourceConfig rc = new PackagesResourceConfig("org.backmeup.rest",
 				"org.codehaus.jackson.jaxrs");
 		return GrizzlyServerFactory.createHttpServer(BASE_URI, rc);

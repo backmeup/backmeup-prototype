@@ -7,9 +7,16 @@ import org.backmeup.logic.BusinessLogic;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 
+/**
+ * This class looks up the BusinessLogic implementation
+ * by using Weld.
+ * 
+ * @author fschoeppl
+ *
+ */
 @Provider
 public class BusinessLogicContextResolver implements ContextResolver<BusinessLogic> {
-	private static BusinessLogic logic;
+	private BusinessLogic logic;
 	
 	public BusinessLogic getContext(Class<?> arg0) {	
 		if (logic == null) {

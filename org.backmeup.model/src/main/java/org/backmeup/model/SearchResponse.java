@@ -3,6 +3,12 @@ package org.backmeup.model;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Contains the result of a search when calling BusinessLogic#queryBackup
+ * 
+ * @author fschoeppl
+ *
+ */
 public class SearchResponse {
 	private long id;
 	private int progress;

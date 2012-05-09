@@ -38,6 +38,15 @@ import org.backmeup.model.exceptions.ValidationException;
 import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
 
+/**
+ * The dummy businness logic stores all data within
+ * Lists and Maps (in-memory). It realizes all operations
+ * and can be used as mock up to test the rest layer or
+ * create a rest client.
+ * 
+ * @author fschoeppl
+ *
+ */
 @ApplicationScoped
 public class DummyBusinessLogic implements BusinessLogic {
 	Long maxId = 3l;

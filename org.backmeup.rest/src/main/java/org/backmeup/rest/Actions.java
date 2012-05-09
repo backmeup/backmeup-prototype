@@ -19,6 +19,13 @@ import org.backmeup.rest.data.ActionOptionsContainer;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 
+/**
+ * This class provides all action specific operations,
+ * delegating them to the business logic.
+ * 
+ * @author fschoeppl
+ *
+ */
 @Path("/actions")
 public class Actions extends Base {		 
 	@GET

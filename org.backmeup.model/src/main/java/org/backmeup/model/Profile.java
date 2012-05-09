@@ -11,6 +11,18 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+/**
+ * 
+ * The Profile class represents a
+ * users profile for a certain datasource or datasink.
+ * Necessary profile properties might be stored within 
+ * the entries list.
+ * 
+ * The class has been annotated with JPA specific annotations.
+ * 
+ * @author fschoeppl
+ *
+ */
 @Entity
 public class Profile {
 	@Id

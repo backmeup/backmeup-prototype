@@ -10,6 +10,16 @@ import org.backmeup.plugin.spi.Authorizable;
 import org.backmeup.plugin.spi.InputBased;
 import org.backmeup.plugin.spi.OAuthBased;
 
+/**
+ * The Plugin interface 
+ * encapsulates all operations
+ * that interact with a plugin.
+ * 
+ * If an error occurs, a PluginException will be thrown.
+ * 
+ * @author fschoeppl
+ *
+ */
 public interface Plugin {
 
 	List<SourceSinkDescribable> getConnectedDatasources();

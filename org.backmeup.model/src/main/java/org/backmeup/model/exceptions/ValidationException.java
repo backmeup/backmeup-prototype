@@ -1,11 +1,15 @@
 package org.backmeup.model.exceptions;
 
 
+/**
+ * When a plugin returns false when calling
+ * InputBased#isValid, this exception will be thrown
+ * by the BusinessLogic.
+ * 
+ * @author fschoeppl
+ *
+ */
 public class ValidationException extends BackMeUpException {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	public ValidationException() {

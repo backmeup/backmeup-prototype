@@ -12,6 +12,12 @@ import javax.ws.rs.Produces;
 import org.backmeup.model.User;
 import org.backmeup.rest.data.UserContainer;
 
+/**
+ * All user specific operations will be handled within this class.
+ * 
+ * @author fschoeppl
+ *
+ */
 @Path("/users")
 public class Users extends Base {	
 	@GET

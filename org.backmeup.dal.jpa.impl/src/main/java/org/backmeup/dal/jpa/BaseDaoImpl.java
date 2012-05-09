@@ -7,7 +7,14 @@ import javax.persistence.Query;
 
 import org.backmeup.dal.BaseDao;
  
-
+/**
+ * Realizes the CRUD operations for a model class <T>
+ * based on the JPA (EntityManager).
+ * 
+ * @author fschoeppl
+ *
+ * @param <T> The model class to use
+ */
 public abstract class BaseDaoImpl<T> implements BaseDao<T> {
 	protected EntityManager em;
 	protected Class<T> entityClass;

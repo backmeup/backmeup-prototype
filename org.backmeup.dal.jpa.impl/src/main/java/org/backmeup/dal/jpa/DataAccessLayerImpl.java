@@ -7,6 +7,13 @@ import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.dal.ProfileDao;
 import org.backmeup.dal.UserDao;
 
+/**
+ * The DataAccessLayerImpl uses JPA to interact 
+ * with the underlying database.
+ * 
+ * @author fschoeppl
+ *
+ */
 @ApplicationScoped
 public class DataAccessLayerImpl implements DataAccessLayer {
 	private EntityManager em;

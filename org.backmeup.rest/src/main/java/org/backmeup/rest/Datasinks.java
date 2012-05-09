@@ -30,6 +30,12 @@ import org.backmeup.rest.data.PreAuthContainer;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 
+/**
+ * All datasink specific operations will be handled within this class.
+ * 
+ * @author fschoeppl
+ *
+ */
 @Path("/datasinks")
 public class Datasinks extends Base {
 	

@@ -19,6 +19,12 @@ import org.backmeup.model.SearchResponse;
 import org.backmeup.rest.data.BackupSearchContainer;
 import org.backmeup.rest.data.SearchResponseContainer;
 
+/**
+ * This class contains search specific operations. 
+ * 
+ * @author fschoeppl
+ *
+ */
 @Path("backups")
 public class Backups extends Base {
 	@Context

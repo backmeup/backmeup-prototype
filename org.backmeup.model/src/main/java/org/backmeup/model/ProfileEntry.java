@@ -5,6 +5,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+/**
+ * The ProfileEntry class is a key/value pair
+ * that will be used by the Profile class to store
+ * Profile specific information like access keys.
+ * 
+ * @author fschoeppl
+ *
+ */
 @Entity
 public class ProfileEntry {
 	@Id

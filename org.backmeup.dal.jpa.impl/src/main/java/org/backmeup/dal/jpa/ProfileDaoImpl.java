@@ -8,6 +8,14 @@ import javax.persistence.Query;
 import org.backmeup.dal.ProfileDao;
 import org.backmeup.model.Profile;
 
+/**
+ * The ProfileDaoImpl realizes the ProfileDao interface with 
+ * JPA specific operations.
+ * 
+ * 
+ * @author fschoeppl
+ *
+ */
 public class ProfileDaoImpl extends BaseDaoImpl<Profile> implements ProfileDao {
 
 	public ProfileDaoImpl(EntityManager em) {

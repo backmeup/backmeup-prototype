@@ -32,6 +32,12 @@ import org.backmeup.rest.data.PreAuthContainer;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 
+/**
+ * All datasource specific operation will be handled within this class.
+ * 
+ * @author fschoeppl
+ *
+ */
 @Path("/datasources")
 public class Datasources extends Base {
 	

@@ -28,9 +28,9 @@
 						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Name>${project.name}</Bundle-Name>
 						<Bundle-Version>${project.version}</Bundle-Version>
-						<Export-Package>org.backmeup.*</Export-Package>
-						<Embed-Dependency>*</Embed-Dependency>
+						<Export-Package>org.backmeup.*</Export-Package>		
 						<Embed-Directory>lib</Embed-Directory>
+						<Embed-Dependency>commons-io</Embed-Dependency>				
 					</instructions>
 				</configuration>
 			</plugin>

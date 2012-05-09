@@ -6,6 +6,14 @@ import javax.enterprise.inject.Produces;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+/**
+ * This class creates one single EntityManager for the
+ * whole application. It will be injected into the
+ * Connection class of the business layer.
+ * 
+ * @author fschoeppl
+ *
+ */
 public class EntityManagerFactoryProducer {
 	@Produces
 	@ApplicationScoped

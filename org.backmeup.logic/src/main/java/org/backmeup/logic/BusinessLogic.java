@@ -21,6 +21,19 @@ import org.backmeup.model.exceptions.ValidationException;
 import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
 
+/**
+ * The BusinessLogic interface contains 
+ * all available operations of this project.
+ * 
+ * It should delegate its operations to other
+ * layers so that these can be exchanged more easily.
+ * 
+ * The org.backmeup.rest project uses this interface
+ * to realize its operations.
+ * 
+ * @author fschoeppl
+ *
+ */
 public interface BusinessLogic {
 	
 	// user operations 

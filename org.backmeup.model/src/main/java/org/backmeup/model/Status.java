@@ -3,6 +3,13 @@ package org.backmeup.model;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The status class contains status information
+ * about a certain BackupJob.
+ * 
+ * @author fschoeppl
+ *
+ */
 public class Status {
 	private BackupJob job;
 	private String message;

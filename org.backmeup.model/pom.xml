@@ -5,8 +5,8 @@
 		<artifactId>app</artifactId>
 		<version>0.0.1</version>
 	</parent>
-	<modelVersion>4.0.0</modelVersion>	
-	<artifactId>model</artifactId>	
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>model</artifactId>
 	<packaging>bundle</packaging>
 	<name>BackMeUp Model</name>
 	<properties>
@@ -36,11 +36,36 @@
 						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Name>${project.name}</Bundle-Name>
 						<Bundle-Version>${project.version}</Bundle-Version>
-						<Export-Package>org.backmeup.*,org.backmeup.spi.*,org.backmeup.exceptions.*</Export-Package>						
+						<Export-Package>org.backmeup.*,org.backmeup.spi.*,org.backmeup.exceptions.*</Export-Package>
 						<Embed-Directory>lib</Embed-Directory>
 						<Import-Package>!javax.*</Import-Package>
 					</instructions>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>copy-installed</id>
+						<phase>install</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<version>${project.version}</version>
+									<type>${project.packaging}</type>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>../plugins/build</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

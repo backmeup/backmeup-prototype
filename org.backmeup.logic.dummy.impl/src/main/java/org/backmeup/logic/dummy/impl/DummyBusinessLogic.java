@@ -94,6 +94,14 @@ public class DummyBusinessLogic implements BusinessLogic {
 			public Type getType() {
 				return Type.Source;
 			}
+
+
+      @Override
+      public Properties getMetadata(Properties accessData) {
+        Properties props = new Properties();
+        props.setProperty(org.backmeup.plugin.api.Metadata.BACKUP_FREQUENCY, "daily");              
+        return props;
+      }
 		});
 
 		sources.add(new SourceSinkDescribable() {
@@ -120,6 +128,13 @@ public class DummyBusinessLogic implements BusinessLogic {
 			public Type getType() {
 				return Type.Source;
 			}
+			
+			@Override
+      public Properties getMetadata(Properties accessData) {
+        Properties props = new Properties();
+        props.setProperty(org.backmeup.plugin.api.Metadata.BACKUP_FREQUENCY, "weekly");              
+        return props;
+      }
 		});
 
 		sinks = new ArrayList<SourceSinkDescribable>();
@@ -147,6 +162,16 @@ public class DummyBusinessLogic implements BusinessLogic {
 			public Type getType() {
 				return Type.Sink;
 			}
+			
+			@Override
+      public Properties getMetadata(Properties accessData) {
+        Properties props = new Properties();
+        props.setProperty(org.backmeup.plugin.api.Metadata.BACKUP_FREQUENCY, "daily");
+        props.setProperty(org.backmeup.plugin.api.Metadata.FILE_SIZE_LIMIT, "100");
+        props.setProperty(org.backmeup.plugin.api.Metadata.QUOTA, "500");
+        props.setProperty(org.backmeup.plugin.api.Metadata.QUOTA_LIMIT, "2000");
+        return props;
+      }
 		});
 
 		sinks.add(new SourceSinkDescribable() {
@@ -169,6 +194,16 @@ public class DummyBusinessLogic implements BusinessLogic {
 			public Type getType() {
 				return Type.Sink;
 			}
+			
+			 @Override
+	      public Properties getMetadata(Properties accessData) {
+	        Properties props = new Properties();
+	        props.setProperty(org.backmeup.plugin.api.Metadata.BACKUP_FREQUENCY, "daily");
+	        props.setProperty(org.backmeup.plugin.api.Metadata.FILE_SIZE_LIMIT, "700");
+	        props.setProperty(org.backmeup.plugin.api.Metadata.QUOTA, "500");
+	        props.setProperty(org.backmeup.plugin.api.Metadata.QUOTA_LIMIT, "700");
+	        return props;
+	      }
 		});
 
 		profiles = new ArrayList<Profile>();
@@ -198,6 +233,12 @@ public class DummyBusinessLogic implements BusinessLogic {
 			public String getDescription() {
 				return "Verschluesselt Ihre Daten mit RSA";
 			}
+			
+			 @Override
+	      public Properties getMetadata(Properties accessData) {
+	        Properties props = new Properties();
+	        return props;
+	      }
 		});
 
 		List<ActionDescribable> reqActions = new ArrayList<ActionDescribable>();
@@ -428,7 +469,7 @@ public class DummyBusinessLogic implements BusinessLogic {
 		return new AuthRequest(requiredInputs, typeMapping, null, p);
 	}
  
-	public void postAuth(long profileId, Properties props, String keyRing)
+	public void postAuth(Long profileId, Properties props, String keyRing)
 			throws PluginException, ValidationException,
 			InvalidCredentialsException {
 		Profile p = findProfile(profileId);
@@ -688,5 +729,18 @@ public class DummyBusinessLogic implements BusinessLogic {
 			}
 		}
 		return actionDescs;
-	} 
+	}
+
+  @Override
+  public Properties getMetadata(String username, String sourceSinkId) {
+    User u = findUser(username);
+    if (u == null) 
+      throw new UnknownUserException(username);
+    SourceSinkDescribable ssd = findSourceSinkDescribable(sourceSinkId);
+    if (ssd == null)
+      throw new IllegalArgumentException("Unknown source/sink with id: " + sourceSinkId);
+    
+    Properties props = new Properties();
+    return ssd.getMetadata(props);
+  } 
 }

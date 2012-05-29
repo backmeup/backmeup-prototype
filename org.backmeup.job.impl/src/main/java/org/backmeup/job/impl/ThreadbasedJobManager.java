@@ -16,7 +16,6 @@ import javax.inject.Named;
 import org.backmeup.job.JobManager;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
-import org.backmeup.model.ProfileEntry;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.User;
 import org.backmeup.model.exceptions.BackMeUpException;
@@ -81,15 +80,7 @@ public class ThreadbasedJobManager implements JobManager {
 		public ThreadJobExecutor() {
 			running = true;
 			setDaemon(false);
-		}
-		
-		private Properties convertToProperties(Profile p) {
-			Properties props = new Properties();
-			for (ProfileEntry pe : p.getEntries()) {
-				props.setProperty(pe.getKey(), pe.getValue());
-			}
-			return props;
-		}
+		} 
 		
 		public void run() {
 		  System.err.println("ThreadBasedExecutor: " + Thread.currentThread().getName());
@@ -109,10 +100,10 @@ public class ThreadbasedJobManager implements JobManager {
 					
 					
 					Datasink sink = plugins.getDatasink(job.getSinkProfile().getDesc());
-					Properties sinkProps = convertToProperties(job.getSinkProfile());
+					Properties sinkProps = job.getSinkProfile().getEntriesAsProperties();
 					for (ProfileOptions po : job.getSourceProfiles()) {
 						Datasource source = plugins.getDatasource(po.getProfile().getDesc());
-						Properties sourceProperties = convertToProperties(po.getProfile());						
+						Properties sourceProperties = po.getProfile().getEntriesAsProperties();						
 						try {
 							StorageWriter writer = new LocalFilesystemStorageWriter();
 							StorageReader reader = new LocalFilesystemStorageReader();

@@ -1,6 +1,9 @@
 package org.backmeup.skydrive;
 
+import java.util.Properties;
+
 import org.backmeup.model.spi.SourceSinkDescribable;
+import org.backmeup.plugin.api.Metadata;
 /**
  * The SkyDriveDescriptor provides all necessary
  * information about this plugin.
@@ -37,6 +40,26 @@ public class SkyDriveDescriptor implements SourceSinkDescribable {
 	@Override
 	public Type getType() {
 		return Type.Sink;
+	}
+
+	@Override
+	public Properties getMetadata(Properties accessData) {
+		Properties metadata = new Properties();
+		metadata.setProperty(Metadata.BACKUP_FREQUENCY, "daily");
+		metadata.setProperty(Metadata.FILE_SIZE_LIMIT, "150");
+		
+		try {
+			//Service api = SkyDriveSupport.getService(accessData);			
+			//TODO: Implement http://msdn.microsoft.com/en-us/library/live/hh826545.aspx#quota to get the maximal amount of data that can be stored
+			//      on the users skydrive account + the total quota that is available
+			//      SkyDriveSupport.getAccountInformation() -> account.currentQuota + account.freeQuota
+						
+			// A new account has a maximum of 7GB free space 
+			metadata.setProperty(Metadata.QUOTA_LIMIT, "7000");
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}		
+		return metadata;
 	}  
 
 }

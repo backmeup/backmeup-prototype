@@ -58,6 +58,9 @@ public interface BusinessLogic {
 	public void uploadDatasinkPlugin(String filename, InputStream data);
 	public void deleteDatasinkPlugin(String name);
 	
+	//metadata operations	
+	public Properties getMetadata(String username, String sourceSinkId);
+	
 	//action operations
 	public List<ActionDescribable> getActions();
 	public List<String> getActionOptions(String actionId);
@@ -73,8 +76,8 @@ public interface BusinessLogic {
 	public ProtocolOverview getProtocolOverview(String username, String duration);
 	
 	//datasink/-source auth operations
-	public AuthRequest preAuth(String username, String uniqueDescIdentifier, String profileName, boolean source, String keyRing) throws PluginException, InvalidCredentialsException;
-	public void postAuth(long profileId, Properties props, String keyRing) throws PluginException, ValidationException, InvalidCredentialsException;
+	public AuthRequest preAuth(String username, String sourceSinkId, String profileName, boolean source, String keyRing) throws PluginException, InvalidCredentialsException;
+	public void postAuth(Long profileId, Properties props, String keyRing) throws PluginException, ValidationException, InvalidCredentialsException;
 	
 	//search operations
 	public long searchBackup(String username, String keyRingPassword, String query);

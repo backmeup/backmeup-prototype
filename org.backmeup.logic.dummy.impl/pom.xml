@@ -15,6 +15,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.backmeup</groupId>
+			<artifactId>plugin.api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
 			<artifactId>logic</artifactId>
 			<version>${project.version}</version>
 		</dependency>

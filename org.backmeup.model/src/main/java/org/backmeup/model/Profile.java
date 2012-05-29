@@ -2,6 +2,7 @@ package org.backmeup.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -81,6 +82,14 @@ public class Profile {
 		if (entries == null)
 			entries = new ArrayList<ProfileEntry>();
 		return entries;
+	}
+	
+	public Properties getEntriesAsProperties() {
+	  Properties props = new Properties();
+    for (ProfileEntry pe : getEntries()) {
+      props.setProperty(pe.getKey(), pe.getValue());
+    }
+    return props;
 	}
 	
 	public boolean isSource() {

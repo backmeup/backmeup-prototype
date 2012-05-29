@@ -9,7 +9,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MultivaluedMap;
 
 import org.backmeup.model.User;
 import org.backmeup.rest.data.UserContainer;
@@ -61,13 +60,8 @@ public class Users extends Base {
 	public void register(@PathParam("username") String username,
 			@FormParam("password") String password,
 			@FormParam("keyRing") String keyRing,
-			@FormParam("email") String email,
-			MultivaluedMap<String, String> formParams) {
-	  System.out.format("Register a new user: %s %s %s %s\n", username, password, keyRing, email);
-	  for (String key : formParams.keySet()) {
-	    System.out.println(key + ": " + formParams.get(key));
-	  }
-		getLogic().register(username, password,
+			@FormParam("email") String email) {	  
+	  getLogic().register(username, password,
 				keyRing, email);
 	}
 

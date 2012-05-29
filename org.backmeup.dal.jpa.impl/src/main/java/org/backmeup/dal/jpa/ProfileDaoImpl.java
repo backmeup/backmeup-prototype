@@ -24,11 +24,22 @@ public class ProfileDaoImpl extends BaseDaoImpl<Profile> implements ProfileDao {
 
 	@SuppressWarnings("unchecked")
 	public List<Profile> findDatasourceProfilesByUsername(String username) {		
-		Query q = em.createQuery("SELECT p FROM " + entityClass.getName() +" p WHERE username = ? AND source = ?");
-		q.setParameter(1, username);				
-		q.setParameter(2, true);
+		Query q = em.createQuery("SELECT p FROM " + entityClass.getName() +" p WHERE p.user.username = :username AND p.source = :source");
+		q.setParameter("username", username);				
+		q.setParameter("source", true);
 		List<Profile> profiles = q.getResultList();		
 		return profiles;
 	}
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<Profile> findProfilesByUsernameAndService(String username,
+      String sourceSinkId) {
+    Query q = em.createQuery("SELECT p FROM " + entityClass.getName() +" p WHERE p.user.username = :username AND p.desc = :id ");
+    q.setParameter("username", username);        
+    q.setParameter("id", sourceSinkId);
+    List<Profile> profiles = q.getResultList(); 
+    return profiles;
+  }
 
 }

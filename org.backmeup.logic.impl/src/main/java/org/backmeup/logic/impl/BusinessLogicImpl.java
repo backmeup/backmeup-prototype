@@ -330,7 +330,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 		return ar;
 	}
 
-	public void postAuth(long profileId, Properties props, String keyRing)
+	public void postAuth(Long profileId, Properties props, String keyRing)
 			throws PluginException, ValidationException,
 			InvalidCredentialsException {
 		conn.begin();
@@ -438,5 +438,21 @@ public class BusinessLogicImpl implements BusinessLogic {
 
 	public void setCallbackUrl(String callbackUrl) {
 		this.callbackUrl = callbackUrl;
-	} 
+	}
+
+  @Override
+  public Properties getMetadata(String username, String sourceSinkId) {
+    SourceSinkDescribable ssd = plugins.getSourceSinkById(sourceSinkId);
+    if (ssd == null) {
+      throw new IllegalArgumentException("Unknown source/sink '" + sourceSinkId + "'");
+    }
+    conn.begin();
+    getUser(username);
+    
+    List<Profile> profiles = getProfileDao().findProfilesByUsernameAndService(username, sourceSinkId);
+    Properties accessData = profiles.size() > 0 ? profiles.get(0).getEntriesAsProperties() : null;
+    Properties metadata = ssd.getMetadata(accessData);
+    conn.commit();
+    return metadata;
+  } 
 }

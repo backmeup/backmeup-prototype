@@ -14,6 +14,7 @@ import org.backmeup.rest.Backups;
 import org.backmeup.rest.Datasinks;
 import org.backmeup.rest.Datasources;
 import org.backmeup.rest.Users;
+import org.backmeup.rest.data.MetadataContainer;
 import org.backmeup.rest.exceptionmapper.AlreadyRegisteredExceptionMapper;
 import org.backmeup.rest.exceptionmapper.IllegalArgumentExceptionMapper;
 import org.backmeup.rest.exceptionmapper.InvalidCredentialsMapper;
@@ -49,6 +50,7 @@ public class Main {
     classes.add(Datasinks.class.getName());
     classes.add(Datasources.class.getName());   
     classes.add(Users.class.getName());   
+    classes.add(org.backmeup.rest.Metadata.class.getName());
     tjws.getDeployment().getResourceClasses().addAll(classes);
     tjws.getDeployment().getProviderClasses().add(AlreadyRegisteredExceptionMapper.class.getName());
     tjws.getDeployment().getProviderClasses().add(IllegalArgumentExceptionMapper.class.getName());

@@ -1,23 +1,13 @@
 package org.backmeup.rest;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.backmeup.rest.data.ActionContainer;
 import org.backmeup.rest.data.ActionOptionsContainer;
-
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
 
 /**
  * This class provides all action specific operations,
@@ -41,12 +31,12 @@ public class Actions extends Base {
 		return new ActionOptionsContainer(getLogic().getActionOptions(actionId));
 	}
 	
-	@POST
+	/*@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Response uploadPlugin(@FormDataParam("file") InputStream data, @FormDataParam("file") FormDataContentDisposition fileDetail ) throws IOException {
 		getLogic().uploadActionPlugin(fileDetail.getFileName(), data);
 		return Response.status(200).build();
-	}
+	}*/
 	
 	@DELETE
 	@Path("/{datasourceId}")

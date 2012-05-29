@@ -1,5 +1,7 @@
 package org.backmeup.rest.provider;
 
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
@@ -14,12 +16,13 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
  *
  */
 @Provider
+@Produces(MediaType.APPLICATION_JSON)
 public class ObjectMapperContextResolver implements ContextResolver<ObjectMapper> {
 	
 	public ObjectMapper getContext(Class<?> clazz) {
 		ObjectMapper result = new ObjectMapper();
 		// do not export null properties into JSON, simply ignore them!
-		result.setSerializationInclusion(Inclusion.NON_NULL);
+		result.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
 		return result;
 	}
 	

@@ -49,6 +49,12 @@ public class DeployMonitor implements Runnable {
 	public void stop() {
 		executor.shutdown();
 		executor.shutdownNow();
+		try {
+      executor.awaitTermination(1, TimeUnit.MINUTES);
+      System.err.println("Awaited termination of executor!");
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
 	}
 
 	

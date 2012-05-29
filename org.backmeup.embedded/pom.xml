@@ -6,12 +6,13 @@
 		<groupId>org.backmeup</groupId>
 		<version>0.0.1</version>
 	</parent>
-	<artifactId>grizzly</artifactId>
-	<name>Grizzly REST Webserver</name>
+	<artifactId>embedded</artifactId>
+	<name>Embedded REST Webserver</name>
 	<properties>
 		<org.glassfish.grizzly.version>2.2.5</org.glassfish.grizzly.version>
 	</properties>
 	<dependencies>
+		<!-- 
 		<dependency>
 			<groupId>org.glassfish.grizzly</groupId>
 			<artifactId>grizzly-framework</artifactId>
@@ -33,6 +34,7 @@
 			<artifactId>jersey-grizzly2</artifactId>
 			<version>${jersey.version}</version>
 		</dependency>
+		 -->
 		<dependency>
 			<groupId>org.backmeup</groupId>
 			<artifactId>rest</artifactId>
@@ -54,6 +56,11 @@
 			<artifactId>hsqldb</artifactId>
 			<version>2.2.4</version>
 		</dependency>
+		<dependency>
+		<groupId>org.jboss.resteasy</groupId>
+		<artifactId>tjws</artifactId>
+		<version>2.3.3.Final</version>		
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -73,7 +80,7 @@
 					<arguments>						
 						<argument>-cp</argument>
 						<classpath />
-						<argument>org.backmeup.grizzly.Main</argument>
+						<argument>org.backmeup.embedded.Main</argument>
 					</arguments>
 				</configuration>
 			</plugin>
@@ -108,7 +115,7 @@
 						<argument>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044</argument>
 						<argument>-cp</argument>
 						<classpath />
-						<argument>org.backmeup.grizzly.Main</argument>
+						<argument>org.backmeup.embedded.Main</argument>
 					</arguments>
 				</configuration>
 			</plugin>

@@ -31,6 +31,7 @@ import org.backmeup.model.User;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.InvalidCredentialsException;
 import org.backmeup.model.exceptions.PluginException;
+import org.backmeup.model.exceptions.UnknownUserException;
 import org.backmeup.model.exceptions.ValidationException;
 import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
@@ -92,8 +93,10 @@ public class BusinessLogicImpl implements BusinessLogic {
 	
 	public User getUser(String username) {
 		conn.begin();
-		User u = getUserDao().findByName(username);
+		User u = getUserDao().findByName(username);		
 		conn.commit();
+		if (u == null)
+		  throw new UnknownUserException(username);
 		return u;
 	}
 
@@ -392,12 +395,13 @@ public class BusinessLogicImpl implements BusinessLogic {
 	}
 
 	@Inject
-	public void setPlugins(Plugin plugins) {
+	public void setPlugins(Plugin plugins) {	  
 		this.plugins = plugins;
 		this.plugins.startup();
 	}
 
 	public void shutdown() {
+	  System.out.println("Shutting down BusinessLogicImpl!");
 		this.jobManager.shutdown();
 		this.plugins.shutdown();		
 	}

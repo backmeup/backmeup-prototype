@@ -92,11 +92,12 @@ public class ThreadbasedJobManager implements JobManager {
 		}
 		
 		public void run() {
+		  System.err.println("ThreadBasedExecutor: " + Thread.currentThread().getName());
   		if (temporaryDirectory == null) {
   		  throw new IllegalStateException("A temporary folder must be specified within bl.properties: temporaryDirectory = somefolder");
   		}
   		temporaryDirectory = temporaryDirectory + "/cache";
-			while (!jobs.isEmpty() || isRunning()) {
+			while (isRunning()) {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) { 
@@ -148,13 +149,13 @@ public class ThreadbasedJobManager implements JobManager {
 		}
 	}
 
-	public void shutdown() { 
+	public void shutdown() {
+	  System.out.println("Shutting down ThreadbasedJobManager!");
 		this.je.setRunning(false);
-		while(je.isAlive()) {
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {			
-			}
+		try {
+		  je.join();
+		} catch(InterruptedException ie) {
+		  ie.printStackTrace();
 		}
 	}
 
@@ -168,7 +169,8 @@ public class ThreadbasedJobManager implements JobManager {
 
   @Override
   public void start() {
+    System.out.println("Starting up ThreadbasedJobManager!");
     je = new ThreadJobExecutor();
-    je.start();
+    je.start();    
   }  
 }

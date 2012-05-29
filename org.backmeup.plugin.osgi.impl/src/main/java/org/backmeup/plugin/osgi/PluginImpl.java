@@ -15,6 +15,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.felix.framework.FrameworkFactory;
+import org.backmeup.model.exceptions.PluginException;
+import org.backmeup.model.exceptions.PluginUnavailableException;
 import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable.Type;
@@ -91,6 +93,7 @@ public class PluginImpl implements Plugin {
   }
 
   public void startup() {
+    System.out.println("Starting up PluginImpl!");
     initOSGiFramework();
     startDeploymentMonitor();
   }
@@ -157,6 +160,7 @@ public class PluginImpl implements Plugin {
     try {
       osgiFramework.stop();
       osgiFramework.waitForStop(0);
+      System.out.println("OsgiFramework stopped.");
     } catch (InterruptedException e) {
       e.printStackTrace();
     } catch (BundleException e) {
@@ -191,16 +195,14 @@ public class PluginImpl implements Plugin {
               }
             }
             if (ref == null) {
-              throw new RuntimeException("Unable to find service for "
-                  + service.getName()
-                  + (filter != null ? (" filter = " + filter) : ("")));
+              throw new PluginUnavailableException(filter);
             }
             Object instance = bundleContext().getService(ref);
             Object ret = null;
             try {
               ret = method.invoke(instance, os);
             } catch (Throwable t) {
-              throw new RuntimeException(t);
+              throw new PluginException(service.getName(), "An exception occured during execution of the method " + method.getName(), t);
             } finally {              
               bundleContext().ungetService(ref);
             }
@@ -283,8 +285,9 @@ public class PluginImpl implements Plugin {
   }
 
   public void shutdown() {
-    this.stopOSGiFramework();
+    System.out.println("Shutting down PluginImpl!");
     this.deploymentMonitor.stop();
+    this.stopOSGiFramework();
   }
 
   public List<ActionDescribable> getActions() {

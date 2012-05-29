@@ -26,7 +26,7 @@
 		<module>org.backmeup.logic.dummy.impl</module>
 		<module>org.backmeup.logic.impl</module>
 		<module>org.backmeup.rest</module>
-		<module>org.backmeup.grizzly</module>
+		<module>org.backmeup.embedded</module>
 	</modules>
 
 	<build>

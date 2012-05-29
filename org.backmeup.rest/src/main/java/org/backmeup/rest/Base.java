@@ -1,10 +1,11 @@
 package org.backmeup.rest;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Providers;
 
 import org.backmeup.logic.BusinessLogic;
+import org.jboss.weld.environment.se.Weld;
+import org.jboss.weld.environment.se.WeldContainer;
 
 /**
  * All rest classes derive from this class to 
@@ -17,15 +18,31 @@ import org.backmeup.logic.BusinessLogic;
  *
  */
 public class Base {
-	@Context
-	private Providers providers;
+	//@Context
+	//private Providers providers;
 	private BusinessLogic logic;
 	
+	@Context
+	private ServletContext context;
+	
 	protected BusinessLogic getLogic() {
+	  logic = (BusinessLogic) context.getAttribute("org.backmeup.logic");
+	   
 		if (logic == null) {
-			ContextResolver<BusinessLogic> logicResolver = providers.getContextResolver(BusinessLogic.class, null);
-			logic = logicResolver.getContext(BusinessLogic.class);
+		  // just in case we are running in an embedded server
+		  try {
+          Weld weld = new Weld();
+          WeldContainer container = weld.initialize();          
+          logic = container.instance().select(BusinessLogic.class).get();
+          context.setAttribute("org.backmeup.logic", logic);
+      } catch (Throwable e) {
+        do {      
+          e.printStackTrace();
+          e = e.getCause();
+        } while (e.getCause() != e && e.getCause() != null);
+      }
 		}
+		
 		return logic;
 	}
 }

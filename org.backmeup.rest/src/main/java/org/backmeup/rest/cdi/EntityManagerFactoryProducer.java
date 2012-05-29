@@ -22,6 +22,7 @@ public class EntityManagerFactoryProducer {
 	}
 	
 	public void destroy(@Disposes EntityManagerFactory factory) {
+	  System.out.println("Closing EntityManagerFactory!");
 		factory.close();
 	}
 }

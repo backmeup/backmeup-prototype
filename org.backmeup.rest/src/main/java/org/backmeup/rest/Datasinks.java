@@ -1,13 +1,10 @@
 package org.backmeup.rest;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -15,9 +12,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 
 import org.backmeup.model.AuthRequest;
 import org.backmeup.model.Profile;
@@ -26,9 +21,6 @@ import org.backmeup.rest.data.DatasinkContainer;
 import org.backmeup.rest.data.DatasinkContainer.Datasink;
 import org.backmeup.rest.data.DatasinkProfilesContainer;
 import org.backmeup.rest.data.PreAuthContainer;
-
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
 
 /**
  * All datasink specific operations will be handled within this class.
@@ -64,12 +56,13 @@ public class Datasinks extends Base {
 		getLogic().deleteProfile(username, profileId);
 	}
 	
+	/*
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Response uploadPlugin(@FormDataParam("file") InputStream data, @FormDataParam("file") FormDataContentDisposition fileDetail) throws IOException {
 		getLogic().uploadDatasinkPlugin(fileDetail.getFileName(), data);
 		return Response.status(200).build();
-	}
+	}*/
 	
 	@DELETE
 	@Path("/{datasourceId}")

@@ -14,6 +14,7 @@ import org.backmeup.model.ProtocolOverview;
 import org.backmeup.model.SearchResponse;
 import org.backmeup.model.Status;
 import org.backmeup.model.User;
+import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.InvalidCredentialsException;
 import org.backmeup.model.exceptions.PluginException;
@@ -58,8 +59,11 @@ public interface BusinessLogic {
 	public void uploadDatasinkPlugin(String filename, InputStream data);
 	public void deleteDatasinkPlugin(String name);
 	
+	//validate profile operation
+	public ValidationNotes validateProfile(String username, Long profileId);
+	
 	//metadata operations	
-	public Properties getMetadata(String username, String sourceSinkId);
+	public Properties getMetadata(String username, Long profileId);
 	
 	//action operations
 	public List<ActionDescribable> getActions();
@@ -67,8 +71,10 @@ public interface BusinessLogic {
 	public void uploadActionPlugin(String filename, InputStream data);
 	public void deleteActionPlugin(String name);
 	
-	//job operations
-	public BackupJob createBackupJob(String username, List<Long> sourceProfiles, long sinkProfileId, Map<Long, String[]> sourceOptions, String[] requiredActions, String timeExpression, String keyRing);
+	//job & validation operations
+	//public void validateBackupJob(String username, List<Long> sourceProfiles, long sinkProfileId, Map<Long, String[]> sourceOptions, String[] requiredActions, String timeExpression, String keyRing);
+	public ValidationNotes validateBackupJob(String username, Long jobId);	
+	public BackupJob createBackupJob(String username, List<Long> sourceProfiles, Long sinkProfileId, Map<Long, String[]> sourceOptions, String[] requiredActions, String timeExpression, String keyRing);
 	public List<BackupJob> getJobs(String username);
 	public void deleteJob(String username, Long jobId);
 	public List<Status> getStatus(String username, Long jobId, Date fromDate, Date toDate);
@@ -76,7 +82,7 @@ public interface BusinessLogic {
 	public ProtocolOverview getProtocolOverview(String username, String duration);
 	
 	//datasink/-source auth operations
-	public AuthRequest preAuth(String username, String sourceSinkId, String profileName, boolean source, String keyRing) throws PluginException, InvalidCredentialsException;
+	public AuthRequest preAuth(String username, String sourceSinkId, String profileName, String keyRing) throws PluginException, InvalidCredentialsException;
 	public void postAuth(Long profileId, Properties props, String keyRing) throws PluginException, ValidationException, InvalidCredentialsException;
 	
 	//search operations

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
+import org.backmeup.model.spi.Validationable;
 import org.backmeup.plugin.api.connectors.Datasink;
 import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.spi.Authorizable;
@@ -41,6 +42,8 @@ public interface Plugin {
 	Datasource getDatasource(String sourceId);
 	
 	Datasink getDatasink(String sinkId);
+	
+	Validationable getValidator(String sourceSinkId);
 	
 	void shutdown();
 

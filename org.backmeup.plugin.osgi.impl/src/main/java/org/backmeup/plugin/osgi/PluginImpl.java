@@ -20,6 +20,7 @@ import org.backmeup.model.exceptions.PluginUnavailableException;
 import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable.Type;
+import org.backmeup.model.spi.Validationable;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.connectors.Datasink;
 import org.backmeup.plugin.api.connectors.Datasource;
@@ -29,6 +30,7 @@ import org.backmeup.plugin.spi.OAuthBased;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.launch.Framework;
 
@@ -142,7 +144,8 @@ public class PluginImpl implements Plugin {
 					temporaryDirectory.getAbsolutePath());
 			config.put(Constants.FRAMEWORK_STORAGE_CLEAN, "true");
 			config.put(Constants.FRAMEWORK_BUNDLE_PARENT,
-					Constants.FRAMEWORK_BUNDLE_PARENT_APP);
+			    Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
+					//Constants.FRAMEWORK_BUNDLE_PARENT_APP);
 			config.put(Constants.FRAMEWORK_BOOTDELEGATION, exportedPackages);
 			System.out.println("EXPORTED PACKAGES: " + exportedPackages);
 			// config.put(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "J2SE-1.6");
@@ -175,25 +178,40 @@ public class PluginImpl implements Plugin {
   public <T> T service(final Class<T> service) {
     return service(service, null);
   }
+  
+  private <T> ServiceReference getReference(final Class<T> service, final String filter) {
+    ServiceReference ref = null;
+    if (filter == null) {
+      ref = bundleContext().getServiceReference(service.getName());
+
+    } else {
+      ServiceReference[] refs;
+      try {
+        refs = bundleContext().getServiceReferences(
+            service.getName(), filter);
+      } catch (InvalidSyntaxException e) {
+        throw new IllegalArgumentException(String.format("The filter '%s' is mallformed.", filter));
+      }
+      if (refs != null && refs.length > 0) {
+        ref = refs[0];
+      }
+    }
+    return ref;
+  }
 
   @SuppressWarnings("unchecked")
   public <T> T service(final Class<T> service, final String filter) {
+    ServiceReference ref = getReference(service, filter);
+    if (ref == null) {
+      throw new PluginException(service.getName(), String.format("Plug-In service of class '%s' not available!", service.getName()));
+    }
+    bundleContext().ungetService(ref);    
     return (T) Proxy.newProxyInstance(PluginImpl.class.getClassLoader(),
         new Class[] { service }, new InvocationHandler() {
 
           public Object invoke(Object o, Method method, Object[] os)
               throws Throwable {
-            ServiceReference ref = null;
-            if (filter == null) {
-              ref = bundleContext().getServiceReference(service.getName());
-
-            } else {
-              ServiceReference[] refs = bundleContext().getServiceReferences(
-                  service.getName(), filter);
-              if (refs != null && refs.length > 0) {
-                ref = refs[0];
-              }
-            }
+            ServiceReference ref = getReference(service, filter);
             if (ref == null) {
               throw new PluginUnavailableException(filter);
             }
@@ -336,6 +354,11 @@ public class PluginImpl implements Plugin {
 
   public Datasink getDatasink(String sinkId) {
     return service(Datasink.class, "(name=" + sinkId + ")");
+  }
+
+  @Override
+  public Validationable getValidator(String sourceSinkId) {    
+    return service(Validationable.class, "(name=" + sourceSinkId + ")");
   }
 
 }

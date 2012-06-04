@@ -16,24 +16,24 @@ import org.backmeup.plugin.api.storage.StorageWriter;
 public abstract class FilesystemLikeDatasource implements Datasource {
 	
 	
-	public void downloadAll(Properties items, StorageWriter storage, Progressable progressor) throws StorageException {
-		List<FilesystemURI> files = list(items);
+	public void downloadAll(Properties accessData, StorageWriter storage, Progressable progressor) throws StorageException {
+		List<FilesystemURI> files = list(accessData);
 		for (int i=0; i < files.size(); i++) {
 			FilesystemURI uri = files.get(i);			
-			download(items, uri, storage, progressor);			
+			download(accessData, uri, storage, progressor);			
 		}
 	}
 	
-	private void download(Properties items, FilesystemURI uri, StorageWriter storage, Progressable progressor) throws StorageException {
+	private void download(Properties accessData, FilesystemURI uri, StorageWriter storage, Progressable progressor) throws StorageException {
 		if (uri.isDirectory()) {
 			//Logger.info("Downloading contents of directory " + uri);
-			for (FilesystemURI child : list(items, uri)) {
-				download(items, child, storage, progressor);
+			for (FilesystemURI child : list(accessData, uri)) {
+				download(accessData, child, storage, progressor);
 			}
 		} else {
 			//Logger.info("Downloading file " + uri);
 			progressor.progress(String.format("Downloading file %s ...", uri.toString()));
-			InputStream is = getFile(items, uri);
+			InputStream is = getFile(accessData, uri);
 			if (is == null) {
 				//Logger.warn("Got a null input stream for " + uri.getUri().getPath().toString());
 			} else {
@@ -42,12 +42,12 @@ public abstract class FilesystemLikeDatasource implements Datasource {
 		}
 	}
 	
-	public List<FilesystemURI> list(Properties items) {
-		return list(items, null);
+	public List<FilesystemURI> list(Properties accessData) {
+		return list(accessData, null);
 	}
 	
-	public abstract List<FilesystemURI> list(Properties items, FilesystemURI uri);
+	public abstract List<FilesystemURI> list(Properties accessData, FilesystemURI uri);
 	
-	public abstract InputStream getFile(Properties items, FilesystemURI uri);
+	public abstract InputStream getFile(Properties accessData, FilesystemURI uri);
 	
 }

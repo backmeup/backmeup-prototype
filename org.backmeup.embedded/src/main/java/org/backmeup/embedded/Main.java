@@ -14,7 +14,6 @@ import org.backmeup.rest.Backups;
 import org.backmeup.rest.Datasinks;
 import org.backmeup.rest.Datasources;
 import org.backmeup.rest.Users;
-import org.backmeup.rest.data.MetadataContainer;
 import org.backmeup.rest.exceptionmapper.AlreadyRegisteredExceptionMapper;
 import org.backmeup.rest.exceptionmapper.IllegalArgumentExceptionMapper;
 import org.backmeup.rest.exceptionmapper.InvalidCredentialsMapper;

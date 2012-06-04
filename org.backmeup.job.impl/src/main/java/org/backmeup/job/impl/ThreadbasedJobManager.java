@@ -6,7 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -48,10 +50,11 @@ public class ThreadbasedJobManager implements JobManager {
 		public void progress(String message) {
 			System.out.println(message);
 		}
-	} 
-	
+	}  
 	private ThreadJobExecutor je;
 	private List<BackupJob> jobs;
+	private Map<Long, BackupJob> allJobs;
+	
 	@Inject
 	private Plugin plugins;
 	private int maxid; 
@@ -61,6 +64,7 @@ public class ThreadbasedJobManager implements JobManager {
 	
 	public ThreadbasedJobManager() {
 		this.jobs = Collections.synchronizedList(new ArrayList<BackupJob>());
+		this.allJobs = Collections.synchronizedMap(new HashMap<Long, BackupJob>());
 		temporaryDirectory = "temp";
 	}
 	
@@ -70,6 +74,7 @@ public class ThreadbasedJobManager implements JobManager {
 			String timeExpression, String keyRing) {
 		BackupJob bj = new BackupJob(maxid++, user, sourceProfiles, sinkProfile, requiredActions, timeExpression);
 		jobs.add(bj);		
+		allJobs.put(bj.getId(), bj);
 		return bj;
 	}
  
@@ -95,9 +100,9 @@ public class ThreadbasedJobManager implements JobManager {
 					e.printStackTrace();
 				}
 				if (!jobs.isEmpty()) {
-					BackupJob job = jobs.get(0);
-					jobs.remove(0);
-					
+				  BackupJob job = jobs.get(0);
+	        jobs.remove(0);  
+	        
 					
 					Datasink sink = plugins.getDatasink(job.getSinkProfile().getDesc());
 					Properties sinkProps = job.getSinkProfile().getEntriesAsProperties();
@@ -118,13 +123,13 @@ public class ThreadbasedJobManager implements JobManager {
 								e1.printStackTrace();
 							}
 							source.downloadAll(sourceProperties, writer, new ConsoleProgressor());
-							sink.upload(sinkProps, reader, new ConsoleProgressor());
+							sink.upload(sinkProps, reader, new ConsoleProgressor());							
 						} catch (DatasourceException e) {
 							e.printStackTrace();
 						} catch (StorageException e) {
 							e.printStackTrace();
 						} catch (BackMeUpException me) {
-						  me.printStackTrace();
+						  me.printStackTrace();										 
 						}
 					}					
 				}
@@ -163,5 +168,10 @@ public class ThreadbasedJobManager implements JobManager {
     System.out.println("Starting up ThreadbasedJobManager!");
     je = new ThreadJobExecutor();
     je.start();    
+  }
+
+  @Override
+  public BackupJob getBackUpJob(Long jobId) {    
+    return allJobs.get(jobId);
   }  
 }

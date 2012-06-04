@@ -6,11 +6,15 @@ import java.util.Properties;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+
+import org.backmeup.model.spi.SourceSinkDescribable.Type;
 
 /**
  * 
@@ -33,7 +37,9 @@ public class Profile {
 	private User user;
 	private String profileName;
 	private String desc;
-	private boolean source;
+	
+	@Enumerated(EnumType.STRING)
+	private Type sourceAndOrSink;
 	@OneToMany(cascade=CascadeType.ALL, orphanRemoval=true, fetch=FetchType.EAGER )
 	private List<ProfileEntry> entries;
 	
@@ -41,15 +47,15 @@ public class Profile {
 	}
 	
 	
-	public Profile(User user, String profileName, String desc, boolean source) {
+	public Profile(User user, String profileName, String desc, Type source) {
 		this(null, user, profileName, desc, source);
 	}
 
-	public Profile(Long profileId, User user, String profileName, String desc, boolean source) {
+	public Profile(Long profileId, User user, String profileName, String desc, Type sourceAndOrSink) {
 		this.profileId = profileId;
 		this.user = user;
 		this.profileName = profileName;
-		this.source = source;
+		this.sourceAndOrSink = sourceAndOrSink;
 		this.desc = desc;
 		
 	}
@@ -92,12 +98,12 @@ public class Profile {
     return props;
 	}
 	
-	public boolean isSource() {
-		return source;
+	public Type getType() {
+		return sourceAndOrSink;
 	}
 
-	public void setSource(boolean source) {
-		this.source = source;
+	public void setType(Type sourceAndOrSink) {
+		this.sourceAndOrSink = sourceAndOrSink;
 	}
 	  
 	public void putEntry(String key, String value) {

@@ -21,87 +21,101 @@ import org.backmeup.rest.data.DatasinkContainer;
 import org.backmeup.rest.data.DatasinkContainer.Datasink;
 import org.backmeup.rest.data.DatasinkProfilesContainer;
 import org.backmeup.rest.data.PreAuthContainer;
+import org.backmeup.rest.data.ValidationNotesContainer;
 
 /**
  * All datasink specific operations will be handled within this class.
  * 
  * @author fschoeppl
- *
+ * 
  */
 @Path("/datasinks")
 public class Datasinks extends Base {
-	
-	@GET
-	@Produces("application/json")
-	public DatasinkContainer getDatasinks() {		
-		List<Datasink> l = new ArrayList<Datasink>();
-		List<SourceSinkDescribable> descs = getLogic().getDatasinks();
-		for (SourceSinkDescribable d : descs) {
-			l.add(new Datasink(d.getId(), d.getTitle(), d.getImageURL(), d.getDescription()));
-		}
-		return new DatasinkContainer(l);
-	}
-	
-	@GET
-	@Path("/{username}/profiles")
-	@Produces("application/json")
-	public DatasinkProfilesContainer getDatasinkProfiles(@PathParam("username") String username) {
-		List<Profile> profiles = getLogic().getDatasinkProfiles(username);
-		return new DatasinkProfilesContainer(profiles);
-	} 
-	
-	@DELETE
-	@Path("/{username}/profiles/{profileId}")
-	public void deleteProfile(@PathParam("username") String username, @PathParam("profileId") Long profileId) {
-		getLogic().deleteProfile(username, profileId);
-	}
-	
-	/*
-	@POST
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response uploadPlugin(@FormDataParam("file") InputStream data, @FormDataParam("file") FormDataContentDisposition fileDetail) throws IOException {
-		getLogic().uploadDatasinkPlugin(fileDetail.getFileName(), data);
-		return Response.status(200).build();
-	}*/
-	
-	@DELETE
-	@Path("/{datasourceId}")
-	public void deletePlugin(@PathParam("datasourceId") String source) {
-		getLogic().deleteDatasinkPlugin(source);
-	}
-		
-	@POST
-	@Path("/{username}/{datasinkId}/auth")
-	@Produces("application/json")
-	public PreAuthContainer preAuthenticate(
-			@PathParam("datasinkId") String datasinkId,
-			@PathParam("username") String username,
-			@FormParam("profileName") String profileName,
-			@FormParam("keyRing") String keyRing) {		
-		AuthRequest ar = getLogic().preAuth(
-				username, datasinkId, profileName, false, keyRing);
-		return new PreAuthContainer(Long.toString(ar.getProfile()
-				.getProfileId()), ar.getRedirectURL() == null ? "Input"
-				: "OAuth", ar.getRequiredInputs(), ar.getTypeMapping(),
-				ar.getRedirectURL(), true);
-	}
-	
-	@POST
-	@Path("/{username}/{profileId}/auth/post")
-	@Produces("application/json")
-	public void postAuthenticate(@PathParam("profileId") Long profileId, @PathParam("username") String username, @FormParam("keyRing") String keyRing,
-			MultivaluedMap<String, String> formParams
-			) {
-		Properties p = new Properties();
-		for (Entry<String, List<String>> o : formParams.entrySet()) {
-			String paramName = o.getKey();
-			if (!"profileId".equals(paramName) && 
-				!"keyRing".equals(paramName))
-			{
-				p.setProperty(paramName, o.getValue().get(0));
-			}
-		}
-		  
-		getLogic().postAuth(profileId, p, keyRing);
-	}
+
+  @GET
+  @Produces("application/json")
+  public DatasinkContainer getDatasinks() {
+    List<Datasink> l = new ArrayList<Datasink>();
+    List<SourceSinkDescribable> descs = getLogic().getDatasinks();
+    for (SourceSinkDescribable d : descs) {
+      l.add(new Datasink(d.getId(), d.getTitle(), d.getImageURL(), d
+          .getDescription()));
+    }
+    return new DatasinkContainer(l);
+  }
+
+  @GET
+  @Path("/{username}/profiles")
+  @Produces("application/json")
+  public DatasinkProfilesContainer getDatasinkProfiles(
+      @PathParam("username") String username) {
+    List<Profile> profiles = getLogic().getDatasinkProfiles(username);
+    return new DatasinkProfilesContainer(profiles);
+  }
+
+  @DELETE
+  @Path("/{username}/profiles/{profileId}")
+  public void deleteProfile(@PathParam("username") String username,
+      @PathParam("profileId") Long profileId) {
+    getLogic().deleteProfile(username, profileId);
+  }
+
+  /*
+   * @POST
+   * 
+   * @Consumes(MediaType.MULTIPART_FORM_DATA) public Response
+   * uploadPlugin(@FormDataParam("file") InputStream data,
+   * @FormDataParam("file") FormDataContentDisposition fileDetail) throws
+   * IOException { getLogic().uploadDatasinkPlugin(fileDetail.getFileName(),
+   * data); return Response.status(200).build(); }
+   */
+
+  @DELETE
+  @Path("/{datasourceId}")
+  public void deletePlugin(@PathParam("datasourceId") String source) {
+    getLogic().deleteDatasinkPlugin(source);
+  }
+
+  @POST
+  @Path("/{username}/{datasinkId}/auth")
+  @Produces("application/json")
+  public PreAuthContainer preAuthenticate(
+      @PathParam("datasinkId") String datasinkId,
+      @PathParam("username") String username,
+      @FormParam("profileName") String profileName,
+      @FormParam("keyRing") String keyRing) {
+    AuthRequest ar = getLogic().preAuth(username, datasinkId, profileName,
+        keyRing);
+    return new PreAuthContainer(Long.toString(ar.getProfile().getProfileId()),
+        ar.getRedirectURL() == null ? "Input" : "OAuth",
+        ar.getRequiredInputs(), ar.getTypeMapping(), ar.getRedirectURL(), true);
+  }
+
+  @GET
+  @Path("/{username}/validate/{profileId}")
+  @Produces("application/json")
+  public ValidationNotesContainer validateProfiles(
+      @PathParam("username") String username, 
+      @PathParam("profileId") String profileId) {
+    return new ValidationNotesContainer(getLogic().validateProfile(username,
+        Long.parseLong(profileId)));
+  }
+
+  @POST
+  @Path("/{username}/{profileId}/auth/post")
+  @Produces("application/json")
+  public void postAuthenticate(@PathParam("profileId") Long profileId,
+      @PathParam("username") String username,
+      @FormParam("keyRing") String keyRing,
+      MultivaluedMap<String, String> formParams) {
+    Properties p = new Properties();
+    for (Entry<String, List<String>> o : formParams.entrySet()) {
+      String paramName = o.getKey();
+      if (!"profileId".equals(paramName) && !"keyRing".equals(paramName)) {
+        p.setProperty(paramName, o.getValue().get(0));
+      }
+    }
+
+    getLogic().postAuth(profileId, p, keyRing);
+  }
 }

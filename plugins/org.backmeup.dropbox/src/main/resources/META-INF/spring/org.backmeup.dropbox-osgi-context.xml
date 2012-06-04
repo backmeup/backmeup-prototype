@@ -22,4 +22,10 @@
 			<entry key="name" value="org.backmeup.dropbox"/>
 		</service-properties>
 	</service>
+	
+	<service id="dropboxValidatorService" ref="dropboxValidator" auto-export="interfaces">
+		<service-properties>
+			<entry key="name" value="org.backmeup.dropbox"/>
+		</service-properties>
+	</service>
 </blueprint>

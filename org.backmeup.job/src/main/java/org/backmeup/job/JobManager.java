@@ -26,6 +26,8 @@ public interface JobManager {
 			List<ActionDescribable> requiredActions, String timeExpression,
 			String keyRing);
 	
+	public BackupJob getBackUpJob(Long jobId);
+	
 	public void start();
 	public void shutdown();
 }

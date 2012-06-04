@@ -23,6 +23,7 @@ import org.backmeup.rest.data.DatasourceContainer.Datasource;
 import org.backmeup.rest.data.DatasourceOptionContainer;
 import org.backmeup.rest.data.DatasourceProfilesContainer;
 import org.backmeup.rest.data.PreAuthContainer;
+import org.backmeup.rest.data.ValidationNotesContainer;
 
 /**
  * All datasource specific operation will be handled within this class.
@@ -43,6 +44,16 @@ public class Datasources extends Base {
 		}
 		return new DatasourceContainer(l);
 	}
+	
+	@GET
+  @Path("/{username}/validate/{profileId}")
+  @Produces("application/json")
+  public ValidationNotesContainer validateProfiles(
+      @PathParam("username") String username, 
+      @PathParam("profileId") String profileId) {
+    return new ValidationNotesContainer(getLogic().validateProfile(username,
+        Long.parseLong(profileId)));
+  }
 
 	@GET
 	@Path("/{username}/profiles")
@@ -101,7 +112,7 @@ public class Datasources extends Base {
 			@FormParam("profileName") String profileName,
 			@FormParam("keyRing") String keyRing) {
 		AuthRequest ar = getLogic().preAuth(username,
-				datasourceId, profileName, true, keyRing);
+				datasourceId, profileName, keyRing);
 		return new PreAuthContainer(Long.toString(ar.getProfile()
 				.getProfileId()), ar.getRedirectURL() == null ? "Input"
 				: "OAuth", ar.getRequiredInputs(), ar.getTypeMapping(),

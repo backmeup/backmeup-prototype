@@ -66,9 +66,4 @@ public class LocalFilesystemStorageReader extends StorageReader {
 		
 	}
 
-	@Override
-	public String getPath() throws StorageException {
-		return directory.getName();
-	}
-
 }

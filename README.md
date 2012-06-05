@@ -28,15 +28,15 @@ mvn clean package install
 
 4. Setup standard-plugins and built plugins (dropbox and skydrive currently):
 ```
-cd org.backmeup.grizzly
+cd org.backmeup.embedded
 mkdir autodeploy
 cp ../standard-plugins/*.jar autodeploy
 cp ../plugins/build/*.jar autodeploy
 ```
 
-5. To start the grizzly-rest-server, change to folder org.backmeup.grizzly and type `mvn -P standard exec:exec`
+5. To start the embedded-rest-server, change to folder org.backmeup.embedded and type `mvn -P standard exec:exec`
 
-6. To start the dummy-rest-server, change to folder org.backmeup.grizzly and type `mvn -P dummy exec:exec`
+6. To start the dummy-rest-server, change to folder org.backmeup.embedded and type `mvn -P dummy exec:exec`
 
 7. To start the rest server in debug mode, use the additional debug profile: `mvn -P standard,debug exec:exec` (the debug-port will be 1044)
 

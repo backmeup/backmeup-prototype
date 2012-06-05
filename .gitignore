@@ -3,4 +3,6 @@
 */autodeploy/*
 plugins/build/*
 */osgiTmp/*
-
+.metadata
+.settings
+RemoteSystemsTempFiles

@@ -24,5 +24,10 @@
 			<artifactId>plugin</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
+			<artifactId>plugin.api.impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 </project>

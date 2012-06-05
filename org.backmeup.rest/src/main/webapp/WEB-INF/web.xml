@@ -19,13 +19,35 @@
 		<servlet-name>BackMeUp REST API</servlet-name>
 		<url-pattern>/backmeup/*</url-pattern>
 	</servlet-mapping>
-	<context-param>
+	<!-- context-param>
 		<param-name>resteasy.scan</param-name>
 		<param-value>true</param-value>
+	</context-param>  -->
+	<context-param>
+		<param-name>resteasy.providers</param-name>
+		<param-value>
+		org.backmeup.rest.exceptionmapper.AlreadyRegisteredExceptionMapper,
+		org.backmeup.rest.exceptionmapper.IllegalArgumentExceptionMapper,
+		org.backmeup.rest.exceptionmapper.InvalidCredentialsMapper,
+		org.backmeup.rest.exceptionmapper.NullPointerExceptionMapper,
+		org.backmeup.rest.exceptionmapper.UnknownUserExceptionMapper,		
+		org.backmeup.rest.provider.ObjectMapperContextResolver
+		</param-value>
+	</context-param> 
+	<context-param>
+		<param-name>resteasy.resources</param-name>
+		<param-value>
+		org.backmeup.rest.Actions,
+		org.backmeup.rest.BackupJobs,
+		org.backmeup.rest.Backups,
+		org.backmeup.rest.Datasinks,
+		org.backmeup.rest.Datasources,
+		org.backmeup.rest.Users,
+		org.backmeup.rest.Metadata
+		</param-value>
 	</context-param>
 	<context-param>
 		<param-name>resteasy.servlet.mapping.prefix</param-name>
 		<param-value>/backmeup</param-value>
 	</context-param>
-
 </web-app>

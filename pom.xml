@@ -20,7 +20,8 @@
 		<module>org.backmeup.logic</module>
 
 		<!-- build the implementations -->
-		<module>org.backmeup.dal.jpa.impl</module>
+                <module>org.backmeup.dal.jpa.impl</module>
+                <module>org.backmeup.plugin.api.impl</module>
 		<module>org.backmeup.job.impl</module>
 		<module>org.backmeup.plugin.osgi.impl</module>
 		<module>org.backmeup.logic.dummy.impl</module>

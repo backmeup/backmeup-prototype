@@ -40,9 +40,8 @@ public class FileDataObject implements DataObject {
 		}
 	}
 
-	public int getLength() {
-		// TODO Auto-generated method stub
-		return 0;
+	public long getLength() {
+		return file.length();
 	}
 
 }

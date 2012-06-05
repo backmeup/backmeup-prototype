@@ -6,7 +6,7 @@ public interface DataObject {
 
 	public byte[] getBytes() throws IOException;
 
-	public int getLength();
+	public long getLength();
 	
 	public String getPath();
 	

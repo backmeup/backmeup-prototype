@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 
+import junit.framework.Assert;
+
 import org.apache.commons.io.FileUtils;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.StorageException;
@@ -29,12 +31,14 @@ public class LocalFilesystemIOTest {
 		  LocalFilesystemStorageReader reader = new LocalFilesystemStorageReader();
 		  reader.open("target/test-storage/filesystem");
 		  Iterator<DataObject> it = reader.getDataObjects();
-		  assert(it.hasNext());
+		  assert(it.hasNext());		  		 
 		  while (it.hasNext()) {
 			  DataObject dataobject = it.next();
 			  assert(dataobject.getPath().equals("/filesystem/images/test.jpg"));
-			  assert(dataobject.getBytes().length == 212919);
+			  Assert.assertEquals(120127, dataobject.getLength());
+			  //assert(dataobject.getBytes().length == 212919);
 		  }
+		  reader.close();
 	  }
 	  
 	  @AfterClass

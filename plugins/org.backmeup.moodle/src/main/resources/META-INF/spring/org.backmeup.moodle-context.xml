@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" default-activation="lazy">	
+	<bean id="moodleDescriptor" class="org.backmeup.moodle.MoodleDescriptor"/>
+	<bean id="moodleAuthenticator" class="org.backmeup.moodle.MoodleAuthenticator"/>
+	<bean id="moodleDatasource" class="org.backmeup.moodle.MoodleDatasource"/>
+</blueprint>

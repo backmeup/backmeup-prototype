@@ -1,10 +1,11 @@
 package org.backmeup.plugin.api.storage.filesystem;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.backmeup.plugin.api.storage.DataObject;
 
 public class FileDataObject implements DataObject {
@@ -19,7 +20,21 @@ public class FileDataObject implements DataObject {
 	}
 
 	public byte[] getBytes() throws IOException {
-		return IOUtils.toByteArray(new FileReader(file));
+	  // Replaced IOUtils because they returned too many bytes (and I don't know why).
+	  InputStream is = new FileInputStream(file);
+	  ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	  try {
+  	  int maxLen = 1024 * 1024;
+  	  byte[] buffer = new byte[maxLen];
+  	  int len;
+  	  while((len = is.read(buffer, 0, maxLen)) > 0) {
+  	    baos.write(buffer, 0, len);	    
+  	  }
+  	  return baos.toByteArray();
+	  } finally {
+	    baos.close();
+	    is.close();
+	  }
 	}
 
 	public String getPath() {

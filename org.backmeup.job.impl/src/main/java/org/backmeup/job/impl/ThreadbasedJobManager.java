@@ -195,6 +195,8 @@ public class ThreadbasedJobManager implements JobManager {
               conn.begin();
               getStatusDao().save(s);
               conn.commit();
+              writer.close();
+              reader.close();
             } catch (DatasourceException e) {
               e.printStackTrace();
               logErrorMessage(job, e);

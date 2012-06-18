@@ -1,5 +1,12 @@
 package org.backmeup.model;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
 /**
  * The ProfileOptions class wraps a profile and items that shall be backed up.
  * E.g. options[0] = "My Data\Folder1" which means that this folder should be
@@ -8,7 +15,13 @@ package org.backmeup.model;
  * @author fschoeppl
  * 
  */
+@Entity
 public class ProfileOptions {
+  @Id
+  @GeneratedValue
+  private Long optionId;
+  
+  @ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER)
   private Profile profile;
   private String[] options;
 
@@ -34,5 +47,13 @@ public class ProfileOptions {
 
   public void setOptions(String[] options) {
     this.options = options;
+  }
+
+  public Long getOptionId() {
+    return optionId;
+  }
+
+  public void setOptionId(Long optionId) {
+    this.optionId = optionId;
   }
 }

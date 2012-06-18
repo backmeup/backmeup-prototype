@@ -2,6 +2,7 @@ package org.backmeup.rest.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -38,7 +39,7 @@ public class JobContainer {
 		public Job() {
 		}
 		 
-		public Job(long backupJobId, List<ProfileOptions> datasourceIds, long datasinkId) {
+		public Job(long backupJobId, Set<ProfileOptions> datasourceIds, long datasinkId) {
 			this.backupJobId = backupJobId;
 			this.datasourceIds = new ArrayList<Long>();
 			for (ProfileOptions po : datasourceIds) {

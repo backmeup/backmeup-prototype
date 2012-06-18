@@ -1,9 +1,18 @@
 package org.backmeup.logic.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.backmeup.logic.BusinessLogic;
+import org.backmeup.logic.impl.helper.AuthenticationPerformer;
+import org.backmeup.logic.impl.helper.DropboxAutomaticAuthorizer;
+import org.backmeup.logic.impl.helper.URLReader;
+import org.backmeup.model.AuthRequest;
+import org.backmeup.model.BackupJob;
+import org.backmeup.model.Status;
 import org.backmeup.model.User;
+import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
@@ -40,43 +49,37 @@ public class BusinessLogicImplTest {
     logic.shutdown();
   }
 
-  /*@Test
-  public void testSomething() throws IOException {
-    // your plugins describable returns e.g.: org.backmeup.moodle
-    try {
-      logic.register("fjungwirth", "apassword", "apassword", "fjungwirth@something.at");
-    } catch (AlreadyRegisteredException are) {
-
-    }
-    // register moodle datasource
-    AuthRequest ar = logic.preAuth("fjungwirth", "org.backmeup.dropbox", "My Dropbox-Source Profile",
-        true, "apassword");
-    
-    System.out.println("Open the following URL: " + ar.getRedirectURL());    
-    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    // print ar to shell if needed
-    Properties props = new Properties();
-    System.out.print("code: ");
-    props.setProperty("code", br.readLine());
-    logic.postAuth(ar.getProfile().getProfileId(), props, "apassword");
-    
-    // register skydrive datasink
-    AuthRequest ar2 = logic.preAuth("fjungwirth", "org.backmeup.skydrive", "My Skydrive-Sink Profile",
-        false, "apassword");
-    // print ar2 to shell if needed
-    System.out.println("Open the following URL: " + ar2.getRedirectURL());
-    props = new Properties();
-    System.out.print("code: ");
-    String code = br.readLine();
-    props.setProperty("code", code);
-    logic.postAuth(ar2.getProfile().getProfileId(), props, "apassword");
-    
-    List<Long> sources = new ArrayList<Long>();
-    sources.add(ar.getProfile().getProfileId());
-    // create and exceute a backupjob from moodle to skydrive
-    logic.createBackupJob("fjungwirth", sources, ar2.getProfile().getProfileId(), null, null, "now", "apassword");
-
-  }*/
+  /*
+   * @Test public void testSomething() throws IOException { // your plugins
+   * describable returns e.g.: org.backmeup.moodle try {
+   * logic.register("fjungwirth", "apassword", "apassword",
+   * "fjungwirth@something.at"); } catch (AlreadyRegisteredException are) {
+   * 
+   * } // register moodle datasource AuthRequest ar =
+   * logic.preAuth("fjungwirth", "org.backmeup.dropbox",
+   * "My Dropbox-Source Profile", true, "apassword");
+   * 
+   * System.out.println("Open the following URL: " + ar.getRedirectURL());
+   * BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+   * // print ar to shell if needed Properties props = new Properties();
+   * System.out.print("code: "); props.setProperty("code", br.readLine());
+   * logic.postAuth(ar.getProfile().getProfileId(), props, "apassword");
+   * 
+   * // register skydrive datasink AuthRequest ar2 = logic.preAuth("fjungwirth",
+   * "org.backmeup.skydrive", "My Skydrive-Sink Profile", false, "apassword");
+   * // print ar2 to shell if needed
+   * System.out.println("Open the following URL: " + ar2.getRedirectURL());
+   * props = new Properties(); System.out.print("code: "); String code =
+   * br.readLine(); props.setProperty("code", code);
+   * logic.postAuth(ar2.getProfile().getProfileId(), props, "apassword");
+   * 
+   * List<Long> sources = new ArrayList<Long>();
+   * sources.add(ar.getProfile().getProfileId()); // create and exceute a
+   * backupjob from moodle to skydrive logic.createBackupJob("fjungwirth",
+   * sources, ar2.getProfile().getProfileId(), null, null, "now", "apassword");
+   * 
+   * }
+   */
 
   @Test
   public void testGetProfileDao() {
@@ -221,44 +224,61 @@ public class BusinessLogicImplTest {
 
   @Test
   public void testCreateBackupJob() {
-    /*
-     * try { User u; try { u = logic.register("backuper", "hi", "hi", "amail");
-     * } catch (AlreadyRegisteredException are) { u = logic.getUser("backuper");
-     * }
-     * 
-     * List<SourceSinkDescribable> sources = logic.getDatasources(); assert
-     * (sources.size() > 0); SourceSinkDescribable source = sources.get(0);
-     * 
-     * List<SourceSinkDescribable> sinks = logic.getDatasinks(); assert
-     * (sinks.size() > 0); SourceSinkDescribable sink = sinks.get(0);
-     * 
-     * System.out.println("Register source:"); AuthRequest ar =
-     * logic.preAuth(u.getUsername(), source.getId(), "A Profile", true, "hi");
-     * String url = ar.getRedirectURL(); System.out.println(url);
-     * URLReader.launchBrowser(url); System.out.print("code: "); String code =
-     * URLReader.waitForResult();//readLine(); Properties p = new Properties();
-     * String[] entries = code.split("&"); for (String entry : entries) {
-     * String[] pair = entry.split("="); p.setProperty(pair[0], pair[1]); }
-     * logic.postAuth(ar.getProfile().getProfileId(), p, "hi"); Long
-     * sourceProfileId = ar.getProfile().getProfileId();
-     * 
-     * System.out.println("Register sink:"); AuthRequest sinkRequest =
-     * logic.preAuth(u.getUsername(), sink.getId(), "A Profile", false, "hi");
-     * url = sinkRequest.getRedirectURL(); System.out.println(url);
-     * URLReader.launchBrowser(url); System.out.print("code: "); code =
-     * URLReader.waitForResult(); //code = readLine(); p = new Properties();
-     * entries = code.split("&"); for (String entry : entries) { String[] pair =
-     * entry.split("="); p.setProperty(pair[0], pair[1]); }
-     * logic.postAuth(sinkRequest.getProfile().getProfileId(), p, "hi"); Long
-     * sinkProfileId = sinkRequest.getProfile().getProfileId(); List<Long>
-     * sourcesList = new ArrayList<Long>(); sourcesList.add(sourceProfileId);
-     * BackupJob bj = logic.createBackupJob(u.getUsername(), sourcesList,
-     * sinkProfileId, null, null, "weekly", "hi"); assert (bj.getId() != null);
-     * assert (bj.getCronExpression() != null); assert (bj.getUser() != null);
-     * assert (bj.getSinkProfile() != null); assert (bj.getSourceProfiles() !=
-     * null); } catch (Throwable t) { t.printStackTrace(); while (t !=
-     * t.getCause()) { t = t.getCause(); if (t != null) t.printStackTrace(); } }
-     */
+    try {
+      User u;
+      try {
+        u = logic.register("backuper", "hi", "hi", "amail");
+      } catch (AlreadyRegisteredException are) {
+        u = logic.getUser("backuper");
+      }
+
+      List<SourceSinkDescribable> sources = logic.getDatasources();
+      assert (sources.size() > 0);     
+
+      List<SourceSinkDescribable> sinks = logic.getDatasinks();
+      assert (sinks.size() > 0);
+
+      System.out.println("Register source:");
+      AuthRequest ar = logic.preAuth(u.getUsername(), "org.backmeup.dropbox",
+          "Dropbox-Profile", "hi");
+      String url = ar.getRedirectURL();
+      System.out.println(url);
+      String data = AuthenticationPerformer.performAuthentication(url, new DropboxAutomaticAuthorizer());
+      Properties p = new Properties();
+      String[] entries = data.split("&");
+      for (String entry : entries) {
+        String[] pair = entry.split("=");
+        p.setProperty(pair[0], pair[1]);
+      }
+      logic.postAuth(ar.getProfile().getProfileId(), p, "hi");
+      
+      System.out.println("Using source as sink...");     
+      Long sinkProfileId = ar.getProfile().getProfileId();
+      List<Long> sourcesList = new ArrayList<Long>();
+      sourcesList.add(ar.getProfile().getProfileId());
+      BackupJob bj = logic.createBackupJob(u.getUsername(), sourcesList,
+          sinkProfileId, null, null, "weekly", "hi");
+      assert (bj.getId() != null);
+      assert (bj.getCronExpression() != null);
+      assert (bj.getUser() != null);
+      assert (bj.getSinkProfile() != null);
+      assert (bj.getSourceProfiles() != null);
+
+      List<Status> results = logic
+          .getStatus("backuper", bj.getId(), null, null);
+      for (Status s : results) {
+        System.out.println(s.getProgress() + ", " + s.getType() + ": "
+            + s.getMessage());
+      }
+
+    } catch (Throwable t) {
+      t.printStackTrace();
+      while (t != t.getCause()) {
+        t = t.getCause();
+        if (t != null)
+          t.printStackTrace();
+      }
+    }
   }
 
   @Test
@@ -325,5 +345,4 @@ public class BusinessLogicImplTest {
   public void testSetPlugins() {
     // fail("Not yet implemented");
   }
-
 }

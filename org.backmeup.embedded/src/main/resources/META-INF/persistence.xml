@@ -9,6 +9,11 @@
 		<class>org.backmeup.model.User</class>
 		<class>org.backmeup.model.ProfileEntry</class>
 		<class>org.backmeup.model.Profile</class>
+		<class>org.backmeup.model.Status</class>
+		<class>org.backmeup.model.BackupJob</class>
+		<class>org.backmeup.model.ProfileOptions</class>
+		<class>org.backmeup.model.ActionProfile</class>
+		<class>org.backmeup.model.FileItem</class>
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
 			<property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:testdb" />

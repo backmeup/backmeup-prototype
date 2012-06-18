@@ -15,6 +15,7 @@ import org.backmeup.rest.Datasinks;
 import org.backmeup.rest.Datasources;
 import org.backmeup.rest.Users;
 import org.backmeup.rest.exceptionmapper.AlreadyRegisteredExceptionMapper;
+import org.backmeup.rest.exceptionmapper.BackMeUpExceptionMapper;
 import org.backmeup.rest.exceptionmapper.IllegalArgumentExceptionMapper;
 import org.backmeup.rest.exceptionmapper.InvalidCredentialsMapper;
 import org.backmeup.rest.exceptionmapper.NullPointerExceptionMapper;
@@ -56,6 +57,7 @@ public class Main {
     tjws.getDeployment().getProviderClasses().add(InvalidCredentialsMapper.class.getName());
     tjws.getDeployment().getProviderClasses().add(NullPointerExceptionMapper.class.getName());
     tjws.getDeployment().getProviderClasses().add(UnknownUserExceptionMapper.class.getName());
+    tjws.getDeployment().getProviderClasses().add(BackMeUpExceptionMapper.class.getName());
     tjws.getDeployment().getProviderClasses().add(ObjectMapperContextResolver.class.getName());
     Hashtable<String, String> ctxParams = new Hashtable<String, String>();
     ctxParams.put("resteasy.resources", ObjectMapperContextResolver.class.getName());

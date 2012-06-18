@@ -8,15 +8,19 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 
 import org.backmeup.logic.BusinessLogic;
+import org.backmeup.model.ActionProfile;
 import org.backmeup.model.AuthRequest;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.FileItem;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.ProtocolDetails;
@@ -28,7 +32,6 @@ import org.backmeup.model.SearchResponse;
 import org.backmeup.model.SearchResponse.CountedEntry;
 import org.backmeup.model.SearchResponse.SearchEntry;
 import org.backmeup.model.Status;
-import org.backmeup.model.Status.FileItem;
 import org.backmeup.model.User;
 import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
@@ -36,10 +39,10 @@ import org.backmeup.model.exceptions.InvalidCredentialsException;
 import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.model.exceptions.UnknownUserException;
 import org.backmeup.model.exceptions.ValidationException;
-import org.backmeup.model.exceptions.ValidationException.ValidationExceptionType;
 import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable.Type;
+import org.backmeup.model.spi.ValidationExceptionType;
 import org.backmeup.plugin.api.Metadata;
 
 /**
@@ -238,12 +241,13 @@ public class DummyBusinessLogic implements BusinessLogic {
       }
     });
 
-    List<ActionDescribable> reqActions = new ArrayList<ActionDescribable>();
-    reqActions.addAll(findActions(new String[] { "org.backmeup.rsa" }));
-    List<ProfileOptions> popts = new ArrayList<ProfileOptions>();
+    Set<ActionProfile> reqActions = new HashSet<ActionProfile>();
+    reqActions.add(new ActionProfile("org.backmeup.rsa" ));
+    Set<ProfileOptions> popts = new HashSet<ProfileOptions>();
     popts.add(new ProfileOptions(findProfile(500), null));
-    BackupJob aJob = new BackupJob(maxId++, u1, popts, findProfile(501),
-        reqActions, "* * * * *");
+    BackupJob aJob = new BackupJob(u1, popts, findProfile(501),
+        reqActions, "* * * * *");   
+    aJob.setId(maxId++);
     jobs.add(aJob);
     status = new ArrayList<Status>();
     status.add(new Status(aJob, "Der Backup-Job wurde gestartet", "INFO",
@@ -253,16 +257,17 @@ public class DummyBusinessLogic implements BusinessLogic {
     status.add(new Status(aJob, "Der Backup-Job wurde erfolgreich beendet",
         "INFO", new Date(1000)));
 
-    List<ProfileOptions> popts2 = new ArrayList<ProfileOptions>();
+    Set<ProfileOptions> popts2 = new HashSet<ProfileOptions>();
     popts2.add(new ProfileOptions(findProfile(502), null));
-    BackupJob bJob = new BackupJob(maxId++, u3, popts2, findProfile(502),
+    BackupJob bJob = new BackupJob(u3, popts2, findProfile(502),
         reqActions, "* * * * *");
+    bJob.setId(maxId++);
     jobs.add(bJob);
     status.add(new Status(bJob, "Ein Status", "INFO", new Date(100)));
     status.add(new Status(bJob, "Noch ein Status", "INFO", new Date(100)));
-    List<FileItem> files = new ArrayList<FileItem>();
+    Set<FileItem> files = new HashSet<FileItem>();
     files.add(new FileItem("http://thumbnails.at?url=1234", "sennenhund.jpg",
-        new Date(100), 1234L));
+        new Date(100)));
     status.add(new Status(bJob, "Busy status", "STORE", new Date(100), "BUSY",
         files));
     searches = new HashMap<Long, SearchResponse>();
@@ -527,7 +532,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     if (user == null)
       throw new UnknownUserException(username);
 
-    List<ProfileOptions> sources = new ArrayList<ProfileOptions>();
+    Set<ProfileOptions> sources = new HashSet<ProfileOptions>();
 
     for (long sId : sourceProfiles) {
       Profile sourceProfile = findProfile(sId);
@@ -547,8 +552,9 @@ public class DummyBusinessLogic implements BusinessLogic {
     if (cronTime == null)
       throw new IllegalArgumentException("Cron expression missing");
 
-    BackupJob job = new BackupJob(maxId++, user, sources, sinkProfile,
+    BackupJob job = new BackupJob(user, sources, sinkProfile,
         findActions(requiredActions), cronTime);
+    job.setId(maxId++);
     jobs.add(job);
     return job;
   }
@@ -711,12 +717,12 @@ public class DummyBusinessLogic implements BusinessLogic {
     return null;
   }
 
-  private List<ActionDescribable> findActions(String[] actionIds) {
-    List<ActionDescribable> actionDescs = new ArrayList<ActionDescribable>();
+  private Set<ActionProfile> findActions(String[] actionIds) {
+    Set<ActionProfile> actionDescs = new HashSet<ActionProfile>();
     for (String action : actionIds) {
       ActionDescribable itm = actions.get(action);
       if (itm != null) {
-        actionDescs.add(itm);
+        actionDescs.add(new ActionProfile(itm.getId()));
       }
     }
     return actionDescs;

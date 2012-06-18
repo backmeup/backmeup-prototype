@@ -72,7 +72,6 @@ public interface BusinessLogic {
 	public void deleteActionPlugin(String name);
 	
 	//job & validation operations
-	//public void validateBackupJob(String username, List<Long> sourceProfiles, long sinkProfileId, Map<Long, String[]> sourceOptions, String[] requiredActions, String timeExpression, String keyRing);
 	public ValidationNotes validateBackupJob(String username, Long jobId);	
 	public BackupJob createBackupJob(String username, List<Long> sourceProfiles, Long sinkProfileId, Map<Long, String[]> sourceOptions, String[] requiredActions, String timeExpression, String keyRing);
 	public List<BackupJob> getJobs(String username);

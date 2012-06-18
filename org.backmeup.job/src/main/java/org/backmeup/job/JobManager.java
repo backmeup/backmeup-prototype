@@ -1,11 +1,12 @@
 package org.backmeup.job;
 
-import java.util.List;
+import java.util.Set;
+
+import org.backmeup.model.ActionProfile;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.User;
-import org.backmeup.model.spi.ActionDescribable;
 
 /**
  * 
@@ -22,8 +23,8 @@ import org.backmeup.model.spi.ActionDescribable;
 public interface JobManager {
 
 	public BackupJob createBackupJob(User user,
-			List<ProfileOptions> sourceProfiles, Profile sinkProfile,
-			List<ActionDescribable> requiredActions, String timeExpression,
+			Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
+			Set<ActionProfile> requiredActions, String timeExpression,
 			String keyRing);
 	
 	public BackupJob getBackUpJob(Long jobId);

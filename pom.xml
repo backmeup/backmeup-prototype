@@ -18,6 +18,8 @@
 		<module>org.backmeup.plugin</module>
 		<module>org.backmeup.plugin.api</module>
 		<module>org.backmeup.logic</module>
+                <!-- build utilities -->
+                <module>org.backmeup.utilities</module>
 
 		<!-- build the implementations -->
                 <module>org.backmeup.dal.jpa.impl</module>

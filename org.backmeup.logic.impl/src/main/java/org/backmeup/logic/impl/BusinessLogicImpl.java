@@ -1,23 +1,26 @@
 package org.backmeup.logic.impl;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.EntityManagerFactory;
 
+import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.dal.ProfileDao;
+import org.backmeup.dal.StatusDao;
 import org.backmeup.dal.UserDao;
 import org.backmeup.job.JobManager;
 import org.backmeup.logic.BusinessLogic;
-import org.backmeup.logic.impl.util.Connection;
+import org.backmeup.model.ActionProfile;
 import org.backmeup.model.AuthRequest;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
@@ -35,9 +38,9 @@ import org.backmeup.model.exceptions.InvalidCredentialsException;
 import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.model.exceptions.UnknownUserException;
 import org.backmeup.model.exceptions.ValidationException;
-import org.backmeup.model.exceptions.ValidationException.ValidationExceptionType;
 import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
+import org.backmeup.model.spi.ValidationExceptionType;
 import org.backmeup.model.spi.Validationable;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.Metadata;
@@ -59,6 +62,19 @@ import org.backmeup.plugin.spi.OAuthBased;
 @ApplicationScoped
 public class BusinessLogicImpl implements BusinessLogic {
 
+  private static final String CANNOT_COMPUTE_FREE = "org.backmeup.logic.impl.BusinessLogicImpl.CANNOT_COMPUTE_FREE";
+  private static final String NOT_ENOUGH_SPACE = "org.backmeup.logic.impl.BusinessLogicImpl.NOT_ENOUGH_SPACE";
+  private static final String CANNOT_COMPUTE_QUOTA = "org.backmeup.logic.impl.BusinessLogicImpl.CANNOT_COMPUTE_QUOTA";
+  private static final String NO_PLUG_IN_FOUND_WITH_ID = "org.backmeup.logic.impl.BusinessLogicImpl.NO_PLUG_IN_FOUND_WITH_ID";
+  private static final String UNKNOWN_JOB_WITH_ID = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_JOB_WITH_ID";
+  private static final String UNKNOWN_SOURCE_SINK = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_SOURCE_SINK";
+  private static final String USER_HAS_NO_PROFILE = "org.backmeup.logic.impl.BusinessLogicImpl.USER_HAS_NO_PROFILE";
+  private static final String SHUTTING_DOWN_BUSINESS_LOGIC = "org.backmeup.logic.impl.BusinessLogicImpl.SHUTTING_DOWN_BUSINESS_LOGIC";
+  private static final String VALIDATION_OF_ACCESS_DATA_FAILED = "org.backmeup.logic.impl.BusinessLogicImpl.VALIDATION_OF_ACCESS_DATA_FAILED";
+  private static final String USER_DOESNT_EXIST = "org.backmeup.logic.impl.BusinessLogicImpl.USER_DOESNT_EXIST";
+  private static final String PARAMETER_NULL = "org.backmeup.logic.impl.BusinessLogicImpl.PARAMETER_NULL";
+  private static final String INVALID_USER = "org.backmeup.logic.impl.BusinessLogicImpl.INVALID_USER";
+
   @Inject
   private DataAccessLayer dal;
 
@@ -66,8 +82,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   private JobManager jobManager;
 
   private UserDao userDao;
-  private ProfileDao profileDao;
-  private EntityManagerFactory emFactory;
+  private ProfileDao profileDao; 
 
   @Inject
   @Named("callbackUrl")
@@ -75,6 +90,9 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   @Inject
   private Connection conn;
+  
+  private ResourceBundle textBundle = ResourceBundle
+      .getBundle(BusinessLogicImpl.class.getSimpleName());
 
   public BusinessLogicImpl() {
 
@@ -106,7 +124,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     User u = getUserDao().findByName(username);
     if (u == null) {
       conn.rollback();
-      throw new IllegalArgumentException("invalid user");
+      throw new IllegalArgumentException(textBundle.getString(INVALID_USER));
     }
     getUserDao().delete(u);
     conn.commit();
@@ -148,7 +166,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       IllegalArgumentException {
     if (username == null || password == null || keyRingPassword == null
         || email == null) {
-      throw new IllegalArgumentException("Parameter null");
+      throw new IllegalArgumentException(textBundle.getString(PARAMETER_NULL));
     }
     conn.begin();
     User existingUser = getUserDao().findByName(username);
@@ -253,7 +271,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       String[] requiredActions, String timeExpression, String keyRing) {
     conn.begin();
     User user = getUserDao().findByName(username);
-    List<ProfileOptions> profiles = new ArrayList<ProfileOptions>();
+    Set<ProfileOptions> profiles = new HashSet<ProfileOptions>();
     for (Long source : sourceProfiles) {
       Profile p = getProfileDao().findById(source);
       if (sourceOptions != null) {
@@ -265,17 +283,16 @@ public class BusinessLogicImpl implements BusinessLogic {
 
     Profile sink = getProfileDao().findById(sinkProfileId);
 
-    List<ActionDescribable> actions = new ArrayList<ActionDescribable>();
+    Set<ActionProfile> actions = new HashSet<ActionProfile>();
     if (requiredActions != null) {
       for (String action : requiredActions) {
         ActionDescribable ad = plugins.getActionById(action);
-        actions.add(ad);
+        actions.add(new ActionProfile(ad.getId()));
       }
     }
-    conn.commit();
     BackupJob job = jobManager.createBackupJob(user, profiles, sink, actions,
-        timeExpression, keyRing);
-
+        timeExpression, keyRing);    
+    conn.commit();
     return job;
   }
 
@@ -291,8 +308,11 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   public List<Status> getStatus(String username, Long jobId, Date fromDate,
       Date toDate) {
-    // TODO Auto-generated method stub
-    return null;
+    conn.begin();
+    StatusDao sd = dal.createStatusDao();
+    List<Status> stats = sd.findByJob(username, jobId, fromDate, toDate);
+    conn.commit();
+    return stats;
   }
 
   public ProtocolDetails getProtocolDetails(String username, Long fileId) {
@@ -317,7 +337,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     User user = getUserDao().findByName(username);
     if (user == null)
       throw new IllegalArgumentException(String.format(
-          "User %s doesn't exist!", username));
+          textBundle.getString(USER_DOESNT_EXIST), username));
     Profile profile = new Profile(getUserDao().findByName(username),
         profileName, uniqueDescIdentifier, type);
     switch (auth.getAuthType()) {
@@ -364,7 +384,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       } else {
         conn.rollback();
         throw new ValidationException(ValidationExceptionType.AuthException,
-            "Validation of access data failed!");
+            textBundle.getString(VALIDATION_OF_ACCESS_DATA_FAILED));
       }
     } else {
       auth.postAuthorize(props);
@@ -395,7 +415,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   public void setDataAccessLayer(DataAccessLayer dal) {
     this.dal = dal;
-    conn.setDataAccessLayer(dal);
+    //conn.setDataAccessLayer(dal);
   }
 
   public Plugin getPlugins() {
@@ -409,7 +429,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public void shutdown() {
-    System.out.println("Shutting down BusinessLogicImpl!");
+    System.out.println(textBundle.getString(SHUTTING_DOWN_BUSINESS_LOGIC));
     this.jobManager.shutdown();
     this.plugins.shutdown();
   }
@@ -423,23 +443,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     this.jobManager = jobManager;
     this.jobManager.start();
   }
-
-  public EntityManagerFactory getEntityManagerFactory() {
-    return emFactory;
-  }
-
-  public void setEntityManagerFactory(EntityManagerFactory emFactory) {
-    this.emFactory = emFactory;
-    if (conn != null)
-      conn.setEntityManagerFactory(emFactory);
-  }
-
-  public void setConnection(Connection conn) {
-    this.conn = conn;
-    if (emFactory != null)
-      conn.setEntityManagerFactory(emFactory);
-  }
-
+  
   public String getCallbackUrl() {
     return callbackUrl;
   }
@@ -454,13 +458,12 @@ public class BusinessLogicImpl implements BusinessLogic {
     Profile p = getProfileDao().findById(profileId);
     if (!p.getUser().getUsername().equals(username)) {
       conn.rollback();
-      throw new IllegalArgumentException(String.format("User '%s' has no profile with id '%d'", username, profileId));
+      throw new IllegalArgumentException(String.format(textBundle.getString(USER_HAS_NO_PROFILE), username, profileId));
     }
     SourceSinkDescribable ssd = plugins.getSourceSinkById(p.getDesc());
     if (ssd == null) {
       conn.rollback();
-      throw new IllegalArgumentException("Unknown source/sink '" + p.getDesc()
-          + "'");
+      throw new IllegalArgumentException(String.format(textBundle.getString(UNKNOWN_SOURCE_SINK), p.getDesc()));
     }    
     getUser(username);
     Properties accessData = p.getEntriesAsProperties();
@@ -474,7 +477,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     try {
       Profile p = getProfileDao().findById(profileId);
       if (p == null  || !p.getUser().getUsername().equals(username)) {
-        throw new IllegalArgumentException(String.format("User '%s' has no profile with id '%d'", username, profileId));
+        throw new IllegalArgumentException(String.format(textBundle.getString(USER_HAS_NO_PROFILE), username, profileId));
       }
       Validationable validator = plugins.getValidator(p.getDesc());
       Properties accessData = p.getEntriesAsProperties();
@@ -489,10 +492,9 @@ public class BusinessLogicImpl implements BusinessLogic {
   
   @Override
   public ValidationNotes validateBackupJob(String username, Long jobId) {
-    // TODO: Validate a certain backup job
     BackupJob job = jobManager.getBackUpJob(jobId);
     if (job == null) {
-      throw new IllegalArgumentException("Unknown job with id: " + jobId);
+      throw new IllegalArgumentException(String.format(textBundle.getString(UNKNOWN_JOB_WITH_ID), jobId));
     } 
     ValidationNotes notes = new ValidationNotes(); 
     try {
@@ -507,7 +509,7 @@ public class BusinessLogicImpl implements BusinessLogic {
         if (ssd == null) {
           notes
               .addValidationEntry(ValidationExceptionType.Error, String.format(
-                  "No plug-in found with id %s", po.getProfile().getDesc()));
+                  textBundle.getString(NO_PLUG_IN_FOUND_WITH_ID), po.getProfile().getDesc()));
         }
 
         Properties meta = getMetadata(username, po.getProfile().getProfileId());
@@ -520,7 +522,7 @@ public class BusinessLogicImpl implements BusinessLogic {
                   ValidationExceptionType.Warning,
                   String
                       .format(
-                          "Cannot compute quota for profile '%s' and plugin '%s'. The required space for a backup could be more than the available space.",
+                          textBundle.getString(CANNOT_COMPUTE_QUOTA),
                           po.getProfile().getProfileName(), po.getProfile()
                               .getDesc()));
         }
@@ -542,14 +544,14 @@ public class BusinessLogicImpl implements BusinessLogic {
                   ValidationExceptionType.NotEnoughSpaceException,
                   String
                       .format(
-                          "Not enough space for backup: Required space for backup was %d. Free space on service was %d. (Profile '%s' and plugin '%s')",
+                          textBundle.getString(NOT_ENOUGH_SPACE),
                           requiredSpace, freeSpace, job.getSinkProfile()
                               .getProfileName(), job.getSinkProfile().getDesc()));
         }
       } else {
         notes.addValidationEntry(ValidationExceptionType.Warning, String
             .format(
-                "Cannot compute free space for profile '%s' and plugin '%s'",
+                textBundle.getString(CANNOT_COMPUTE_FREE),
                 job.getSinkProfile().getProfileName(), job.getSinkProfile()
                     .getDesc()));
       }

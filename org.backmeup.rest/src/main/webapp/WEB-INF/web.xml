@@ -30,7 +30,8 @@
 		org.backmeup.rest.exceptionmapper.IllegalArgumentExceptionMapper,
 		org.backmeup.rest.exceptionmapper.InvalidCredentialsMapper,
 		org.backmeup.rest.exceptionmapper.NullPointerExceptionMapper,
-		org.backmeup.rest.exceptionmapper.UnknownUserExceptionMapper,		
+		org.backmeup.rest.exceptionmapper.UnknownUserExceptionMapper,
+		org.backmeup.rest.exceptionmapper.BackMeUpExceptionMapper,		
 		org.backmeup.rest.provider.ObjectMapperContextResolver
 		</param-value>
 	</context-param> 

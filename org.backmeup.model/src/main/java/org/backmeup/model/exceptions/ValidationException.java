@@ -1,5 +1,7 @@
 package org.backmeup.model.exceptions;
 
+import org.backmeup.model.spi.ValidationExceptionType;
+
 
 
 /**
@@ -13,14 +15,6 @@ package org.backmeup.model.exceptions;
 public class ValidationException extends BackMeUpException {
 	private static final long serialVersionUID = 1L;
 	
-	public enum ValidationExceptionType {
-	  AuthException,
-	  APIException,
-	  NotEnoughSpaceException,
-	  Error,
-	  Warning
-	}
-
   private ValidationExceptionType type;
 	
 	public ValidationException(ValidationExceptionType type, String message, Throwable cause) {

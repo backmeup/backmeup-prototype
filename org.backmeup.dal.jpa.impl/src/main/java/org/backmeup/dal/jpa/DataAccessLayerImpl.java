@@ -3,8 +3,10 @@ package org.backmeup.dal.jpa;
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
 
+import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.dal.ProfileDao;
+import org.backmeup.dal.StatusDao;
 import org.backmeup.dal.UserDao;
 
 /**
@@ -16,22 +18,29 @@ import org.backmeup.dal.UserDao;
  */
 @ApplicationScoped
 public class DataAccessLayerImpl implements DataAccessLayer {
-	private EntityManager em;
+	private ThreadLocal<EntityManager> threaLocalEntityManager = new ThreadLocal<EntityManager>(); 
 	
-	public DataAccessLayerImpl() {	
+	public DataAccessLayerImpl() {		  
 	}
 
 	public UserDao createUserDao() { 
-		return new UserDaoImpl(em);
+		return new UserDaoImpl(threaLocalEntityManager.get());
 	}
 
 	public ProfileDao createProfileDao() { 
-		return new ProfileDaoImpl(em);
-	}
-
-	public void setConnection(Object connection) {
-		this.em = (EntityManager) connection;
+		return new ProfileDaoImpl(threaLocalEntityManager.get());
 	}
 	
+	public StatusDao createStatusDao() {
+	  return new StatusDaoImpl(threaLocalEntityManager.get());
+	}
+
+  public BackupJobDao createBackupJobDao() {    
+    return new BackupJobDaoImpl(threaLocalEntityManager.get());
+  } 
+
+	public void setConnection(Object connection) {
+		this.threaLocalEntityManager.set((EntityManager) connection);
+	}
 
 }

@@ -36,31 +36,27 @@ import org.osgi.framework.launch.Framework;
 
 /**
  * 
- * The PluginImpl class realizes the Plugin interface
- * by starting the Apache Felix OSGi container.
+ * The PluginImpl class realizes the Plugin interface by starting the Apache
+ * Felix OSGi container.
  * 
- * All plug ins must therefore be a bundle which
- * can be added and removed at runtime of the BackMeUp core.
+ * All plug ins must therefore be a bundle which can be added and removed at
+ * runtime of the BackMeUp core.
  * 
- * To achieve the capability of adding and removing plug ins
- * at runtime, the class DeployMonitor has been created which
- * monitors a certain directory on this computer adding
- * new bundles found within it.  
+ * To achieve the capability of adding and removing plug ins at runtime, the
+ * class DeployMonitor has been created which monitors a certain directory on
+ * this computer adding new bundles found within it.
  * 
- * A client of the PluginImpl never works directly 
- * with the plug ins. The plug ins will always be
- * proxied with the java.lang.reflect.Proxy class.
+ * A client of the PluginImpl never works directly with the plug ins. The plug
+ * ins will always be proxied with the java.lang.reflect.Proxy class.
  * 
- * The call to a proxy-method looks up a service
- * by its ServiceReference, then it invokes the method with all
- * necessary parameters and finally it releases the  
- * ServiceReference and returns the result of the
- * method call.
+ * The call to a proxy-method looks up a service by its ServiceReference, then
+ * it invokes the method with all necessary parameters and finally it releases
+ * the ServiceReference and returns the result of the method call.
  * 
  * 
  * 
  * @author fschoeppl
- *
+ * 
  */
 @ApplicationScoped
 @SuppressWarnings("rawtypes")
@@ -80,6 +76,8 @@ public class PluginImpl implements Plugin {
 
   private DeployMonitor deploymentMonitor;
 
+  private boolean started;
+
   public PluginImpl() {
     this(
         "autodeploy",
@@ -95,9 +93,12 @@ public class PluginImpl implements Plugin {
   }
 
   public void startup() {
-    System.out.println("Starting up PluginImpl!");
-    initOSGiFramework();
-    startDeploymentMonitor();
+    if (!started) {
+      System.out.println("Starting up PluginImpl!");
+      initOSGiFramework();
+      startDeploymentMonitor();
+      started = true;
+    }
   }
 
   private void startDeploymentMonitor() {
@@ -126,38 +127,37 @@ public class PluginImpl implements Plugin {
           return false;
         }
       }
-    } 
+    }
     // The directory is now empty so delete it
     return dir.delete();
   }
 
   public void initOSGiFramework() {
-		try {
-			FrameworkFactory factory = new FrameworkFactory();
-			if (temporaryDirectory.exists()) {
-			  deleteDir(temporaryDirectory);
-			}
-			Map<String, String> config = new HashMap<String, String>();
-			config.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA,
-					exportedPackages);
-			config.put(Constants.FRAMEWORK_STORAGE,
-					temporaryDirectory.getAbsolutePath());
-			config.put(Constants.FRAMEWORK_STORAGE_CLEAN, "true");
-			config.put(Constants.FRAMEWORK_BUNDLE_PARENT,
-			    Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
-					//Constants.FRAMEWORK_BUNDLE_PARENT_APP);
-			config.put(Constants.FRAMEWORK_BOOTDELEGATION, exportedPackages);
-			System.out.println("EXPORTED PACKAGES: " + exportedPackages);
-			// config.put(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "J2SE-1.6");
-			// config.put("osgi.shell.telnet", "on");
-			// config.put("osgi.shell.telnet.port", "6666");
-			osgiFramework = factory.newFramework(config);
-			osgiFramework.start();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
-	}
+    try {
+      FrameworkFactory factory = new FrameworkFactory();
+      if (temporaryDirectory.exists()) {
+        deleteDir(temporaryDirectory);
+      }
+      Map<String, String> config = new HashMap<String, String>();
+      config.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, exportedPackages);
+      config.put(Constants.FRAMEWORK_STORAGE,
+          temporaryDirectory.getAbsolutePath());
+      config.put(Constants.FRAMEWORK_STORAGE_CLEAN, "true");
+      config.put(Constants.FRAMEWORK_BUNDLE_PARENT,
+          Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
+      // Constants.FRAMEWORK_BUNDLE_PARENT_APP);
+      config.put(Constants.FRAMEWORK_BOOTDELEGATION, exportedPackages);
+      System.out.println("EXPORTED PACKAGES: " + exportedPackages);
+      // config.put(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "J2SE-1.6");
+      // config.put("osgi.shell.telnet", "on");
+      // config.put("osgi.shell.telnet.port", "6666");
+      osgiFramework = factory.newFramework(config);
+      osgiFramework.start();
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+  }
 
   public void stopOSGiFramework() {
     try {
@@ -178,8 +178,9 @@ public class PluginImpl implements Plugin {
   public <T> T service(final Class<T> service) {
     return service(service, null);
   }
-  
-  private <T> ServiceReference getReference(final Class<T> service, final String filter) {
+
+  private <T> ServiceReference getReference(final Class<T> service,
+      final String filter) {
     ServiceReference ref = null;
     if (filter == null) {
       ref = bundleContext().getServiceReference(service.getName());
@@ -187,10 +188,10 @@ public class PluginImpl implements Plugin {
     } else {
       ServiceReference[] refs;
       try {
-        refs = bundleContext().getServiceReferences(
-            service.getName(), filter);
+        refs = bundleContext().getServiceReferences(service.getName(), filter);
       } catch (InvalidSyntaxException e) {
-        throw new IllegalArgumentException(String.format("The filter '%s' is mallformed.", filter));
+        throw new IllegalArgumentException(String.format(
+            "The filter '%s' is mallformed.", filter));
       }
       if (refs != null && refs.length > 0) {
         ref = refs[0];
@@ -203,9 +204,10 @@ public class PluginImpl implements Plugin {
   public <T> T service(final Class<T> service, final String filter) {
     ServiceReference ref = getReference(service, filter);
     if (ref == null) {
-      throw new PluginException(service.getName(), String.format("Plug-In service of class '%s' not available!", service.getName()));
+      throw new PluginException(service.getName(), String.format(
+          "Plug-In service of class '%s' not available!", service.getName()));
     }
-    bundleContext().ungetService(ref);    
+    bundleContext().ungetService(ref);
     return (T) Proxy.newProxyInstance(PluginImpl.class.getClassLoader(),
         new Class[] { service }, new InvocationHandler() {
 
@@ -220,8 +222,10 @@ public class PluginImpl implements Plugin {
             try {
               ret = method.invoke(instance, os);
             } catch (Throwable t) {
-              throw new PluginException(service.getName(), "An exception occured during execution of the method " + method.getName(), t);
-            } finally {              
+              throw new PluginException(service.getName(),
+                  "An exception occured during execution of the method "
+                      + method.getName(), t);
+            } finally {
               bundleContext().ungetService(ref);
             }
             return ret;
@@ -236,7 +240,7 @@ public class PluginImpl implements Plugin {
     public SpecialInvocationHandler(BundleContext context,
         ServiceReference reference) {
       this.reference = reference;
-      this.context = context;      
+      this.context = context;
     }
 
     public Object invoke(Object o, Method method, Object[] os) throws Throwable {
@@ -303,9 +307,12 @@ public class PluginImpl implements Plugin {
   }
 
   public void shutdown() {
-    System.out.println("Shutting down PluginImpl!");
-    this.deploymentMonitor.stop();
-    this.stopOSGiFramework();
+    if (started) {
+      System.out.println("Shutting down PluginImpl!");
+      this.deploymentMonitor.stop();
+      this.stopOSGiFramework();
+      this.started = false;
+    }
   }
 
   public List<ActionDescribable> getActions() {
@@ -357,7 +364,7 @@ public class PluginImpl implements Plugin {
   }
 
   @Override
-  public Validationable getValidator(String sourceSinkId) {    
+  public Validationable getValidator(String sourceSinkId) {
     return service(Validationable.class, "(name=" + sourceSinkId + ")");
   }
 

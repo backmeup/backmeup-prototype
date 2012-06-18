@@ -3,7 +3,7 @@ package org.backmeup.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.backmeup.model.exceptions.ValidationException.ValidationExceptionType;
+import org.backmeup.model.spi.ValidationExceptionType;
 
 public class ValidationNotes {  
   private List<ValidationEntry> validationNotes = new ArrayList<ValidationEntry>();

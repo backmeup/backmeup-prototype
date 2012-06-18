@@ -56,23 +56,23 @@
 			<artifactId>plugin.osgi.impl</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
-		</dependency> 
+		</dependency>
 		<dependency>
 			<groupId>org.backmeup</groupId>
 			<artifactId>job.impl</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>		
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>4.1.0.Final</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<version>2.2.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.htmlparser.jericho</groupId>
+			<artifactId>jericho-html</artifactId>
+			<version>3.2</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.ValidationNotes.ValidationEntry;
-import org.backmeup.model.exceptions.ValidationException.ValidationExceptionType;
+import org.backmeup.model.spi.ValidationExceptionType;
 
 import com.sun.xml.txw2.annotation.XmlElement;
 

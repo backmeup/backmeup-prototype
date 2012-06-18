@@ -2,11 +2,12 @@ package org.backmeup.rest.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.backmeup.model.FileItem;
 import org.backmeup.model.Status;
-import org.backmeup.model.Status.FileItem;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
@@ -39,12 +40,12 @@ public class StatusContainer {
 		private String type;
 		private String timeStamp;
 		private String progress;
-		private List<FileItem> files;
+		private Set<FileItem> files;
 		
 		public JobStatus() {
 		}
 		
-		public JobStatus(String message, String type, String timeStamp, String progress, List<FileItem> files) {
+		public JobStatus(String message, String type, String timeStamp, String progress, Set<FileItem> files) {
 			this.message = message;
 			this.type = type;
 			this.timeStamp = timeStamp;
@@ -60,11 +61,11 @@ public class StatusContainer {
 			this.progress = progress;
 		}
 
-		public List<FileItem> getFiles() {
+		public Set<FileItem> getFiles() {
 			return files;
 		}
 
-		public void setFiles(List<FileItem> files) {
+		public void setFiles(Set<FileItem> files) {
 			this.files = files;
 		}
 		

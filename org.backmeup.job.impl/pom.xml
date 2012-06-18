@@ -7,7 +7,7 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>job.impl</artifactId>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.backmeup</groupId>
@@ -29,5 +29,10 @@
 			<artifactId>plugin.api.impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
+			<artifactId>utilities</artifactId>
+			<version>${project.version}</version>
+		</dependency>		
 	</dependencies>
 </project>

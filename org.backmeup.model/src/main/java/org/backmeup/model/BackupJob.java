@@ -1,8 +1,17 @@
 package org.backmeup.model;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.backmeup.model.spi.ActionDescribable;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 /**
  * The BackupJob class contains all necessary data to
@@ -13,23 +22,29 @@ import org.backmeup.model.spi.ActionDescribable;
  * @author fschoeppl
  * 
  */
+@Entity
 public class BackupJob {
+  @Id
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
+  @Column(nullable = false)
   private Long id;
+  @ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER)
   private User user;
-  private List<ProfileOptions> sourceProfiles;
+  @OneToMany(cascade=CascadeType.ALL)
+  private Set<ProfileOptions> sourceProfiles = new HashSet<ProfileOptions>();
+  @ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER)
   private Profile sinkProfile;
-  private List<ActionDescribable> requiredActions;
+  @OneToMany(cascade=CascadeType.ALL)
+  private Set<ActionProfile> requiredActions = new HashSet<ActionProfile>();
   private String cronExpression;
 
   public BackupJob() {
     super();
   }
 
-  public BackupJob(long id, User user, List<ProfileOptions> sourceProfile,
-      Profile sinkProfile, List<ActionDescribable> requiredActions,
+  public BackupJob(User user, Set<ProfileOptions> sourceProfile,
+      Profile sinkProfile, Set<ActionProfile> requiredActions,
       String cronExpression) {
-    super();
-    this.id = id;
     this.user = user;
     this.sourceProfiles = sourceProfile;
     this.sinkProfile = sinkProfile;
@@ -53,11 +68,11 @@ public class BackupJob {
     this.user = user;
   }
 
-  public List<ProfileOptions> getSourceProfiles() {
+  public Set<ProfileOptions> getSourceProfiles() {
     return sourceProfiles;
   }
 
-  public void setSourceProfiles(List<ProfileOptions> sourceProfiles) {
+  public void setSourceProfiles(Set<ProfileOptions> sourceProfiles) {
     this.sourceProfiles = sourceProfiles;
   }
 
@@ -69,11 +84,11 @@ public class BackupJob {
     this.sinkProfile = sinkProfile;
   }
 
-  public List<ActionDescribable> getRequiredActions() {
+  public Set<ActionProfile> getRequiredActions() {
     return requiredActions;
   }
 
-  public void setRequiredActions(List<ActionDescribable> requiredActions) {
+  public void setRequiredActions(Set<ActionProfile> requiredActions) {
     this.requiredActions = requiredActions;
   }
 

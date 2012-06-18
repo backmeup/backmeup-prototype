@@ -3,26 +3,30 @@ package org.backmeup.logic.impl.helper;
 import java.awt.Desktop;
 import java.awt.Desktop.Action;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 public class URLReader {
-	public static String waitForResult() {
+  
+  public static String waitForResult() {
 		try {
-			ServerSocket ss = new ServerSocket(8080);
+			ServerSocket ss = new ServerSocket(9998, 1);
 			Socket client = ss.accept();
-			InputStream is = client.getInputStream();
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-			bw.write("HTTP");
-			String result = br.readLine();			
+			BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
+			PrintWriter bw = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
+			String result = br.readLine();
+			if (result == null) {
+			  client.close();
+			  ss.close();
+			  return waitForResult();
+			}
+			bw.write("HTTP/1.0 200 OK\r\n\r\nHello World!"); bw.flush();
 			client.close();
 			String[] results = result.split(" ");
 			String res = results[1];

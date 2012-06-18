@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.FlushModeType;
 
+import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 /**
  * The Connection class makes the JPA transaction handling
@@ -15,10 +16,14 @@ import org.backmeup.dal.DataAccessLayer;
  *
  */
 @ApplicationScoped
-public class Connection {
+public class ConnectionImpl implements Connection {
 	private EntityManagerFactory emFactory;
-	private EntityManager em;
+	private ThreadLocal<EntityManager> threadLocalEntityManager;	
 	private DataAccessLayer dal;
+		
+	public ConnectionImpl() {
+	  this.threadLocalEntityManager = new ThreadLocal<EntityManager>();
+	}
 	
 	@Inject
 	public void setEntityManagerFactory(EntityManagerFactory emFactory) {
@@ -30,9 +35,12 @@ public class Connection {
 		this.dal = dal;
 	}
 	
-	public void begin() {
+	public void begin() {	  
+	  EntityManager em = getEntityManager();
+	  
 		if (em == null) {
-			em = emFactory.createEntityManager();
+		  em = emFactory.createEntityManager();
+		  threadLocalEntityManager.set(em);
 			dal.setConnection(em);
 		}
 		
@@ -43,21 +51,38 @@ public class Connection {
 	}
 	
 	public void rollback() {
-		if (em ==null)
+	  EntityManager em = getEntityManager();
+	  
+		if (em == null)
 			return;
-		if (em.getTransaction().isActive())
+		
+		if (em.getTransaction().isActive()) {
 			em.getTransaction().rollback();
+		}
 	}
 	
 	public EntityManager getEntityManager() {
-		return em;
+		return threadLocalEntityManager.get();
 	}
 	
 	public void commit() {
+	  EntityManager em = getEntityManager();
+	  
 		if (em == null) {
 			return;
 		}
-		if (em.getTransaction().isActive())
+		if (em.getTransaction().isActive()) {
 			em.getTransaction().commit();
+		}
 	}
+	
+	private void resetEntityManager() {
+	  threadLocalEntityManager.set(null);
+	  dal.setConnection(null);
+	}
+
+  @Override
+  public void releaseConnection() {
+    resetEntityManager();
+  }
 }

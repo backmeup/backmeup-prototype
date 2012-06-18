@@ -1,7 +1,19 @@
 package org.backmeup.model;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  * The status class contains status information
@@ -10,13 +22,23 @@ import java.util.List;
  * @author fschoeppl
  *
  */
+@Entity
 public class Status {
+  @Id 
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
+  @Column(nullable = false)
+  private Long statusId;
+  
+  @ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER)  
 	private BackupJob job;
 	private String message;
+	@Column(name="typ")
 	private String type;
+	@Temporal(TemporalType.TIMESTAMP)	
 	private Date timeStamp;
 	private String progress;
-	private List<FileItem> files;	
+	@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER, mappedBy="status")
+	private Set<FileItem> files;	
 	
 	public Status() {
 	}
@@ -25,7 +47,7 @@ public class Status {
 		this(job, message, type, timeStamp, null, null);
 	}
 	
-	public Status(BackupJob job, String message, String type, Date timeStamp, String progress, List<FileItem> files) {
+	public Status(BackupJob job, String message, String type, Date timeStamp, String progress, Set<FileItem> files) {
 		this.job = job;
 		this.message = message;
 		this.type = type;
@@ -42,11 +64,11 @@ public class Status {
 		this.progress = progress;
 	}
 
-	public List<FileItem> getFiles() {
+	public Set<FileItem> getFiles() {
 		return files;
 	}
 
-	public void setFiles(List<FileItem> files) {
+	public void setFiles(Set<FileItem> files) {
 		this.files = files;
 	}
 
@@ -75,47 +97,13 @@ public class Status {
 		this.timeStamp = timeStamp;
 	}
 	
-	public static class FileItem {
-		private String thumbnailURL;
-		private String title;
-		private Date timeStamp;
-		private Long fileId;
-		
-		public FileItem() {
-		}
-		
-		public FileItem(String thumbnailURL, String title, Date timeStamp,
-				Long fileId) {
-			this.thumbnailURL = thumbnailURL;
-			this.title = title;
-			this.timeStamp = timeStamp;
-			this.fileId = fileId;
-		}
-		public String getThumbnailURL() {
-			return thumbnailURL;
-		}
-		public void setThumbnailURL(String thumbnailURL) {
-			this.thumbnailURL = thumbnailURL;
-		}
-		public String getTitle() {
-			return title;
-		}
-		public void setTitle(String title) {
-			this.title = title;
-		}
-		public Date getTimeStamp() {
-			return timeStamp;
-		}
-		public void setTimeStamp(Date timeStamp) {
-			this.timeStamp = timeStamp;
-		}
-		public Long getFileId() {
-			return fileId;
-		}
-		public void setFileId(Long fileId) {
-			this.fileId = fileId;
-		}
-		
-		
-	}
+	public Long getStatusId() {
+    return statusId;
+  }
+
+  public void setStatusId(Long statusId) {
+    this.statusId = statusId;
+  }
+
+  
 }

@@ -14,6 +14,8 @@ import org.backmeup.model.Profile;
 public interface ProfileDao extends BaseDao<Profile> {
 
 	List<Profile> findDatasourceProfilesByUsername(String username);
+	
+	List<Profile> findDatasinkProfilesByUsername(String username);
 
 	List<Profile> findProfilesByUsernameAndService(String username, String sourceSinkId);
 }

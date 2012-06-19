@@ -63,8 +63,4 @@ public class Mailer {
     }
     return mailSettings;
   }
-
-  public static void main(String[] args) {
-    send("s1110454043@students.fh-hagenberg.at", "Hello!", "World!");
-  }
 }

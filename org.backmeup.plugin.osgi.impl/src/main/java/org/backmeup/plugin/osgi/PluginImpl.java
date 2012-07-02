@@ -204,7 +204,7 @@ public class PluginImpl implements Plugin {
   public <T> T service(final Class<T> service, final String filter) {
     ServiceReference ref = getReference(service, filter);
     if (ref == null) {
-      throw new PluginException(service.getName(), String.format(
+      throw new PluginException(filter, String.format(
           "Plug-In service of class '%s' not available!", service.getName()));
     }
     bundleContext().ungetService(ref);
@@ -222,7 +222,7 @@ public class PluginImpl implements Plugin {
             try {
               ret = method.invoke(instance, os);
             } catch (Throwable t) {
-              throw new PluginException(service.getName(),
+              throw new PluginException(filter,
                   "An exception occured during execution of the method "
                       + method.getName(), t);
             } finally {

@@ -30,7 +30,7 @@ public class BackupJob {
   private Long id;
   @ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER)
   private User user;
-  @OneToMany(cascade=CascadeType.ALL)
+  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
   private Set<ProfileOptions> sourceProfiles = new HashSet<ProfileOptions>();
   @ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER)
   private Profile sinkProfile;

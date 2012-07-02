@@ -2,6 +2,7 @@ package org.backmeup.logic.impl;
 
 import java.io.InputStream;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.dal.ProfileDao;
@@ -62,6 +64,8 @@ import org.backmeup.plugin.spi.OAuthBased;
 @ApplicationScoped
 public class BusinessLogicImpl implements BusinessLogic {
 
+  private static final String JOB_USER_MISSMATCH = "org.backmeup.logic.impl.BusinessLogicImpl.JOB_USER_MISSMATCH";
+  private static final String NO_SUCH_JOB = "org.backmeup.logic.impl.BusinessLogicImpl.NO_SUCH_JOB";
   private static final String CANNOT_COMPUTE_FREE = "org.backmeup.logic.impl.BusinessLogicImpl.CANNOT_COMPUTE_FREE";
   private static final String NOT_ENOUGH_SPACE = "org.backmeup.logic.impl.BusinessLogicImpl.NOT_ENOUGH_SPACE";
   private static final String CANNOT_COMPUTE_QUOTA = "org.backmeup.logic.impl.BusinessLogicImpl.CANNOT_COMPUTE_QUOTA";
@@ -74,6 +78,8 @@ public class BusinessLogicImpl implements BusinessLogic {
   private static final String USER_DOESNT_EXIST = "org.backmeup.logic.impl.BusinessLogicImpl.USER_DOESNT_EXIST";
   private static final String PARAMETER_NULL = "org.backmeup.logic.impl.BusinessLogicImpl.PARAMETER_NULL";
   private static final String INVALID_USER = "org.backmeup.logic.impl.BusinessLogicImpl.INVALID_USER";
+  private static final String UNKNOWN_PROFILE = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_PROFILE";
+  private static final String UNKNOWN_ACTION = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_ACTION";
 
   @Inject
   private DataAccessLayer dal;
@@ -81,16 +87,13 @@ public class BusinessLogicImpl implements BusinessLogic {
   private Plugin plugins;
   private JobManager jobManager;
 
-  private UserDao userDao;
-  private ProfileDao profileDao; 
-
   @Inject
   @Named("callbackUrl")
   private String callbackUrl;
 
   @Inject
   private Connection conn;
-  
+
   private ResourceBundle textBundle = ResourceBundle
       .getBundle(BusinessLogicImpl.class.getSimpleName());
 
@@ -99,66 +102,99 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public ProfileDao getProfileDao() {
-    if (profileDao == null)
-      profileDao = dal.createProfileDao();
-    return profileDao;
+    return dal.createProfileDao();
   }
 
   public UserDao getUserDao() {
-    if (userDao == null)
-      userDao = dal.createUserDao();
-    return userDao;
+    return dal.createUserDao();
+  }
+
+  public BackupJobDao getBackupJobDao() {
+    return dal.createBackupJobDao();
+  }
+
+  private StatusDao getStatusDao() {
+    return dal.createStatusDao();
   }
 
   public User getUser(String username) {
-    conn.begin();
-    User u = getUserDao().findByName(username);
-    conn.commit();
-    if (u == null)
-      throw new UnknownUserException(username);
-    return u;
+    try {
+      conn.beginOrJoin();
+      User u = getUserDao().findByName(username);
+      if (u == null)
+        throw new UnknownUserException(username);
+      return u;
+    } finally {
+      conn.rollback();
+    }
   }
 
   public User deleteUser(String username) {
     conn.begin();
-    User u = getUserDao().findByName(username);
-    if (u == null) {
+    try {
+      UserDao userDao = getUserDao();
+      User u = userDao.findByName(username);
+      if (u == null) {
+        throw new IllegalArgumentException(textBundle.getString(INVALID_USER));
+      }
+
+      BackupJobDao jobDao = getBackupJobDao();
+      StatusDao statusDao = getStatusDao();
+      for (BackupJob job : jobDao.findByUsername(username)) {
+        for (Status status : statusDao.findByJobId(job.getId())) {
+          statusDao.delete(status);
+        }
+        jobDao.delete(job);
+      }
+
+      ProfileDao profileDao = getProfileDao();
+      for (Profile p : profileDao.findProfilesByUsername(username)) {
+        profileDao.delete(p);
+      }
+
+      userDao.delete(u);
+      conn.commit();
+      return u;
+    } finally {
       conn.rollback();
-      throw new IllegalArgumentException(textBundle.getString(INVALID_USER));
     }
-    getUserDao().delete(u);
-    conn.commit();
-    return u;
   }
 
   public User changeUser(String username, String oldPassword,
       String newPassword, String newKeyRing, String newEmail) {
-    conn.begin();
-    User u = getUserDao().findByName(username);
-    if (!u.getPassword().equals(oldPassword)) {
+    try {
+      conn.begin();
+      UserDao udao = getUserDao();
+      User u = udao.findByName(username);
+      if (!u.getPassword().equals(oldPassword)) {
+        conn.rollback();
+        throw new InvalidCredentialsException();
+      }
+      if (newPassword != null)
+        u.setPassword(newPassword);
+      if (newKeyRing != null)
+        u.setKeyRing(newKeyRing);
+      if (newEmail != null)
+        u.setEmail(newEmail);
+      udao.save(u);
+      conn.commit();
+      return u;
+    } finally {
       conn.rollback();
-      throw new InvalidCredentialsException();
     }
-    if (newPassword != null)
-      u.setPassword(newPassword);
-    if (newKeyRing != null)
-      u.setKeyRing(newKeyRing);
-    if (newEmail != null)
-      u.setEmail(newEmail);
-    getUserDao().save(u);
-    conn.commit();
-    return u;
   }
 
   public User login(String username, String password) {
-    conn.begin();
-    User u = getUserDao().findByName(username);
-    if (!u.getPassword().equals(password)) {
+    try {
+      conn.begin();
+      User u = getUserDao().findByName(username);
+      if (!u.getPassword().equals(password)) {
+        throw new InvalidCredentialsException();
+      }
+      return u;
+    } finally {
       conn.rollback();
-      throw new InvalidCredentialsException();
     }
-    conn.commit();
-    return u;
   }
 
   public User register(String username, String password,
@@ -168,16 +204,20 @@ public class BusinessLogicImpl implements BusinessLogic {
         || email == null) {
       throw new IllegalArgumentException(textBundle.getString(PARAMETER_NULL));
     }
-    conn.begin();
-    User existingUser = getUserDao().findByName(username);
-    if (existingUser != null) {
+    try {
+      conn.begin();
+      UserDao userDao = getUserDao();
+      User existingUser = userDao.findByName(username);
+      if (existingUser != null) {
+        throw new AlreadyRegisteredException(existingUser.getUsername());
+      }
+      User u = new User(username, password, keyRingPassword, email);
+      u = userDao.save(u);
+      conn.commit();
+      return u;
+    } finally {
       conn.rollback();
-      throw new AlreadyRegisteredException(existingUser.getUsername());
     }
-    User u = new User(username, password, keyRingPassword, email);
-    u = getUserDao().save(u);
-    conn.commit();
-    return u;
   }
 
   public List<SourceSinkDescribable> getDatasources() {
@@ -186,23 +226,30 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public List<Profile> getDatasourceProfiles(String username) {
-    conn.begin();
-    List<Profile> profiles = getProfileDao().findDatasourceProfilesByUsername(
-        username);
-    conn.commit();
-    return profiles;
+    try {
+      conn.begin();
+      List<Profile> profiles = getProfileDao()
+          .findDatasourceProfilesByUsername(username);
+      return profiles;
+    } finally {
+      conn.rollback();
+    }
   }
 
   public Profile deleteProfile(String username, Long profile) {
-    conn.begin();
-    Profile p = getProfileDao().findById(profile);
-    if (p == null || !p.getUser().getUsername().equals(username)) {
+    try {
+      conn.begin();
+      ProfileDao profileDao = getProfileDao();
+      Profile p = profileDao.findById(profile);
+      if (p == null || !p.getUser().getUsername().equals(username)) {
+        throw new IllegalArgumentException();
+      }
+      profileDao.delete(p);
+      conn.commit();
+      return p;
+    } finally {
       conn.rollback();
-      throw new IllegalArgumentException();
     }
-    getProfileDao().delete(p);
-    conn.commit();
-    return p;
   }
 
   public List<String> getDatasourceOptions(String username, Long profileId,
@@ -232,8 +279,14 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public List<Profile> getDatasinkProfiles(String username) {
-    // TODO Auto-generated method stub
-    return null;
+    try {
+      conn.begin();
+      List<Profile> profiles = getProfileDao().findDatasinkProfilesByUsername(
+          username);
+      return profiles;
+    } finally {
+      conn.rollback();
+    }
   }
 
   public void uploadDatasinkPlugin(String filename, InputStream data) {
@@ -269,50 +322,114 @@ public class BusinessLogicImpl implements BusinessLogic {
   public BackupJob createBackupJob(String username, List<Long> sourceProfiles,
       Long sinkProfileId, Map<Long, String[]> sourceOptions,
       String[] requiredActions, String timeExpression, String keyRing) {
-    conn.begin();
-    User user = getUserDao().findByName(username);
-    Set<ProfileOptions> profiles = new HashSet<ProfileOptions>();
-    for (Long source : sourceProfiles) {
-      Profile p = getProfileDao().findById(source);
-      if (sourceOptions != null) {
-        profiles.add(new ProfileOptions(p, sourceOptions.get(source)));
-      } else {
-        profiles.add(new ProfileOptions(p, null));
+    try {
+      conn.begin();
+      User user = getUserDao().findByName(username);
+      if (user == null) {
+        throw new IllegalArgumentException(String.format(
+            textBundle.getString(USER_DOESNT_EXIST), username));
       }
-    }
 
-    Profile sink = getProfileDao().findById(sinkProfileId);
+      if (!user.getKeyRing().equals(keyRing))
+        throw new InvalidCredentialsException();
 
-    Set<ActionProfile> actions = new HashSet<ActionProfile>();
-    if (requiredActions != null) {
-      for (String action : requiredActions) {
-        ActionDescribable ad = plugins.getActionById(action);
-        actions.add(new ActionProfile(ad.getId()));
+      Set<ProfileOptions> profiles = new HashSet<ProfileOptions>();
+      if (sourceProfiles.size() == 0) {
+        throw new IllegalArgumentException(
+            "There must be at least one source profile to download data from!");
       }
+
+      for (Long source : sourceProfiles) {
+        Profile p = getProfileDao().findById(source);
+        if (p == null)
+          throw new IllegalArgumentException(String.format(
+              textBundle.getString(UNKNOWN_PROFILE), source));
+
+        if (sourceOptions != null) {
+          profiles.add(new ProfileOptions(p, sourceOptions.get(source)));
+        } else {
+          profiles.add(new ProfileOptions(p, null));
+        }
+      }
+
+      Profile sink = getProfileDao().findById(sinkProfileId);
+      if (sink == null) {
+        throw new IllegalArgumentException(String.format(
+            textBundle.getString(UNKNOWN_PROFILE), sinkProfileId));
+      }
+
+      Set<ActionProfile> actions = new HashSet<ActionProfile>();
+      if (requiredActions != null) {
+        for (String action : requiredActions) {
+          ActionDescribable ad = plugins.getActionById(action);
+          if (ad == null) {
+            throw new IllegalArgumentException(String.format(
+                textBundle.getString(UNKNOWN_ACTION), action));
+          }
+          actions.add(new ActionProfile(ad.getId()));
+        }
+      }
+      BackupJob job = jobManager.createBackupJob(user, profiles, sink, actions,
+          timeExpression, keyRing);
+      conn.commit();
+      return job;
+    } finally {
+      conn.rollback();
     }
-    BackupJob job = jobManager.createBackupJob(user, profiles, sink, actions,
-        timeExpression, keyRing);    
-    conn.commit();
-    return job;
   }
 
   public List<BackupJob> getJobs(String username) {
-    // TODO Auto-generated method stub
-    return null;
+    try {
+      conn.begin();
+      UserDao userDao = getUserDao();
+      User u = userDao.findByName(username);
+      if (u == null)
+        throw new IllegalArgumentException(String.format(
+            textBundle.getString(USER_DOESNT_EXIST), username));
+      BackupJobDao jobDao = getBackupJobDao();
+      return jobDao.findByUsername(username);
+    } finally {
+      conn.rollback();
+    }
   }
 
   public void deleteJob(String username, Long jobId) {
-    // TODO Auto-generated method stub
+    try {
+      conn.begin();
+      getUser(username);
+      BackupJobDao jobDao = getBackupJobDao();
+      BackupJob job = jobDao.findById(jobId);
+      if (job == null)
+        throw new IllegalArgumentException(String.format(NO_SUCH_JOB, jobId));
+      if (!job.getUser().getUsername().equals(username))
+        throw new IllegalArgumentException(String.format(JOB_USER_MISSMATCH,
+            jobId, username));
 
+      jobDao.delete(job);
+      conn.commit();
+    } finally {
+      conn.rollback();
+    }
   }
 
   public List<Status> getStatus(String username, Long jobId, Date fromDate,
       Date toDate) {
-    conn.begin();
-    StatusDao sd = dal.createStatusDao();
-    List<Status> stats = sd.findByJob(username, jobId, fromDate, toDate);
-    conn.commit();
-    return stats;
+    try {
+      conn.begin();
+      getUser(username);
+      BackupJobDao jobDao = getBackupJobDao();
+      BackupJob job = jobDao.findById(jobId);
+      if (job == null)
+        throw new IllegalArgumentException(String.format(NO_SUCH_JOB, jobId));
+      if (!job.getUser().getUsername().equals(username))
+        throw new IllegalArgumentException(String.format(JOB_USER_MISSMATCH,
+            jobId, username));
+      StatusDao sd = dal.createStatusDao();
+      List<Status> stats = sd.findByJob(username, jobId, fromDate, toDate);
+      return stats;
+    } finally {
+      conn.rollback();
+    }
   }
 
   public ProtocolDetails getProtocolDetails(String username, Long fileId) {
@@ -333,68 +450,101 @@ public class BusinessLogicImpl implements BusinessLogic {
         .getSourceSinkById(uniqueDescIdentifier);
     org.backmeup.model.spi.SourceSinkDescribable.Type type = desc.getType();
     AuthRequest ar = new AuthRequest();
-    conn.begin();
-    User user = getUserDao().findByName(username);
-    if (user == null)
-      throw new IllegalArgumentException(String.format(
-          textBundle.getString(USER_DOESNT_EXIST), username));
-    Profile profile = new Profile(getUserDao().findByName(username),
-        profileName, uniqueDescIdentifier, type);
-    switch (auth.getAuthType()) {
-    case OAuth:
-      OAuthBased oauth = plugins
-          .getOAuthBasedAuthorizable(uniqueDescIdentifier);
-      Properties p = new Properties();
-      p.setProperty("callback", callbackUrl);
-      String redirectUrl = oauth.createRedirectURL(p, callbackUrl);
-      ar.setRedirectURL(redirectUrl);
-      for (Object key : p.keySet()) {
-        String keyString = (String) key;
-        profile.putEntry(keyString, p.getProperty(keyString));
+    try {
+      conn.begin();
+      UserDao userDao = getUserDao();
+      User user = userDao.findByName(username);
+      if (user == null) {
+        conn.rollback();
+        throw new IllegalArgumentException(String.format(
+            textBundle.getString(USER_DOESNT_EXIST), username));
       }
+
+      if (!user.getKeyRing().equals(keyRing)) {
+        conn.rollback();
+        throw new InvalidCredentialsException();
+      }
+      Profile profile = new Profile(getUserDao().findByName(username),
+          profileName, uniqueDescIdentifier, type);
+      switch (auth.getAuthType()) {
+      case OAuth:
+        OAuthBased oauth = plugins
+            .getOAuthBasedAuthorizable(uniqueDescIdentifier);
+        Properties p = new Properties();
+        p.setProperty("callback", callbackUrl);
+        String redirectUrl = oauth.createRedirectURL(p, callbackUrl);
+        ar.setRedirectURL(redirectUrl);
+        for (Object key : p.keySet()) {
+          String keyString = (String) key;
+          profile.putEntry(keyString, p.getProperty(keyString));
+        }
+        break;
+      case InputBased:
+        InputBased ibased = plugins
+            .getInputBasedAuthorizable(uniqueDescIdentifier);
+        ar.setRequiredInputs(ibased.getRequiredInputFields());
+        Map<String, String> typeMapping = new HashMap<String, String>();
+        for (String key : ibased.getTypeMapping().keySet()) {
+          InputBased.Type ibType = ibased.getTypeMapping().get(key);
+          typeMapping.put(key, ibType.toString());
+        }
+        ar.setTypeMapping(typeMapping);
+        break;
+      }
+      profile = getProfileDao().save(profile);
+      conn.commit();
+      ar.setProfile(profile);
+      return ar;
+    } finally {
+      conn.rollback();
     }
-    profile = getProfileDao().save(profile);
-    conn.commit();
-    ar.setProfile(profile);
-    return ar;
   }
 
   public void postAuth(Long profileId, Properties props, String keyRing)
       throws PluginException, ValidationException, InvalidCredentialsException {
-    conn.begin();
-    Profile p = getProfileDao().findById(profileId);
+    try {
+      conn.begin();
+      ProfileDao profileDao = getProfileDao();
+      Profile p = profileDao.findById(profileId);
 
-    for (ProfileEntry pe : p.getEntries()) {
-      props.setProperty(pe.getKey(), pe.getValue());
-    }
+      for (ProfileEntry pe : p.getEntries()) {
+        // populate with data that has not been passed within props
+        if (!props.containsKey(pe.getKey()))
+          props.setProperty(pe.getKey(), pe.getValue());
+      }
 
-    Authorizable auth = plugins.getAuthorizable(p.getDesc());
-    if (auth.getAuthType() == AuthorizationType.InputBased) {
-      InputBased inputBasedService = plugins.getInputBasedAuthorizable(p
-          .getDesc());
-      if (inputBasedService.isValid(props)) {
+      Authorizable auth = plugins.getAuthorizable(p.getDesc());
+      if (auth.getAuthType() == AuthorizationType.InputBased) {
+        InputBased inputBasedService = plugins.getInputBasedAuthorizable(p
+            .getDesc());
+        if (inputBasedService.isValid(props)) {
+          auth.postAuthorize(props);
+          for (Object key : props.keySet()) {
+            String keyStr = (String) key;
+            p.putEntry(keyStr, props.getProperty(keyStr));
+          }
+          profileDao.save(p);
+          conn.commit();
+          return;
+        } else {
+          conn.rollback();
+          throw new ValidationException(ValidationExceptionType.AuthException,
+              textBundle.getString(VALIDATION_OF_ACCESS_DATA_FAILED));
+        }
+      } else {
         auth.postAuthorize(props);
         for (Object key : props.keySet()) {
           String keyStr = (String) key;
           p.putEntry(keyStr, props.getProperty(keyStr));
         }
-        getProfileDao().save(p);
+        profileDao.save(p);
         conn.commit();
-        return;
-      } else {
-        conn.rollback();
-        throw new ValidationException(ValidationExceptionType.AuthException,
-            textBundle.getString(VALIDATION_OF_ACCESS_DATA_FAILED));
       }
-    } else {
-      auth.postAuthorize(props);
-      for (Object key : props.keySet()) {
-        String keyStr = (String) key;
-        p.putEntry(keyStr, props.getProperty(keyStr));
-      }
-      // conn.begin();
-      getProfileDao().save(p);
-      conn.commit();
+    } catch (PluginException pe) {
+      // TODO: Log exception
+      pe.printStackTrace();
+    } finally {
+      conn.rollback();
     }
   }
 
@@ -415,7 +565,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   public void setDataAccessLayer(DataAccessLayer dal) {
     this.dal = dal;
-    //conn.setDataAccessLayer(dal);
+    // conn.setDataAccessLayer(dal);
   }
 
   public Plugin getPlugins() {
@@ -443,7 +593,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     this.jobManager = jobManager;
     this.jobManager.start();
   }
-  
+
   public String getCallbackUrl() {
     return callbackUrl;
   }
@@ -454,110 +604,152 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   @Override
   public Properties getMetadata(String username, Long profileId) {
-    conn.begin();
-    Profile p = getProfileDao().findById(profileId);
-    if (!p.getUser().getUsername().equals(username)) {
-      conn.rollback();
-      throw new IllegalArgumentException(String.format(textBundle.getString(USER_HAS_NO_PROFILE), username, profileId));
-    }
-    SourceSinkDescribable ssd = plugins.getSourceSinkById(p.getDesc());
-    if (ssd == null) {
-      conn.rollback();
-      throw new IllegalArgumentException(String.format(textBundle.getString(UNKNOWN_SOURCE_SINK), p.getDesc()));
-    }    
-    getUser(username);
-    Properties accessData = p.getEntriesAsProperties();
-    Properties metadata = ssd.getMetadata(accessData);
-    conn.commit();
-    return metadata;
-  }
-    
-  public ValidationNotes validateProfile(String username, Long profileId) {
-    
     try {
+      conn.beginOrJoin();
       Profile p = getProfileDao().findById(profileId);
-      if (p == null  || !p.getUser().getUsername().equals(username)) {
-        throw new IllegalArgumentException(String.format(textBundle.getString(USER_HAS_NO_PROFILE), username, profileId));
+      if (p == null) {
+        throw new IllegalArgumentException(String.format(
+            textBundle.getString(UNKNOWN_PROFILE), profileId));
+      }
+      if (!p.getUser().getUsername().equals(username)) {
+        throw new IllegalArgumentException(String.format(
+            textBundle.getString(USER_HAS_NO_PROFILE), username, profileId));
+      }
+      SourceSinkDescribable ssd = plugins.getSourceSinkById(p.getDesc());
+      if (ssd == null) {
+        throw new IllegalArgumentException(String.format(
+            textBundle.getString(UNKNOWN_SOURCE_SINK), p.getDesc()));
+      }
+
+      Properties accessData = p.getEntriesAsProperties();
+      Properties metadata = ssd.getMetadata(accessData);
+      return metadata;
+    } finally {
+      conn.rollback();
+    }
+  }
+
+  public ValidationNotes validateProfile(String username, Long profileId) {
+
+    try {
+      conn.beginOrJoin();
+      Profile p = getProfileDao().findById(profileId);
+      if (p == null || !p.getUser().getUsername().equals(username)) {
+        throw new IllegalArgumentException(String.format(
+            textBundle.getString(USER_HAS_NO_PROFILE), username, profileId));
       }
       Validationable validator = plugins.getValidator(p.getDesc());
       Properties accessData = p.getEntriesAsProperties();
       return validator.validate(accessData);
-      
+
     } catch (PluginException pe) {
       ValidationNotes notes = new ValidationNotes();
       notes.addValidationEntry(ValidationExceptionType.Error, pe.getMessage());
       return notes;
-    } 
+    } finally {
+      conn.rollback();
+    }
   }
-  
+
   @Override
   public ValidationNotes validateBackupJob(String username, Long jobId) {
-    BackupJob job = jobManager.getBackUpJob(jobId);
-    if (job == null) {
-      throw new IllegalArgumentException(String.format(textBundle.getString(UNKNOWN_JOB_WITH_ID), jobId));
-    } 
-    ValidationNotes notes = new ValidationNotes(); 
     try {
-      // plugin-level validation
-      double requiredSpace = 0;
-      for (ProfileOptions po : job.getSourceProfiles()) {
-        // Validate source plug-in itself
-        notes.getValidationEntries().addAll(validateProfile(username, po.getProfile().getProfileId()).getValidationEntries());
-        
-        SourceSinkDescribable ssd = plugins.getSourceSinkById(po.getProfile()
-            .getDesc());
-        if (ssd == null) {
-          notes
-              .addValidationEntry(ValidationExceptionType.Error, String.format(
-                  textBundle.getString(NO_PLUG_IN_FOUND_WITH_ID), po.getProfile().getDesc()));
-        }
+      conn.begin();
+      UserDao userDao = getUserDao();
+      User u = userDao.findByName(username);
+      if (u == null)
+        throw new UnknownUserException(username);
 
-        Properties meta = getMetadata(username, po.getProfile().getProfileId());
-        String quota = meta.getProperty(Metadata.QUOTA);
-        if (quota != null) {
-          requiredSpace += Double.parseDouble(meta.getProperty(Metadata.QUOTA));
+      BackupJob job = jobManager.getBackUpJob(jobId);
+      if (job == null || !job.getUser().getUsername().equals(username)) {
+        throw new IllegalArgumentException(String.format(
+            textBundle.getString(UNKNOWN_JOB_WITH_ID), jobId));
+      }
+
+      ValidationNotes notes = new ValidationNotes();
+      try {
+        // plugin-level validation
+        double requiredSpace = 0;
+        for (ProfileOptions po : job.getSourceProfiles()) {
+          // Validate source plug-in itself
+          notes.getValidationEntries().addAll(
+              validateProfile(username, po.getProfile().getProfileId())
+                  .getValidationEntries());
+
+          SourceSinkDescribable ssd = plugins.getSourceSinkById(po.getProfile()
+              .getDesc());
+          if (ssd == null) {
+            notes.addValidationEntry(ValidationExceptionType.Error, String
+                .format(textBundle.getString(NO_PLUG_IN_FOUND_WITH_ID), po
+                    .getProfile().getDesc()));
+          }
+
+          Properties meta = getMetadata(username, po.getProfile()
+              .getProfileId());
+          String quota = meta.getProperty(Metadata.QUOTA);
+          if (quota != null) {
+            requiredSpace += Double.parseDouble(meta
+                .getProperty(Metadata.QUOTA));
+          } else {
+            notes.addValidationEntry(ValidationExceptionType.Warning, String
+                .format(textBundle.getString(CANNOT_COMPUTE_QUOTA), po
+                    .getProfile().getProfileName(), po.getProfile().getDesc()));
+          }
+        }
+        // TODO: Add required space for index and encryption
+        requiredSpace *= 1.3;
+        // validate sink profile
+        notes.getValidationEntries().addAll(
+            validateProfile(username, job.getSinkProfile().getProfileId())
+                .getValidationEntries());
+
+        // validate available space
+        Properties meta = getMetadata(username, job.getSinkProfile()
+            .getProfileId());
+        String sinkQuota = meta.getProperty(Metadata.QUOTA);
+        String sinkQuotaLimit = meta.getProperty(Metadata.QUOTA_LIMIT);
+        if (sinkQuota != null && sinkQuotaLimit != null) {
+          double freeSpace = Double.parseDouble(sinkQuotaLimit)
+              - Double.parseDouble(sinkQuota);
+          if (freeSpace < requiredSpace) {
+            notes.addValidationEntry(
+                ValidationExceptionType.NotEnoughSpaceException, String.format(
+                    textBundle.getString(NOT_ENOUGH_SPACE), requiredSpace,
+                    freeSpace, job.getSinkProfile().getProfileName(), job
+                        .getSinkProfile().getDesc()));
+          }
         } else {
-          notes
-              .addValidationEntry(
-                  ValidationExceptionType.Warning,
-                  String
-                      .format(
-                          textBundle.getString(CANNOT_COMPUTE_QUOTA),
-                          po.getProfile().getProfileName(), po.getProfile()
-                              .getDesc()));
+          notes.addValidationEntry(ValidationExceptionType.Warning, String
+              .format(textBundle.getString(CANNOT_COMPUTE_FREE), job
+                  .getSinkProfile().getProfileName(), job.getSinkProfile()
+                  .getDesc()));
         }
+      } catch (BackMeUpException bme) {
+        notes.addValidationEntry(ValidationExceptionType.Error,
+            bme.getMessage());
       }
-      // TODO: Add required space for index and encryption  
-      requiredSpace *= 1.3; 
-      // validate sink profile
-      notes.getValidationEntries().addAll(validateProfile(username, job.getSinkProfile().getProfileId()).getValidationEntries());
-      
-      // validate available space
-      Properties meta = getMetadata(username, job.getSinkProfile().getProfileId());
-      String sinkQuota = meta.getProperty(Metadata.QUOTA);
-      String sinkQuotaLimit = meta.getProperty(Metadata.QUOTA_LIMIT);
-      if (sinkQuota != null && sinkQuotaLimit != null) {
-        double freeSpace = Double.parseDouble(sinkQuotaLimit) - Double.parseDouble(sinkQuota);
-        if (freeSpace < requiredSpace) {
-          notes
-              .addValidationEntry(
-                  ValidationExceptionType.NotEnoughSpaceException,
-                  String
-                      .format(
-                          textBundle.getString(NOT_ENOUGH_SPACE),
-                          requiredSpace, freeSpace, job.getSinkProfile()
-                              .getProfileName(), job.getSinkProfile().getDesc()));
-        }
-      } else {
-        notes.addValidationEntry(ValidationExceptionType.Warning, String
-            .format(
-                textBundle.getString(CANNOT_COMPUTE_FREE),
-                job.getSinkProfile().getProfileName(), job.getSinkProfile()
-                    .getDesc()));
-      }
-    } catch (BackMeUpException bme) {
-      notes.addValidationEntry(ValidationExceptionType.Error, bme.getMessage());
+      return notes;
+    } finally {
+      conn.rollback();
     }
-    return notes;
+  }
+
+  @Override
+  public void addProfileEntries(Long profileId, Properties entries) {
+    try {
+      conn.begin();
+      ProfileDao dao = getProfileDao();
+      Profile p = dao.findById(profileId);
+      if (p == null) {
+        throw new IllegalArgumentException("Unknown profile " + profileId);
+      }
+      for (Object key : entries.keySet()) {
+        p.putEntry(key.toString(), entries.get(key).toString());
+      }
+      dao.save(p);
+      conn.commit();
+    } finally {
+      conn.rollback();
+    }
   }
 }

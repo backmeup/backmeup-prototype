@@ -10,6 +10,7 @@
 		<!-- build the plugins -->
 		<module>org.backmeup.dropbox</module>
                 <module>org.backmeup.skydrive</module>
+                <module>org.backmeup.moodle</module>
 	</modules>
         <!-- use java 1.6 -->
 	<build>

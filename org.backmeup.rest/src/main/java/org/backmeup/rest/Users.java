@@ -38,6 +38,7 @@ public class Users extends Base {
 
 	@PUT
 	@Path("{username}")
+	@Produces("application/json")
 	public void changeUser(@PathParam("username") String username,
 			@FormParam("oldPassword") String oldPassword,
 			@FormParam("password") String newPassword,
@@ -48,6 +49,7 @@ public class Users extends Base {
 
 	@POST
 	@Path("{username}/login")
+	@Produces("application/json")
 	public void login(@PathParam("username") String username,
 			@FormParam("password") String password) {
 		getLogic().login(username, password);

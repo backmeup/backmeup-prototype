@@ -35,4 +35,14 @@ public class StatusDaoImpl extends BaseDaoImpl<Status> implements StatusDao {
     return q.getResultList();
   }
 
+  @Override
+  public List<Status> findByJobId(Long jobId) {
+    String query = "SELECT s FROM " + entityClass.getName()
+        + " s WHERE s.job.id=:jobId";
+   
+    TypedQuery<Status> q = em.createQuery(query, Status.class);    
+    q.setParameter("jobId", jobId);        
+    return q.getResultList();
+  }
+
 }

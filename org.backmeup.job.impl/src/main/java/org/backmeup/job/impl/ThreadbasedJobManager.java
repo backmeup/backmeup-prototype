@@ -79,14 +79,13 @@ public class ThreadbasedJobManager implements JobManager {
 
   @Inject
   private DataAccessLayer dal;
-  
+
   @Inject
   private Connection conn;
-   
+
   @Inject
   @Named("job.temporaryDirectory")
-  private String temporaryDirectory;  
-  private BackupJobDao backupJobDao;
+  private String temporaryDirectory;
   private boolean started;
 
   public ThreadbasedJobManager() {
@@ -97,42 +96,33 @@ public class ThreadbasedJobManager implements JobManager {
 
   public BackupJob createBackupJob(User user,
       Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
-      Set<ActionProfile> requiredActions, String timeExpression,
-      String keyRing) {
+      Set<ActionProfile> requiredActions, String timeExpression, String keyRing) {
     BackupJob bj = new BackupJob(user, sourceProfiles, sinkProfile,
-        requiredActions, timeExpression);    
+        requiredActions, timeExpression);
     bj = getBackupJobDao().save(bj);
     jobs.add(bj);
     allJobs.put(bj.getId(), bj);
     return bj;
   }
-  
+
   private BackupJobDao getBackupJobDao() {
-    if (this.backupJobDao == null) {
-      this.backupJobDao = dal.createBackupJobDao();
-    }
-    return this.backupJobDao;
+    return dal.createBackupJobDao();
   }
 
   public class ThreadJobExecutor extends Thread {
 
     private volatile boolean running;
-    
-    private StatusDao statusDao;
 
     public ThreadJobExecutor() {
       running = true;
       setDaemon(false);
     }
-    
+
     private StatusDao getStatusDao() {
-      if (this.statusDao == null) {
-        this.statusDao = dal.createStatusDao();
-      }
-      return this.statusDao;
+      return dal.createStatusDao();
     }
 
-    public void run() {
+    public void run() {      
       System.err.println("ThreadBasedExecutor: "
           + Thread.currentThread().getName());
       if (temporaryDirectory == null) {
@@ -146,92 +136,102 @@ public class ThreadbasedJobManager implements JobManager {
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
-        if (!jobs.isEmpty()) {          
+        if (!jobs.isEmpty()) {
           BackupJob job = jobs.get(0);
           jobs.remove(0);
-          
-          job = getBackupJobDao().findById(job.getId());
-          Status s = new Status(job, String.format(
-              textBundle.getString(BEGIN_JOB_MSG), job.getId()), "START",
-              new Date());
-          conn.begin();
-          getStatusDao().save(s);
-          conn.commit();
+          try {
+            conn.begin();
+            job = getBackupJobDao().findById(job.getId());
+            Status s = new Status(job, String.format(
+                textBundle.getString(BEGIN_JOB_MSG), job.getId()), "START",
+                new Date());
 
-          Datasink sink = plugins.getDatasink(job.getSinkProfile().getDesc());
-          Properties sinkProps = job.getSinkProfile().getEntriesAsProperties();
-          boolean hasErrors = false;
-          for (ProfileOptions po : job.getSourceProfiles()) {
-            Datasource source = plugins
-                .getDatasource(po.getProfile().getDesc());
-            Properties sourceProperties = po.getProfile()
+            getStatusDao().save(s);
+            conn.commit();
+
+            Datasink sink = plugins.getDatasink(job.getSinkProfile().getDesc());
+            Properties sinkProps = job.getSinkProfile()
                 .getEntriesAsProperties();
-            try {
-              StorageWriter writer = new LocalFilesystemStorageWriter();
-              StorageReader reader = new LocalFilesystemStorageReader();
+            boolean hasErrors = false;
+            for (ProfileOptions po : job.getSourceProfiles()) {
+              Datasource source = plugins.getDatasource(po.getProfile()
+                  .getDesc());
+              Properties sourceProperties = po.getProfile()
+                  .getEntriesAsProperties();
               try {
-                DateFormat format = new SimpleDateFormat("yyyy_MM_dd hh_mm");
-                String time = format.format(new Date());
-                File f = new File(temporaryDirectory + "/"
-                    + po.getProfile().getProfileName() + "_" + time);
-                f.mkdirs();
-                writer.open(f.getPath());
-                reader.open(f.getPath());
-              } catch (StorageException e1) {
-                e1.printStackTrace();
+                StorageWriter writer = new LocalFilesystemStorageWriter();
+                StorageReader reader = new LocalFilesystemStorageReader();
+                try {
+                  DateFormat format = new SimpleDateFormat("yyyy_MM_dd hh_mm");
+                  String time = format.format(new Date());
+                  File f = new File(temporaryDirectory + "/"
+                      + po.getProfile().getProfileName() + "_" + time);
+                  f.mkdirs();
+                  writer.open(f.getPath());
+                  reader.open(f.getPath());
+                } catch (StorageException e1) {
+                  e1.printStackTrace();
+                }
+                source.downloadAll(sourceProperties, writer,
+                    new ConsoleProgressor());
+                s = new Status(job, String.format(
+                    textBundle.getString(DOWNLOAD_COMPLETED_MSG), job.getId(),
+                    po.getProfile().getProfileName()), "WORKING", new Date());
+                conn.begin();
+                getStatusDao().save(s);
+                conn.commit();
+                sink.upload(sinkProps, reader, new ConsoleProgressor());
+                s = new Status(job, String.format(
+                    textBundle.getString(UPLOAD_COMPLETED_MSG), job.getId(),
+                    job.getSinkProfile().getProfileName()), "WORKING",
+                    new Date());
+                conn.begin();
+                getStatusDao().save(s);
+                conn.commit();
+                writer.close();
+                reader.close();
+              } catch (DatasourceException e) {
+                e.printStackTrace();
+                logErrorMessage(job, e);
+                hasErrors = true;
+              } catch (StorageException e) {
+                e.printStackTrace();
+                logErrorMessage(job, e);
+                hasErrors = true;
+              } catch (BackMeUpException me) {
+                me.printStackTrace();
+                logErrorMessage(job, me);
+                hasErrors = true;
+              } catch (Exception ex) {
+                ex.printStackTrace();
+                logErrorMessage(job, ex);
+                hasErrors = true;
               }
-              source.downloadAll(sourceProperties, writer,
-                  new ConsoleProgressor());
-              s = new Status(job, String.format(textBundle
-                  .getString(DOWNLOAD_COMPLETED_MSG), job.getId(), po
-                  .getProfile().getProfileName()), "WORKING", new Date());
-              conn.begin();
-              getStatusDao().save(s);
-              conn.commit();
-              sink.upload(sinkProps, reader, new ConsoleProgressor());
-              s = new Status(job, String.format(textBundle
-                  .getString(UPLOAD_COMPLETED_MSG), job.getId(), job
-                  .getSinkProfile().getProfileName()), "WORKING", new Date());
-              conn.begin();
-              getStatusDao().save(s);
-              conn.commit();
-              writer.close();
-              reader.close();
-            } catch (DatasourceException e) {
-              e.printStackTrace();
-              logErrorMessage(job, e);
-              hasErrors = true;
-            } catch (StorageException e) {
-              e.printStackTrace();
-              logErrorMessage(job, e);
-              hasErrors = true;
-            } catch (BackMeUpException me) {
-              me.printStackTrace();
-              logErrorMessage(job, me);
-              hasErrors = true;
-            } catch (Exception ex) {
-              ex.printStackTrace();
-              logErrorMessage(job, ex);
-              hasErrors = true;
+              if (!hasErrors) {
+                s = new Status(job, String.format(
+                    textBundle.getString(FINISH_JOB_MSG), job.getId()),
+                    "FINISHED", new Date());
+                conn.begin();
+                getStatusDao().save(s);
+                conn.commit();
+                Mailer.send(job.getUser().getEmail(), s.getMessage(),
+                    textBundle.getString(MAIL_FINISH_MSG));
+              } else {
+                s = new Status(job, String.format(
+                    textBundle.getString(FINISH_JOB_WITH_ERRORS_MSG),
+                    job.getId()), "ERROR", new Date());
+                conn.begin();
+                getStatusDao().save(s);
+                conn.commit();
+                Mailer.send(job.getUser().getEmail(), s.getMessage(),
+                    textBundle.getString(MAIL_WITH_ERRORS_MSG));
+              }
             }
-            if (!hasErrors) {
-              s = new Status(job, String.format(
-                  textBundle.getString(FINISH_JOB_MSG), job.getId()),
-                  "FINISHED", new Date());
-              conn.begin();
-              getStatusDao().save(s);
-              conn.commit();
-              Mailer.send(job.getUser().getEmail(), s.getMessage(), textBundle.getString(MAIL_FINISH_MSG));
-            } else {
-              s = new Status(job,
-                  String.format(
-                      textBundle.getString(FINISH_JOB_WITH_ERRORS_MSG),
-                      job.getId()), "ERROR", new Date());
-              conn.begin();
-              getStatusDao().save(s);
-              conn.commit();
-              Mailer.send(job.getUser().getEmail(), s.getMessage(), textBundle.getString(MAIL_WITH_ERRORS_MSG));
-            }            
+          } catch (Exception ex) {
+            // TODO: Log exception
+            ex.printStackTrace();
+          } finally {
+            conn.rollback();
           }
         }
       }

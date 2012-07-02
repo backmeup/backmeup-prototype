@@ -44,6 +44,7 @@
 		org.backmeup.rest.Datasinks,
 		org.backmeup.rest.Datasources,
 		org.backmeup.rest.Users,
+		org.backmeup.rest.Profiles,
 		org.backmeup.rest.Metadata
 		</param-value>
 	</context-param>

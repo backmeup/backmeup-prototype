@@ -1,5 +1,7 @@
 package org.backmeup.logic.impl.util;
 
+import java.util.Stack;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -18,11 +20,13 @@ import org.backmeup.dal.DataAccessLayer;
 @ApplicationScoped
 public class ConnectionImpl implements Connection {
 	private EntityManagerFactory emFactory;
-	private ThreadLocal<EntityManager> threadLocalEntityManager;	
+	private ThreadLocal<EntityManager> threadLocalEntityManager;
+	private ThreadLocal<Stack<Boolean>> joinedTransactions;
 	private DataAccessLayer dal;
 		
 	public ConnectionImpl() {
 	  this.threadLocalEntityManager = new ThreadLocal<EntityManager>();
+	  joinedTransactions = new ThreadLocal<Stack<Boolean>>(); 
 	}
 	
 	@Inject
@@ -35,13 +39,24 @@ public class ConnectionImpl implements Connection {
 		this.dal = dal;
 	}
 	
-	public void begin() {	  
+	private EntityManager getOrCreateEntityManager() {
 	  EntityManager em = getEntityManager();
-	  
-		if (em == null) {
-		  em = emFactory.createEntityManager();
-		  threadLocalEntityManager.set(em);
-			dal.setConnection(em);
+    
+    if (em == null) {
+      em = emFactory.createEntityManager();
+      threadLocalEntityManager.set(em);
+      dal.setConnection(em);
+    }
+    
+    return em;
+	}
+	
+	public void begin() {	  
+	  EntityManager em = getOrCreateEntityManager(); 
+		
+		if (em.getTransaction().isActive()) {
+		  System.out.println("Warning: Transaction already active! Rolling back");
+		  em.getTransaction().rollback();
 		}
 		
 		if (!em.getTransaction().isActive()) {		
@@ -53,11 +68,18 @@ public class ConnectionImpl implements Connection {
 	public void rollback() {
 	  EntityManager em = getEntityManager();
 	  
-		if (em == null)
-			return;
+		if (em == null) {		  
+		  return;
+		}
 		
-		if (em.getTransaction().isActive()) {
-			em.getTransaction().rollback();
+		Stack<Boolean> transactionStack = joinedTransactions.get();
+		if (transactionStack == null || transactionStack.isEmpty()) {
+  		if (em.getTransaction().isActive()) {
+  			em.getTransaction().rollback();
+  		}
+  		resetEntityManager();
+		} else {
+		  transactionStack.pop();
 		}
 	}
 	
@@ -69,20 +91,36 @@ public class ConnectionImpl implements Connection {
 	  EntityManager em = getEntityManager();
 	  
 		if (em == null) {
+		  System.err.println("Has already been committed/rolled back!");
 			return;
 		}
 		if (em.getTransaction().isActive()) {
 			em.getTransaction().commit();
 		}
+		resetEntityManager();
 	}
 	
 	private void resetEntityManager() {
+	  EntityManager em = getEntityManager();
+	  if (em != null)
+	    em.close();
 	  threadLocalEntityManager.set(null);
 	  dal.setConnection(null);
 	}
 
   @Override
-  public void releaseConnection() {
-    resetEntityManager();
+  public void beginOrJoin() {
+    EntityManager em = getOrCreateEntityManager();
+    
+    if (!em.getTransaction().isActive()) {    
+      em.setFlushMode(FlushModeType.COMMIT);
+      em.getTransaction().begin();
+    } else {
+      Stack<Boolean> transactionStack = joinedTransactions.get();
+      if (transactionStack == null) 
+        transactionStack = new Stack<Boolean>();
+      transactionStack.push(true);
+      joinedTransactions.set(transactionStack);
+    }
   }
 }

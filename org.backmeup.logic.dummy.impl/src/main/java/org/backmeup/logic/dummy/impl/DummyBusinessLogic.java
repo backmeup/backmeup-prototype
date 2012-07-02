@@ -820,4 +820,10 @@ public class DummyBusinessLogic implements BusinessLogic {
     // TODO Auto-generated method stub
     return null;
   }
+
+  @Override
+  public void addProfileEntries(Long profileId, Properties entries) {
+    // TODO Auto-generated method stub
+    
+  }
 }

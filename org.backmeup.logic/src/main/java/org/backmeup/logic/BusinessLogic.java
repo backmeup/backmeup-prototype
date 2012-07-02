@@ -59,6 +59,9 @@ public interface BusinessLogic {
 	public void uploadDatasinkPlugin(String filename, InputStream data);
 	public void deleteDatasinkPlugin(String name);
 	
+	// profile operation
+	public void addProfileEntries(Long profileId, Properties entries);
+	
 	//validate profile operation
 	public ValidationNotes validateProfile(String username, Long profileId);
 	

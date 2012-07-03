@@ -1,5 +1,6 @@
 package org.backmeup.moodle;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
@@ -62,7 +63,9 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 
 			for (int i = 0; i < nodes.getLength(); i++) {
 				String fileuri = nodes.item(i).getLastChild().getTextContent();
-				results.add(new FilesystemURI(new URI(fileuri), false));
+				FilesystemURI filesystemUri = new FilesystemURI(new URI(fileuri), false);
+				filesystemUri.setMappedUri(new URI(new File(fileuri).getName())); // just us the name of the file as its destination
+				results.add(filesystemUri);
 			}
 
 		} catch (Exception e) {

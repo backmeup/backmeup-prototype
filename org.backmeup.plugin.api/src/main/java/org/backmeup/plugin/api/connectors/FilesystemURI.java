@@ -6,6 +6,8 @@ public class FilesystemURI {
 	
 	private URI uri;
 	
+	private URI mappedUri;
+	
 	private boolean isDirectory;
 	
 	public FilesystemURI(URI uri, boolean isDirectory) {
@@ -25,5 +27,13 @@ public class FilesystemURI {
 	public String toString() {
 		return uri.toString();
 	}
+
+  public URI getMappedUri() {
+    return mappedUri;
+  }
+
+  public void setMappedUri(URI mappedUri) {
+    this.mappedUri = mappedUri;
+  }
 
 }

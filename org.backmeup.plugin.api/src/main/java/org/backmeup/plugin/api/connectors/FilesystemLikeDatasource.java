@@ -1,6 +1,7 @@
 package org.backmeup.plugin.api.connectors;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.util.List;
 import java.util.Properties;
 
@@ -37,7 +38,10 @@ public abstract class FilesystemLikeDatasource implements Datasource {
 			if (is == null) {
 				//Logger.warn("Got a null input stream for " + uri.getUri().getPath().toString());
 			} else {
-				storage.addFile(is, uri.getUri().getPath().toString());
+			  URI destination = uri.getMappedUri();
+			  if (destination == null)
+			    destination = uri.getUri();
+				storage.addFile(is, destination.getPath().toString());
 			}
 		}
 	}

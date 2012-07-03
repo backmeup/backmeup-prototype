@@ -3,4 +3,5 @@
 	<bean id="skydriveAuthenticator" class="org.backmeup.skydrive.Authenticator"/>
 	<bean id="skydriveDescriptor" class="org.backmeup.skydrive.SkyDriveDescriptor"/>
 	<bean id="skydriveDatasink" class="org.backmeup.skydrive.SkyDriveDatasink"/>
+	<bean id="skydriveDatasource" class="org.backmeup.skydrive.SkyDriveDatasource"/>
 </blueprint>

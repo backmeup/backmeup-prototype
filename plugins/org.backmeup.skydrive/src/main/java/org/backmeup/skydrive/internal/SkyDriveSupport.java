@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -117,6 +118,55 @@ public class SkyDriveSupport {
 			System.out.println(r.getCode());
 		}
 		return null;
+	}
+	
+	public static class Entry {
+		private String name;
+		private String id;
+		private boolean isDirectory;
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
+		public String getId() {
+			return id;
+		}
+		public void setId(String id) {
+			this.id = id;
+		}
+		public boolean isDirectory() {
+			return isDirectory;
+		}
+		public void setDirectory(boolean isDirectory) {
+			this.isDirectory = isDirectory;
+		}
+	}
+	
+	public static List<Entry> getFolderContent(OAuthService service,
+			Token accessToken, String folderId) {
+		List<Entry> result = new ArrayList<Entry>();
+		OAuthRequest request = new OAuthRequest(Verb.GET, String.format(FOLDER_URL,
+				folderId));
+		service.signRequest(accessToken, request);
+		// Request will look like this:
+		// GET https://beta.apis.live.net/v5.0/FOLDER_ID/files
+		Response r = request.send();
+		if (r.isSuccessful()) {
+			JSONArray array = parseJSONProperty("data", r.getBody());
+			for (Object innerObj : array) {
+				JSONObject item = (JSONObject) innerObj;
+				// If the folder/file is within this directory, return its
+				// id.
+				Entry e = new Entry();
+				e.setName((String) item.get("name"));
+				e.setId((String) item.get("id"));
+				e.setDirectory(item.get("id").toString().startsWith("folder"));
+				result.add(e);
+			} // for
+		} // if
+		return result;
 	}
 
 	public static String findFolderOrFileId(OAuthService service,
@@ -255,7 +305,7 @@ public class SkyDriveSupport {
 	 *          The file to download
 	 * @return The response containing the file or null, if download failed.
 	 */
-	private static String getContentAsString(OAuthService service,
+	public static String getContentAsString(OAuthService service,
 			Token accessToken, String fileId) {
 		OAuthRequest request = new OAuthRequest(Verb.GET, String.format(
 				CONTENT_URL, fileId));
@@ -270,8 +320,41 @@ public class SkyDriveSupport {
 			request = new OAuthRequest(Verb.GET, location);
 			response = request.send();
 			if (response.isSuccessful()) {
-				// this is the real content of the file
+				// this is the real content of the file				
 				return response.getBody();
+			} // if
+		} // if
+		return null;
+	} // getContentAsString
+	
+	/**
+	 * Retrieves a file from SkyDrive server.
+	 * 
+	 * @param service
+	 *          The service that signs the requests
+	 * @param accessToken
+	 *          The access token of the user
+	 * @param fileId
+	 *          The file to download
+	 * @return The response containing the file or null, if download failed.
+	 */
+	public static InputStream getContentAsStream(OAuthService service,
+			Token accessToken, String fileId) {
+		OAuthRequest request = new OAuthRequest(Verb.GET, String.format(
+				CONTENT_URL, fileId));
+		service.signRequest(accessToken, request);
+		// The request will look like this:
+		// GET https://beta.apis.live.net/v5.0/file.ID/content
+		Response response = request.send();
+		if (response.isSuccessful()) {
+			// The response contains a redirect location, looking like that:
+			// http://storage.live.com/VERY_LONG_UNIQUE_ID/My%20Textfile.txt:Binary
+			String location = response.getHeader("Location");
+			request = new OAuthRequest(Verb.GET, location);
+			response = request.send();
+			if (response.isSuccessful()) {
+				// this is the real content of the file							
+				return response.getStream();
 			} // if
 		} // if
 		return null;

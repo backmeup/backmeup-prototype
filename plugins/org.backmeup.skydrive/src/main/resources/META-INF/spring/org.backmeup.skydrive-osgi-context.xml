@@ -16,4 +16,9 @@
 			<entry key="name" value="org.backmeup.skydrive"/>
 		</service-properties>
 	</service>
+	<service id="skydriveDatasourceService" ref="skydriveDatasource" auto-export="interfaces">
+		<service-properties>
+			<entry key="name" value="org.backmeup.skydrive"/>
+		</service-properties>
+	</service>
 </blueprint>

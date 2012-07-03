@@ -39,7 +39,7 @@ public class SkyDriveDescriptor implements SourceSinkDescribable {
 
 	@Override
 	public Type getType() {
-		return Type.Sink;
+		return Type.Both;
 	}
 
 	@Override

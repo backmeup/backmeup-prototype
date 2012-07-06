@@ -16,4 +16,9 @@
 			<entry key="name" value="org.backmeup.moodle"/>
 		</service-properties>
 	</service>
+	<service id="moodleValidatorService" ref="moodleValidator" auto-export="interfaces">
+		<service-properties>
+			<entry key="name" value="org.backmeup.moodle"/>
+		</service-properties>
+	</service>
 </blueprint>

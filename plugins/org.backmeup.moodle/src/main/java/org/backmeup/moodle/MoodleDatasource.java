@@ -52,7 +52,7 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 		
 		try {
 			String authUrl = serverurl
-					+ "blocks/exaport/bmu_valid.php?username=" + username
+					+ "blocks/backmeup/service.php?username=" + username
 					+ "&password=" + password + "&action=list";
 			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
 					.newInstance();

@@ -63,7 +63,7 @@ public class MoodleAuthenticator implements InputBased {
 		
 		try {
 			String authUrl = serverurl
-					+ "blocks/exaport/bmu_valid.php?username=" + username
+					+ "blocks/backmeup/service.php?username=" + username
 					+ "&password=" + password + "&action=auth";
 			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
 					.newInstance();
@@ -77,10 +77,8 @@ public class MoodleAuthenticator implements InputBased {
 			else
 				return false;
 		} catch (Exception e) {
-			e.printStackTrace();
+			return false;
 		}
-
-		return false;
 	}
 
 }

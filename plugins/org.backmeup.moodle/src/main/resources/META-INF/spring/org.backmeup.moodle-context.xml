@@ -3,4 +3,5 @@
 	<bean id="moodleDescriptor" class="org.backmeup.moodle.MoodleDescriptor"/>
 	<bean id="moodleAuthenticator" class="org.backmeup.moodle.MoodleAuthenticator"/>
 	<bean id="moodleDatasource" class="org.backmeup.moodle.MoodleDatasource"/>
+	<bean id="moodleValidator" class="org.backmeup.moodle.MoodleValidator"/>
 </blueprint>

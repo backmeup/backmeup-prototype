@@ -33,7 +33,7 @@ public class MoodleValidator implements Validationable{
 		
 		serverurl = serverurl.endsWith("/") ? serverurl : serverurl+"/";
 		String authurl = serverurl
-				+ "blocks/exaport/bmu_valid.php?username=" + username
+				+ "blocks/backmeup/service.php?username=" + username
 				+ "&password=" + password + "&action=auth";
 
 		try {
@@ -57,7 +57,7 @@ public class MoodleValidator implements Validationable{
 					notes.addValidationEntry(ValidationExceptionType.AuthException, "Login failed!");
 				else {
 					authurl = serverurl
-							+ "blocks/exaport/bmu_valid.php?username=" + username
+							+ "blocks/backmeup/service.php?username=" + username
 							+ "&password=" + password + "&action=list";
 
 					doc = docBuilder.parse(authurl);

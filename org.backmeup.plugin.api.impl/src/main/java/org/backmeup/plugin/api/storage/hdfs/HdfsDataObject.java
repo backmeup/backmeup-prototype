@@ -2,6 +2,8 @@ package org.backmeup.plugin.api.storage.hdfs;
 
 import java.io.IOException;
 
+import org.apache.commons.lang.NotImplementedException;
+import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.storage.DataObject;
 
 public class HdfsDataObject implements DataObject {
@@ -38,5 +40,11 @@ public class HdfsDataObject implements DataObject {
 		// there are no additional metadata properties associated with HDFS objects
 		return null;
 	}
+
+  @Override
+  public Metainfo getMetainfo() {
+    //TODO: Return the metadata associated with this object @see FileDataObject
+    throw new NotImplementedException();
+  }
 
 }

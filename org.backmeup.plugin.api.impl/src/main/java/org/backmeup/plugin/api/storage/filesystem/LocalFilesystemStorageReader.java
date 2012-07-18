@@ -53,9 +53,13 @@ public class LocalFilesystemStorageReader extends StorageReader {
 				addToList(child, path + "/" + file.getName(), objects);
 			}
 		} else {
-			if (path.startsWith("/")||path.startsWith("\\"))
+		  // don't add meta.json files!
+		  if (file.getName().endsWith("meta.json"))
+        return;
+		  
+		  if (path.startsWith("/")||path.startsWith("\\"))
 				path = path.substring(1);
-			System.out.println(path + "/" + file.getName());
+			
 			objects.add(new FileDataObject(file, path + "/" + file.getName()));
 		}
 	}

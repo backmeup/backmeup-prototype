@@ -2,6 +2,8 @@ package org.backmeup.plugin.api.connectors;
 
 import java.net.URI;
 
+import org.backmeup.plugin.api.Metainfo;
+
 public class FilesystemURI {
 	
 	private URI uri;
@@ -9,6 +11,8 @@ public class FilesystemURI {
 	private URI mappedUri;
 	
 	private boolean isDirectory;
+
+  private Metainfo metainfo;
 	
 	public FilesystemURI(URI uri, boolean isDirectory) {
 		this.uri = uri;
@@ -36,4 +40,11 @@ public class FilesystemURI {
     this.mappedUri = mappedUri;
   }
 
+  public void setMetainfo(Metainfo metainfo) {
+    this.metainfo = metainfo;
+  }
+  
+  public Metainfo getMetainfo() {
+    return this.metainfo;
+  }
 }

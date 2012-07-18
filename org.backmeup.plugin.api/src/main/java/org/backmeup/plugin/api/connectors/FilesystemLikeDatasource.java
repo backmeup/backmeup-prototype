@@ -5,6 +5,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Properties;
 
+import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.storage.StorageException;
 import org.backmeup.plugin.api.storage.StorageWriter;
 
@@ -14,8 +15,7 @@ import org.backmeup.plugin.api.storage.StorageWriter;
  * 
  * @author Rainer Simon <rainer.simon@ait.ac.at>
  */
-public abstract class FilesystemLikeDatasource implements Datasource {
-	
+public abstract class FilesystemLikeDatasource implements Datasource { 
 	
 	public void downloadAll(Properties accessData, StorageWriter storage, Progressable progressor) throws StorageException {
 		List<FilesystemURI> files = list(accessData);
@@ -26,6 +26,7 @@ public abstract class FilesystemLikeDatasource implements Datasource {
 	}
 	
 	private void download(Properties accessData, FilesystemURI uri, StorageWriter storage, Progressable progressor) throws StorageException {
+	  Metainfo metainfo = uri.getMetainfo();	  
 		if (uri.isDirectory()) {
 			//Logger.info("Downloading contents of directory " + uri);
 			for (FilesystemURI child : list(accessData, uri)) {
@@ -41,7 +42,7 @@ public abstract class FilesystemLikeDatasource implements Datasource {
 			  URI destination = uri.getMappedUri();
 			  if (destination == null)
 			    destination = uri.getUri();
-				storage.addFile(is, destination.getPath().toString());
+				storage.addFile(is, destination.getPath().toString(), metainfo);
 			}
 		}
 	}

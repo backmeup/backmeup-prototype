@@ -5,18 +5,23 @@
 		<artifactId>app</artifactId>
 		<version>0.0.1</version>
 	</parent>
-	<modelVersion>4.0.0</modelVersion>	
-	<artifactId>plugin.api</artifactId>	
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>plugin.api</artifactId>
 	<packaging>bundle</packaging>
 
-	<dependencies>		
-	    <dependency>
+	<dependencies>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.2.2</version>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.10</version>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -29,9 +34,10 @@
 						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Name>${project.name}</Bundle-Name>
 						<Bundle-Version>${project.version}</Bundle-Version>
-						<Export-Package>org.backmeup.*</Export-Package>		
+						<Export-Package>org.backmeup.*</Export-Package>
 						<Embed-Directory>lib</Embed-Directory>
-						<Embed-Dependency>commons-io</Embed-Dependency>				
+						<Embed-Dependency>commons-io</Embed-Dependency>
+						<Embed-Dependency>gson</Embed-Dependency>
 					</instructions>
 				</configuration>
 			</plugin>

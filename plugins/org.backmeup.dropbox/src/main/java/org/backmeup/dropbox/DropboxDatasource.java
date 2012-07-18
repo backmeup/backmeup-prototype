@@ -3,11 +3,18 @@ package org.backmeup.dropbox;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 
+import javax.activation.MimetypesFileTypeMap;
+
 import org.backmeup.model.exceptions.PluginException;
+import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.connectors.FilesystemLikeDatasource;
 import org.backmeup.plugin.api.connectors.FilesystemURI;
 
@@ -24,7 +31,10 @@ import com.dropbox.client2.session.WebAuthSession;
  * @author fschoeppl
  */
 public class DropboxDatasource extends FilesystemLikeDatasource {	
-
+	private static final String DROPBOX = "dropbox";
+	private static final SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US); 
+	
+	
 	@Override
 	public List<FilesystemURI> list(Properties items, FilesystemURI uri) {
 		String path = (uri == null) ? "/" : uri.toString();
@@ -36,12 +46,25 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 			Entry entry = api.metadata(path, 100, null, true, null);				
 			for (Entry e : entry.contents) {
 				String encodedURI = e.path.replace(" ", "%20");
-				uris.add(new FilesystemURI(new URI(encodedURI), e.isDir));
+				FilesystemURI furi = new FilesystemURI(new URI(encodedURI), e.isDir);
+				Metainfo meta = new Metainfo();
+				meta.setId(encodedURI);
+				if (uri != null)
+					meta.setParent(uri.getMetainfo().getId());
+				meta.setModified(formatter.parse(e.modified));
+				meta.setBackupDate(new Date());
+				meta.setDestination(e.path);
+				meta.setSource(DROPBOX);
+				meta.setType(e.isDir ? "directory" : new MimetypesFileTypeMap().getContentType(e.path));
+				furi.setMetainfo(meta);
+				uris.add(furi);
 			}
 		} catch (DropboxException e) {
 			throw new PluginException(DropboxDescriptor.DROPBOX_ID, String.format("Exception while metadata call with folder parameter %s, limit 100", path), e);
 		} catch (URISyntaxException e) {
 			throw new PluginException(DropboxDescriptor.DROPBOX_ID, String.format("URISyntaxException while creating FilesystemURIs with name %s", e.getInput()), e);
+		} catch (ParseException e) { 
+			throw new PluginException(DropboxDescriptor.DROPBOX_ID, String.format("ParseException during date parse process \"%s\"", e.getMessage()), e);
 		} 
 		return uris;
 	}

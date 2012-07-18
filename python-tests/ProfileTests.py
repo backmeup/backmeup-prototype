@@ -24,7 +24,7 @@ class TestProfiles(TestCase):
     # update existing profile
     register_user("TestUser", "p1", "pass1", "email@test.at")
 
-    res = auth_datasource("TestUser", METADATA_PLUGIN_ID, "MetaTestProfile", "pass1")
+    res = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "MetaTestProfile", "pass1")
     profileId = res.data["profileId"]
 
     res = update_profile(profileId, {"AKey" : "AVal", "AnotherKey" : "AnotherValue", "B" : "A"})

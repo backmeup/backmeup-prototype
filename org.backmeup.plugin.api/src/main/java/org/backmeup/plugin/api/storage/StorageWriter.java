@@ -2,6 +2,8 @@ package org.backmeup.plugin.api.storage;
 
 import java.io.InputStream;
 
+import org.backmeup.plugin.api.Metainfo;
+
 public abstract class StorageWriter {
 	
 	private static Class<? extends StorageWriter> clazz = null;
@@ -36,6 +38,8 @@ public abstract class StorageWriter {
 	public abstract void open(String path) throws StorageException;
 	
 	public abstract void addFile(InputStream is, String path) throws StorageException;
+	
+	public abstract void addFile(InputStream is, String path, Metainfo metadata) throws StorageException;
 			
 	public abstract void close() throws StorageException;
 	

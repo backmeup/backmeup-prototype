@@ -8,6 +8,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
+import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.storage.StorageException;
 import org.backmeup.plugin.api.storage.StorageWriter;
 import org.backmeup.plugin.api.storage.hdfs.util.HdfsManager;
@@ -28,9 +29,11 @@ public class HdfsStorageWriter extends StorageWriter {
 		
 	}
 
+	//TODO: Store metadata within Hdfs
 	@Override
-	public void addFile(InputStream is, String path)
+	public void addFile(InputStream is, String path, Metainfo metadata)
 			throws StorageException {
+	  
         Text key = new Text(path);
 		byte[] data;
 		try {
@@ -40,6 +43,11 @@ public class HdfsStorageWriter extends StorageWriter {
 		} catch (IOException e) {
 			throw new StorageException(e);
 		}
+	}
+	
+	public void addFile(InputStream is, String path)
+      throws StorageException {
+	  addFile(is, path, null);
 	}
 
 	@Override

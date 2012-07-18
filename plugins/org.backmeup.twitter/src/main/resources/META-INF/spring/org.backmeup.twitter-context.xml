@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" default-activation="lazy">	
+	<bean id="twitterDescriptor" class="org.backmeup.twitter.TwitterDescriptor"/>
+	<bean id="twitterAuthenticator" class="org.backmeup.twitter.TwitterAuthenticator"/>
+	<bean id="twitterDatasource" class="org.backmeup.twitter.TwitterDatasource"/>
+	<bean id="twitterValidator" class="org.backmeup.twitter.TwitterValidator"/>
+</blueprint>

@@ -3,6 +3,7 @@ package org.backmeup.plugin.api.storage;
 import java.io.IOException;
 
 import org.backmeup.plugin.api.Metainfo;
+import org.backmeup.plugin.api.MetainfoContainer;
 
 public interface DataObject {
 
@@ -14,6 +15,6 @@ public interface DataObject {
 	
 	public String getProperty(String name);
 	
-	public Metainfo getMetainfo();
+	public MetainfoContainer getMetainfo();
 	
 }

@@ -11,6 +11,7 @@ import java.lang.reflect.Type;
 import java.util.Map.Entry;
 
 import org.backmeup.plugin.api.Metainfo;
+import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.DataObject;
 
 import com.google.gson.Gson;
@@ -25,13 +26,16 @@ public class FileDataObject implements DataObject {
   
   static {
     GsonBuilder gsonBuilder = new GsonBuilder();    
-    gsonBuilder.registerTypeAdapter(Metainfo.class, new JsonDeserializer<Metainfo>() {
+    gsonBuilder.registerTypeAdapter(MetainfoContainer.class, new JsonDeserializer<MetainfoContainer>() {
       @Override
-      public Metainfo deserialize(JsonElement json, Type typeOfT,
+      public MetainfoContainer deserialize(JsonElement json, Type typeOfT,
           JsonDeserializationContext context) throws JsonParseException {
-        Metainfo meta = new Metainfo();
-        for (Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
-          meta.setAttribute(entry.getKey(), entry.getValue().getAsString());
+        MetainfoContainer meta = new MetainfoContainer();
+        for (JsonElement jo : json.getAsJsonArray()) {
+          Metainfo metaEntry = new Metainfo();
+          for (Entry<String, JsonElement> entry : jo.getAsJsonObject().entrySet()) {
+            metaEntry.setAttribute(entry.getKey(), entry.getValue().getAsString());
+          }
         }
         return meta;
       }
@@ -88,13 +92,13 @@ public class FileDataObject implements DataObject {
 		return file.length();
 	}
 	
-	public Metainfo getMetainfo() {
+	public MetainfoContainer getMetainfo() {
 	  File metaFile = new File(file.getPath() + ".meta.json");
 	  if (metaFile.exists()) {
 	    InputStreamReader reader = null;	  
 	    try { 
 	      reader = new InputStreamReader(new FileInputStream(metaFile));
-	      return gson.fromJson(reader, Metainfo.class);
+	      return gson.fromJson(reader, MetainfoContainer.class);
 	    } catch (FileNotFoundException e) {
         e.printStackTrace();
       }

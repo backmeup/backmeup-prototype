@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.backmeup.plugin.api.Metainfo;
+import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.DataObject;
 
 public class HdfsDataObject implements DataObject {
@@ -42,7 +43,7 @@ public class HdfsDataObject implements DataObject {
 	}
 
   @Override
-  public Metainfo getMetainfo() {
+  public MetainfoContainer getMetainfo() {
     //TODO: Return the metadata associated with this object @see FileDataObject
     throw new NotImplementedException();
   }

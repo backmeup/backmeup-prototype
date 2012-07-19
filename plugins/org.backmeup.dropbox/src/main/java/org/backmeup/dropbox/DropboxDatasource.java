@@ -47,16 +47,18 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 			for (Entry e : entry.contents) {
 				String encodedURI = e.path.replace(" ", "%20");
 				FilesystemURI furi = new FilesystemURI(new URI(encodedURI), e.isDir);
-				Metainfo meta = new Metainfo();
+				Metainfo meta = new Metainfo();				
 				meta.setId(encodedURI);
 				if (uri != null)
-					meta.setParent(uri.getMetainfo().getId());
+					meta.setParent(uri.getMetainfoContainer().get(0).getId());
 				meta.setModified(formatter.parse(e.modified));
 				meta.setBackupDate(new Date());
 				meta.setDestination(e.path);
 				meta.setSource(DROPBOX);
 				meta.setType(e.isDir ? "directory" : new MimetypesFileTypeMap().getContentType(e.path));
-				furi.setMetainfo(meta);
+				furi.addMetainfo(meta);
+				furi.addMetainfo(meta);
+				furi.addMetainfo(meta);
 				uris.add(furi);
 			}
 		} catch (DropboxException e) {

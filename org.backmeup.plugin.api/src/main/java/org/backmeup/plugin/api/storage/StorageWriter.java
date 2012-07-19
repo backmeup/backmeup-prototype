@@ -2,7 +2,7 @@ package org.backmeup.plugin.api.storage;
 
 import java.io.InputStream;
 
-import org.backmeup.plugin.api.Metainfo;
+import org.backmeup.plugin.api.MetainfoContainer;
 
 public abstract class StorageWriter {
 	
@@ -39,7 +39,7 @@ public abstract class StorageWriter {
 	
 	public abstract void addFile(InputStream is, String path) throws StorageException;
 	
-	public abstract void addFile(InputStream is, String path, Metainfo metadata) throws StorageException;
+	public abstract void addFile(InputStream is, String path, MetainfoContainer metadata) throws StorageException;
 			
 	public abstract void close() throws StorageException;
 	

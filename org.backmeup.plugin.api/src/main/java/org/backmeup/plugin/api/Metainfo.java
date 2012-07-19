@@ -106,4 +106,32 @@ public class Metainfo {
     }
     return sb.toString();
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((metainfo.getProperty(PROP_ID) == null) ? 0 : metainfo.getProperty(PROP_ID).hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Metainfo other = (Metainfo) obj;
+    if (metainfo == null || metainfo.getProperty(PROP_ID) == null) {
+      if (other.metainfo != null || other.metainfo.getProperty(PROP_ID) != null)
+        return false;
+    } else if (!metainfo.getProperty(PROP_ID).equals(other.metainfo.getProperty(PROP_ID)))
+      return false;
+    return true;
+  }
+
+  
+  
 }

@@ -3,6 +3,7 @@ package org.backmeup.plugin.api.connectors;
 import java.net.URI;
 
 import org.backmeup.plugin.api.Metainfo;
+import org.backmeup.plugin.api.MetainfoContainer;
 
 public class FilesystemURI {
 	
@@ -12,7 +13,7 @@ public class FilesystemURI {
 	
 	private boolean isDirectory;
 
-  private Metainfo metainfo;
+  private MetainfoContainer metainfoContainer = new MetainfoContainer();
 	
 	public FilesystemURI(URI uri, boolean isDirectory) {
 		this.uri = uri;
@@ -40,11 +41,11 @@ public class FilesystemURI {
     this.mappedUri = mappedUri;
   }
 
-  public void setMetainfo(Metainfo metainfo) {
-    this.metainfo = metainfo;
+  public void addMetainfo(Metainfo metainfo) {    
+    this.metainfoContainer.addMetainfo(metainfo);
   }
   
-  public Metainfo getMetainfo() {
-    return this.metainfo;
+  public MetainfoContainer getMetainfoContainer() {
+    return this.metainfoContainer;
   }
 }

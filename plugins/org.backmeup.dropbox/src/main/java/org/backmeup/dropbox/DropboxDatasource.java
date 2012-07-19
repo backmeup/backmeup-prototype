@@ -57,8 +57,6 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 				meta.setSource(DROPBOX);
 				meta.setType(e.isDir ? "directory" : new MimetypesFileTypeMap().getContentType(e.path));
 				furi.addMetainfo(meta);
-				furi.addMetainfo(meta);
-				furi.addMetainfo(meta);
 				uris.add(furi);
 			}
 		} catch (DropboxException e) {

@@ -1,10 +1,18 @@
 package org.backmeup.logic.impl;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.backmeup.logic.BusinessLogic;
+import org.backmeup.logic.impl.helper.AuthenticationPerformer;
+import org.backmeup.logic.impl.helper.DropboxAutomaticAuthorizer;
+import org.backmeup.model.AuthRequest;
 import org.backmeup.model.User;
+import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
@@ -342,64 +350,73 @@ public class BusinessLogicImplTest {
   }
 
   @Test
-  public void testMoodle() throws IOException {
-    /*try {     
-      User u = logic.register("fjungwirth", "123", "123",
-          "jungwirth.florian@gmail.com");
+	public void testMoodle() throws IOException {
+	  /*
+		try {
+			User u = logic.register("fjungwirth", "123", "123",
+					"jungwirth.florian@gmail.com");
 
-    } catch (AlreadyRegisteredException are) {
-    }
+		} catch (AlreadyRegisteredException are) {
+		}
 
-    // register moodle datasource
+		// register moodle datasource
 
-    AuthRequest ar = logic.preAuth("fjungwirth", "org.backmeup.moodle",
-        "My Moodle Profile", "123");
+		AuthRequest ar = logic.preAuth("fjungwirth", "org.backmeup.moodle",
+				"My Moodle Profile", "123");
 
-    // print ar to shell if needed
+		// print ar to shell if needed
 
-    Properties props = new Properties();
+		Properties props = new Properties();
 
-    props.setProperty("Username", "backmeup");
-    // pw: BMUbmu123!
-    props.setProperty("Password", "286bafbb1a9faf4dc4e104a33e222304");
-    // server-side bmu moodle plugin has to be installed
-    props.setProperty("Moodle Server Url",
-        "http://gtn02.gtn-solutions.com/moodle20");
+		props.setProperty("Username", "backmeup");
+		// pw: BMUbmu123!
+		
+		// local db:
+		//props.setProperty("Password", "22598af74c6d2ba1cb00eb639f2e0779");
+		// server db:
+		props.setProperty("Password", "286bafbb1a9faf4dc4e104a33e222304");
+		// server-side bmu moodle plugin has to be installed
+		props.setProperty("Moodle Server Url",
+				"http://gtn02.gtn-solutions.com/moodle20/");
 
-    logic.postAuth(ar.getProfile().getProfileId(), props, "123");
+		logic.postAuth(ar.getProfile().getProfileId(), props, "123");
+		//logic.validateProfile("fjungwirth", ar.getProfile().getProfileId());
 
-    // register skydrive datasink (changed to dropbox)
+		// register skydrive datasink (changed to dropbox)
 
-    AuthRequest ar2 = logic.preAuth("fjungwirth", "org.backmeup.dropbox",
-        "Dropbox-Profile", "123");
+		AuthRequest ar2 = logic.preAuth("fjungwirth", "org.backmeup.dropbox",
+				"Dropbox-Profile", "123");
 
-    // print ar2 to shell if needed
+		// print ar2 to shell if needed
 
-    System.out.println("Open the following URL: " + ar2.getRedirectURL());
+		System.out.println("Open the following URL: " + ar2.getRedirectURL());
 
-    props = new Properties();
+		props = new Properties();
+		// automatically open web page and get code
+		// String data =
+		// AuthenticationPerformer.performAuthentication(ar2.getRedirectURL(),
+		// new DropboxAutomaticAuthorizer());
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		String data = br.readLine();
+		
+		// data => code=1234567&somethingelse=otherPropery&...
+		String[] entries = data.split("&");
+		for (String entry : entries) {
+			String[] pair = entry.split("=");
+			props.setProperty(pair[0], pair[1]);
+		}
 
-    // automatically open web page and get code
-    String data = AuthenticationPerformer.performAuthentication(
-        ar2.getRedirectURL(), new DropboxAutomaticAuthorizer());
-    // data => code=1234567&somethingelse=otherPropery&...
-    String[] entries = data.split("&");
-    for (String entry : entries) {
-      String[] pair = entry.split("=");
-      props.setProperty(pair[0], pair[1]);
-    }
+		logic.postAuth(ar2.getProfile().getProfileId(), props, "123");
 
-    logic.postAuth(ar2.getProfile().getProfileId(), props, "123");
+		List<Long> sources = new ArrayList<Long>();
 
-    List<Long> sources = new ArrayList<Long>();
+		sources.add(ar.getProfile().getProfileId());
 
-    sources.add(ar.getProfile().getProfileId());
+		// create and exceute a backupjob from moodle to skydrive
+		logic.createBackupJob("fjungwirth", sources, ar2.getProfile()
+				.getProfileId(), null, null, "now", "123");
 
-    // create and exceute a backupjob from moodle to skydrive
-
-    logic.createBackupJob("fjungwirth", sources, ar2.getProfile()
-        .getProfileId(), null, null, "now", "123");
-     */
+	*/
   }
   
   @Test

@@ -3,11 +3,16 @@ package org.backmeup.moodle;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import javax.activation.MimetypesFileTypeMap;
+
+import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.connectors.FilesystemLikeDatasource;
 import org.backmeup.plugin.api.connectors.FilesystemURI;
 import org.jdom2.Document;
@@ -23,6 +28,8 @@ import org.jdom2.input.SAXBuilder;
  *
  */
 public class MoodleDatasource extends FilesystemLikeDatasource {
+	
+	private static final SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss"); 
 
 	@Override
 	public String getStatistics(Properties items) {
@@ -64,21 +71,59 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 				Element course = courseIterator.next();
 				List<Element> sections = course.getChildren("section");
 				Iterator<Element> sectionIterator = sections.iterator();
+				
+				Metainfo courseMeta = new Metainfo();
+				courseMeta.setId(course.getAttributeValue("id"));
+				courseMeta.setAttribute("name", course.getAttributeValue("name"));
+				courseMeta.setType("course");
+				
 				while(sectionIterator.hasNext()) {
 					Element section = sectionIterator.next();
 					List<Element> sequences = section.getChildren("sequence");
 					Iterator<Element> sequenceIterator = sequences.iterator();
+					
+					Metainfo sectionMeta = new Metainfo();
+					sectionMeta.setParent(courseMeta.getId());
+					sectionMeta.setId(courseMeta.getId()+"_"+section.getAttributeValue("id"));
+					sectionMeta.setType("section");
+					sectionMeta.setAttribute("name", section.getAttributeValue("name"));
+					if(section.getAttributeValue("summary").length() > 0)
+						sectionMeta.setAttribute("summary", section.getAttributeValue("summary"));
+
 					while(sequenceIterator.hasNext()) {
 						Element sequence = sequenceIterator.next();
+						Metainfo sequenceMeta = new Metainfo();
+						sequenceMeta.setParent(sectionMeta.getId());
+						sequenceMeta.setId(sectionMeta.getId()+"_"+sequence.getAttributeValue("id"));
+						sequenceMeta.setAttribute("name", sequence.getChildText("name"));
+						sequenceMeta.setAttribute("intro", sequence.getChildText("intro").replaceAll("\\<.*?\\>", ""));
+						sequenceMeta.setType(sequence.getChildText("type"));
+
 						Element data = sequence.getChild("data");
 						if(data != null) {
 							List<Element> files = data.getChildren("file");
 							Iterator<Element> fileIterator = files.iterator();
 							while(fileIterator.hasNext()) {
 								Element file = fileIterator.next();
-								String mappedPath = (file.hasAttributes()) ? course.getAttributeValue("name")+"/"+file.getAttributeValue("path")+"/" : course.getAttributeValue("name")+"/";
+								String mappedPath = (file.getAttribute("path") != null) ? course.getAttributeValue("name")+"/"+file.getAttributeValue("path")+"/" : course.getAttributeValue("name")+"/";
+								String mappedUrl = java.net.URLEncoder.encode(mappedPath, "UTF-8").replace("+", "%20")+new File(file.getText()).getName();
 								FilesystemURI filesystemUri = new FilesystemURI(new URI(file.getText()), false);
-								filesystemUri.setMappedUri(new URI(java.net.URLEncoder.encode(mappedPath, "UTF-8").replace("+", "%20")+new File(file.getText()).getName())); // just use the name of the file as its destination
+								filesystemUri.setMappedUri(new URI(mappedUrl));
+								
+								Metainfo fileMeta = new Metainfo();
+								fileMeta.setParent(sequenceMeta.getId());
+								fileMeta.setModified(formatter.parse(file.getAttributeValue("modified")));
+								fileMeta.setBackupDate(new Date());
+								fileMeta.setDestination(mappedPath);
+								fileMeta.setSource("moodle");
+								fileMeta.setType(new MimetypesFileTypeMap().getContentType(mappedUrl));
+								fileMeta.setAttribute("name", new File(file.getText()).getName().replace("%20", " "));
+								
+								filesystemUri.addMetainfo(courseMeta);
+								filesystemUri.addMetainfo(sectionMeta);
+								filesystemUri.addMetainfo(sequenceMeta);
+								filesystemUri.addMetainfo(fileMeta);
+
 								results.add(filesystemUri);
 							}
 						}

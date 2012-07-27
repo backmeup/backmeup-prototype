@@ -9,8 +9,15 @@ import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.StorageReader;
+import org.elasticsearch.client.Client;
 
 public class IndexAction implements Action {
+	
+	private Client client;
+	
+	public IndexAction(Client client) {
+		this.client = client;
+	}
 
 	private static final String START_INDEX_PROCESS = "Starting index process";
 	private static final String ANALYZING = "Analyzing data object ";
@@ -31,16 +38,12 @@ public class IndexAction implements Action {
 				DataObject dob = dataObjects.next();
 				progressor.progress(ANALYZING + dob.getPath());
 				
-				// TODO I assume the analyzer should pack metainfo directly into
-				// the dobs MetainfoContainer?
+				// TODO Should the analyzer pack metainfo directly into the MetainfoContainer?
 				Map<String, String> meta = analyzer.analyze(dob);
-				for (String key : meta.keySet()) {
-					// Do something with the Tika metadata...
-				}
-				
-				progressor.progress(INDEXING + dob.getPath());
-				
-				// TODO feed into ElasticSearch
+
+				progressor.progress(INDEXING + dob.getPath());				
+				ElasticSearchIndexer indexer = new ElasticSearchIndexer(client);
+				indexer.doIndexing(dob, meta);
 			}
 		} catch (Exception e) {
 			throw new ActionException(e);

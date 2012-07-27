@@ -36,12 +36,6 @@ public class HdfsDataObject implements DataObject {
 		return path;
 	}
 
-	@Override
-	public String getProperty(String name) {
-		// there are no additional metadata properties associated with HDFS objects
-		return null;
-	}
-
   @Override
   public MetainfoContainer getMetainfo() {
     //TODO: Return the metadata associated with this object @see FileDataObject

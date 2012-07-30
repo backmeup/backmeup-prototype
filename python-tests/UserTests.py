@@ -14,6 +14,7 @@ class TestUsers(TestCase):
     delete_user("ChangeUser")
     delete_user("GetUser")
     delete_user("LoginUser")
+    delete_user("PropUser")
 
   def test_register_user(self):
     result = register_user("TestUser", "password", "keyRing", "email")
@@ -56,5 +57,33 @@ class TestUsers(TestCase):
     result = login_user("LoginUser", "ab23")
     self.assertEquals(result.code, httplib.UNAUTHORIZED)
 
+  def test_get_user_property(self):
+    result = get_user_property("Unknwn", "Unknwn")
+    self.assertEquals(result.code, httplib.NOT_FOUND)
+    register_user("PropUser", "abc", "abc", "123")
+    result = get_user_property("PropUser", "Unknwn")
+    self.assertEquals(result.code, httplib.BAD_REQUEST)
+    set_user_property("PropUser", "Property", "Value")
+    result = get_user_property("PropUser", "Property")
+    self.assertEquals(result.code, httplib.OK)
 
+  def test_set_user_property(self):
+    result = set_user_property("Unknwn", "Unknwn", "Unknwn")
+    self.assertEquals(result.code, httplib.NOT_FOUND)
+    register_user("PropUser", "abc", "abc", "123")
+    result = set_user_property("PropUser", "Unknwn", "Unknwn")    
+    self.assertEquals(result.code, httplib.NO_CONTENT)
+    result = get_user_property("PropUser", "Unknwn")
+    self.assertEquals(result.code, httplib.OK)
+
+  def test_delete_user_property(self):
+    result = delete_user_property("Unknwn", "Unknwn")
+    self.assertEquals(result.code, httplib.BAD_REQUEST)    
+    register_user("PropUser", "abc", "abc", "123")
+    result = set_user_property("PropUser", "Unknwn", "Unknwn")    
+    result = delete_user_property("PropUser", "Unknwn")
+    self.assertEquals(result.code, httplib.NO_CONTENT)
+    result = delete_user_property("Unknwn", "Unknwn")
+    self.assertEquals(result.code, httplib.BAD_REQUEST)
+    
 

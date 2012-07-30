@@ -39,4 +39,10 @@ public class ThreadbasedJobManagerConfiguration {
   public String getTemporaryDirectory() {
     return this.loadProperties().getProperty("job.temporaryDirectory");
   }
+  
+  @Produces
+  @Named("job.backupname")
+  public String getBackupName() {
+    return this.loadProperties().getProperty("job.backupname");
+  }
 }

@@ -24,6 +24,18 @@ def login_user(user, password):
 def get_user(user):
   answer = com.request("GET", "/users/" + user)
   return answer
+
+def get_user_property(user, prop):
+  answer = com.request("GET", "/users/" + user + "/properties/" + prop)
+  return answer
+
+def set_user_property(user, prop, value):
+  answer = com.request("POST", "/users/" + user + "/properties/" + prop + "/"  + value)
+  return answer
+
+def delete_user_property(user, prop):
+  answer = com.request("DELETE", "/users/" + user + "/properties/" + prop)
+  return answer
   
 ##### Datasource operations #####
 

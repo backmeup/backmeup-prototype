@@ -44,6 +44,10 @@ public interface BusinessLogic {
 	public User login(String username, String password);
 	public User register(String username, String password, String keyRing, String email) throws AlreadyRegisteredException, IllegalArgumentException;
 	
+	// user property operations
+	public void setUserProperty(String username, String key, String value);
+	public void deleteUserProperty(String username, String key);
+	
 	//datasource operations
 	public List<SourceSinkDescribable> getDatasources();
 	public List<Profile> getDatasourceProfiles(String username);

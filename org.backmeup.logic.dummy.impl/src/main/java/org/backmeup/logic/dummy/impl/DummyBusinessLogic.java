@@ -826,4 +826,16 @@ public class DummyBusinessLogic implements BusinessLogic {
     // TODO Auto-generated method stub
     
   }
+
+  @Override
+  public void setUserProperty(String username, String key, String value) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void deleteUserProperty(String username, String key) {
+    // TODO Auto-generated method stub
+    
+  }
 }

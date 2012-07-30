@@ -219,6 +219,32 @@ public class BusinessLogicImpl implements BusinessLogic {
       conn.rollback();
     }
   }
+  
+  @Override
+  public void setUserProperty(String username, String key, String value) {
+    try {
+      conn.beginOrJoin();
+      User u = getUser(username);      
+      u.setUserProperty(key, value);
+      conn.commit();
+    } finally {
+      conn.rollback();
+    }
+    
+  }
+
+  @Override
+  public void deleteUserProperty(String username, String key) {
+    try {
+      conn.beginOrJoin();
+      UserDao userDao = getUserDao();
+      User u = userDao.findByName(username);      
+      u.deleteUserProperty(key);
+      conn.commit();
+    } finally {
+      conn.rollback();
+    }
+  }
 
   public List<SourceSinkDescribable> getDatasources() {
     List<SourceSinkDescribable> sources = plugins.getConnectedDatasources();

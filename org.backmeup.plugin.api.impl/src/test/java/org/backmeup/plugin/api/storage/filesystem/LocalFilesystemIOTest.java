@@ -21,7 +21,7 @@ public class LocalFilesystemIOTest {
 		  // If the writer writes without throwing exceptions, we're ok
 		  LocalFilesystemStorageWriter writer = new LocalFilesystemStorageWriter();
 		  writer.open("target/test-storage/filesystem");
-		  writer.addFile(new FileInputStream(new File("src/test/resources/800px-Hallstatt_300.jpg")), "images/test.jpg");
+		  writer.addFile(new FileInputStream(new File("src/test/resources/creative-commons.jpg")), "images/test.jpg");
 		  writer.close();
 	  }
 	  
@@ -35,8 +35,7 @@ public class LocalFilesystemIOTest {
 		  while (it.hasNext()) {
 			  DataObject dataobject = it.next();
 			  assert(dataobject.getPath().equals("/filesystem/images/test.jpg"));
-			  Assert.assertEquals(120127, dataobject.getLength());
-			  //assert(dataobject.getBytes().length == 212919);
+			  Assert.assertEquals(80869, dataobject.getLength());
 		  }
 		  reader.close();
 	  }

@@ -10,8 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import javax.activation.MimetypesFileTypeMap;
-
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.connectors.FilesystemLikeDatasource;
 import org.backmeup.plugin.api.connectors.FilesystemURI;
@@ -64,7 +62,7 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 			
 			Document doc = new SAXBuilder().build( authUrl );
 			
-			List<Element> courses = doc.getRootElement().getChildren("course");
+			List<Element> courses = doc.getRootElement().getChild("courses").getChildren("course");
 
 			Iterator<Element> courseIterator = courses.iterator();
 			while(courseIterator.hasNext()) {
@@ -76,7 +74,8 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 				courseMeta.setId(course.getAttributeValue("id"));
 				courseMeta.setAttribute("name", course.getAttributeValue("name"));
 				courseMeta.setType("course");
-				
+				courseMeta.setBackupDate(new Date());
+
 				while(sectionIterator.hasNext()) {
 					Element section = sectionIterator.next();
 					List<Element> sequences = section.getChildren("sequence");
@@ -116,7 +115,7 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 								fileMeta.setBackupDate(new Date());
 								fileMeta.setDestination(mappedPath);
 								fileMeta.setSource("moodle");
-								fileMeta.setType(new MimetypesFileTypeMap().getContentType(mappedUrl));
+								fileMeta.setType(file.getAttributeValue("mime"));
 								fileMeta.setAttribute("name", new File(file.getText()).getName().replace("%20", " "));
 								
 								filesystemUri.addMetainfo(courseMeta);
@@ -129,6 +128,16 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 						}
 					}
 				}
+			}
+			// add scorm files
+			List<Element> scormfiles = doc.getRootElement().getChild("scorm").getChildren("file");
+			
+			Iterator<Element> scormIterator = scormfiles.iterator();
+			while(scormIterator.hasNext()) {
+				Element file = scormIterator.next();
+				FilesystemURI filesystemUri = new FilesystemURI(new URI(file.getText()), false);
+				filesystemUri.setMappedUri(new URI(new File(file.getText()).getName()));
+				results.add(filesystemUri);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

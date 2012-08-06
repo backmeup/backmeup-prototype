@@ -185,8 +185,8 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
 
   // User Operations
   @Override
-  public void registerUser(Long userId) {
-    Result response = execute(path + "/users/" + userId + "/register",
+  public void registerUser(Long userId, String password) {
+    Result response = execute(path + "/users/" + userId + "/" + password + "/register",
         ReqType.POST);
     if (response.response.getStatusLine().getStatusCode() != 204) {
       throw new BackMeUpException("Error during user creation: error code was "
@@ -210,7 +210,18 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     Result response = execute(path + "/users/" + userId, ReqType.GET);
     return response.response.getStatusLine().getStatusCode() == 200;
   }
-
+  
+  @Override
+  public boolean validateUser(Long userId, String password) {
+	Result response = execute(path + "/users/" + userId + "/" + password + "/validate", ReqType.GET);
+	if (response.response.getStatusLine().getStatusCode() != 204) {
+		//TODO: Log response here!
+		return false;
+	}
+  	return true;
+  }
+  
+  // Service Operations
   @Override
   public void addService(Long serviceId) {
     Result response = execute(path + "/services/" + serviceId + "/register",
@@ -236,6 +247,7 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     }
   }
 
+  // Authentication Operations
   @Override
   public void addAuthInfo(Long userId, String userPwd, Long serviceId,
       Long authInfoId, String ai_username, String ai_password) {

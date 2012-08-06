@@ -13,9 +13,17 @@ public class KeyserverTests {
   public static void main(String[] args) {    
     Weld weld = new Weld();
     WeldContainer container = weld.initialize();
-    Keyserver ks = container.instance().select(Keyserver.class).get();    
+    Keyserver ks = container.instance().select(Keyserver.class).get();
+    //ks.deleteUser(200L);
+    //ks.deleteAuthInfo(202L);
+    //ks.deleteAuthInfo(203L);
+    //ks.deleteAuthInfo(204L);
     if (!ks.isUserRegistered(200L))
-      ks.registerUser(200L);
+      ks.registerUser(200L, "apassword");
+    
+    if (!ks.validateUser(200L, "apassword")) {
+    	throw new RuntimeException("Password missmatch!");
+    }
     
     if (!ks.isServiceRegistered(201L))
       ks.addService(201L);

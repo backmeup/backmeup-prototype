@@ -2,9 +2,10 @@ package org.backmeup.keyserver.client;
 
 public interface Keyserver {
   // User operations
-  public void registerUser(Long userId);
+  public void registerUser(Long userId, String password);
   public boolean isUserRegistered(Long userId);
   public void deleteUser(Long userId);
+  public boolean validateUser(Long userId, String password);
   
   //Service operations
   public void addService(Long serviceId);

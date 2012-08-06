@@ -1,7 +1,7 @@
 package org.backmeup.keyserver.client;
 
 public class AuthDataResult {
-  private static class UserData {
+  public static class UserData {
     private Long bmu_user_id;
 
     public Long getBmu_user_id() {
@@ -23,7 +23,7 @@ public class AuthDataResult {
 
   }
 
-  private static class ServiceData {
+  public static class ServiceData {
     private Long bmu_service_id;
 
     public Long getBmu_service_id() {

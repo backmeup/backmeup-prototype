@@ -11,6 +11,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import org.backmeup.model.User;
+import org.backmeup.model.exceptions.UnknownUserPropertyException;
 import org.backmeup.rest.data.UserContainer;
 
 /**
@@ -67,4 +68,33 @@ public class Users extends Base {
 				keyRing, email);
 	}
 
+	
+	// User Properties
+	@GET
+	@Path("{username}/properties/{property}")
+	@Produces("application/json")
+	public String getUserProperty(@PathParam("username") String username,
+	    @PathParam("property") String property
+	    ) {
+	  String result = getLogic().getUser(username).getUserProperty(property);
+	  if (result == null)
+	    throw new UnknownUserPropertyException(property);
+	  return result;
+	}
+	
+	@POST 
+	@Path("{username}/properties/{property}/{value}")
+  @Produces("application/json")
+	public void setUserProperty(@PathParam("username") String username,
+      @PathParam("property") String property,
+      @PathParam("value") String value) {
+    getLogic().setUserProperty(username, property, value);
+  }
+	
+	@DELETE
+	@Path("{username}/properties/{property}")
+	@Produces("application/json")
+	public void deleteUserProperty(@PathParam("username") String username, @PathParam("property") String property) {
+	  getLogic().deleteUserProperty(username, property);
+	}
 }

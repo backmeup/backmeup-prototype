@@ -28,6 +28,7 @@ import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Status;
 import org.backmeup.model.User;
+import org.backmeup.model.UserProperty;
 import org.backmeup.model.exceptions.BackMeUpException;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.connectors.Datasink;
@@ -86,12 +87,17 @@ public class ThreadbasedJobManager implements JobManager {
   @Inject
   @Named("job.temporaryDirectory")
   private String temporaryDirectory;
+  
+  @Inject
+  @Named("job.backupname")
+  private String backupNamePattern;
+  
   private boolean started;
 
   public ThreadbasedJobManager() {
     this.jobs = Collections.synchronizedList(new ArrayList<BackupJob>());
     this.allJobs = Collections.synchronizedMap(new HashMap<Long, BackupJob>());
-    temporaryDirectory = "temp";
+    //temporaryDirectory = "temp"; 
   }
 
   public BackupJob createBackupJob(User user,
@@ -127,8 +133,14 @@ public class ThreadbasedJobManager implements JobManager {
           + Thread.currentThread().getName());
       if (temporaryDirectory == null) {
         throw new IllegalStateException(
-            "A temporary folder must be specified within bl.properties: temporaryDirectory = somefolder");
+            "The temporary folder must be specified within bl.properties, e.g. job.temporaryDirectory = somefolder");
       }
+      
+      if (backupNamePattern == null) {
+        throw new IllegalStateException(
+            "The backup name must be specified within bl.properties, e.g.: job.backupname = BMU_%SOURCE%_dd_MM_YYYY_hh_mm");
+      }
+      DateFormat df = new SimpleDateFormat(backupNamePattern.trim());
       temporaryDirectory = temporaryDirectory + "/cache";
       while (isRunning()) {
         try {
@@ -141,6 +153,8 @@ public class ThreadbasedJobManager implements JobManager {
           jobs.remove(0);
           try {
             conn.begin();
+            String keepCnt = job.getUser().getUserProperty(UserProperty.PROP_KEEP_BACKUP);
+            //TODO: Keep "keepCnt" backups and start to overwrite the very first one if you hit "keepCnt".
             job = getBackupJobDao().findById(job.getId());
             Status s = new Status(job, String.format(
                 textBundle.getString(BEGIN_JOB_MSG), job.getId()), "START",
@@ -162,10 +176,8 @@ public class ThreadbasedJobManager implements JobManager {
                 StorageWriter writer = new LocalFilesystemStorageWriter();
                 StorageReader reader = new LocalFilesystemStorageReader();
                 try {
-                  DateFormat format = new SimpleDateFormat("yyyy_MM_dd hh_mm");
-                  String time = format.format(new Date());
-                  File f = new File(temporaryDirectory + "/"
-                      + po.getProfile().getProfileName() + "_" + time);
+                  String folderName = df.format(new Date()).replace("%SOURCE%", po.getProfile().getProfileName());
+                  File f = new File(temporaryDirectory + "/" + folderName);
                   f.mkdirs();
                   writer.open(f.getPath());
                   reader.open(f.getPath());

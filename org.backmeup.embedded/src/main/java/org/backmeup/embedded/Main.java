@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.ws.rs.core.UriBuilder;
 
+import org.backmeup.model.UserProperty;
 import org.backmeup.rest.Actions;
 import org.backmeup.rest.BackupJobs;
 import org.backmeup.rest.Backups;

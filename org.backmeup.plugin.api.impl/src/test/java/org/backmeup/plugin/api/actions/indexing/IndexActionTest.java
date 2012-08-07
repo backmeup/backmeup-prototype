@@ -7,9 +7,13 @@ import org.backmeup.plugin.api.storage.StorageReader;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class IndexActionTest {
+	
+	private static Node node;
 	
 	private Progressable logProgressable = new Progressable() {
 		@Override
@@ -18,20 +22,35 @@ public class IndexActionTest {
 		}
 	};
 	
+	@BeforeClass
+	public static void setup() {
+		node = NodeBuilder.nodeBuilder().local(true).node();		
+	}
+	
+	@AfterClass
+	public static void tearDown() {
+		node.close();
+	}
+	
 	@Test
     public void testIndexAction() throws ActionException {
 		// Dummy storage reader on the src/test/resources directory
 		StorageReader reader = new DummyStorageReader();
 		
 		// Local ElasticSearch node
-		Node node = NodeBuilder.nodeBuilder().local(true).node();
 		Client client = node.client();
 	  
 		// Index test files on the local ES index
-		IndexAction action = new IndexAction(client);
+		IndexAction action = new IndexAction(client, "backmeup");
 		action.doAction(null, reader, logProgressable);
+	}
+	
+	@Test
+	public void verifyIndex() {
+		Client client = node.client();
 		
-		node.close();
+		// TODO verify index content
+		
 	}
 
 }

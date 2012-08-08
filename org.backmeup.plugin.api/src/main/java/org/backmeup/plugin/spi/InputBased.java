@@ -9,7 +9,8 @@ public interface InputBased extends Authorizable {
 	public enum Type {
 		String,
 		Number,
-		Password
+		Password,
+		Bool
 	}
 	
 	public List<String> getRequiredInputFields();

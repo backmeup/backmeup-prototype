@@ -66,12 +66,13 @@ public class LocalFilesystemStorageWriter extends StorageWriter {
 	@Override
 	public void addFile(InputStream is, String path, MetainfoContainer metadata) throws StorageException {
 		try {
+		  System.out.println(path);
 			File out = new File(directory, path);
 			out.getParentFile().mkdirs();
 			
 			OutputStream os = new FileOutputStream(out);
 						
-			byte buf[] = new byte[1024];
+			byte buf[] = new byte[1024 * 1024];
 			int len;
 			while((len = is.read(buf)) > 0)
 				os.write(buf, 0, len);

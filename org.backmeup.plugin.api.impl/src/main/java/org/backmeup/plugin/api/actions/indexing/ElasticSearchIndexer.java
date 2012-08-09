@@ -9,7 +9,6 @@ import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 
@@ -48,8 +47,8 @@ public class ElasticSearchIndexer {
 		contentBuilder = contentBuilder.endObject();
 		
 		// Push to ES index
-		IndexResponse response = client.prepareIndex(index, DOCUMENT_TYPE_BACKUP)
-				.setSource(contentBuilder).execute().actionGet();	
+		client.prepareIndex(index, DOCUMENT_TYPE_BACKUP).setSource(contentBuilder)
+			.setRefresh(true).execute().actionGet();	
 	}
 
 }

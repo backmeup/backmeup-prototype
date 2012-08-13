@@ -11,7 +11,7 @@ logger.addHandler(logging.NullHandler())
 
 class TestProfiles(TestCase):
   def setUp(self):
-    pass
+    self.tearDown() 
 
   def tearDown(self):
     delete_user("TestUser")
@@ -22,9 +22,10 @@ class TestProfiles(TestCase):
     self.assertEquals(res.code, httplib.BAD_REQUEST)
     
     # update existing profile
-    register_user("TestUser", "p1", "pass1", "email@test.at")
+    register_user("TestUser", "p1", "p1", "TestUser")
 
-    res = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "MetaTestProfile", "pass1")
+    res = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "MetaTestProfile", "p1")
+    print res.data
     profileId = res.data["profileId"]
 
     res = update_profile(profileId, {"AKey" : "AVal", "AnotherKey" : "AnotherValue", "B" : "A"})

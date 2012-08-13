@@ -25,9 +25,9 @@ public class User {
 	@Column(nullable = false)
 	private Long userId;
 	// TODO: Move to keyserver!!
-	private String username;	
-	private String password;
-	private String keyRing;
+	@Column(unique=true, nullable=false)
+	private String username;
+	@Column(unique=true, nullable=false)
 	private String email;
 	
 	@OneToMany(cascade=CascadeType.ALL, orphanRemoval=true, fetch=FetchType.EAGER )
@@ -42,22 +42,6 @@ public class User {
 		this.username = username;
 	}
 
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getKeyRing() {
-		return keyRing;
-	}
-
-	public void setKeyRing(String keyRing) {
-		this.keyRing = keyRing;
-	}
-
 	public String getEmail() {
 		return email;
 	}
@@ -69,15 +53,13 @@ public class User {
 	public User() {
 	}
 	
-	public User(String username, String password, String keyRing, String email) {
-		this(null, username, password, keyRing, email);
+	public User(String username, String email) {
+		this(null, username, email);
 	}
 	
-	public User(Long userId, String username, String password, String keyRing, String email) {
+	public User(Long userId, String username, String email) {
 		this.userId = userId;
 		this.username = username;
-		this.password = password;
-		this.keyRing = keyRing;
 		this.email = email;
 	}
 	

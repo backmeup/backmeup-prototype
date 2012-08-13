@@ -18,9 +18,11 @@ import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.dal.ProfileDao;
+import org.backmeup.dal.ServiceDao;
 import org.backmeup.dal.StatusDao;
 import org.backmeup.dal.UserDao;
 import org.backmeup.job.JobManager;
+import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.logic.BusinessLogic;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.AuthRequest;
@@ -31,6 +33,7 @@ import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.ProtocolDetails;
 import org.backmeup.model.ProtocolOverview;
 import org.backmeup.model.SearchResponse;
+import org.backmeup.model.Service;
 import org.backmeup.model.Status;
 import org.backmeup.model.User;
 import org.backmeup.model.ValidationNotes;
@@ -83,6 +86,9 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   @Inject
   private DataAccessLayer dal;
+  
+  @Inject
+  private Keyserver keyserverClient;
 
   private Plugin plugins;
   private JobManager jobManager;
@@ -137,6 +143,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (u == null) {
         throw new IllegalArgumentException(textBundle.getString(INVALID_USER));
       }
+      keyserverClient.deleteUser(u.getUserId());
 
       BackupJobDao jobDao = getBackupJobDao();
       StatusDao statusDao = getStatusDao();
@@ -152,7 +159,7 @@ public class BusinessLogicImpl implements BusinessLogic {
         profileDao.delete(p);
       }
 
-      userDao.delete(u);
+      userDao.delete(u);      
       conn.commit();
       return u;
     } finally {
@@ -166,14 +173,15 @@ public class BusinessLogicImpl implements BusinessLogic {
       conn.begin();
       UserDao udao = getUserDao();
       User u = udao.findByName(username);
-      if (!u.getPassword().equals(oldPassword)) {
+      if (!keyserverClient.validateUser(u.getUserId(), oldPassword)) {      
         conn.rollback();
         throw new InvalidCredentialsException();
       }
-      if (newPassword != null)
+      // TODO: Set the new password within the keyserver!
+      /*if (newPassword != null)
         u.setPassword(newPassword);
       if (newKeyRing != null)
-        u.setKeyRing(newKeyRing);
+        u.setKeyRing(newKeyRing);*/
       if (newEmail != null)
         u.setEmail(newEmail);
       udao.save(u);
@@ -188,9 +196,9 @@ public class BusinessLogicImpl implements BusinessLogic {
     try {
       conn.begin();
       User u = getUserDao().findByName(username);
-      if (!u.getPassword().equals(password)) {
-        throw new InvalidCredentialsException();
-      }
+      if (u == null || !keyserverClient.validateUser(u.getUserId(), password))
+    	  throw new InvalidCredentialsException();
+      
       return u;
     } finally {
       conn.rollback();
@@ -211,8 +219,9 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (existingUser != null) {
         throw new AlreadyRegisteredException(existingUser.getUsername());
       }
-      User u = new User(username, password, keyRingPassword, email);
+      User u = new User(username, email);
       u = userDao.save(u);
+      keyserverClient.registerUser(u.getUserId(), password);
       conn.commit();
       return u;
     } finally {
@@ -356,7 +365,7 @@ public class BusinessLogicImpl implements BusinessLogic {
             textBundle.getString(USER_DOESNT_EXIST), username));
       }
 
-      if (!user.getKeyRing().equals(keyRing))
+      if (!keyserverClient.validateUser(user.getUserId(), keyRing))
         throw new InvalidCredentialsException();
 
       Set<ProfileOptions> profiles = new HashSet<ProfileOptions>();
@@ -486,7 +495,7 @@ public class BusinessLogicImpl implements BusinessLogic {
             textBundle.getString(USER_DOESNT_EXIST), username));
       }
 
-      if (!user.getKeyRing().equals(keyRing)) {
+      if (!keyserverClient.validateUser(user.getUserId(), keyRing)) {
         conn.rollback();
         throw new InvalidCredentialsException();
       }
@@ -517,7 +526,19 @@ public class BusinessLogicImpl implements BusinessLogic {
         ar.setTypeMapping(typeMapping);
         break;
       }
+      ServiceDao serviceDao = dal.createServiceDao();
+      Service serviceModel = serviceDao.findById(desc.getId().hashCode());
+      
+      if (serviceModel == null) {
+        serviceModel = new Service(new Long(desc.getId().hashCode()), desc.getId());
+        serviceModel = serviceDao.save(serviceModel);
+        if (!keyserverClient.isServiceRegistered(serviceModel.getServiceId()))
+          keyserverClient.addService(serviceModel.getServiceId());
+      }
+      // TODO Store all properties within keyserver & don't store them within the local database!
       profile = getProfileDao().save(profile);
+      //keyserverClient.addAuthInfo(user.getUserId(), keyRing, serviceModel.getServiceId(), profile.getProfileId(), "");  
+      
       conn.commit();
       ar.setProfile(profile);
       return ar;
@@ -549,6 +570,7 @@ public class BusinessLogicImpl implements BusinessLogic {
             String keyStr = (String) key;
             p.putEntry(keyStr, props.getProperty(keyStr));
           }
+          //TODO: Delete data from the local database and push it to the keyserver 
           profileDao.save(p);
           conn.commit();
           return;
@@ -563,6 +585,7 @@ public class BusinessLogicImpl implements BusinessLogic {
           String keyStr = (String) key;
           p.putEntry(keyStr, props.getProperty(keyStr));
         }
+        //TODO: Delete data from the local database and push it to the keyserver
         profileDao.save(p);
         conn.commit();
       }
@@ -655,6 +678,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
 
+  //TODO: Add password parameter to get token from keyserver to validate the profile
   public ValidationNotes validateProfile(String username, Long profileId) {
 
     try {
@@ -677,6 +701,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
 
+  //TODO: Add password parameter to get token from keyserver to validate the profile
   @Override
   public ValidationNotes validateBackupJob(String username, Long jobId) {
     try {
@@ -760,6 +785,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
 
+  //TODO: Store profile data within keyserver!
   @Override
   public void addProfileEntries(Long profileId, Properties entries) {
     try {

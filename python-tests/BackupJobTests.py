@@ -25,7 +25,7 @@ class TestBackupJobs(TestCase):
     res = get_backup_jobs("UnknownUser")
     self.assertEquals(res.code, httplib.BAD_REQUEST)
 
-    register_user("TestUser", "pass", "pass2", "email")
+    register_user("TestUser", "pass2", "pass2", "TestUser")
     # get them from TestUser; no entry must be available
     res = get_backup_jobs("TestUser")
     self.assertEquals(res.code, httplib.OK)
@@ -60,7 +60,7 @@ class TestBackupJobs(TestCase):
   def test_create_backup_job(self):
     # prepare the tests
     logger.debug("============ test_create_backup_job ============")
-    register_user("TestUser2", "pw", "kb", "em")
+    register_user("TestUser2", "kb", "kb", "TestUser2")
     
     sourceId = auth_datasource("TestUser2", SOURCE_PLUGIN_ID, "SrcProfile", "kb").data["profileId"]
     
@@ -97,7 +97,7 @@ class TestBackupJobs(TestCase):
 
   def test_validate_backup_job(self):
     # prepare validation
-    register_user("TestUser3", "pw", "kb", "em")
+    register_user("TestUser3", "kb", "kb", "TestUser3")
     sourceId = auth_datasource("TestUser3", SOURCE_PLUGIN_ID, "SrcProfile", "kb").data["profileId"]
     
     sinkId = auth_datasink("TestUser3", SINK_PLUGIN_ID, "SinkProfile", "kb").data["profileId"]
@@ -123,7 +123,7 @@ class TestBackupJobs(TestCase):
 
 
   def test_delete_backup_job(self):
-    register_user("TestUser3", "pw", "kb", "em")
+    register_user("TestUser3", "kb", "kb", "TestUser3")
     sourceId = auth_datasource("TestUser3", SOURCE_PLUGIN_ID, "SrcProfile", "kb").data["profileId"]
     
     sinkId = auth_datasink("TestUser3", SINK_PLUGIN_ID, "SinkProfile", "kb").data["profileId"]
@@ -145,7 +145,7 @@ class TestBackupJobs(TestCase):
     self.assertEquals(res.code, httplib.NO_CONTENT); # delete a valid job
 
   def test_get_status(self):
-    register_user("TestUser3", "pw", "kb", "em")
+    register_user("TestUser3", "kb", "kb", "TestUser3")
     sourceId = auth_datasource("TestUser3", SOURCE_PLUGIN_ID, "SrcProfile", "kb").data["profileId"]
     
     sinkId = auth_datasink("TestUser3", SINK_PLUGIN_ID, "SinkProfile", "kb").data["profileId"]

@@ -65,15 +65,20 @@ public class DummyBusinessLogic implements BusinessLogic {
   private List<Status> status;
   private Map<String, ActionDescribable> actions;
   private Map<Long, SearchResponse> searches;
-
+  private Map<User, String> passwords;
+  
   public DummyBusinessLogic() {
-    User u1 = new User(0l, "Sepp", "pw", "keybund", "sepp@mail.at");
-    User u2 = new User(1l, "Marion", "1234", "test", "marion@mail.at");
-    User u3 = new User(2l, "Phil", "p1", "kr", "em");
+    User u1 = new User(0l, "Sepp", "sepp@mail.at");
+    User u2 = new User(1l, "Marion", "marion@mail.at");
+    User u3 = new User(2l, "Phil", "em");
     knownUsers = new ArrayList<User>();
     knownUsers.add(u1);
     knownUsers.add(u2);
     knownUsers.add(u3);
+    passwords = new HashMap<User, String>();
+    passwords.put(u1, "pw");
+    passwords.put(u2, "1234");
+    passwords.put(u3, "p1");
 
     sources = new ArrayList<SourceSinkDescribable>();
     sources.add(new SourceSinkDescribable() {
@@ -285,12 +290,12 @@ public class DummyBusinessLogic implements BusinessLogic {
   public User changeUser(String username, String oldPassword,
       String newPassword, String newKeyRing, String newEmail) {
     User u = findUser(username);
-    if (!u.getPassword().equals(oldPassword))
+    /*if (!u.getPassword().equals(oldPassword))
       throw new InvalidCredentialsException();
     if (newPassword != null)
       u.setPassword(newPassword);
     if (newKeyRing != null)
-      u.setKeyRing(newKeyRing);
+      u.setKeyRing(newKeyRing);*/
     if (newEmail != null)
       u.setEmail(newEmail);
     return u;
@@ -306,7 +311,7 @@ public class DummyBusinessLogic implements BusinessLogic {
 
   public User login(String username, String password) {
     for (User u : knownUsers) {
-      if (u.getUsername().equals(username) && u.getPassword().equals(password)) {
+      if (u.getUsername().equals(username) && passwords.get(u).equals(password)) {
         return u;
       }
     }
@@ -322,7 +327,8 @@ public class DummyBusinessLogic implements BusinessLogic {
       if (u.getUsername().equals(username))
         throw new AlreadyRegisteredException(u.getUsername());
     }
-    User user = new User(maxId++, username, password, keyRing, email);
+    User user = new User(maxId++, username, email);
+    passwords.put(user, password);
     knownUsers.add(user);
     return user;
   }
@@ -443,7 +449,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     if (u == null)
       throw new UnknownUserException(username);
 
-    if (!u.getKeyRing().equals(keyRing))
+    if (!passwords.get(u).equals(keyRing))
       throw new InvalidCredentialsException();
 
     Profile p = new Profile(maxId++, u, profileName, source.getId(),
@@ -468,7 +474,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     Profile p = findProfile(profileId);
     if (p == null)
       throw new IllegalArgumentException("Unknown profile " + profileId);
-    if (!p.getUser().getKeyRing().equals(keyRing))
+    if (!passwords.get(p.getUser()).equals(keyRing))
       throw new InvalidCredentialsException();
 
     for (Object keyObj : props.keySet()) {

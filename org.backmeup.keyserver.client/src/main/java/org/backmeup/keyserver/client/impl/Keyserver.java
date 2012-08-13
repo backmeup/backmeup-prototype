@@ -21,13 +21,12 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.BasicClientConnectionManager;
+import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
@@ -125,7 +124,7 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
       }
     }
     final HttpParams httpParams = new BasicHttpParams();
-    return new DefaultHttpClient(new BasicClientConnectionManager(schemeRegistry), httpParams);
+    return new DefaultHttpClient(new SingleClientConnManager(schemeRegistry), httpParams);
   }
 
   private Result execute(String path, ReqType type) {
@@ -136,10 +135,8 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     
     HttpClient client = createClient();
 
-    URIBuilder builder = new URIBuilder();
     try {
-      URI registerUri = builder.setScheme(scheme).setHost(host).setPath(path)
-          .build();
+      URI registerUri = new URI(scheme, host, path, null);
       HttpUriRequest request;
       switch (type) {
       case PUT:
@@ -191,7 +188,7 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     if (response.response.getStatusLine().getStatusCode() != 204) {
       throw new BackMeUpException("Error during user creation: error code was "
           + response.response.getStatusLine().getStatusCode() + "; message: "
-          + response.response.getStatusLine().getReasonPhrase());
+          + response.response.getStatusLine().getReasonPhrase() + "; Data: " + response.content);
     }
   }
 

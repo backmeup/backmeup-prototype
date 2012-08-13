@@ -20,13 +20,13 @@ class TestDatasources(TestCase):
     res = delete_user("TestUser4")
     logger.debug("Deleted TestUser4: " + str(res.code))
     delete_user("NotExistingUser")
-    res = register_user("TestUser", "pass", "key", "email")
+    res = register_user("TestUser", "key", "key", "TestUser")
     logger.debug("Added TestUser: " + str(res.code))
-    res = register_user("TestUser2", "pass", "key", "email")
+    res = register_user("TestUser2", "key", "key", "TestUser2")
     logger.debug("Added TestUser2: " + str(res.code))
-    res = register_user("TestUser3", "pass", "key", "email")
+    res = register_user("TestUser3", "key", "key", "TestUser3")
     logger.debug("Added TestUser3: " + str(res.code))
-    res = register_user("TestUser4", "t4", "t4", "email")
+    res = register_user("TestUser4", "t4", "t4", "TestUser4")
     logger.debug("Added TestUser4: " + str(res.code))
   
   def test_get_datasources(self):

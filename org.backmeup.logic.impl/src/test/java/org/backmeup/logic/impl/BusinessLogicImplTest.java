@@ -1,18 +1,10 @@
 package org.backmeup.logic.impl;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import org.backmeup.logic.BusinessLogic;
-import org.backmeup.logic.impl.helper.AuthenticationPerformer;
-import org.backmeup.logic.impl.helper.DropboxAutomaticAuthorizer;
-import org.backmeup.model.AuthRequest;
 import org.backmeup.model.User;
-import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
@@ -104,11 +96,14 @@ public class BusinessLogicImplTest {
     assert (u2 != null);
     assert (u2.getUserId() != null);
     assert (u.getUserId() != null);
-    assert (u.getUserId().equals(u2.getUserId()));
-    assert (u.getPassword().equals(u2.getPassword()));
+    assert (u.getUserId().equals(u2.getUserId()));    
     assert (u.getUsername().equals(u2.getUsername()));
     assert (u.getEmail().equals(u2.getEmail()));
-    assert (u.getKeyRing().equals(u2.getKeyRing()));
+    try {
+      logic.deleteUser("Seppl");
+    } catch (Exception e) {
+
+    }
   }
 
   @Test
@@ -136,9 +131,12 @@ public class BusinessLogicImplTest {
     User u = logic.register("Seppl", "apass", "ringring", "amail.at");
     assert (u != null);
     assert ("Seppl".equals(u.getUsername()));
-    assert ("apass".equals(u.getPassword()));
-    assert ("ringring".equals(u.getKeyRing()));
     assert ("amail.at".equals(u.getEmail()));
+    try {
+      logic.deleteUser("Seppl");
+    } catch (Exception e) {
+
+    }
   }
 
   @Test

@@ -26,6 +26,8 @@ public class IndexActionTest {
 	
 	private static Node node;
 	
+	private static final String ELASTICSEARCH_CLUSTERNAME = "testcluster";
+	
 	private Progressable logProgressable = new Progressable() {
 		@Override
 		public void progress(String message) {
@@ -35,7 +37,7 @@ public class IndexActionTest {
 	
 	@BeforeClass
 	public static void setup() {
-		node = NodeBuilder.nodeBuilder().local(true).node();		
+		node = NodeBuilder.nodeBuilder().local(true).clusterName(ELASTICSEARCH_CLUSTERNAME).node();		
 	}
 	
 	@AfterClass

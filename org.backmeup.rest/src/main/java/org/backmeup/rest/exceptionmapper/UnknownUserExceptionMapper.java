@@ -12,7 +12,7 @@ public class UnknownUserExceptionMapper implements
 		ExceptionMapper<UnknownUserException> {
 	
 	public Response toResponse(UnknownUserException uue) {
-		return Response.status(Response.Status.NOT_FOUND).entity(new ErrorEntity(uue.getMessage())).build();
+		return Response.status(Response.Status.NOT_FOUND).entity(new ErrorEntity(UnknownUserException.class.getName(), uue.getMessage())).build();
 	}
 
 }

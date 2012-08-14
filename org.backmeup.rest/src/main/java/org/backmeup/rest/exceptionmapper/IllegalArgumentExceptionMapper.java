@@ -11,7 +11,7 @@ public class IllegalArgumentExceptionMapper implements
 		ExceptionMapper<IllegalArgumentException> {
 	
 	public Response toResponse(IllegalArgumentException arg0) {
-		return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorEntity(arg0.getMessage())).build();
+		return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorEntity(arg0.getClass().getName(), arg0.getMessage())).build();
 	}
 
 }

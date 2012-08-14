@@ -11,7 +11,7 @@ import org.backmeup.rest.data.ErrorEntity;
 public class InvalidCredentialsMapper implements ExceptionMapper<InvalidCredentialsException> {
 	
 	public Response toResponse(InvalidCredentialsException arg0) {
-		return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorEntity(arg0.getMessage())).build();
+		return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorEntity(InvalidCredentialsException.class.getName(), arg0.getMessage())).build();
 	}
 
 }

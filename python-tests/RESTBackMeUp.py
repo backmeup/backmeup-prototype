@@ -17,6 +17,14 @@ def change_user(user, oldPassword, newPassword, newKeyRing, newEmail):
       { "oldPassword" : oldPassword, "password" : newPassword, "keyRing" : newKeyRing, "email" : newEmail })
   return answer
 
+def verify_email(verificationKey):
+  answer = com.request("GET", "/users/" + verificationKey + "/verfiyEmail");
+  return answer
+
+def new_verification_email(user):
+  answer = com.request("GET", "/users/" + user + "/newVerificationEmail");
+  return answer
+
 def login_user(user, password):
   answer = com.request("POST", "/users/" + user + "/login", {"password" : password})
   return answer

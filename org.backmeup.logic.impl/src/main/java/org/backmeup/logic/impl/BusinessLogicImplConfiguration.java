@@ -39,4 +39,23 @@ public class BusinessLogicImplConfiguration {
 	public String getCallbackUrl() {
 		return this.loadProperties().getProperty("callbackUrl");
 	}
+	
+	@Produces
+	@Named("emailVerificationUrl")
+	public String getEmailVerificationUrl() {
+	  return this.loadProperties().getProperty("emailVerificationUrl");
+	}
+	
+	@Produces
+	@Named("minimalPasswordLength")
+	public int getMinimalPasswordLength() {
+	  String minimalPasswordLength = this.loadProperties().getProperty("minimalPasswordLength");
+	  return Integer.parseInt(minimalPasswordLength);
+	}	
+	
+	@Produces
+	@Named("emailRegex")
+	public String getEmailRegex() {
+	  return this.loadProperties().getProperty("emailRegex");
+	}
 }

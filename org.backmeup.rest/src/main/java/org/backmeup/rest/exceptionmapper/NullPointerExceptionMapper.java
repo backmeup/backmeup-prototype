@@ -12,7 +12,7 @@ public class NullPointerExceptionMapper implements
 		ExceptionMapper<NullPointerException> {
 	
 	public Response toResponse(NullPointerException arg0) {
-		return Response.status(Status.BAD_REQUEST).entity(new ErrorEntity(arg0.getMessage())).build();
+		return Response.status(Status.BAD_REQUEST).entity(new ErrorEntity(NullPointerException.class.getName(), arg0.getMessage())).build();
 	}
 
 }

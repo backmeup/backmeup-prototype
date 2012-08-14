@@ -40,9 +40,11 @@ public interface BusinessLogic {
 	// user operations 
 	public User getUser(String username);
 	public User deleteUser(String username);
-	public User changeUser(String username, String oldPassword, String newPassword, String newKeyRing, String newEmail);
+	public User changeUser(String username, String oldPassword, String newPassword, String newKeyRing, String newEmail);	
 	public User login(String username, String password);
 	public User register(String username, String password, String keyRing, String email) throws AlreadyRegisteredException, IllegalArgumentException;
+	public User verifyEmailAddress(String verificationKey);
+	public User requestNewVerificationEmail(String username);
 	
 	// user property operations
 	public void setUserProperty(String username, String key, String value);

@@ -1,7 +1,7 @@
 # -*- coding: ISO-8859-1 -*-
 
 from RESTBackMeUp import *
-from unittest import TestCase
+from unittest import TestCase, skip
 from TestConfig import *
 from datetime import datetime, timedelta
 import httplib
@@ -23,9 +23,10 @@ class TestBackupJobs(TestCase):
     logger.debug("============ test_get_backup_job ============")
     # test with wrong user
     res = get_backup_jobs("UnknownUser")
-    self.assertEquals(res.code, httplib.BAD_REQUEST)
+    self.assertEquals(res.code, httplib.NOT_FOUND)
 
-    register_user("TestUser", "pass", "pass2", "email")
+    res = register_user("TestUser", "password", "password", "TestUser@trash-mail.com")
+    verify_email(res.data["verificationKey"])
     # get them from TestUser; no entry must be available
     res = get_backup_jobs("TestUser")
     self.assertEquals(res.code, httplib.OK)
@@ -35,17 +36,17 @@ class TestBackupJobs(TestCase):
 
     # now we add two jobs; they must be available
     # then
-    sourceId = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "SrcProfile", "pass2").data["profileId"]
+    sourceId = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "SrcProfile", "password").data["profileId"]
     
-    sinkId = auth_datasink("TestUser", SINK_PLUGIN_ID, "SinkProfile", "pass2").data["profileId"]
+    sinkId = auth_datasink("TestUser", SINK_PLUGIN_ID, "SinkProfile", "password").data["profileId"]
 
     update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET})
     
     update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET})
 
-    create_backup_job("TestUser", "pass2", [sourceId], [], sinkId, "daily")    
+    create_backup_job("TestUser", "password", [sourceId], [], sinkId, "daily")    
     
-    create_backup_job("TestUser", "pass2", [sourceId], [], sinkId, "daily")    
+    create_backup_job("TestUser", "password", [sourceId], [], sinkId, "daily")    
 
     res = get_backup_jobs("TestUser")
     self.assertEquals(res.code, httplib.OK)
@@ -60,11 +61,12 @@ class TestBackupJobs(TestCase):
   def test_create_backup_job(self):
     # prepare the tests
     logger.debug("============ test_create_backup_job ============")
-    register_user("TestUser2", "pw", "kb", "em")
+    res = register_user("TestUser2", "password", "password", "TestUser2@trash-mail.com")
+    verify_email(res.data["verificationKey"])
     
-    sourceId = auth_datasource("TestUser2", SOURCE_PLUGIN_ID, "SrcProfile", "kb").data["profileId"]
+    sourceId = auth_datasource("TestUser2", SOURCE_PLUGIN_ID, "SrcProfile", "password").data["profileId"]
     
-    sinkId = auth_datasink("TestUser2", SINK_PLUGIN_ID, "SinkProfile", "kb").data["profileId"]
+    sinkId = auth_datasink("TestUser2", SINK_PLUGIN_ID, "SinkProfile", "password").data["profileId"]
 
     update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET})
     
@@ -72,10 +74,10 @@ class TestBackupJobs(TestCase):
 
     # test with unknown user
     res = create_backup_job("UnknownUser", "asdf", [sourceId], [], sinkId, "weekly")
-    self.assertEquals(res.code, httplib.BAD_REQUEST)
+    self.assertEquals(res.code, httplib.NOT_FOUND)
 
     # test with wrong sourceProfiles
-    res = create_backup_job("TestUser2", "kb", [9999], [], sinkId, "weekly")
+    res = create_backup_job("TestUser2", "password", [9999], [], sinkId, "weekly")
     self.assertEquals(res.code, httplib.BAD_REQUEST)
 
     # test with wrong keyring
@@ -83,30 +85,31 @@ class TestBackupJobs(TestCase):
     self.assertEquals(res.code, httplib.UNAUTHORIZED)
 
     # test with wrong sinkProfile
-    res = create_backup_job("TestUser2", "kb", [sourceId], [], 9999, "weekly")
+    res = create_backup_job("TestUser2", "password", [sourceId], [], 9999, "weekly")
     self.assertEquals(res.code, httplib.BAD_REQUEST)
 
     # test with empty profiles
-    res = create_backup_job("TestUser2", "kb", [], [], sinkId, "weekly")
+    res = create_backup_job("TestUser2", "password", [], [], sinkId, "weekly")
     self.assertEquals(res.code, httplib.BAD_REQUEST)
     
     # successfully create a job
-    res = create_backup_job("TestUser2", "kb", [sourceId], [], sinkId, "weekly")
+    res = create_backup_job("TestUser2", "password", [sourceId], [], sinkId, "weekly")
     self.assertEquals(res.code, httplib.OK)
     self.assertIn("jobId", res.data)
 
   def test_validate_backup_job(self):
     # prepare validation
-    register_user("TestUser3", "pw", "kb", "em")
-    sourceId = auth_datasource("TestUser3", SOURCE_PLUGIN_ID, "SrcProfile", "kb").data["profileId"]
+    res = register_user("TestUser3", "password", "password", "email@trash-mail.com")
+    verify_email(res.data["verificationKey"])
+    sourceId = auth_datasource("TestUser3", SOURCE_PLUGIN_ID, "SrcProfile", "password").data["profileId"]
     
-    sinkId = auth_datasink("TestUser3", SINK_PLUGIN_ID, "SinkProfile", "kb").data["profileId"]
+    sinkId = auth_datasink("TestUser3", SINK_PLUGIN_ID, "SinkProfile", "password").data["profileId"]
 
     update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET})
     
     update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET})
     
-    res = create_backup_job("TestUser3", "kb", [sourceId], [], sinkId, "weekly")
+    res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly")
     jobId = res.data["jobId"]
 
     # test bad things
@@ -123,16 +126,17 @@ class TestBackupJobs(TestCase):
 
 
   def test_delete_backup_job(self):
-    register_user("TestUser3", "pw", "kb", "em")
-    sourceId = auth_datasource("TestUser3", SOURCE_PLUGIN_ID, "SrcProfile", "kb").data["profileId"]
+    res = register_user("TestUser3", "password", "password", "TestUser3@trash-mail.com")
+    verify_email(res.data["verificationKey"])
+    sourceId = auth_datasource("TestUser3", SOURCE_PLUGIN_ID, "SrcProfile", "password").data["profileId"]
     
-    sinkId = auth_datasink("TestUser3", SINK_PLUGIN_ID, "SinkProfile", "kb").data["profileId"]
+    sinkId = auth_datasink("TestUser3", SINK_PLUGIN_ID, "SinkProfile", "password").data["profileId"]
 
     update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET})
     
     update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET})
     
-    res = create_backup_job("TestUser3", "kb", [sourceId], [], sinkId, "weekly")
+    res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly")
     jobId = res.data["jobId"]
     
     res = delete_backup_job("UnknownUser", jobId); # delete a job of an unknown user
@@ -145,16 +149,17 @@ class TestBackupJobs(TestCase):
     self.assertEquals(res.code, httplib.NO_CONTENT); # delete a valid job
 
   def test_get_status(self):
-    register_user("TestUser3", "pw", "kb", "em")
-    sourceId = auth_datasource("TestUser3", SOURCE_PLUGIN_ID, "SrcProfile", "kb").data["profileId"]
+    res = register_user("TestUser3", "password", "password", "TestUser3@trash-mail.com")    
+    verify_email(res.data["verificationKey"])
+    sourceId = auth_datasource("TestUser3", SOURCE_PLUGIN_ID, "SrcProfile", "password").data["profileId"]
     
-    sinkId = auth_datasink("TestUser3", SINK_PLUGIN_ID, "SinkProfile", "kb").data["profileId"]
+    sinkId = auth_datasink("TestUser3", SINK_PLUGIN_ID, "SinkProfile", "password").data["profileId"]
 
     update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET})
     
     update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET})
     
-    res = create_backup_job("TestUser3", "kb", [sourceId], [], sinkId, "weekly")
+    res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly")
     jobId = res.data["jobId"]
 
     res = get_backup_job_status("UnknownUser", jobId) # invalid user
@@ -175,12 +180,15 @@ class TestBackupJobs(TestCase):
     #TODO: Create a complex test with backup jobs, status messages +++
     
 
+  @skip("Not yet implemented")
   def test_get_protocol_details(self):    
     self.fail("Implement tests + server-side")
 
+  @skip("Not yet implemented")
   def test_get_protocol_overview(self):
     self.fail("Implement tests + server-side")
 
+  @skip("Not yet implemented")
   def test_get_status_without_job_id(self):
     self.fail("Implement tests + server-side")
 

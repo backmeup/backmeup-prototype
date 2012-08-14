@@ -59,9 +59,7 @@ class Comm :
       else:
         logger.debug("REQUEST: " + op + " http://" + SERVER + ":" + str(PORT) + url)
         self.con.request(op, url, headers=headers)
-      logger.debug("getting response...")
       resp = self.con.getresponse()
-      logger.debug(str(resp.status) + " " + resp.reason)
       location = None
       if resp.status == 202:     
         location = resp.getheader("location")
@@ -76,9 +74,10 @@ class Comm :
   
       self._retry_count = 0;
       rr = RequestResult(resp.status, resp.reason, result, location)
-      logger.debug(str(rr))
+      if (int(resp.status) >= 400):
+        logger.debug(str(rr))
       return rr
-    except socket_error as se:
+    except Exception as se:
       logger.debug("Exception during request: " + str(se))
       self._create_connection()
       self._retry_count += 1;

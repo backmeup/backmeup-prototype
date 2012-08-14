@@ -22,9 +22,10 @@ class TestProfiles(TestCase):
     self.assertEquals(res.code, httplib.BAD_REQUEST)
     
     # update existing profile
-    register_user("TestUser", "p1", "pass1", "email@test.at")
+    res = register_user("TestUser", "password", "password", "TestUser@trash-mail.com")
+    verify_email(res.data["verificationKey"])
 
-    res = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "MetaTestProfile", "pass1")
+    res = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "MetaTestProfile", "password")
     profileId = res.data["profileId"]
 
     res = update_profile(profileId, {"AKey" : "AVal", "AnotherKey" : "AnotherValue", "B" : "A"})

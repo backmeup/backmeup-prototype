@@ -13,6 +13,7 @@ import javax.ws.rs.Produces;
 import org.backmeup.model.User;
 import org.backmeup.model.exceptions.UnknownUserPropertyException;
 import org.backmeup.rest.data.UserContainer;
+import org.backmeup.rest.data.VerificationContainer;
 
 /**
  * All user specific operations will be handled within this class.
@@ -60,14 +61,29 @@ public class Users extends Base {
 	@Path("{username}/register")
 	@Consumes({"application/x-www-form-urlencoded"})
 	@Produces("application/json")
-	public void register(@PathParam("username") String username,
+	public VerificationContainer register(@PathParam("username") String username,
 			@FormParam("password") String password,
 			@FormParam("keyRing") String keyRing,
 			@FormParam("email") String email) {	  
-	  getLogic().register(username, password,
+	  User u = getLogic().register(username, password,
 				keyRing, email);
+	  return new VerificationContainer(u.getUsername(), u.getVerificationKey());
 	}
-
+	
+	@GET
+	@Path("{verificationKey}/verfiyEmail")
+	@Produces("application/json")
+	public void verifyEmailAddress(@PathParam("verificationKey") String verificationKey) {
+	  getLogic().verifyEmailAddress(verificationKey);
+	}
+	
+	@GET
+	@Path("{username}/newVerificationEmail")
+	@Produces("application/json")
+	public VerificationContainer requestNewVerificationEmail(@PathParam("username") String username) {
+	  User u = getLogic().requestNewVerificationEmail(username);
+	  return new VerificationContainer(u.getUsername(), u.getVerificationKey());
+	}
 	
 	// User Properties
 	@GET

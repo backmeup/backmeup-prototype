@@ -1,18 +1,12 @@
 package org.backmeup.logic.impl;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import org.backmeup.logic.BusinessLogic;
-import org.backmeup.logic.impl.helper.AuthenticationPerformer;
-import org.backmeup.logic.impl.helper.DropboxAutomaticAuthorizer;
-import org.backmeup.model.AuthRequest;
 import org.backmeup.model.User;
-import org.backmeup.model.exceptions.AlreadyRegisteredException;
+import org.backmeup.model.exceptions.NotAnEmailAddressException;
+import org.backmeup.model.exceptions.PasswordTooShortException;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
@@ -98,7 +92,8 @@ public class BusinessLogicImplTest {
       logic.deleteUser("Seppl");
     } catch (Exception e) {
     }
-    User u = logic.register("Seppl", "apass", "ringring", "amail.at");
+    User u = logic.register("Seppl", "12345678", "12345678", "backmeup1@trash-mail.com");
+    logic.verifyEmailAddress(u.getVerificationKey());
     User u2 = logic.getUser("Seppl");
     assert (u != null);
     assert (u2 != null);
@@ -133,12 +128,72 @@ public class BusinessLogicImplTest {
     } catch (Exception e) {
 
     }
-    User u = logic.register("Seppl", "apass", "ringring", "amail.at");
+    User u = logic.register("Seppl", "superlongpassword", "superlongpassword", "backmeup1@trash-mail.com");
     assert (u != null);
     assert ("Seppl".equals(u.getUsername()));
-    assert ("apass".equals(u.getPassword()));
-    assert ("ringring".equals(u.getKeyRing()));
-    assert ("amail.at".equals(u.getEmail()));
+    assert ("superlongpassword".equals(u.getPassword()));
+    assert ("superlongpassword".equals(u.getKeyRing()));
+    assert ("backmeup1@trash-mail.com".equals(u.getEmail()));
+    
+    try {
+      u = logic.register("James", "123", "12345678", "backmeup1@trash-mail.com");
+      assert (false);
+    } catch (PasswordTooShortException pts) {      
+    }
+    
+    try {
+      u = logic.register("James", "12345678", "123", "backmeup1@trash-mail.com");
+      assert (false);
+    } catch (PasswordTooShortException pts) {      
+    }
+    
+    try {
+      u = logic.register("James", "12345678", "12345678", "invalidmailmail.at");
+      assert (false);
+    } catch (NotAnEmailAddressException pts) {      
+    }
+    
+    try {
+      u = logic.register("James", "12345678", "12345678", "invalidmailmail.@at");
+      assert (false);
+    } catch (NotAnEmailAddressException pts) {      
+    }
+    
+    try {
+      u = logic.register("James", "12345678", "12345678", "invalidmailmail@at");
+      assert (false);
+    } catch (NotAnEmailAddressException pts) {      
+    }
+    
+    try {
+      u = logic.register("James", "12345678", "12345678", "invalidmailmail@.at");
+      assert (false);
+    } catch (NotAnEmailAddressException pts) {      
+    }
+    
+    try {
+      u = logic.register(null, "12345678", "12345678", "invalidmailmail@.at");
+      assert (false);
+    } catch (IllegalArgumentException iae) {      
+    }
+    
+    try {
+      u = logic.register("James", null, "12345678", "invalidmailmail@.at");
+      assert (false);
+    } catch (IllegalArgumentException iae) {      
+    }
+    
+    try {
+      u = logic.register("James", "12345678", null, "invalidmailmail@.at");
+      assert (false);
+    } catch (IllegalArgumentException iae) {      
+    }
+    
+    try {
+      u = logic.register("James", "12345678", "invalidmailmail@.at", null);
+      assert (false);
+    } catch (IllegalArgumentException iae) {      
+    }
   }
 
   @Test

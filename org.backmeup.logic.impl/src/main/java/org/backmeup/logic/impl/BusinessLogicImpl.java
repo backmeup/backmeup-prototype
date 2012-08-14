@@ -1,6 +1,9 @@
 package org.backmeup.logic.impl;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,11 +12,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.codec.binary.Base64;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
@@ -36,9 +42,14 @@ import org.backmeup.model.User;
 import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.BackMeUpException;
+import org.backmeup.model.exceptions.EmailVerificationException;
 import org.backmeup.model.exceptions.InvalidCredentialsException;
+import org.backmeup.model.exceptions.NotAnEmailAddressException;
+import org.backmeup.model.exceptions.PasswordTooShortException;
 import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.model.exceptions.UnknownUserException;
+import org.backmeup.model.exceptions.UserAlreadyActivatedException;
+import org.backmeup.model.exceptions.UserNotActivatedException;
 import org.backmeup.model.exceptions.ValidationException;
 import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
@@ -50,6 +61,7 @@ import org.backmeup.plugin.spi.Authorizable;
 import org.backmeup.plugin.spi.Authorizable.AuthorizationType;
 import org.backmeup.plugin.spi.InputBased;
 import org.backmeup.plugin.spi.OAuthBased;
+import org.backmeup.utilities.mail.Mailer;
 
 /**
  * Implements the BusinessLogic interface by delegating most operations to
@@ -80,6 +92,8 @@ public class BusinessLogicImpl implements BusinessLogic {
   private static final String INVALID_USER = "org.backmeup.logic.impl.BusinessLogicImpl.INVALID_USER";
   private static final String UNKNOWN_PROFILE = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_PROFILE";
   private static final String UNKNOWN_ACTION = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_ACTION";
+  private static final String VERIFICATION_EMAIL_SUBJECT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_SUBJECT";
+  private static final String VERIFICATION_EMAIL_CONTENT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_CONTENT";
 
   @Inject
   private DataAccessLayer dal;
@@ -90,9 +104,21 @@ public class BusinessLogicImpl implements BusinessLogic {
   @Inject
   @Named("callbackUrl")
   private String callbackUrl;
+  
+  @Inject
+  @Named("minimalPasswordLength")
+  private int minimalPasswordLength;
 
   @Inject
   private Connection conn;
+   
+  @Inject
+  @Named("emailRegex")
+  private String emailRegex;
+  
+  @Inject
+  @Named("emailVerificationUrl")
+  private String verificationUrl;
 
   private ResourceBundle textBundle = ResourceBundle
       .getBundle(BusinessLogicImpl.class.getSimpleName());
@@ -118,11 +144,17 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public User getUser(String username) {
+    return getUser(username, true);
+  }
+  
+  public User getUser(String username, boolean checkActivation) {
     try {
       conn.beginOrJoin();
       User u = getUserDao().findByName(username);
       if (u == null)
         throw new UnknownUserException(username);
+      if (checkActivation && !u.isActivated())
+        throw new UserNotActivatedException(username);
       return u;
     } finally {
       conn.rollback();
@@ -132,11 +164,8 @@ public class BusinessLogicImpl implements BusinessLogic {
   public User deleteUser(String username) {
     conn.begin();
     try {
+      User u = getUser(username, false);
       UserDao userDao = getUserDao();
-      User u = userDao.findByName(username);
-      if (u == null) {
-        throw new IllegalArgumentException(textBundle.getString(INVALID_USER));
-      }
 
       BackupJobDao jobDao = getBackupJobDao();
       StatusDao statusDao = getStatusDao();
@@ -163,19 +192,25 @@ public class BusinessLogicImpl implements BusinessLogic {
   public User changeUser(String username, String oldPassword,
       String newPassword, String newKeyRing, String newEmail) {
     try {
-      conn.begin();
+      conn.begin();           
+      User u = getUser(username);
       UserDao udao = getUserDao();
-      User u = udao.findByName(username);
       if (!u.getPassword().equals(oldPassword)) {
         conn.rollback();
         throw new InvalidCredentialsException();
       }
-      if (newPassword != null)
+      if (newPassword != null) {
+        throwIfPasswordInvalid(newPassword);
         u.setPassword(newPassword);
-      if (newKeyRing != null)
+      }
+      if (newKeyRing != null) {
+        throwIfPasswordInvalid(newKeyRing);
         u.setKeyRing(newKeyRing);
-      if (newEmail != null)
+      }
+      if (newEmail != null) {
+        throwIfEmailInvalid(newEmail);
         u.setEmail(newEmail);
+      }
       udao.save(u);
       conn.commit();
       return u;
@@ -187,36 +222,87 @@ public class BusinessLogicImpl implements BusinessLogic {
   public User login(String username, String password) {
     try {
       conn.begin();
-      User u = getUserDao().findByName(username);
+      User u = getUser(username);
+      
+      if (!u.isActivated()) {
+        throw new UserNotActivatedException(username);
+      }
+      
       if (!u.getPassword().equals(password)) {
         throw new InvalidCredentialsException();
       }
+      
       return u;
     } finally {
       conn.rollback();
+    }
+  }
+  
+  private void throwIfPasswordInvalid(String password) {
+    if (password.length() < minimalPasswordLength) {
+      throw new PasswordTooShortException(minimalPasswordLength, password == null ? 0 : password.length());
+    }
+  }
+  
+  private void throwIfEmailInvalid(String email) {
+    Pattern pattern = Pattern.compile(emailRegex, Pattern.CASE_INSENSITIVE);
+    Matcher matcher = pattern.matcher(email);
+    if (!matcher.matches()) {
+      throw new NotAnEmailAddressException(emailRegex, email);
     }
   }
 
   public User register(String username, String password,
       String keyRingPassword, String email) throws AlreadyRegisteredException,
       IllegalArgumentException {
-    if (username == null || password == null || keyRingPassword == null
-        || email == null) {
-      throw new IllegalArgumentException(textBundle.getString(PARAMETER_NULL));
-    }
     try {
+      if (username == null || password == null || keyRingPassword == null
+          || email == null) {
+        throw new IllegalArgumentException(textBundle.getString(PARAMETER_NULL));
+      }
+      
+      throwIfPasswordInvalid(password);
+      
+      throwIfPasswordInvalid(keyRingPassword);      
+      
+      throwIfEmailInvalid(email);
+      
       conn.begin();
       UserDao userDao = getUserDao();
       User existingUser = userDao.findByName(username);
       if (existingUser != null) {
         throw new AlreadyRegisteredException(existingUser.getUsername());
       }
+      
       User u = new User(username, password, keyRingPassword, email);
+      u.setActivated(false);            
+      generateNewVerificationKey(u, password.hashCode() + "." + new Date().getTime());      
       u = userDao.save(u);
       conn.commit();
+      sendVerificationEmail(u);
       return u;
     } finally {
       conn.rollback();
+    }
+  }
+  
+  private void sendVerificationEmail(User u) {
+    String verifierUrl = String.format(verificationUrl, u.getVerificationKey());      
+    Mailer.send(u.getEmail(), textBundle.getString(VERIFICATION_EMAIL_SUBJECT), String.format(textBundle.getString(VERIFICATION_EMAIL_CONTENT), verifierUrl));
+  }
+  
+  private void generateNewVerificationKey(User u, String additionalPart) {
+    try {
+      // http://stackoverflow.com/questions/4871094/generate-activation-urls-in-java-ee-6
+      MessageDigest md = MessageDigest.getInstance("SHA-256");
+      String tostore = u.getUsername() + "." + additionalPart;
+      md.update(tostore.getBytes("UTF-8"));      
+      String verificationKey = Base64.encodeBase64String(md.digest()).replaceAll("/", "_").replaceAll("\\+", "D").replaceAll("=", "A").trim();      
+      u.setVerificationKey(verificationKey);
+    } catch (NoSuchAlgorithmException e) {
+      throw new BackMeUpException(e);
+    } catch (UnsupportedEncodingException e) {
+      throw new BackMeUpException(e);
     }
   }
   
@@ -237,8 +323,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   public void deleteUserProperty(String username, String key) {
     try {
       conn.beginOrJoin();
-      UserDao userDao = getUserDao();
-      User u = userDao.findByName(username);      
+      User u = getUser(username);
       u.deleteUserProperty(key);
       conn.commit();
     } finally {
@@ -350,12 +435,8 @@ public class BusinessLogicImpl implements BusinessLogic {
       String[] requiredActions, String timeExpression, String keyRing) {
     try {
       conn.begin();
-      User user = getUserDao().findByName(username);
-      if (user == null) {
-        throw new IllegalArgumentException(String.format(
-            textBundle.getString(USER_DOESNT_EXIST), username));
-      }
-
+      User user = getUser(username);
+      
       if (!user.getKeyRing().equals(keyRing))
         throw new InvalidCredentialsException();
 
@@ -407,11 +488,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   public List<BackupJob> getJobs(String username) {
     try {
       conn.begin();
-      UserDao userDao = getUserDao();
-      User u = userDao.findByName(username);
-      if (u == null)
-        throw new IllegalArgumentException(String.format(
-            textBundle.getString(USER_DOESNT_EXIST), username));
+      getUser(username);
       BackupJobDao jobDao = getBackupJobDao();
       return jobDao.findByUsername(username);
     } finally {
@@ -478,16 +555,9 @@ public class BusinessLogicImpl implements BusinessLogic {
     AuthRequest ar = new AuthRequest();
     try {
       conn.begin();
-      UserDao userDao = getUserDao();
-      User user = userDao.findByName(username);
-      if (user == null) {
-        conn.rollback();
-        throw new IllegalArgumentException(String.format(
-            textBundle.getString(USER_DOESNT_EXIST), username));
-      }
-
-      if (!user.getKeyRing().equals(keyRing)) {
-        conn.rollback();
+      
+      User user = getUser(username);
+      if (!user.getKeyRing().equals(keyRing)) {        
         throw new InvalidCredentialsException();
       }
       Profile profile = new Profile(getUserDao().findByName(username),
@@ -681,10 +751,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   public ValidationNotes validateBackupJob(String username, Long jobId) {
     try {
       conn.begin();
-      UserDao userDao = getUserDao();
-      User u = userDao.findByName(username);
-      if (u == null)
-        throw new UnknownUserException(username);
+      getUser(username);
 
       BackupJob job = jobManager.getBackUpJob(jobId);
       if (job == null || !job.getUser().getUsername().equals(username)) {
@@ -774,6 +841,42 @@ public class BusinessLogicImpl implements BusinessLogic {
       }
       dao.save(p);
       conn.commit();
+    } finally {
+      conn.rollback();
+    }
+  }
+
+  @Override
+  public User verifyEmailAddress(String verificationKey) {
+    try {
+      conn.begin();
+      UserDao dao = getUserDao();
+      User u = dao.findByVerificationKey(verificationKey);
+      if (u == null)
+        throw new EmailVerificationException(verificationKey);      
+      
+      u.setVerificationKey(null);        
+      u.setActivated(true);
+          
+      conn.commit();
+      return u;
+    } finally {
+      conn.rollback();
+    }
+  }
+
+  @Override
+  public User requestNewVerificationEmail(String username) {
+    try {
+      conn.begin();
+      // don't check the activation here
+      User u = getUser(username, false);
+      if (u.isActivated())
+        throw new UserAlreadyActivatedException(username);
+      generateNewVerificationKey(u, new Date().getTime() + "");      
+      conn.commit();
+      sendVerificationEmail(u);
+      return u;
     } finally {
       conn.rollback();
     }

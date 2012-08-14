@@ -67,7 +67,7 @@ public class DummyBusinessLogic implements BusinessLogic {
   private Map<Long, SearchResponse> searches;
 
   public DummyBusinessLogic() {
-    User u1 = new User(0l, "Sepp", "pw", "keybund", "sepp@mail.at");
+    User u1 = new User(0l, "Sepp", "pw", "keybund", "sepp@mail.at");    
     User u2 = new User(1l, "Marion", "1234", "test", "marion@mail.at");
     User u3 = new User(2l, "Phil", "p1", "kr", "em");
     knownUsers = new ArrayList<User>();
@@ -837,5 +837,17 @@ public class DummyBusinessLogic implements BusinessLogic {
   public void deleteUserProperty(String username, String key) {
     // TODO Auto-generated method stub
     
+  }
+
+  @Override
+  public User verifyEmailAddress(String verificationKey) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public User requestNewVerificationEmail(String username) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

@@ -13,7 +13,7 @@ public class AlreadyRegisteredExceptionMapper implements
 		ExceptionMapper<AlreadyRegisteredException> {
 	
 	public Response toResponse(AlreadyRegisteredException are) {
-		return Response.status(Status.BAD_REQUEST).entity(new ErrorEntity(are.getMessage())).build();
+		return Response.status(Status.BAD_REQUEST).entity(new ErrorEntity(AlreadyRegisteredException.class.getName(), are.getMessage())).build();
 	}
 
 }

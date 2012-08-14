@@ -30,4 +30,14 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 		return u;
 	}
 
+	@SuppressWarnings("unchecked")
+  @Override
+  public User findByVerificationKey(String verificationKey) {
+    Query q = em.createQuery("SELECT u FROM User u WHERE verificationKey = :verificationKey");
+    q.setParameter("verificationKey", verificationKey);    
+    List<User> users = q.getResultList();
+    User u = users.size() > 0 ? users.get(0) : null;    
+    return u;
+  }
+
 }

@@ -18,8 +18,9 @@ class TestMetadata(TestCase):
     delete_user("TestUser")
 
   def test_get_specific_metadata(self):
-    register_user("TestUser", "pass", "pass1", "email@someone.at")
-    result = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "MetaTestProfile", "pass1")
+    res = register_user("TestUser", "password", "password", "TestUser@trash-mail.com")
+    verify_email(res.data["verificationKey"])
+    result = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "MetaTestProfile", "password")
     profileId = result.data["profileId"]
 
     result2 = update_profile(profileId, 
@@ -45,9 +46,10 @@ class TestMetadata(TestCase):
     self.assertIn(METADATA_TEST_SPECIFIC_META, result.data["metadata"])
 
   def test_get_metadata(self):
-    register_user("TestUser", "pass", "pass1", "email@someone.at")
+    res = register_user("TestUser", "password", "password", "TestUser@trash-mail.com")
+    verify_email(res.data["verificationKey"])
     
-    result = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "MetaTestProfile", "pass1")
+    result = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "MetaTestProfile", "password")
     profileId = result.data["profileId"]
 
     result2 = update_profile(profileId, 

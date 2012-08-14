@@ -10,9 +10,9 @@ import org.backmeup.rest.data.ErrorEntity;
 public class BackMeUpExceptionMapper implements
     ExceptionMapper<BackMeUpException> {
 
-  public Response toResponse(BackMeUpException are) {
+  public Response toResponse(BackMeUpException are) {    
     return Response.status(Status.BAD_REQUEST)
-        .entity(new ErrorEntity(are.getMessage())).build();
+        .entity(new ErrorEntity(are.getClass().getName(), are.getMessage())).build();
   }
 
 }

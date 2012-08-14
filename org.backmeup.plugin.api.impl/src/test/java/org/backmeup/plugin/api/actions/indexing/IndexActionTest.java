@@ -74,7 +74,10 @@ public class IndexActionTest {
 			for (String key : source.keySet()) {
 				System.out.println(key + ": " + source.get(key));
 				Assert.assertEquals("Content-Type", key);
-				Assert.assertTrue(source.get(key).toString().startsWith("application/"));
+				// System.out.println(source.get(key));
+				Assert.assertTrue(
+						source.get(key).toString().startsWith("application/") ||
+						source.get(key).toString().startsWith("image/"));
 			}
 		}
 		

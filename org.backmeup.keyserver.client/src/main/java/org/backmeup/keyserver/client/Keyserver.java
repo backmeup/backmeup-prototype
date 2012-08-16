@@ -1,5 +1,7 @@
 package org.backmeup.keyserver.client;
 
+import java.util.Properties;
+
 public interface Keyserver {
   // User operations
   public void registerUser(Long userId, String password);
@@ -13,8 +15,7 @@ public interface Keyserver {
   public void deleteService(Long serviceId);
   
   //Authentication information
-  public void addAuthInfo(Long userId, String userPwd, Long serviceId, Long authInfoId, String ai_username, String ai_password);
-  public void addAuthInfo(Long userId, String userPwd, Long serviceId, Long authInfoId, String ai_oauth);
+  public void addAuthInfo(Long userId, String userPwd, Long serviceId, Long authInfoId, Properties keyValuePairs);
   public boolean isAuthInformationAvailable(Long authInfoId, Long userId, Long serviceId, String userPwd);
   public void deleteAuthInfo(Long authInfoId);
   

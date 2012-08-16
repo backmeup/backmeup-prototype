@@ -1,26 +1,28 @@
 package org.backmeup.keyserver.client;
 
+import java.util.Properties;
+import java.util.Set;
+
 public class AuthUsrPwd {
+  
   private Long bmu_user_id;
   private String user_pwd;
   private Long bmu_service_id;
   private Long bmu_authinfo_id;
-  private String ai_username;
-  private String ai_pwd;
+  private Properties ai_data;
 
   public AuthUsrPwd() {
     super();
   }
 
   public AuthUsrPwd(Long bmu_user_id, String user_pwd, Long bmu_service_id,
-      Long bmu_authinfo_id, String ai_username, String ai_pwd) {
+      Long bmu_authinfo_id, Properties keyValuePairs) {
     super();
     this.bmu_user_id = bmu_user_id;
     this.user_pwd = user_pwd;
     this.bmu_service_id = bmu_service_id;
     this.bmu_authinfo_id = bmu_authinfo_id;
-    this.ai_username = ai_username;
-    this.ai_pwd = ai_pwd;
+    setAi_data(keyValuePairs);    
   }
 
   public Long getBmu_user_id() {
@@ -55,20 +57,12 @@ public class AuthUsrPwd {
     this.bmu_authinfo_id = bmu_authinfo_id;
   }
 
-  public String getAi_username() {
-    return ai_username;
+  public Properties getAi_data() {
+    return ai_data;
   }
 
-  public void setAi_username(String ai_username) {
-    this.ai_username = ai_username;
-  }
-
-  public String getAi_pwd() {
-    return ai_pwd;
-  }
-
-  public void setAi_pwd(String ai_pwd) {
-    this.ai_pwd = ai_pwd;
-  }
+  public void setAi_data(Properties ai_data) {
+    this.ai_data = ai_data;
+  } 
 
 }

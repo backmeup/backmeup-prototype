@@ -2,11 +2,14 @@ package org.backmeup.keyserver.client.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyStore;
 import java.security.SecureRandom;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 import java.util.Scanner;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -32,13 +35,19 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.backmeup.keyserver.client.AuthDataResult;
-import org.backmeup.keyserver.client.AuthOAuth;
 import org.backmeup.keyserver.client.AuthUsrPwd;
 import org.backmeup.keyserver.client.Token;
 import org.backmeup.keyserver.client.TokenRequest;
 import org.backmeup.model.exceptions.BackMeUpException;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 @ApplicationScoped
 public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
@@ -243,33 +252,35 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
           + "; Data: " + response.content);
     }
   }
+  
+  private class PropertiesSerializer implements JsonSerializer<Properties> {
+    @Override
+    public JsonElement serialize(Properties src, Type typeOfSrc,
+        JsonSerializationContext context) {
+      JsonObject parent = new JsonObject();
+      for (Entry<Object, Object> entry : src.entrySet()) {
+        parent.add((String)entry.getKey(), new JsonPrimitive((String)entry.getValue()));
+      }
+      return parent;
+    }
+  }
 
   // Authentication Operations
   @Override
   public void addAuthInfo(Long userId, String userPwd, Long serviceId,
-      Long authInfoId, String ai_username, String ai_password) {
-    Gson g = new Gson();
+      Long authInfoId, Properties keyValuePairs) {
+    GsonBuilder gb = new GsonBuilder();
+    gb.registerTypeAdapter(Properties.class, new PropertiesSerializer());
+    Gson g = gb.create();
     String json = g.toJson(new AuthUsrPwd(userId, userPwd, serviceId, authInfoId,
-        ai_username, ai_password));
-    Result response = execute(path + "/authinfos/add/userpwd", ReqType.POST,
+        keyValuePairs));
+    Result response = execute(path + "/authinfos/add", ReqType.POST,
         json);
     if (response.response.getStatusLine().getStatusCode() != 204) {
       throw new BackMeUpException("Failed to addAuthInfo! Data: " + response.content);
     }
   }
-
-  @Override
-  public void addAuthInfo(Long userId, String userPwd, Long serviceId,
-      Long authInfoId, String ai_oauth) {
-    Gson g = new Gson();
-    String json = g.toJson(new AuthOAuth(userId, userPwd, serviceId,
-        authInfoId, ai_oauth));
-    Result response = execute(path + "/authinfos/add/oauth", ReqType.POST,
-        json);
-    if (response.response.getStatusLine().getStatusCode() != 204) {
-      throw new BackMeUpException("Failed to addAuthInfo! Data: " + response.content);
-    }
-  }
+ 
 
   @Override
   public boolean isAuthInformationAvailable(Long authInfoId, Long userId,

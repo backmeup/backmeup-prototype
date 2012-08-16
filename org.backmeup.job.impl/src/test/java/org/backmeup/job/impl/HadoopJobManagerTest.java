@@ -1,20 +1,28 @@
 package org.backmeup.job.impl;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
-import org.apache.hadoop.mapred.FileInputFormat;
+import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MiniMRCluster;
 import org.apache.hadoop.mapred.FileOutputFormat;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.log4j.Logger;
 import org.backmeup.job.impl.hadoop.BackupJobRunner;
 import org.junit.After;
 import org.junit.Before;
@@ -31,6 +39,8 @@ public class HadoopJobManagerTest {
 	
 	private final Path input = new Path("input");
 	private final Path output = new Path(TEST_OUTPUT_PATH);
+	
+	private Logger log = Logger.getLogger(this.getClass());
 	
 	@Before
 	public void setUp() throws Exception {
@@ -49,9 +59,10 @@ public class HadoopJobManagerTest {
 	    dfsCluster.getFileSystem().makeQualified(output);
 	    
 	    mrCluster = new MiniMRCluster(1, dfsCluster.getFileSystem().getUri().toString(), 1);
-	    transferFiles();
+	    transferFilesToSequenceFile();
 	}	
 	
+	/*
 	private void transferFiles() throws IOException {
 		System.out.println("Copying files to storage cluster");
 
@@ -68,6 +79,50 @@ public class HadoopJobManagerTest {
 			System.out.println(" - OK");
 		}
 		System.out.println("Done.");
+	}*/
+	
+	private void transferFilesToSequenceFile() throws IOException, IllegalAccessException, InstantiationException {
+		log.info("Copying files to storage cluster");
+		
+		FileSystem hdfs = dfsCluster.getFileSystem();
+		
+		// Write
+		SequenceFile.Writer writer = SequenceFile.createWriter(
+				hdfs, 
+				hdfs.getConf(),
+				input,
+				Text.class,
+				BytesWritable.class,
+				SequenceFile.CompressionType.BLOCK);
+			
+		for (File f : new File(TEST_INPUT_PATH).listFiles()) {
+			log.info("Writing " + f.getAbsolutePath());
+			
+			// Key = filename
+			Text key = new Text(f.getName());
+			
+			// Value = binary data
+	        BytesWritable value = new BytesWritable(IOUtils.toByteArray(new FileReader(f)));
+	        writer.append(key, value);
+		}
+		writer.close();
+		
+		// Verify
+		SequenceFile.Reader reader = new SequenceFile.Reader(hdfs, input, hdfs.getConf());
+		Text key = (Text) reader.getKeyClass().newInstance();
+		BytesWritable value = (BytesWritable) reader.getValueClass().newInstance();
+		
+		List<String> storedFiles = new ArrayList<String>();
+		while (reader.next(key, value)) {
+			storedFiles.add(key.toString());
+		}
+		reader.close();
+		
+		Assert.assertEquals(3, storedFiles.size());
+		Assert.assertTrue(storedFiles.contains("creative-commons.png"));
+		Assert.assertTrue(storedFiles.contains("creative-commons.pdf"));
+		Assert.assertTrue(storedFiles.contains("creative-commons.jpg"));
+		log.info("All testfiles transferred to storage cluster");
 	}
 	
 	private JobConf createJobConf() {
@@ -76,7 +131,8 @@ public class HadoopJobManagerTest {
 		
 		jobConf.setJarByClass(BackupJobRunner.class);
 		jobConf.setMapRunnerClass(BackupJobRunner.class);
-		FileInputFormat.setInputPaths(jobConf, input);
+		jobConf.setInputFormat(SequenceFileInputFormat.class);
+		SequenceFileInputFormat.setInputPaths(jobConf, input);
 		FileOutputFormat.setOutputPath(jobConf, output);
 		
 		jobConf.setSpeculativeExecution(false);
@@ -85,7 +141,7 @@ public class HadoopJobManagerTest {
 	
 	@Test
 	public void testJobExecution() throws Exception {
-		System.out.println("Scheduling job now.");
+		log.info("Scheduling job NOW!");
 	    JobClient.runJob(createJobConf());
 	}
 	

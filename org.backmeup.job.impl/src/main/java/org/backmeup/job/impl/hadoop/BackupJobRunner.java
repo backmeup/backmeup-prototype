@@ -23,13 +23,12 @@ public class BackupJobRunner implements MapRunnable {
 		
 		System.out.println("Starting backup job");
 		
-		/*
-		Text key = reader.createKey();
-		BytesWritable value = reader.createValue();
+		Object key = reader.createKey();
+		Object value = reader.createValue();
+		
 		while (reader.next(key, value)) {
-			System.out.println("##### " + key + ": " + value);
+			// System.out.println("##### " + key + ": " + value);
 		}
-		*/
 		
 		System.out.println("Backupjob complete.");
 	}

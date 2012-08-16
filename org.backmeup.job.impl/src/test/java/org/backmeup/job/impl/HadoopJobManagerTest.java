@@ -2,8 +2,8 @@ package org.backmeup.job.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+
+import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -54,16 +54,19 @@ public class HadoopJobManagerTest {
 	
 	private void transferFiles() throws IOException {
 		System.out.println("Copying files to storage cluster");
-		
-		// Wouldn't a Scala .map one-liner be nice here...
-		// http://topsy.com/twitter.com/natpryce/status/223443583557042176
-		List<Path> srcFiles = new ArrayList<Path>(); 
+
+		FileSystem hdfs = dfsCluster.getFileSystem();
 		for (File f : new File(TEST_INPUT_PATH).listFiles()) {
-			srcFiles.add(new Path(f.getAbsolutePath()));
+			System.out.println("Copying " + f.getAbsolutePath());
+			hdfs.copyFromLocalFile(new Path(f.getAbsolutePath()), new Path(input, f.getName()));
 		}
-		
-		FileSystem fs = dfsCluster.getFileSystem();
-		fs.copyFromLocalFile(false, true, srcFiles.toArray(new Path[srcFiles.size()]), input);
+				
+		for (File f: new File(TEST_INPUT_PATH).listFiles()) {
+			Path p = new Path(input, f.getName());
+			System.out.print("Verifying copy: " + p.toString());
+			Assert.assertTrue(hdfs.exists(p));
+			System.out.println(" - OK");
+		}
 		System.out.println("Done.");
 	}
 	
@@ -72,7 +75,7 @@ public class HadoopJobManagerTest {
 		jobConf.setJobName("unitTest");
 		
 		jobConf.setJarByClass(BackupJobRunner.class);
-		jobConf.setMapRunnerClass(BackupJobRunner.class);	
+		jobConf.setMapRunnerClass(BackupJobRunner.class);
 		FileInputFormat.setInputPaths(jobConf, input);
 		FileOutputFormat.setOutputPath(jobConf, output);
 		

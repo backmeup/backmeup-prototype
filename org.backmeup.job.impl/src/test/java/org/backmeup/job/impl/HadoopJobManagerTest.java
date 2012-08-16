@@ -10,11 +10,11 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
+import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MiniMRCluster;
-import org.apache.hadoop.mapred.TextInputFormat;
-import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapred.FileOutputFormat;
 import org.backmeup.job.impl.hadoop.BackupJobRunner;
 import org.junit.After;
 import org.junit.Before;
@@ -73,11 +73,8 @@ public class HadoopJobManagerTest {
 		
 		jobConf.setJarByClass(BackupJobRunner.class);
 		jobConf.setMapRunnerClass(BackupJobRunner.class);	
-		jobConf.setInputFormat(TextInputFormat.class);
-		TextInputFormat.setInputPaths(jobConf, input);
-		
-		// We just set the output path to make hadoop happy.
-		TextOutputFormat.setOutputPath(jobConf, output);
+		FileInputFormat.setInputPaths(jobConf, input);
+		FileOutputFormat.setOutputPath(jobConf, output);
 		
 		jobConf.setSpeculativeExecution(false);
 		return jobConf;
@@ -86,7 +83,6 @@ public class HadoopJobManagerTest {
 	@Test
 	public void testJobExecution() throws Exception {
 		System.out.println("Scheduling job now.");
-		
 	    JobClient.runJob(createJobConf());
 	}
 	

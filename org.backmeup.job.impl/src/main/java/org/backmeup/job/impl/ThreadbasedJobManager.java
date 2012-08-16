@@ -51,8 +51,8 @@ import org.backmeup.utilities.mail.Mailer;
  * @author fschoeppl
  * 
  */
-@ApplicationScoped
-public class ThreadbasedJobManager implements JobManager {
+// @ApplicationScoped
+public class ThreadbasedJobManager /* implements JobManager  */{
 
   public class ConsoleProgressor implements Progressable {
     public void progress(String message) {
@@ -288,7 +288,7 @@ public class ThreadbasedJobManager implements JobManager {
     this.plugins = plugins;
   }
 
-  @Override
+  // @Override
   public void start() {
     System.out.println("Starting up ThreadbasedJobManager!");
     if (!started) {
@@ -298,7 +298,7 @@ public class ThreadbasedJobManager implements JobManager {
     }
   }
 
-  @Override
+  // @Override
   public BackupJob getBackUpJob(Long jobId) {
     return allJobs.get(jobId);
   }

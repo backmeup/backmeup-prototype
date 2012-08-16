@@ -62,25 +62,6 @@ public class HadoopJobManagerTest {
 	    transferFilesToSequenceFile();
 	}	
 	
-	/*
-	private void transferFiles() throws IOException {
-		System.out.println("Copying files to storage cluster");
-
-		FileSystem hdfs = dfsCluster.getFileSystem();
-		for (File f : new File(TEST_INPUT_PATH).listFiles()) {
-			System.out.println("Copying " + f.getAbsolutePath());
-			hdfs.copyFromLocalFile(new Path(f.getAbsolutePath()), new Path(input, f.getName()));
-		}
-				
-		for (File f: new File(TEST_INPUT_PATH).listFiles()) {
-			Path p = new Path(input, f.getName());
-			System.out.print("Verifying copy: " + p.toString());
-			Assert.assertTrue(hdfs.exists(p));
-			System.out.println(" - OK");
-		}
-		System.out.println("Done.");
-	}*/
-	
 	private void transferFilesToSequenceFile() throws IOException, IllegalAccessException, InstantiationException {
 		log.info("Copying files to storage cluster");
 		

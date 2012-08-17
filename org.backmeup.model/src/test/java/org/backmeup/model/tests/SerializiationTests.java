@@ -12,32 +12,34 @@ import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.User;
 import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.model.spi.SourceSinkDescribable.Type;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class SerializiationTests {
   
   private void testProfiles(Profile p1, Profile p2) {
-    assert p1.getDesc().equals(p2.getDesc());
-    assert p1.getProfileId().equals(p2.getProfileId());
-    assert p1.getProfileName().equals(p2.getProfileName());
-    assert p1.getType().equals(p2.getType());
+    
+    Assert.assertEquals(p1.getDesc(), p2.getDesc());
+    Assert.assertEquals(p1.getProfileId(), p2.getProfileId());
+    Assert.assertEquals(p1.getProfileName(), p2.getProfileName());
+    Assert.assertEquals(p1.getType(), p2.getType());
     testUser(p1.getUser(), p2.getUser());    
   }
   
   private void testUser(User u1, User u2) {
-    assert u1.getUserId() == u2.getUserId();
-    assert u1.getEmail().equals(u2.getEmail());
+    Assert.assertEquals(u1.getUserId(), u2.getUserId());
+    Assert.assertEquals(u1.getEmail(), u2.getEmail());
   }
   
   private void testActionProfile(ActionProfile ap1, ActionProfile ap2) {
-    assert ap1.getActionId() == ap2.getActionId();
-    assert ap1.getId() == ap2.getId();
+    Assert.assertEquals(ap1.getActionId(), ap2.getActionId());
+    Assert.assertEquals(ap1.getId(), ap2.getId());
   }
   
   private void testProfileOptions(ProfileOptions po1 ,ProfileOptions po2) {
-    assert po1.getOptionId() == po2.getOptionId();
+    Assert.assertEquals(po1.getOptionId(), po2.getOptionId());
     for (int i=0; i < po1.getOptions().length; i++) {
-      assert po1.getOptions()[i].equals(po2.getOptions()[i]);  
+      Assert.assertEquals(po1.getOptions()[i], po2.getOptions()[i]);  
     }
     testProfiles(po1.getProfile(), po2.getProfile());
   }
@@ -55,9 +57,9 @@ public class SerializiationTests {
     String serializedJob = JsonSerializer.serialize(job);
     BackupJob restored = JsonSerializer.deserialize(serializedJob, BackupJob.class);
     restored.toString();
-    assert job.getDelay() == restored.getDelay();
-    assert job.getId() == restored.getId();
-    assert job.getStart().equals(restored.getStart());
+    Assert.assertEquals(job.getDelay(), restored.getDelay());
+    Assert.assertEquals(job.getId(), restored.getId());
+    Assert.assertEquals(job.getStart(), restored.getStart());
     testUser(job.getUser(), restored.getUser());
     for (int i=0; i < job.getRequiredActions().size(); i++) {
       Iterator<ActionProfile> apIt1 = job.getRequiredActions().iterator();

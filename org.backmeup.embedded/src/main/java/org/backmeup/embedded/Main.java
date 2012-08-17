@@ -22,6 +22,9 @@ import org.backmeup.rest.exceptionmapper.InvalidCredentialsMapper;
 import org.backmeup.rest.exceptionmapper.NullPointerExceptionMapper;
 import org.backmeup.rest.exceptionmapper.UnknownUserExceptionMapper;
 import org.backmeup.rest.provider.ObjectMapperContextResolver;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeBuilder;
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 
 /**
@@ -33,6 +36,8 @@ import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
  */
 public class Main {
 	private static final int PORT = 8080;
+	
+	private static Node indexNode = NodeBuilder.nodeBuilder().local(true).node();		
 
 	private static URI getBaseURI() {
 		return UriBuilder.fromUri("http://localhost/").port(PORT).build();
@@ -74,6 +79,10 @@ public class Main {
 		tjws.start();
 		return tjws;
 	}
+	
+	public static Client startIndexClient() {
+		return indexNode.client();
+	}
 
 	public static void main(String[] args) throws Exception {
 		String[] items = System.getProperty("java.class.path").split(";");
@@ -83,11 +92,16 @@ public class Main {
 			System.out.println("\t" + itm);
 		}
 
-		System.out.println(String.format("BackMeUp REST Server started:"
-				+ "\nTry out %s\nHit enter to stop it...", BASE_URI));
-		TJWSEmbeddedJaxrsServer tjws = startServer();
+		TJWSEmbeddedJaxrsServer tjws = startServer();	
+		System.out.println(String.format("BackMeUp REST Server started at %s", BASE_URI));
+		Client indexClient = startIndexClient();
+		System.out.println("ElasticSearch index running at http://localhost:9200/");
+		System.out.println("Hit enter to stop...");
+		
 		System.in.read();
 		tjws.stop();
+		indexClient.close();
 		System.exit(0);
 	}
+
 }

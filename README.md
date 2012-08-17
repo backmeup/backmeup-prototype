@@ -18,7 +18,7 @@ Instructions on how to set up Maven on your machine are [available here]
 
 1. Change to the project folder to which you cloned the project repository
 
-2. Configure the platform to your needs: [Configuration](backmeup-prototype/wiki/configuration)
+2. Configure the platform to your needs: [Configuration](https://github.com/backmeup/backmeup-prototype/wiki/configuration)
 
 3. Build parts of the project: `mvn clean package install`
 

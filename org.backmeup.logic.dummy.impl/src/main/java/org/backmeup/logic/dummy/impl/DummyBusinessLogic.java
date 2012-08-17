@@ -65,6 +65,11 @@ public class DummyBusinessLogic implements BusinessLogic {
   private List<Status> status;
   private Map<String, ActionDescribable> actions;
   private Map<Long, SearchResponse> searches;
+  
+  private static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
+  private static final long DELAY_WEEKLY = 24 * 60 * 60 * 1000 * 7;
+  private static final long DELAY_MONTHLY = (long)(24 * 60 * 60 * 1000 * 365.242199 / 12.0);
+  private static final long DELAY_YEARLY = (long)(24 * 60 * 60 * 1000 * 365.242199);
 
   public DummyBusinessLogic() {
     User u1 = new User(0l, "Sepp", "pw", "keybund", "sepp@mail.at");    
@@ -246,7 +251,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     Set<ProfileOptions> popts = new HashSet<ProfileOptions>();
     popts.add(new ProfileOptions(findProfile(500), null));
     BackupJob aJob = new BackupJob(u1, popts, findProfile(501),
-        reqActions, "* * * * *");   
+        reqActions, new Date(), new Date().getTime() + 10000000);   
     aJob.setId(maxId++);
     jobs.add(aJob);
     status = new ArrayList<Status>();
@@ -260,7 +265,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     Set<ProfileOptions> popts2 = new HashSet<ProfileOptions>();
     popts2.add(new ProfileOptions(findProfile(502), null));
     BackupJob bJob = new BackupJob(u3, popts2, findProfile(502),
-        reqActions, "* * * * *");
+        reqActions, new Date(), new Date().getTime() + 10000000);
     bJob.setId(maxId++);
     jobs.add(bJob);
     status.add(new Status(bJob, "Ein Status", "INFO", new Date(100)));
@@ -526,7 +531,7 @@ public class DummyBusinessLogic implements BusinessLogic {
 
   public BackupJob createBackupJob(String username, List<Long> sourceProfiles,
       Long sinkProfileId, Map<Long, String[]> sourceOptions,
-      String[] requiredActions, String cronTime, String keyRing) {
+      String[] requiredActions, String timeExpression, String keyRing) {
 
     User user = findUser(username);
     if (user == null)
@@ -549,11 +554,29 @@ public class DummyBusinessLogic implements BusinessLogic {
       throw new IllegalArgumentException("Sink-profile not found "
           + sinkProfileId);
 
-    if (cronTime == null)
-      throw new IllegalArgumentException("Cron expression missing");
+    if (timeExpression == null)
+      throw new IllegalArgumentException("Time expression missing");
+    
+    Date start = null;
+    long delay = 0;
+    // avg month:     
+    
+    if (timeExpression.equalsIgnoreCase("daily")) {
+      start = new Date();
+      delay = DELAY_DAILY;      
+    } else if (timeExpression.equalsIgnoreCase("weekly")) {
+      start = new Date();
+      delay = DELAY_WEEKLY;
+    } else if (timeExpression.equalsIgnoreCase("monthly")) {
+      start = new Date();
+      delay = DELAY_MONTHLY;
+    } else {
+      start = new Date();
+      delay = DELAY_YEARLY;
+    }
 
     BackupJob job = new BackupJob(user, sources, sinkProfile,
-        findActions(requiredActions), cronTime);
+        findActions(requiredActions), start, delay);
     job.setId(maxId++);
     jobs.add(job);
     return job;

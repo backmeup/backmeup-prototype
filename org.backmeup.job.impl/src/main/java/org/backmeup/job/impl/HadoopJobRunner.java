@@ -33,8 +33,8 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 	public void run(RecordReader<Text, BytesWritable> reader, OutputCollector<Text, Text> output, Reporter reporter)
 			throws IOException {
 		
-		System.out.println("Starting backup job " + job.getId() + " for user " + job.getUser());
-		System.out.println("Index is at " + indexURI);
+		// System.out.println("Starting backup job " + job.getId() + " for user " + job.getUser());
+		// System.out.println("Index is at " + indexURI);
 		
 		Text key = reader.createKey();
 		BytesWritable value = reader.createValue();

@@ -37,8 +37,6 @@ import akka.util.Duration;
 @ApplicationScoped
 public class AkkaJobManager implements JobManager {
 	
-	// Note: I would rather have the AkkaScheduler as a singleton, but
-	// honestly have no idea what this would do to Spring CDI...
 	private static final ActorSystem system = ActorSystem.create();
 	
 	private BackupJobDao backupJobDao = null;
@@ -48,18 +46,18 @@ public class AkkaJobManager implements JobManager {
 	
 	/**
 	 * HDFS Distributed filesystem cluster
-	 * TODO how can I inject those?
+	 * TODO inject
 	 */
 	private MiniDFSCluster dfsCluster = null;
 	
 	/**
 	 * Hadoop Map/Reduce cluster
-	 * TODO how can I inject those?
+	 * TODO inject
 	 */
 	private MiniMRCluster mrCluster = null;
 
 	private BackupJobDao getDao() {
-		// BackupJobDao lazy creation
+		// BackupJobDao lazy creation - TODO inject
 		if (backupJobDao == null)
 			backupJobDao = dal.createBackupJobDao();
 		
@@ -117,6 +115,9 @@ public class AkkaJobManager implements JobManager {
 							jobConf.setJarByClass(HadoopJobRunner.class);
 							jobConf.setMapRunnerClass(HadoopJobRunner.class);
 							jobConf.setSpeculativeExecution(false);
+							
+							// TODO configure via properties
+							jobConf.set("index-uri", "http://localhost:9200");
 							
 							// TODO we need a way to serialize Job descriptions
 							// in order to get them to the cluster!

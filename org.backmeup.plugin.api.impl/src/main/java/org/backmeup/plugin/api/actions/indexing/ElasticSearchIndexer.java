@@ -9,6 +9,8 @@ import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 
@@ -32,13 +34,17 @@ public class ElasticSearchIndexer {
 	
 	private static final String DOCUMENT_TYPE_BACKUP = "backup";
 	
+	private static final String INDEX_NAME = "backmeup";
+	
 	private Client client;
 	
-	private String index;
+	public ElasticSearchIndexer(String host, int port) {
+		client = new TransportClient()
+			.addTransportAddress(new InetSocketTransportAddress(host, port));
+	}
 	
-	public ElasticSearchIndexer(Client client, String index) {
+	public ElasticSearchIndexer(Client client) {
 		this.client = client;
-		this.index = index;
 	}
 	
 	public void doIndexing(DataObject dataObject, Map<String, String> meta) throws IOException {
@@ -63,7 +69,7 @@ public class ElasticSearchIndexer {
 		contentBuilder = contentBuilder.endObject();
 		
 		// Push to ES index
-		client.prepareIndex(index, DOCUMENT_TYPE_BACKUP).setSource(contentBuilder)
+		client.prepareIndex(INDEX_NAME, DOCUMENT_TYPE_BACKUP).setSource(contentBuilder)
 			.setRefresh(true).execute().actionGet();	
 	}
 

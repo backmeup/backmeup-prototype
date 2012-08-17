@@ -15,11 +15,8 @@ public class IndexAction implements Action {
 	
 	private Client client;
 	
-	private String index;
-	
-	public IndexAction(Client client, String index) {
+	public IndexAction(Client client) {
 		this.client = client;
-		this.index = index;
 	}
 
 	private static final String START_INDEX_PROCESS = "Starting index process";
@@ -45,7 +42,7 @@ public class IndexAction implements Action {
 				Map<String, String> meta = analyzer.analyze(dob);
 
 				progressor.progress(INDEXING + dob.getPath());				
-				ElasticSearchIndexer indexer = new ElasticSearchIndexer(client, index);
+				ElasticSearchIndexer indexer = new ElasticSearchIndexer(client);
 				indexer.doIndexing(dob, meta);
 			}
 		} catch (Exception e) {

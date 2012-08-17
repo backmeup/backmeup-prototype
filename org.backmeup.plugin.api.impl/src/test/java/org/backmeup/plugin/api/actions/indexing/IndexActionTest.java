@@ -56,7 +56,7 @@ public class IndexActionTest {
 		Client client = node.client();
 	  
 		// Index test files on the local ES index
-		IndexAction action = new IndexAction(client, "backmeup");
+		IndexAction action = new IndexAction(client);
 		action.doAction(null, reader, logProgressable);
 		System.out.println("Done.");
 	}

@@ -112,16 +112,11 @@ public class AkkaJobManager implements JobManager {
 							jobConf.setJarByClass(HadoopJobRunner.class);
 							jobConf.setMapRunnerClass(HadoopJobRunner.class);
 							jobConf.setSpeculativeExecution(false);
+							jobConf.set("job", JsonSerializer.serialize(job));
 							
 							// TODO configure via properties
-							jobConf.set("index-uri", "http://localhost:9200");
-
-							// Use JsonSerializer to serialize any kind of object (most probably not that performant)
-							String serializedJob = JsonSerializer.serialize(job);
-							
-							// TODO use the serializedJob / pass it to hadoop
-							// Use JsonSerializer.deserialze(jobString, BackupJob.class) to get the BackupJob entity again
-
+							jobConf.set("indexUri", "http://localhost:9200");
+		
 							JobClient.runJob(jobConf);
 						} catch (IOException e) {
 							// TODO error handling not forseen in the interface?

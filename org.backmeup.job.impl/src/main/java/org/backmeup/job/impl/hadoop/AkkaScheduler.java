@@ -1,5 +1,6 @@
 package org.backmeup.job.impl.hadoop;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Set;
@@ -8,6 +9,13 @@ import java.util.concurrent.TimeUnit;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hdfs.MiniDFSCluster;
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.MiniMRCluster;
+import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.job.JobManager;
 import org.backmeup.model.ActionProfile;
@@ -20,13 +28,60 @@ import org.quartz.CronExpression;
 import akka.actor.ActorSystem;
 import akka.util.Duration;
 
+/**
+ * A 'JobManager' implementation that supports scheduled execution (backed by
+ * the BackendJob entities in the database) using Akka and Hadoop.
+ * 
+ * @author Rainer Simon <rainer.simon@ait.ac.at>
+ */
 @ApplicationScoped
 public class AkkaScheduler implements JobManager {
 	
+	// Note: I would rather have the AkkaScheduler as a singleton, but
+	// honestly have no idea what this would do to Spring CDI...
 	private static final ActorSystem system = ActorSystem.create();
+	
+	private BackupJobDao backupJobDao = null;
 	
 	@Inject
 	private DataAccessLayer dal;
+	
+	/**
+	 * HDFS Distributed filesystem cluster
+	 */
+	private MiniDFSCluster dfsCluster = null;
+	
+	/**
+	 * Hadoop Map/Reduce cluster
+	 */
+	private MiniMRCluster mrCluster = null;
+
+	private BackupJobDao getDao() {
+		// BackupJobDao lazy creation
+		if (backupJobDao == null)
+			backupJobDao = dal.createBackupJobDao();
+		
+		return backupJobDao;
+	}
+	
+	private MiniDFSCluster getHDFS() throws IOException {
+		// HDFS cluster lazy creation
+		if (dfsCluster == null) {
+		    Configuration conf = new Configuration();
+		    conf.set("dfs.datanode.data.dir.perm", "775");
+		    dfsCluster = new MiniDFSCluster(conf, 1, true, null);
+		    dfsCluster.getFileSystem().makeQualified(new Path("input"));
+		    dfsCluster.getFileSystem().makeQualified(new Path("output"));
+		}
+		
+		return dfsCluster;
+	}
+	
+	private MiniMRCluster getMRC() throws IOException {
+		if (mrCluster == null)
+			mrCluster = new MiniMRCluster(1, getHDFS().getFileSystem().getUri().toString(), 1);
+		return mrCluster;
+	}
 	
 	@Override
 	public BackupJob createBackupJob(User user,
@@ -34,25 +89,41 @@ public class AkkaScheduler implements JobManager {
 			Set<ActionProfile> requiredActions, String timeExpression,
 			String keyRing) {
 		
-	    BackupJob job = new BackupJob(
+	    final BackupJob job = new BackupJob(
 	    		user,
 	    		sourceProfiles,
 	    		sinkProfile,
 	            requiredActions, 
 	            timeExpression);
 	    
-	    job = dal.createBackupJobDao().save(job);
+	    getDao().save(job);
 		
 		try {
 		    Date now = new Date();
-			long executeIn = new CronExpression(timeExpression).getNextValidTimeAfter(now).getTime() - now.getTime();
+			long executeIn = 
+					new CronExpression(timeExpression).getNextValidTimeAfter(now).getTime() 
+					- now.getTime();
 	    
 			system.scheduler().scheduleOnce(
 				Duration.create(executeIn, TimeUnit.MILLISECONDS), 
 				new Runnable() {
 					@Override
 					public void run() {
-						// TODO submit the Job to Hadoop
+						try {
+							JobConf jobConf = getMRC().createJobConf();
+							jobConf.setJobName("job" + job.getId());
+							jobConf.setJarByClass(BackupJobRunner.class);
+							jobConf.setMapRunnerClass(BackupJobRunner.class);
+							jobConf.setSpeculativeExecution(false);
+							
+							// TODO we need a way to serialize Job descriptions
+							// in order to get them to the cluster!
+						
+							JobClient.runJob(jobConf);
+						} catch (IOException e) {
+							// TODO error handling not forseen in the interface?
+							throw new RuntimeException(e);
+						}
 					}
 				});
 		
@@ -65,20 +136,18 @@ public class AkkaScheduler implements JobManager {
 
 	@Override
 	public BackupJob getBackUpJob(Long jobId) {
-		// TODO Auto-generated method stub
-		return null;
+		return getDao().findById(jobId);
 	}
 
 	@Override
 	public void start() {
-		// TODO Auto-generated method stub
-		
+		// TODO there is no .listAll method on the BackupJobDao I'm aware of 
+		// On startup, all (or the next N) backup jobs should be scheduled into Akka
 	}
 
 	@Override
 	public void shutdown() {
-		// TODO Auto-generated method stub
-		
+		// Do nothing
 	}
 
 }

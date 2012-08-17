@@ -81,25 +81,31 @@ public class AkkaJobManager implements JobManager {
 			mrCluster = new MiniMRCluster(1, getHDFS().getFileSystem().getUri().toString(), 1);
 		return mrCluster;
 	}
-	
+
 	@Override
 	public BackupJob createBackupJob(User user,
 			Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
 			Set<ActionProfile> requiredActions, Date start, long delayInMs,
 			String keyRing) {
 		
-	    final BackupJob job = new BackupJob(
+		// Create BackupJob entity in DB...
+	    BackupJob job = new BackupJob(
 	    		user,
 	    		sourceProfiles,
 	    		sinkProfile,
 	            requiredActions, 
 	            start, delayInMs);
-	    
 	    getDao().save(job);
-		
+	    
+	    // ... and queue immediately
+	    queueJob(job);
+	    return job;
+	}
+	
+	public void queueJob(final BackupJob job) {
 		try {		    
 			// maybe we want to start immediately for the first time, and then add the delay
-			long executeIn = start.getTime() + delayInMs;  
+			long executeIn = job.getStart().getTime() + job.getDelay();  
 	    
 			system.scheduler().scheduleOnce(
 				Duration.create(executeIn, TimeUnit.MILLISECONDS), 
@@ -124,13 +130,13 @@ public class AkkaJobManager implements JobManager {
 						}
 					}
 				});
-		
-			return job;
 		} catch (Exception e) {
 			// TODO there must be error handling defined in the JobManager!
 			throw new RuntimeException(e);
-		}
+		}		
 	}
+	
+
 
 	@Override
 	public BackupJob getBackUpJob(Long jobId) {
@@ -139,8 +145,10 @@ public class AkkaJobManager implements JobManager {
 
 	@Override
 	public void start() {
-		// TODO there is no .listAll method on the BackupJobDao I'm aware of 
-		// On startup, all (or the next N) backup jobs should be scheduled into Akka
+		// TODO only take N next recent ones (at least if allJobs has an excessive length)
+		for (BackupJob storedJob : getDao().findAll()) {
+			queueJob(storedJob);
+		}
 	}
 
 	@Override

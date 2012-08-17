@@ -48,11 +48,13 @@ public class AkkaScheduler implements JobManager {
 	
 	/**
 	 * HDFS Distributed filesystem cluster
+	 * TODO how can I inject those?
 	 */
 	private MiniDFSCluster dfsCluster = null;
 	
 	/**
 	 * Hadoop Map/Reduce cluster
+	 * TODO how can I inject those?
 	 */
 	private MiniMRCluster mrCluster = null;
 

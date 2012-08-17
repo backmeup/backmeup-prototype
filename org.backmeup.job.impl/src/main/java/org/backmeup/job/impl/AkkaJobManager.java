@@ -1,4 +1,4 @@
-package org.backmeup.job.impl.hadoop;
+package org.backmeup.job.impl;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -36,7 +36,7 @@ import akka.util.Duration;
  * @author Rainer Simon <rainer.simon@ait.ac.at>
  */
 @ApplicationScoped
-public class AkkaScheduler implements JobManager {
+public class AkkaJobManager implements JobManager {
 	
 	// Note: I would rather have the AkkaScheduler as a singleton, but
 	// honestly have no idea what this would do to Spring CDI...
@@ -114,8 +114,8 @@ public class AkkaScheduler implements JobManager {
 						try {
 							JobConf jobConf = getMRC().createJobConf();
 							jobConf.setJobName("job" + job.getId());
-							jobConf.setJarByClass(BackupJobRunner.class);
-							jobConf.setMapRunnerClass(BackupJobRunner.class);
+							jobConf.setJarByClass(HadoopJobRunner.class);
+							jobConf.setMapRunnerClass(HadoopJobRunner.class);
 							jobConf.setSpeculativeExecution(false);
 							
 							// Use JsonSerializer to serialize any kind of object (most probably not that performant)

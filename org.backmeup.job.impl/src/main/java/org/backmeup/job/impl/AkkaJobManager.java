@@ -1,7 +1,6 @@
 package org.backmeup.job.impl;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +23,6 @@ import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.User;
 import org.backmeup.model.serializer.JsonSerializer;
-import org.quartz.CronExpression;
 
 import akka.actor.ActorSystem;
 import akka.util.Duration;
@@ -100,9 +98,8 @@ public class AkkaJobManager implements JobManager {
 	    getDao().save(job);
 		
 		try {		    
-		  // maybe we want to start immediately for the first time, and then add the delay
+			// maybe we want to start immediately for the first time, and then add the delay
 			long executeIn = start.getTime() + delayInMs;  
-					
 	    
 			system.scheduler().scheduleOnce(
 				Duration.create(executeIn, TimeUnit.MILLISECONDS), 

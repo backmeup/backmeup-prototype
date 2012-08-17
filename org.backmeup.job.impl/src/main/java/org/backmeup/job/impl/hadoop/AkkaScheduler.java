@@ -23,6 +23,7 @@ import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.User;
+import org.backmeup.model.serializer.JsonSerializer;
 import org.quartz.CronExpression;
 
 import akka.actor.ActorSystem;
@@ -88,7 +89,7 @@ public class AkkaScheduler implements JobManager {
 	@Override
 	public BackupJob createBackupJob(User user,
 			Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
-			Set<ActionProfile> requiredActions, String timeExpression,
+			Set<ActionProfile> requiredActions, Date start, long delayInMs,
 			String keyRing) {
 		
 	    final BackupJob job = new BackupJob(
@@ -96,15 +97,14 @@ public class AkkaScheduler implements JobManager {
 	    		sourceProfiles,
 	    		sinkProfile,
 	            requiredActions, 
-	            timeExpression);
+	            start, delayInMs);
 	    
 	    getDao().save(job);
 		
-		try {
-		    Date now = new Date();
-			long executeIn = 
-					new CronExpression(timeExpression).getNextValidTimeAfter(now).getTime() 
-					- now.getTime();
+		try {		    
+		  // maybe we want to start immediately for the first time, and then add the delay
+			long executeIn = start.getTime() + delayInMs;  
+					
 	    
 			system.scheduler().scheduleOnce(
 				Duration.create(executeIn, TimeUnit.MILLISECONDS), 
@@ -118,9 +118,10 @@ public class AkkaScheduler implements JobManager {
 							jobConf.setMapRunnerClass(BackupJobRunner.class);
 							jobConf.setSpeculativeExecution(false);
 							
-							// TODO we need a way to serialize Job descriptions
-							// in order to get them to the cluster!
-						
+							// Use JsonSerializer to serialize any kind of object (most probably not that performant)
+							String serializedJob = JsonSerializer.serialize(job);
+							// TODO use the serializedJob / pass it to hadoop
+						  // Use JsonSerializer.deserialze(jobString, BackupJob.class) to get the BackupJob entity again
 							JobClient.runJob(jobConf);
 						} catch (IOException e) {
 							// TODO error handling not forseen in the interface?
@@ -130,7 +131,7 @@ public class AkkaScheduler implements JobManager {
 				});
 		
 			return job;
-		} catch (ParseException e) {
+		} catch (Exception e) {
 			// TODO there must be error handling defined in the JobManager!
 			throw new RuntimeException(e);
 		}

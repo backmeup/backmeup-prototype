@@ -22,6 +22,13 @@ public class BackupJobDaoImpl extends BaseDaoImpl<BackupJob> implements
     q.setParameter("username", username);
     List<BackupJob> jobs = q.getResultList();   
     return jobs;
+  }
+
+  @Override
+  public List<BackupJob> findAll() {
+    TypedQuery<BackupJob> q = em.createQuery("SELECT j FROM " + entityClass.getName() +" j", entityClass);    
+    List<BackupJob> jobs = q.getResultList();   
+    return jobs;
   } 
 
 }

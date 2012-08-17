@@ -23,7 +23,6 @@ import org.apache.hadoop.mapred.MiniMRCluster;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.log4j.Logger;
-import org.backmeup.job.impl.hadoop.BackupJobRunner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,8 +109,8 @@ public class HadoopJobManagerTest {
 		JobConf jobConf = mrCluster.createJobConf();
 		jobConf.setJobName("unitTest");
 		
-		jobConf.setJarByClass(BackupJobRunner.class);
-		jobConf.setMapRunnerClass(BackupJobRunner.class);
+		jobConf.setJarByClass(HadoopJobRunner.class);
+		jobConf.setMapRunnerClass(HadoopJobRunner.class);
 		jobConf.setInputFormat(SequenceFileInputFormat.class);
 		SequenceFileInputFormat.setInputPaths(jobConf, input);
 		FileOutputFormat.setOutputPath(jobConf, output);

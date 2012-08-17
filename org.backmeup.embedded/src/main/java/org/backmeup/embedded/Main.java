@@ -8,7 +8,6 @@ import java.util.List;
 
 import javax.ws.rs.core.UriBuilder;
 
-import org.backmeup.model.UserProperty;
 import org.backmeup.rest.Actions;
 import org.backmeup.rest.BackupJobs;
 import org.backmeup.rest.Backups;
@@ -23,65 +22,86 @@ import org.backmeup.rest.exceptionmapper.InvalidCredentialsMapper;
 import org.backmeup.rest.exceptionmapper.NullPointerExceptionMapper;
 import org.backmeup.rest.exceptionmapper.UnknownUserExceptionMapper;
 import org.backmeup.rest.provider.ObjectMapperContextResolver;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeBuilder;
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 
 /**
- * The Main class starts the TJWS embedded server of RESTeasy with 
- * our REST api and backend.
- * The server will be started on port 8080.
+ * The Main class starts the TJWS embedded server of RESTeasy with our REST api
+ * and backend. The server will be started on port 8080.
  * 
  * @author fschoeppl
- *
+ * 
  */
 public class Main {
-  private static final int PORT = 8080;
-  
+	private static final int PORT = 8080;
+	
+	private static Node indexNode = NodeBuilder.nodeBuilder().local(true).node();		
+
 	private static URI getBaseURI() {
 		return UriBuilder.fromUri("http://localhost/").port(PORT).build();
 	}
 
-	public static final URI BASE_URI = getBaseURI(); 
-	
+	public static final URI BASE_URI = getBaseURI();
+
 	public static TJWSEmbeddedJaxrsServer startServer() {
-	  TJWSEmbeddedJaxrsServer tjws = new TJWSEmbeddedJaxrsServer();
-    tjws.setPort(PORT);
-    List<String> classes = new ArrayList<String>();
-    classes.add(Actions.class.getName());
-    classes.add(BackupJobs.class.getName());
-    classes.add(Backups.class.getName());
-    classes.add(Datasinks.class.getName());
-    classes.add(Datasources.class.getName());   
-    classes.add(Users.class.getName());
-    classes.add(Profiles.class.getName());   
-    classes.add(org.backmeup.rest.Metadata.class.getName());
-    tjws.getDeployment().getResourceClasses().addAll(classes);
-    tjws.getDeployment().getProviderClasses().add(AlreadyRegisteredExceptionMapper.class.getName());
-    tjws.getDeployment().getProviderClasses().add(IllegalArgumentExceptionMapper.class.getName());
-    tjws.getDeployment().getProviderClasses().add(InvalidCredentialsMapper.class.getName());
-    tjws.getDeployment().getProviderClasses().add(NullPointerExceptionMapper.class.getName());
-    tjws.getDeployment().getProviderClasses().add(UnknownUserExceptionMapper.class.getName());
-    tjws.getDeployment().getProviderClasses().add(BackMeUpExceptionMapper.class.getName());
-    tjws.getDeployment().getProviderClasses().add(ObjectMapperContextResolver.class.getName());
-    Hashtable<String, String> ctxParams = new Hashtable<String, String>();
-    ctxParams.put("resteasy.resources", ObjectMapperContextResolver.class.getName());
-    tjws.setContextParameters(ctxParams);
-    tjws.start();
-    return tjws;
+		TJWSEmbeddedJaxrsServer tjws = new TJWSEmbeddedJaxrsServer();
+		tjws.setPort(PORT);
+		List<String> classes = new ArrayList<String>();
+		classes.add(Actions.class.getName());
+		classes.add(BackupJobs.class.getName());
+		classes.add(Backups.class.getName());
+		classes.add(Datasinks.class.getName());
+		classes.add(Datasources.class.getName());
+		classes.add(Users.class.getName());
+		classes.add(Profiles.class.getName());
+		classes.add(org.backmeup.rest.Metadata.class.getName());
+		tjws.getDeployment().getResourceClasses().addAll(classes);
+		tjws.getDeployment().getProviderClasses()
+				.add(AlreadyRegisteredExceptionMapper.class.getName());
+		tjws.getDeployment().getProviderClasses()
+				.add(IllegalArgumentExceptionMapper.class.getName());
+		tjws.getDeployment().getProviderClasses()
+				.add(InvalidCredentialsMapper.class.getName());
+		tjws.getDeployment().getProviderClasses()
+				.add(NullPointerExceptionMapper.class.getName());
+		tjws.getDeployment().getProviderClasses()
+				.add(UnknownUserExceptionMapper.class.getName());
+		tjws.getDeployment().getProviderClasses()
+				.add(BackMeUpExceptionMapper.class.getName());
+		tjws.getDeployment().getProviderClasses()
+				.add(ObjectMapperContextResolver.class.getName());
+		Hashtable<String, String> ctxParams = new Hashtable<String, String>();
+		ctxParams.put("resteasy.resources",
+				ObjectMapperContextResolver.class.getName());
+		tjws.setContextParameters(ctxParams);
+		tjws.start();
+		return tjws;
+	}
+	
+	public static Client startIndexClient() {
+		return indexNode.client();
 	}
 
 	public static void main(String[] args) throws Exception {
-	  String[] items = System.getProperty("java.class.path").split(";");
-    System.out.println("Classpath: ");
-    Arrays.sort(items);
-    for (String itm : items) {
-      System.out.println("\t" + itm);
-    }
-	  
-	  System.out.println(String.format("BackMeUp REST Server started:"
-        + "\nTry out %s\nHit enter to stop it...", BASE_URI));
-	  TJWSEmbeddedJaxrsServer tjws = startServer();
-	  System.in.read();
-	  tjws.stop();
+		String[] items = System.getProperty("java.class.path").split(";");
+		System.out.println("Classpath: ");
+		Arrays.sort(items);
+		for (String itm : items) {
+			System.out.println("\t" + itm);
+		}
+
+		TJWSEmbeddedJaxrsServer tjws = startServer();	
+		System.out.println(String.format("BackMeUp REST Server started at %s", BASE_URI));
+		Client indexClient = startIndexClient();
+		System.out.println("ElasticSearch index running at http://localhost:9200/");
+		System.out.println("Hit enter to stop...");
+		
+		System.in.read();
+		tjws.stop();
+		indexClient.close();
 		System.exit(0);
 	}
+
 }

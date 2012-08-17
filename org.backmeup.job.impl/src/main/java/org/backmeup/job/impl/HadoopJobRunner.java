@@ -1,4 +1,4 @@
-package org.backmeup.job.impl.hadoop;
+package org.backmeup.job.impl;
 
 import java.io.IOException;
 
@@ -10,7 +10,12 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 
-public class BackupJobRunner implements MapRunnable<Text, BytesWritable, Text, Text> {
+/**
+ * This class executes the actual backup Job on the Hadoop cluster.
+ * 
+ * @author Rainer Simon <rainer.simon@ait.ac.at>
+ */
+public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, Text> {
 
 	@Override
 	public void configure(JobConf conf) {

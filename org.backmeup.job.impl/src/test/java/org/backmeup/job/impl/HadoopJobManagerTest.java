@@ -32,6 +32,21 @@ public class HadoopJobManagerTest {
 	private static final String TEST_LOG_DIR = "hadoop-logs";
 	private static final String TEST_INPUT_PATH = "src/test/resources";
 	private static final String TEST_OUTPUT_PATH = "hadoop-output";
+	
+	private static final String BACKUP_JOB =
+			"{\"user\":{\"userId\":1,\"username\":\"Sepp\",\"password\":\"pw\"," + 
+	        "\"keyRing\":\"k3yr1nG\",\"email\":\"e@ma.il\",\"isActivated\":false,\"properties\":[]}," +
+			"\"sourceProfiles\":" +
+			"[{\"profile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"Sepp\"," +
+			"\"password\":\"pw\",\"keyRing\":\"k3yr1nG\",\"email\":\"e@ma.il\",\"isActivated\":" +
+			"false,\"properties\":[]},\"profileName\":\"TestProfile\",\"desc\":" +
+			"\"org.backmeup.source\",\"sourceAndOrSink\":\"Source\"},\"options\":" + 
+			"[\"folder1\",\"folder2\"]}]," +
+			"\"sinkProfile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"Sepp\"" +
+			",\"password\":\"pw\",\"keyRing\":\"pw\",\"email\":\"e@ma.il\",\"isActivated\":" +
+			"false,\"properties\":[]},\"profileName\":\"TestProfile2\",\"desc\":" +
+			"\"org.backmeup.sink\",\"sourceAndOrSink\":\"Sink\"},\"requiredActions\":[]," + 
+			"\"start\":\"1345203377704\",\"delay\":1345203258212}";
 
 	private MiniDFSCluster dfsCluster = null;
 	private MiniMRCluster mrCluster = null;
@@ -112,6 +127,8 @@ public class HadoopJobManagerTest {
 		jobConf.setJarByClass(HadoopJobRunner.class);
 		jobConf.setMapRunnerClass(HadoopJobRunner.class);
 		jobConf.setInputFormat(SequenceFileInputFormat.class);
+		jobConf.set("indexURI", "http://localhost:9200");
+		jobConf.set("job", BACKUP_JOB);
 		SequenceFileInputFormat.setInputPaths(jobConf, input);
 		FileOutputFormat.setOutputPath(jobConf, output);
 		

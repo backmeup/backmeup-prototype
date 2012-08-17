@@ -115,7 +115,7 @@ public class AkkaJobManager implements JobManager {
 							jobConf.set("job", JsonSerializer.serialize(job));
 							
 							// TODO configure via properties
-							jobConf.set("indexUri", "http://localhost:9200");
+							jobConf.set("indexURI", "http://localhost:9200");
 		
 							JobClient.runJob(jobConf);
 						} catch (IOException e) {

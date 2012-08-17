@@ -139,4 +139,10 @@ public class User {
   public void setVerificationKey(String verificationKey) {
     this.verificationKey = verificationKey;
   }
+  
+  @Override
+  public String toString() {
+	  // For debug purposes
+	  return username;
+  }
 }

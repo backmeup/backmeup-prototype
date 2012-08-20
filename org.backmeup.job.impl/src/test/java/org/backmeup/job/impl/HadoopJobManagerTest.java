@@ -40,12 +40,12 @@ public class HadoopJobManagerTest {
 			"[{\"profile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"Sepp\"," +
 			"\"password\":\"pw\",\"keyRing\":\"k3yr1nG\",\"email\":\"e@ma.il\",\"isActivated\":" +
 			"false,\"properties\":[]},\"profileName\":\"TestProfile\",\"desc\":" +
-			"\"org.backmeup.source\",\"sourceAndOrSink\":\"Source\"},\"options\":" + 
+			"\"org.backmeup.dummy.DummyDatasource\",\"sourceAndOrSink\":\"Source\"},\"options\":" + 
 			"[\"folder1\",\"folder2\"]}]," +
 			"\"sinkProfile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"Sepp\"" +
 			",\"password\":\"pw\",\"keyRing\":\"pw\",\"email\":\"e@ma.il\",\"isActivated\":" +
 			"false,\"properties\":[]},\"profileName\":\"TestProfile2\",\"desc\":" +
-			"\"org.backmeup.sink\",\"sourceAndOrSink\":\"Sink\"},\"requiredActions\":[]," + 
+			"\"org.backmeup.dummy.DummyDatasink\",\"sourceAndOrSink\":\"Sink\"},\"requiredActions\":[]," + 
 			"\"start\":\"1345203377704\",\"delay\":1345203258212}";
 
 	private MiniDFSCluster dfsCluster = null;

@@ -37,6 +37,7 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 		System.out.println("Starting backup job " + job.getId() + " for user " + job.getUser());
 		System.out.println("Index is at " + indexURI);
 		
+		/*
 		try {
 			Class<? extends Datasink> sinkClazz = 
 				Class.forName(job.getSinkProfile().getDesc()).asSubclass(Datasink.class);
@@ -46,6 +47,7 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
+		*/
 		
 		/*
 		Text key = reader.createKey();

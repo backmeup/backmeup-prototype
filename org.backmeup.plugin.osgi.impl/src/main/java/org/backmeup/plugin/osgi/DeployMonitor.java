@@ -32,6 +32,8 @@ public class DeployMonitor implements Runnable {
 	private List<File> toBeRemovedBundles = new LinkedList<File>();
 	private BundleContext context;
 	private File deploymentDirectory;
+	private Object monitor = new Object();
+	private boolean firstRun = false;
 
 	public DeployMonitor(BundleContext context, File deploymentDirectory) {
 		this.context = context;
@@ -44,6 +46,17 @@ public class DeployMonitor implements Runnable {
 		executor = Executors.newScheduledThreadPool(1);
 		executor.scheduleAtFixedRate(this, 0, 5, TimeUnit.SECONDS);
 
+	}
+	
+	public void waitForInitialRun() {
+	  try {
+	    if (!firstRun)
+	      synchronized(monitor){
+	        monitor.wait();
+	      }
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }	  
 	}
 
 	public void stop() {
@@ -78,8 +91,12 @@ public class DeployMonitor implements Runnable {
 			for (Bundle newlyInstalledBundle : newlyInstalledBundles) {
 				try {
 					if (newlyInstalledBundle.getHeaders().get(
-							Constants.FRAGMENT_HOST) == null)
+							Constants.FRAGMENT_HOST) == null) {
 						newlyInstalledBundle.start();
+						while(newlyInstalledBundle.getState() == Bundle.STARTING) {
+						  Thread.sleep(10);
+						}
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -108,6 +125,12 @@ public class DeployMonitor implements Runnable {
 				deployed.remove(toBeRemovedFile);
 			}
 			toBeRemovedBundles.clear();
+			if (!firstRun) {			  
+			  synchronized(monitor) {
+			    firstRun = true;
+			    monitor.notifyAll();
+			  }
+			}
 		}
 	}
 }

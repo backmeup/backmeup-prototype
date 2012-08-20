@@ -15,6 +15,7 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MiniMRCluster;
 import org.backmeup.dal.BackupJobDao;
+import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.job.JobManager;
 import org.backmeup.model.ActionProfile;
@@ -43,6 +44,9 @@ public class AkkaJobManager implements JobManager {
 	@Inject
 	private DataAccessLayer dal;
 	
+	@Inject
+  private Connection conn;
+	
 	/**
 	 * HDFS Distributed filesystem cluster
 	 * TODO inject
@@ -57,10 +61,7 @@ public class AkkaJobManager implements JobManager {
 
 	private BackupJobDao getDao() {
 		// BackupJobDao lazy creation - TODO inject
-		if (backupJobDao == null)
-			backupJobDao = dal.createBackupJobDao();
-		
-		return backupJobDao;
+		return dal.createBackupJobDao();
 	}
 	
 	private MiniDFSCluster getHDFS() throws IOException {
@@ -95,7 +96,7 @@ public class AkkaJobManager implements JobManager {
 	    		sinkProfile,
 	            requiredActions, 
 	            start, delayInMs);
-	    getDao().save(job);
+	    job = getDao().save(job);
 	    
 	    // ... and queue immediately
 	    queueJob(job);
@@ -140,16 +141,21 @@ public class AkkaJobManager implements JobManager {
 
 	@Override
 	public BackupJob getBackUpJob(Long jobId) {
-		return getDao().findById(jobId);
+	  return getDao().findById(jobId);  	  	
 	}
 
 	@Override
 	public void start() {
-		/* TODO only take N next recent ones (at least if allJobs has an excessive length)
-		for (BackupJob storedJob : getDao().findAll()) {
-			queueJob(storedJob);
-		}
-		*/
+		// TODO only take N next recent ones (at least if allJobs has an excessive length)
+	  try {
+	    conn.begin();
+  		for (BackupJob storedJob : getDao().findAll()) {
+  			queueJob(storedJob);
+  		}
+	  } finally {
+	    conn.rollback();
+	  }
+		
 	}
 
 	@Override

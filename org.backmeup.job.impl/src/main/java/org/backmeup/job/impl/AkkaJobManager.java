@@ -15,6 +15,7 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MiniMRCluster;
 import org.backmeup.dal.BackupJobDao;
+import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.job.JobManager;
 import org.backmeup.model.ActionProfile;
@@ -39,6 +40,9 @@ public class AkkaJobManager implements JobManager {
 	private static final ActorSystem system = ActorSystem.create();
 	
 	private BackupJobDao backupJobDao = null;
+	
+	@Inject
+	private Connection conn;
 	
 	@Inject
 	private DataAccessLayer dal;
@@ -135,8 +139,6 @@ public class AkkaJobManager implements JobManager {
 			throw new RuntimeException(e);
 		}		
 	}
-	
-
 
 	@Override
 	public BackupJob getBackUpJob(Long jobId) {
@@ -145,6 +147,8 @@ public class AkkaJobManager implements JobManager {
 
 	@Override
 	public void start() {
+		conn.begin();
+		
 		// TODO only take N next recent ones (at least if allJobs has an excessive length)
 		for (BackupJob storedJob : getDao().findAll()) {
 			queueJob(storedJob);

@@ -241,7 +241,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     } finally {
       conn.rollback();
     }
-  }
+  }   
   
   private void throwIfPasswordInvalid(String password) {
     if (password.length() < minimalPasswordLength) {
@@ -274,9 +274,13 @@ public class BusinessLogicImpl implements BusinessLogic {
       
       conn.begin();
       UserDao userDao = getUserDao();
-      User existingUser = userDao.findByName(username);
+      User existingUser = userDao.findByName(username);      
       if (existingUser != null) {
         throw new AlreadyRegisteredException(existingUser.getUsername());
+      }
+      existingUser = userDao.findByEmail(email);
+      if (existingUser != null) {
+        throw new AlreadyRegisteredException(existingUser.getEmail());
       }
       
       User u = new User(username, password, keyRingPassword, email);
@@ -291,6 +295,8 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
   
+  
+
   private void sendVerificationEmail(User u) {
     String verifierUrl = String.format(verificationUrl, u.getVerificationKey());      
     Mailer.send(u.getEmail(), textBundle.getString(VERIFICATION_EMAIL_SUBJECT), String.format(textBundle.getString(VERIFICATION_EMAIL_CONTENT), verifierUrl));

@@ -15,4 +15,6 @@ public interface UserDao extends BaseDao<User> {
 	
 	public User findByVerificationKey(String verificationKey);
 	
+	public User findByEmail(String email);
+	
 }

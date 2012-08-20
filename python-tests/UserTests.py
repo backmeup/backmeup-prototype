@@ -31,6 +31,8 @@ class TestUsers(TestCase):
     self.assertIn("verificationKey", result.data)
     result = register_user("TestUser", "password", "password", "TestUser@trash-mail.com")
     self.assertEquals(result.code, httplib.BAD_REQUEST) #already created
+    result = register_user("TestUser2", "password", "password", "TestUser@trash-mail.com")
+    self.assertEquals(result.code, httplib.BAD_REQUEST) #already created
 
   def test_verify_email(self):
     logging.debug("================== verify_email =======================")

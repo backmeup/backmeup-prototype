@@ -3,6 +3,8 @@ package org.backmeup.logic.impl;
 import java.io.IOException;
 import java.util.List;
 
+import junit.framework.Assert;
+
 import org.backmeup.logic.BusinessLogic;
 import org.backmeup.model.User;
 import org.backmeup.model.exceptions.NotAnEmailAddressException;
@@ -95,15 +97,15 @@ public class BusinessLogicImplTest {
     User u = logic.register("Seppl", "12345678", "12345678", "backmeup1@trash-mail.com");
     logic.verifyEmailAddress(u.getVerificationKey());
     User u2 = logic.getUser("Seppl");
-    assert (u != null);
-    assert (u2 != null);
-    assert (u2.getUserId() != null);
-    assert (u.getUserId() != null);
-    assert (u.getUserId().equals(u2.getUserId()));
-    assert (u.getPassword().equals(u2.getPassword()));
-    assert (u.getUsername().equals(u2.getUsername()));
-    assert (u.getEmail().equals(u2.getEmail()));
-    assert (u.getKeyRing().equals(u2.getKeyRing()));
+    Assert.assertNotNull(u);
+    Assert.assertNotNull(u2);
+    Assert.assertNotNull(u2.getUserId());
+    Assert.assertNotNull(u.getUserId());
+    Assert.assertEquals(u.getUserId(), u2.getUserId());
+    Assert.assertEquals(u.getPassword(), u2.getPassword());
+    Assert.assertEquals(u.getUsername(), u2.getUsername());
+    Assert.assertEquals(u.getEmail(), u2.getEmail());
+    Assert.assertEquals(u.getKeyRing(), u2.getKeyRing());    
   }
 
   @Test
@@ -129,69 +131,69 @@ public class BusinessLogicImplTest {
 
     }
     User u = logic.register("Seppl", "superlongpassword", "superlongpassword", "backmeup1@trash-mail.com");
-    assert (u != null);
-    assert ("Seppl".equals(u.getUsername()));
-    assert ("superlongpassword".equals(u.getPassword()));
-    assert ("superlongpassword".equals(u.getKeyRing()));
-    assert ("backmeup1@trash-mail.com".equals(u.getEmail()));
+    Assert.assertNotNull(u);
+    Assert.assertEquals("Seppl", u.getUsername());
+    Assert.assertEquals("superlongpassword", u.getPassword());
+    Assert.assertEquals("superlongpassword", u.getKeyRing());
+    Assert.assertEquals("backmeup1@trash-mail.com", u.getEmail());
     
     try {
       u = logic.register("James", "123", "12345678", "backmeup1@trash-mail.com");
-      assert (false);
+      Assert.fail("Should not be reached!");
     } catch (PasswordTooShortException pts) {      
     }
     
     try {
       u = logic.register("James", "12345678", "123", "backmeup1@trash-mail.com");
-      assert (false);
+      Assert.fail("Should not be reached!");
     } catch (PasswordTooShortException pts) {      
     }
     
     try {
       u = logic.register("James", "12345678", "12345678", "invalidmailmail.at");
-      assert (false);
+      Assert.fail("Should not be reached!");
     } catch (NotAnEmailAddressException pts) {      
     }
     
     try {
       u = logic.register("James", "12345678", "12345678", "invalidmailmail.@at");
-      assert (false);
+      Assert.fail("Should not be reached!");
     } catch (NotAnEmailAddressException pts) {      
     }
     
     try {
       u = logic.register("James", "12345678", "12345678", "invalidmailmail@at");
-      assert (false);
+      Assert.fail("Should not be reached!");
     } catch (NotAnEmailAddressException pts) {      
     }
     
     try {
       u = logic.register("James", "12345678", "12345678", "invalidmailmail@.at");
-      assert (false);
+      Assert.fail("Should not be reached!");
     } catch (NotAnEmailAddressException pts) {      
     }
     
     try {
       u = logic.register(null, "12345678", "12345678", "invalidmailmail@.at");
-      assert (false);
+      Assert.fail("Should not be reached!");
     } catch (IllegalArgumentException iae) {      
     }
     
     try {
       u = logic.register("James", null, "12345678", "invalidmailmail@.at");
-      assert (false);
+      Assert.fail("Should not be reached!");
     } catch (IllegalArgumentException iae) {      
     }
     
     try {
       u = logic.register("James", "12345678", null, "invalidmailmail@.at");
-      assert (false);
+      Assert.fail("Should not be reached!");
     } catch (IllegalArgumentException iae) {      
     }
     
     try {
       u = logic.register("James", "12345678", "invalidmailmail@.at", null);
-      assert (false);
+      Assert.fail("Should not be reached!");
     } catch (IllegalArgumentException iae) {      
     }
   }
@@ -200,11 +202,11 @@ public class BusinessLogicImplTest {
   public void testGetDatasources() {
     List<SourceSinkDescribable> describables = logic.getDatasources();
     for (SourceSinkDescribable ssd : describables) {
-      assert (ssd.getTitle() != null);
-      assert (ssd.getDescription() != null);
-      assert (ssd.getType() != null);
-      assert (ssd.getId() != null);
-      assert (ssd.getImageURL() != null);
+      Assert.assertNotNull(ssd.getTitle());
+      Assert.assertNotNull(ssd.getDescription());
+      Assert.assertNotNull(ssd.getType());
+      Assert.assertNotNull(ssd.getId());
+      Assert.assertNotNull(ssd.getImageURL());      
     }
   }
 
@@ -279,7 +281,7 @@ public class BusinessLogicImplTest {
   }
 
   @Test
-  public void testCreateBackupJob() {
+  public void testCreateBackupJob() {    
     /*
     try {
       User u;
@@ -290,10 +292,10 @@ public class BusinessLogicImplTest {
       }
 
       List<SourceSinkDescribable> sources = logic.getDatasources();
-      assert (sources.size() > 0);
+      Assert.assertTrue (sources.size() > 0);
 
       List<SourceSinkDescribable> sinks = logic.getDatasinks();
-      assert (sinks.size() > 0);
+      Assert.assertTrue (sinks.size() > 0);
 
       System.out.println("Register source:");
       AuthRequest ar = logic.preAuth(u.getUsername(), "org.backmeup.dropbox",
@@ -316,11 +318,11 @@ public class BusinessLogicImplTest {
       sourcesList.add(ar.getProfile().getProfileId());
       BackupJob bj = logic.createBackupJob(u.getUsername(), sourcesList,
           sinkProfileId, null, null, "weekly", "hi");
-      assert (bj.getId() != null);
-      assert (bj.getCronExpression() != null);
-      assert (bj.getUser() != null);
-      assert (bj.getSinkProfile() != null);
-      assert (bj.getSourceProfiles() != null);
+      Assert.assertNotNull (bj.getId());
+      Assert.assertNotNull (bj.getCronExpression());
+      Assert.assertNotNull (bj.getUser());
+      Assert.assertNotNull (bj.getSinkProfile());
+      Assert.assertNotNull (bj.getSourceProfiles());
 
       List<Status> results = logic
           .getStatus("backuper", bj.getId(), null, null);

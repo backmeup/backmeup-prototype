@@ -40,4 +40,14 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
     return u;
   }
 
+	@SuppressWarnings("unchecked")
+  @Override
+  public User findByEmail(String email) {
+    Query q = em.createQuery("SELECT u FROM User u WHERE email = ?");
+    q.setParameter(1, email);
+    List<User> users = q.getResultList();
+    User u = users.size() > 0 ? users.get(0) : null;    
+    return u;
+  }
+
 }

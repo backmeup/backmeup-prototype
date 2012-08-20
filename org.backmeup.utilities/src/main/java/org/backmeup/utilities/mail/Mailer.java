@@ -16,8 +16,7 @@ public class Mailer {
   public static void send(String to, String subject, String text) {    
     // Get system properties
     final Properties props = getMailSettings();
-    try {
-      
+    try {      
       // Get session
       Session session = Session.getDefaultInstance(props, new Authenticator() {      
         @Override
@@ -36,8 +35,8 @@ public class Mailer {
       // Send message
       Transport.send(message);
     } catch (Exception e) {
-
-      e.printStackTrace();
+      //TODO: Log exception
+      //e.printStackTrace();
     }
   }
   

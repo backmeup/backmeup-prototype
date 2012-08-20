@@ -8,8 +8,8 @@
 	<packaging>pom</packaging>
 	<modules>
 		<!-- build the plugins -->
-		<module>org.backmeup.dropbox</module>
-                <module>org.backmeup.skydrive</module>
+		<!-- module>org.backmeup.dropbox</module>
+                <module>org.backmeup.skydrive</module -->
                 <module>org.backmeup.moodle</module>
                 <module>org.backmeup.dummy</module>
 	</modules>

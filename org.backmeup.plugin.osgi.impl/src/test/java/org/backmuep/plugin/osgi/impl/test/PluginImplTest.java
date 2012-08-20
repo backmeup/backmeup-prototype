@@ -14,8 +14,8 @@ public class PluginImplTest {
   
   @Before
   public void setUp() {
-    pluginLayer = new PluginImpl("C:/Fabian/git/master_branch/backmeup-prototype/org.backmeup.embedded/autodeploy", 
-        "C:/temp/osgiTmpTest", 
+    pluginLayer = new PluginImpl("/home/simonr/Workspaces/backmeup/backmeup-prototype/org.backmeup.embedded/autodeploy", 
+        "/home/simonr/Workspaces/backmeup/backmeup-prototype/osgi-tmp", 
         "org.backmeup.plugin.spi org.backmeup.model org.backmeup.model.spi org.backmeup.plugin.api.connectors org.backmeup.plugin.api.storage com.google.gson org.backmeup.plugin.api"
         );
     

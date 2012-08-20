@@ -39,8 +39,6 @@ public class AkkaJobManager implements JobManager {
 	
 	private static final ActorSystem system = ActorSystem.create();
 	
-	private BackupJobDao backupJobDao = null;
-	
 	@Inject
 	private Connection conn;
 	
@@ -122,6 +120,8 @@ public class AkkaJobManager implements JobManager {
 							jobConf.set("job", JsonSerializer.serialize(job));
 							
 							// TODO configure via properties
+							jobConf.set("pluginsDir", "/home/simonr/Workspaces/backmeup/backmeup-prototype/org.backmeup.embedded/autodeploy");
+							jobConf.set("osgiTempDir", "/home/simonr/Workspaces/backmeup/backmeup-prototype/osgi-tmp");
 							jobConf.set("indexURI", "http://localhost:9200");
 		
 							JobClient.runJob(jobConf);

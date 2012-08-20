@@ -34,7 +34,22 @@
 		</dependency>
 		<dependency>
 			<groupId>org.backmeup</groupId>
+			<artifactId>plugin.api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
 			<artifactId>plugin.api.impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
+			<artifactId>plugin.osgi.impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
+			<artifactId>model</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

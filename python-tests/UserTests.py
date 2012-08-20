@@ -22,6 +22,7 @@ class TestUsers(TestCase):
     delete_user("ChangeUser")
     delete_user("GetUser")
     delete_user("LoginUser")
+    delete_user("LoginUser2")
     delete_user("PropUser")
 
   def test_register_user(self):
@@ -96,6 +97,9 @@ class TestUsers(TestCase):
     self.assertEquals(result.code, httplib.NO_CONTENT)
     result = login_user("LoginUser", "ab23")
     self.assertEquals(result.code, httplib.UNAUTHORIZED)
+    res = register_user("LoginUser2", "abcdefgh", "abcdefgh", "LoginUser2@trash-mail.com")    
+    result = login_user("LoginUser2", "abcdefgh")
+    self.assertEquals(result.code, httplib.NO_CONTENT)
 
   def test_get_user_property(self):
     logging.debug("================== get_user_property ========================")

@@ -227,11 +227,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   public User login(String username, String password) {
     try {
       conn.begin();
-      User u = getUser(username);
-      
-      if (!u.isActivated()) {
-        throw new UserNotActivatedException(username);
-      }
+      User u = getUser(username, false);           
       
       if (!u.getPassword().equals(password)) {
         throw new InvalidCredentialsException();

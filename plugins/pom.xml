@@ -11,6 +11,7 @@
 		<module>org.backmeup.dropbox</module>
                 <module>org.backmeup.skydrive</module>
                 <module>org.backmeup.moodle</module>
+                <module>org.backmeup.dummy</module>
 	</modules>
         <!-- use java 1.6 -->
 	<build>

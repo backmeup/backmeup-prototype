@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" default-activation="lazy">	
+	<bean id="dummyDescriptor" class="org.backmeup.dummy.DummyDescriptor"/>
+	<bean id="dummyAuthenticator" class="org.backmeup.dummy.DummyAuthenticator"/>
+	<bean id="dummyDatasource" class="org.backmeup.dummy.DummyDatasource"/>
+	<bean id="dummyDatasink" class="org.backmeup.dummy.DummyDatasink"/>
+</blueprint>

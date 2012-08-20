@@ -2,6 +2,8 @@ package org.backmuep.plugin.osgi.impl.test;
 
 import java.util.List;
 
+import junit.framework.Assert;
+
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.connectors.Datasource;
@@ -34,5 +36,8 @@ public class PluginImplTest {
     for (int i=0; i < sinks.size(); i++) {
       System.out.println(sinks.get(i).getId());
     }
+    
+    Assert.assertNotNull(pluginLayer.getDatasink("org.backmeup.dummy"));
+    Assert.assertNotNull(pluginLayer.getDatasource("org.backmeup.dummy"));
   }
 }

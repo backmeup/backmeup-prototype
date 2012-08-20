@@ -11,6 +11,7 @@ import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.serializer.JsonSerializer;
+import org.backmeup.plugin.api.connectors.Datasink;
 
 /**
  * This class executes the actual backup Job on the Hadoop cluster.
@@ -36,6 +37,17 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 		System.out.println("Starting backup job " + job.getId() + " for user " + job.getUser());
 		System.out.println("Index is at " + indexURI);
 		
+		try {
+			Class<? extends Datasink> sinkClazz = 
+				Class.forName(job.getSinkProfile().getDesc()).asSubclass(Datasink.class);
+
+			Datasink sink = sinkClazz.newInstance();
+			System.out.println(sink);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
+		
+		/*
 		Text key = reader.createKey();
 		BytesWritable value = reader.createValue();
 		
@@ -43,6 +55,7 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 			// TODO 
 			System.out.println("Processing file " + key);
 		}
+		*/
 		
 		System.out.println("Backupjob complete.");
 		

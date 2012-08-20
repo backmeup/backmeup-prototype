@@ -42,10 +42,10 @@ public class AkkaJobManager implements JobManager {
 	private BackupJobDao backupJobDao = null;
 	
 	@Inject
-	private DataAccessLayer dal;
+	private Connection conn;
 	
 	@Inject
-  private Connection conn;
+	private DataAccessLayer dal;
 	
 	/**
 	 * HDFS Distributed filesystem cluster
@@ -136,8 +136,6 @@ public class AkkaJobManager implements JobManager {
 			throw new RuntimeException(e);
 		}		
 	}
-	
-
 
 	@Override
 	public BackupJob getBackUpJob(Long jobId) {
@@ -146,7 +144,7 @@ public class AkkaJobManager implements JobManager {
 
 	@Override
 	public void start() {
-		// TODO only take N next recent ones (at least if allJobs has an excessive length)
+      // TODO only take N next recent ones (at least if allJobs has an excessive length)
 	  try {
 	    conn.begin();
   		for (BackupJob storedJob : getDao().findAll()) {
@@ -155,7 +153,6 @@ public class AkkaJobManager implements JobManager {
 	  } finally {
 	    conn.rollback();
 	  }
-		
 	}
 
 	@Override

@@ -714,8 +714,8 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   @Inject
   public void setJobManager(JobManager jobManager) {
-    this.jobManager = jobManager;
-    this.jobManager.start();
+	this.jobManager = jobManager;
+	this.jobManager.start();
   }
 
   public String getCallbackUrl() {

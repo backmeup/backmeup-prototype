@@ -708,8 +708,13 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   @Inject
   public void setJobManager(JobManager jobManager) {
-    this.jobManager = jobManager;
-    this.jobManager.start();
+	try {
+		conn.begin();
+		this.jobManager = jobManager;
+		this.jobManager.start();
+	} finally {
+		//
+	}
   }
 
   public String getCallbackUrl() {

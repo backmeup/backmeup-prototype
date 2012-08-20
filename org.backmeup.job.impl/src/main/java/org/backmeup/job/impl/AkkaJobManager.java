@@ -145,11 +145,10 @@ public class AkkaJobManager implements JobManager {
 
 	@Override
 	public void start() {
-		/* TODO only take N next recent ones (at least if allJobs has an excessive length)
+		// TODO only take N next recent ones (at least if allJobs has an excessive length)
 		for (BackupJob storedJob : getDao().findAll()) {
 			queueJob(storedJob);
 		}
-		*/
 	}
 
 	@Override

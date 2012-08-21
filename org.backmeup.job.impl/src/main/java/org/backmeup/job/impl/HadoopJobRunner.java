@@ -11,9 +11,12 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.backmeup.plugin.Plugin;
+import org.backmeup.plugin.api.connectors.Datasource;
+import org.backmeup.plugin.api.storage.StorageWriter;
 import org.backmeup.plugin.osgi.PluginImpl;
 
 /**
@@ -56,18 +59,21 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 	public void run(RecordReader<Text, BytesWritable> reader, OutputCollector<Text, Text> output, Reporter reporter)
 			throws IOException {
 		
-		/*
+		// TODO workaround for the race condition that seems to occur with OSGi startup
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		*/
+
+		// Create a temporary Storage folder on the HDFS to store downloads
+		StorageWriter storageWriter = new HDF
 		
-		System.out.println("Starting backup job " + job.getId() + " for user " + job.getUser());
-		System.out.println("Index is at " + indexURI);
-		System.out.println("plugins: " + plugins);
+        for (ProfileOptions po : job.getSourceProfiles()) {
+        	Datasource source = plugins.getDatasource(po.getProfile().getDesc());
+
+        }
 		
 		List<SourceSinkDescribable> sinks = plugins.getConnectedDatasinks();
 		System.out.println("sinks: " + sinks.size());

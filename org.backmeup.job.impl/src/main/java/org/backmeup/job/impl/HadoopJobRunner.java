@@ -1,7 +1,6 @@
 package org.backmeup.job.impl;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.hadoop.fs.FileSystem;
@@ -15,7 +14,6 @@ import org.apache.hadoop.mapred.Reporter;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.serializer.JsonSerializer;
-import org.backmeup.model.spi.SourceSinkDescribable;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.connectors.Datasink;
 import org.backmeup.plugin.api.connectors.Datasource;
@@ -46,7 +44,7 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 	
 	private JobConf conf;
 	
-	private String indexURI;
+	// private String indexURI;
 	
 	private BackupJob job;
 	
@@ -55,7 +53,7 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 	@Override
 	public void configure(JobConf conf) {
 		this.conf = conf;
-		this.indexURI = conf.get("indexURI");
+		// this.indexURI = conf.get("indexURI");
 		this.job = JsonSerializer.deserialize(conf.get("job"), BackupJob.class);
 		
 		this.plugins = new PluginImpl(
@@ -64,7 +62,7 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 				EXPORTED_PACKAGES);
 		
 		this.plugins.startup();
-		((PluginImpl) plugins).waitForInitialStartup();
+	    ((PluginImpl)plugins).waitForInitialStartup();
 	}
 
 	@Override
@@ -73,13 +71,13 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 		
 		// TODO workaround for the race condition that seems to occur with OSGi startup
 		try {
-			Thread.sleep(4000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		// DEBUG: list all available datasources
+		/* DEBUG: list all available datasources
 		List<SourceSinkDescribable> datasources = plugins.getConnectedDatasources();
 		System.out.println(datasources.size() + " datasource plugins available");
 		for (SourceSinkDescribable source : datasources) {
@@ -92,6 +90,7 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 		for (SourceSinkDescribable sink : datasinks) {
 			System.out.println(sink.getId());
 		}
+		*/
 		
 		// Create a temporary storage space on the HDFS
 		// TODO replace dummy temp dir naming with decent naming
@@ -133,14 +132,12 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
         	try {
         		storageReader.open(tempDir);
         		
-        		/*
         		sink.upload(sinkProperties, storageReader, new Progressable() {
 					@Override
 					public void progress(String message) {
 						System.out.println(message);
 					}
 				});
-				*/
 				
         		storageReader.close();
         	} catch (StorageException e) {

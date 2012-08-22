@@ -117,13 +117,15 @@ public class AkkaJobManager implements JobManager {
 							jobConf.setJarByClass(HadoopJobRunner.class);
 							jobConf.setMapRunnerClass(HadoopJobRunner.class);
 							jobConf.setSpeculativeExecution(false);
+							jobConf.setNumMapTasks(1);
+							jobConf.setNumReduceTasks(0);
 							jobConf.set("job", JsonSerializer.serialize(job));
 							
 							// TODO configure via properties
 							jobConf.set("pluginsDir", "/home/simonr/Workspaces/backmeup/backmeup-prototype/org.backmeup.embedded/autodeploy");
 							jobConf.set("osgiTempDir", "/home/simonr/Workspaces/backmeup/backmeup-prototype/osgi-tmp");
 							jobConf.set("indexURI", "http://localhost:9200");
-		
+
 							JobClient.runJob(jobConf);
 						} catch (IOException e) {
 							// TODO error handling not forseen in the interface?

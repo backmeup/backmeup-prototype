@@ -85,6 +85,7 @@ public class HdfsStorageReader extends StorageReader {
 
 		@Override
 		public DataObject next() {
+			System.out.println("Returning next DataObject: " + path);
 			if (!hasNextCalled) {
 				try {
 					reader.next(key, value);

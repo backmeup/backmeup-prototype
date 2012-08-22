@@ -33,6 +33,10 @@ public class HadoopJobManagerTest {
 	private static final String TEST_INPUT_PATH = "src/test/resources";
 	private static final String TEST_OUTPUT_PATH = "hadoop-output";
 	
+	private static final String PLUGINS_DIR = "/home/simonr/Workspaces/backmeup/backmeup-prototype/org.backmeup.embedded/autodeploy";
+	private static final String OSGI_TEMP_DIR = "/home/simonr/Workspaces/backmeup/backmeup-prototype/osgi-tmp";
+	private static final String INDEX_URI = "http://localhost:9200";
+	
 	private static final String BACKUP_JOB =
 			"{\"user\":{\"userId\":1,\"username\":\"Sepp\",\"password\":\"pw\"," + 
 	        "\"keyRing\":\"k3yr1nG\",\"email\":\"e@ma.il\",\"isActivated\":false,\"properties\":[]}," +
@@ -40,12 +44,12 @@ public class HadoopJobManagerTest {
 			"[{\"profile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"Sepp\"," +
 			"\"password\":\"pw\",\"keyRing\":\"k3yr1nG\",\"email\":\"e@ma.il\",\"isActivated\":" +
 			"false,\"properties\":[]},\"profileName\":\"TestProfile\",\"desc\":" +
-			"\"org.backmeup.dummy.DummyDatasource\",\"sourceAndOrSink\":\"Source\"},\"options\":" + 
+			"\"org.backmeup.dummy\",\"sourceAndOrSink\":\"Source\"},\"options\":" + 
 			"[\"folder1\",\"folder2\"]}]," +
 			"\"sinkProfile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"Sepp\"" +
 			",\"password\":\"pw\",\"keyRing\":\"pw\",\"email\":\"e@ma.il\",\"isActivated\":" +
 			"false,\"properties\":[]},\"profileName\":\"TestProfile2\",\"desc\":" +
-			"\"org.backmeup.dummy.DummyDatasink\",\"sourceAndOrSink\":\"Sink\"},\"requiredActions\":[]," + 
+			"\"org.backmeup.dummy\",\"sourceAndOrSink\":\"Sink\"},\"requiredActions\":[]," + 
 			"\"start\":\"1345203377704\",\"delay\":1345203258212}";
 
 	private MiniDFSCluster dfsCluster = null;
@@ -127,7 +131,9 @@ public class HadoopJobManagerTest {
 		jobConf.setJarByClass(HadoopJobRunner.class);
 		jobConf.setMapRunnerClass(HadoopJobRunner.class);
 		jobConf.setInputFormat(SequenceFileInputFormat.class);
-		jobConf.set("indexURI", "http://localhost:9200");
+		jobConf.set("pluginsDir", PLUGINS_DIR);
+		jobConf.set("osgiTempDir", OSGI_TEMP_DIR);
+		jobConf.set("indexURI", INDEX_URI);
 		jobConf.set("job", BACKUP_JOB);
 		SequenceFileInputFormat.setInputPaths(jobConf, input);
 		FileOutputFormat.setOutputPath(jobConf, output);
@@ -154,6 +160,7 @@ public class HadoopJobManagerTest {
 	    	mrCluster = null;
 	    }
 	    
+	    FileUtils.deleteDirectory(new File(OSGI_TEMP_DIR));
 	    FileUtils.deleteDirectory(new File(TEST_LOG_DIR));
 	    FileUtils.deleteDirectory(new File(TEST_OUTPUT_PATH));
 	}

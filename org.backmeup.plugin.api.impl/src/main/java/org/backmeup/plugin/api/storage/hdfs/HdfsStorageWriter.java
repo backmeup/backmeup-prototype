@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.SequenceFile;
@@ -11,12 +12,18 @@ import org.apache.hadoop.io.Text;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.StorageException;
 import org.backmeup.plugin.api.storage.StorageWriter;
-import org.backmeup.plugin.api.storage.hdfs.util.HdfsManager;
 
 public class HdfsStorageWriter extends StorageWriter {
 	
+	private FileSystem filesystem;
+	
 	private String outputPath;
+	
 	private SequenceFile.Writer output;
+	
+	public HdfsStorageWriter(FileSystem filesystem) {
+		this.filesystem = filesystem;
+	}
 
 	@Override
 	public void open(String path) throws StorageException {
@@ -62,9 +69,9 @@ public class HdfsStorageWriter extends StorageWriter {
 
 	private SequenceFile.Writer openOutputFile() throws Exception {
 		Path thePath = new Path(outputPath);
-		HdfsManager manager = HdfsManager.getInstance();
-		return SequenceFile.createWriter(manager.getFileSystem(), manager
-				.getConfig(), thePath, Text.class, BytesWritable.class,
+		return SequenceFile.createWriter(filesystem, filesystem.getConf(),
+				thePath, Text.class, BytesWritable.class,
 				SequenceFile.CompressionType.BLOCK);
 	}
+	
 }

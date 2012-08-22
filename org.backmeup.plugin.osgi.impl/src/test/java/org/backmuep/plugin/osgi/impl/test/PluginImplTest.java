@@ -27,6 +27,11 @@ public class PluginImplTest {
   
   @Test
   public void testPluginLayer() {
+    try {
+      Thread.sleep(2000);
+    } catch (Exception e) {
+      
+    }
     List<SourceSinkDescribable>  sources = pluginLayer.getConnectedDatasources();
     for (int i=0; i < sources.size(); i++) {
       System.out.println(sources.get(i).getId());

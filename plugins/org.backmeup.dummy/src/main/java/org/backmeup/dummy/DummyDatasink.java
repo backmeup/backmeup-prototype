@@ -16,6 +16,9 @@ public class DummyDatasink implements Datasink {
   @Override
   public String upload(Properties accessData, StorageReader storage,
       Progressable progressor) throws StorageException {
+	
+	System.out.println("Uploading to StorageReader");
+	  
     Iterator<DataObject> it = storage.getDataObjects();
     while (it.hasNext()) {
       DataObject obj = it.next();

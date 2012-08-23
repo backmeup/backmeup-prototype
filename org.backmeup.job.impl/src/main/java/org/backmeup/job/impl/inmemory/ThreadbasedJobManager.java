@@ -1,4 +1,4 @@
-package org.backmeup.job.impl;
+package org.backmeup.job.impl.inmemory;
 
 import java.io.File;
 import java.text.DateFormat;

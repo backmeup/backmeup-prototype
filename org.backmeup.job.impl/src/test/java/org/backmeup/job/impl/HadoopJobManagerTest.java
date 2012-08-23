@@ -23,6 +23,7 @@ import org.apache.hadoop.mapred.MiniMRCluster;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.log4j.Logger;
+import org.backmeup.job.impl.amqp.HadoopJobRunner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

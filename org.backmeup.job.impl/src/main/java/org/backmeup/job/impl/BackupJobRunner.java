@@ -13,6 +13,11 @@ import org.backmeup.plugin.api.storage.StorageException;
 import org.backmeup.plugin.api.storage.StorageReader;
 import org.backmeup.plugin.api.storage.StorageWriter;
 
+/**
+ * Implements the actual BackupJob execution.
+ * 
+ * @author Rainer Simon <rainer.simon@ait.ac.at.>
+ */
 public class BackupJobRunner {
 	
 	private Plugin plugins;

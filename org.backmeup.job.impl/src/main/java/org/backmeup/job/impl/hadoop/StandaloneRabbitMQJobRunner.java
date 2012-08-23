@@ -24,6 +24,10 @@ public class StandaloneRabbitMQJobRunner {
 	
 	private Plugin plugins;
 	
+	public static void main(String[] args) {
+		System.out.println("Starting...");
+	}
+	
 	public StandaloneRabbitMQJobRunner(String pluginsDir, String osgiTempDir) {
 		// Start up the Plugin manager
 		this.plugins = new PluginImpl(pluginsDir, osgiTempDir, EXPORTED_PACKAGES);

@@ -1,9 +1,5 @@
 package org.backmeup.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -12,7 +8,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 import org.backmeup.model.spi.SourceSinkDescribable.Type;
 
@@ -37,26 +32,26 @@ public class Profile {
 	private User user;
 	private String profileName;
 	private String desc;
+	private Long serviceId;
 	
 	@Enumerated(EnumType.STRING)
-	private Type sourceAndOrSink;
-	@OneToMany(cascade=CascadeType.ALL, orphanRemoval=true, fetch=FetchType.EAGER )
-	private List<ProfileEntry> entries;
+	private Type sourceAndOrSink;	
 	
 	public Profile() {		
 	}
 	
 	
-	public Profile(User user, String profileName, String desc, Type source) {
-		this(null, user, profileName, desc, source);
+	public Profile(User user, String profileName, String desc, Type source, Long serviceId) {
+		this(null, user, profileName, desc, source, serviceId);
 	}
 
-	public Profile(Long profileId, User user, String profileName, String desc, Type sourceAndOrSink) {
+	public Profile(Long profileId, User user, String profileName, String desc, Type sourceAndOrSink, Long serviceId) {
 		this.profileId = profileId;
 		this.user = user;
 		this.profileName = profileName;
 		this.sourceAndOrSink = sourceAndOrSink;
 		this.desc = desc;
+		this.serviceId = serviceId;
 		
 	}
 	public Long getProfileId() {
@@ -84,20 +79,6 @@ public class Profile {
 		this.desc = desc;
 	} 
 	
-	public List<ProfileEntry> getEntries() {
-		if (entries == null)
-			entries = new ArrayList<ProfileEntry>();
-		return entries;
-	}
-	
-	public Properties getEntriesAsProperties() {
-	  Properties props = new Properties();
-    for (ProfileEntry pe : getEntries()) {
-      props.setProperty(pe.getKey(), pe.getValue());
-    }
-    return props;
-	}
-	
 	public Type getType() {
 		return sourceAndOrSink;
 	}
@@ -105,32 +86,14 @@ public class Profile {
 	public void setType(Type sourceAndOrSink) {
 		this.sourceAndOrSink = sourceAndOrSink;
 	}
-	  
-	public void putEntry(String key, String value) {
-		ProfileEntry pe = new ProfileEntry(key, value);
-		int index = getEntries().indexOf(pe);
-		if (index != -1) {
-			getEntries().get(index).setValue(value);
-		} else {
-			getEntries().add(pe);
-		}
-	}
-	
-	public String getEntry(String key) {
-		ProfileEntry pe = new ProfileEntry(key, null);
-		int index = getEntries().indexOf(pe);
-		if (index != -1) {
-			return getEntries().get(index).getValue();
-		} 
-		return null;
-	}
-	
-	public void removeEntry(String key) {
-		ProfileEntry pe = new ProfileEntry(key, null);
-		int index = getEntries().indexOf(pe);
-		if (index != -1) {
-			getEntries().remove(index);
-		}
-	}
-	
+
+
+  public Long getServiceId() {
+    return serviceId;
+  }
+
+
+  public void setServiceId(Long serviceId) {
+    this.serviceId = serviceId;
+  }
 }

@@ -3,10 +3,12 @@ package org.backmeup.keyserver.client.test;
 import java.util.Date;
 import java.util.Properties;
 
+import junit.framework.Assert;
+
 import org.backmeup.keyserver.client.AuthData;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
-import org.backmeup.keyserver.client.Token;
+import org.backmeup.model.Token;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.junit.BeforeClass;
@@ -40,17 +42,17 @@ public class KeyserverTest {
     if (!ks.isUserRegistered(200L))
       ks.registerUser(200L, "apassword");
     
-    assert ks.validateUser(200L, "apassword");    
+    Assert.assertTrue(ks.validateUser(200L, "apassword"));    
   }
   
   @Test
   public void testRegisterService() {   
     if (!ks.isServiceRegistered(201L))
       ks.addService(201L);
-    assert ks.isServiceRegistered(201L);
+    Assert.assertTrue(ks.isServiceRegistered(201L));
     if (!ks.isServiceRegistered(202L))
       ks.addService(202L);
-    assert ks.isServiceRegistered(202L);
+    Assert.assertTrue(ks.isServiceRegistered(202L));
   }
   
   @Test
@@ -89,9 +91,9 @@ public class KeyserverTest {
     if (!ks.isAuthInformationAvailable(204L, 200L, 201L, "apassword"))
       ks.addAuthInfo(200L, "apassword", 201L, 204L, p3);
     
-    assert ks.isAuthInformationAvailable(204L, 200L, 201L, "apassword");
-    assert ks.isAuthInformationAvailable(203L, 200L, 202L, "apassword");
-    assert ks.isAuthInformationAvailable(202L, 200L, 201L, "apassword");
+    Assert.assertTrue(ks.isAuthInformationAvailable(204L, 200L, 201L, "apassword"));
+    Assert.assertTrue(ks.isAuthInformationAvailable(203L, 200L, 202L, "apassword"));
+    Assert.assertTrue(ks.isAuthInformationAvailable(202L, 200L, 201L, "apassword"));
     
   }
     
@@ -128,32 +130,48 @@ public class KeyserverTest {
       ks.addAuthInfo(200L, "apassword", 201L, 204L, p3);
     
     // get a token and test 
-    Token t = ks.getToken(200L, "apassword", new Long[]{201L}, new Long[]{202L}, new Date().getTime());
-    System.out.println("Token: " + t.getToken() + " / " + t.getBmu_token_id());
-    assert t.getToken() != null;
-    assert t.getBmu_token_id() != null;
+    Token t = ks.getToken(200L, "apassword", new Long[]{201L}, new Long[]{202L}, new Date().getTime(), true);
+    System.out.println("Token: " + t.getToken() + " / " + t.getTokenId());
+    Assert.assertNotNull(t.getToken());
+    Assert.assertNotNull(t.getTokenId());
+    // data might be crawled after 3 seconds again
+    t.setBackupdate(new Date().getTime() + 3000);
     AuthDataResult authData = ks.getData(t);
     for (AuthData ad  : authData.getAuthinfos()) {
-      assert ad.getAi_data().containsKey("oauthtoken");
-      assert ad.getAi_data().get("oauthtoken").equals("asdfasdf");
-      assert ad.getAi_data().containsKey("oauthpassword");
-      assert ad.getAi_data().get("oauthpassword").equals("asdfasdf2");      
+      Assert.assertTrue(ad.getAi_data().containsKey("oauthtoken"));
+      Assert.assertEquals("asdfasdf", ad.getAi_data().get("oauthtoken"));
+      Assert.assertTrue(ad.getAi_data().containsKey("oauthpassword"));
+      Assert.assertEquals("asdfasdf2", ad.getAi_data().get("oauthpassword"));      
     }
     
-    t = ks.getToken(200L, "apassword", new Long[]{201L, 202L}, new Long[]{202L, 204L}, new Date().getTime());
-    System.out.println("Token: " + t.getToken() + " / " + t.getBmu_token_id());
+    try {
+      Thread.sleep(3000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    t.setBackupdate(new Date().getTime() + 3000);
+    authData = ks.getData(t);
+    for (AuthData ad  : authData.getAuthinfos()) {
+      Assert.assertTrue(ad.getAi_data().containsKey("oauthtoken"));
+      Assert.assertEquals("asdfasdf", ad.getAi_data().get("oauthtoken"));
+      Assert.assertTrue(ad.getAi_data().containsKey("oauthpassword"));
+      Assert.assertEquals("asdfasdf2", ad.getAi_data().get("oauthpassword"));      
+    }
+    
+    t = ks.getToken(200L, "apassword", new Long[]{201L, 202L}, new Long[]{202L, 204L}, new Date().getTime(), true);
+    System.out.println("Token: " + t.getToken() + " / " + t.getTokenId());
     authData = ks.getData(t);
     for (AuthData ad  : authData.getAuthinfos()) {
       if (ad.getAi_data().containsKey("oauthtoken")) {
-        assert ad.getAi_data().containsKey("oauthtoken");
-        assert ad.getAi_data().get("oauthtoken").equals("asdfasdf");
-        assert ad.getAi_data().containsKey("oauthpassword");
-        assert ad.getAi_data().get("oauthpassword").equals("asdfasdf2");
+        Assert.assertTrue(ad.getAi_data().containsKey("oauthtoken"));
+        Assert.assertEquals("asdfasdf", ad.getAi_data().get("oauthtoken"));
+        Assert.assertTrue(ad.getAi_data().containsKey("oauthpassword"));
+        Assert.assertEquals("asdfasdf2", ad.getAi_data().get("oauthpassword"));
       } else {
-        assert ad.getAi_data().containsKey("moredata");
-        assert ad.getAi_data().get("moredata").equals("as-dfadjsfasldf#++*\"");
-        assert ad.getAi_data().containsKey("yep");
-        assert ad.getAi_data().get("yep").equals("tests");
+        Assert.assertTrue(ad.getAi_data().containsKey("moredata"));
+        Assert.assertEquals("as-dfadjsfasldf#++*\"", ad.getAi_data().get("moredata"));
+        Assert.assertTrue(ad.getAi_data().containsKey("yep"));
+        Assert.assertEquals("tests", ad.getAi_data().get("yep"));
       }
     }
     

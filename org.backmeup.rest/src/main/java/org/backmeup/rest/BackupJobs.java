@@ -40,13 +40,14 @@ public class BackupJobs extends Base {
     return new JobContainer(getLogic().getJobs(username));
   }
 
-  @GET
+  @POST
   @Path("/{username}/validate/{jobId}")
   @Produces("application/json")
   public ValidationNotesContainer validateBackupJob(
       @PathParam("username") String username,
-      @PathParam("jobId") String jobId) {
-    return new ValidationNotesContainer(getLogic().validateBackupJob(username, Long.parseLong(jobId)));    
+      @PathParam("jobId") String jobId,
+      @FormParam("keyRing") String keyRing) {
+    return new ValidationNotesContainer(getLogic().validateBackupJob(username, Long.parseLong(jobId), keyRing));    
   }
   
   private Map<Long, String[]> mapOptions(List<String> sourceProfileIds, MultivaluedMap<String, String> formParams) {

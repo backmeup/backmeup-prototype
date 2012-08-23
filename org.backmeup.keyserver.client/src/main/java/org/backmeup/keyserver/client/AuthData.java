@@ -1,6 +1,7 @@
 package org.backmeup.keyserver.client;
 
 import java.util.HashMap;
+import java.util.Properties;
 
 public class AuthData {
   private Long bmu_authinfo_id;
@@ -49,6 +50,12 @@ public class AuthData {
 
   public void setAi_data(HashMap<String, String> ai_data) {
     this.ai_data = ai_data;
+  }
+  
+  public Properties getAiData() {
+    Properties props = new Properties();
+    props.putAll(this.ai_data);
+    return props;
   }
 
 }

@@ -1,5 +1,6 @@
 package org.backmeup.model;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +13,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  * The BackupJob class contains all necessary data to
@@ -36,7 +39,10 @@ public class BackupJob {
   private Profile sinkProfile;
   @OneToMany(cascade=CascadeType.ALL)
   private Set<ActionProfile> requiredActions = new HashSet<ActionProfile>();
-  private String cronExpression;
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date start;
+  private long delay;
+  private Token token;
 
   public BackupJob() {
     super();
@@ -44,12 +50,13 @@ public class BackupJob {
 
   public BackupJob(User user, Set<ProfileOptions> sourceProfile,
       Profile sinkProfile, Set<ActionProfile> requiredActions,
-      String cronExpression) {
+      Date start, long delay) {
     this.user = user;
     this.sourceProfiles = sourceProfile;
     this.sinkProfile = sinkProfile;
     this.requiredActions = requiredActions;
-    this.cronExpression = cronExpression;
+    this.start = start;
+    this.delay = delay;
   }
 
   public Long getId() {
@@ -92,11 +99,27 @@ public class BackupJob {
     this.requiredActions = requiredActions;
   }
 
-  public String getCronExpression() {
-    return cronExpression;
+  public Date getStart() {
+    return start;
   }
 
-  public void setCronExpression(String cronExpression) {
-    this.cronExpression = cronExpression;
+  public void setStart(Date start) {
+    this.start = start;
+  }
+
+  public long getDelay() {
+    return delay;
+  }
+
+  public void setDelay(long delay) {
+    this.delay = delay;
+  }
+
+  public Token getToken() {
+    return token;
+  }
+
+  public void setToken(Token token) {
+    this.token = token;
   }
 }

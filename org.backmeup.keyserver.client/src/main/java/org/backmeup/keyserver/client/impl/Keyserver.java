@@ -36,13 +36,13 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.AuthUsrPwd;
-import org.backmeup.keyserver.client.Token;
 import org.backmeup.keyserver.client.TokenRequest;
+import org.backmeup.model.Profile;
+import org.backmeup.model.Token;
 import org.backmeup.model.exceptions.BackMeUpException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -299,9 +299,9 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
 
   @Override
   public Token getToken(Long userId, String userPwd, Long[] services,
-      Long[] authinfos, Long backupdate) {
+      Long[] authinfos, Long backupdate, boolean reusable) {
     Gson g = new Gson();
-    String json = g.toJson(new TokenRequest(userId, userPwd, services, authinfos, backupdate));
+    String json = g.toJson(new TokenRequest(userId, userPwd, services, authinfos, backupdate, reusable));
     Result r = execute(path + "/tokens/token", ReqType.POST, json);
     if (r.response.getStatusLine().getStatusCode() == 200) {
       return g.fromJson(r.content, Token.class);
@@ -309,6 +309,7 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     throw new BackMeUpException("Failed to retrieve a token: " + r.content);
   }
 
+  
   @Override
   public AuthDataResult getData(Token token) {
     Gson g = new Gson();
@@ -319,4 +320,21 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     }
     throw new BackMeUpException("Failed to retrieve token data: " + r.content);
   }
+
+  @Override
+  public void addAuthInfo(Profile profile, String userPwd, Properties keyValuePairs) {
+    addAuthInfo(profile.getUser().getUserId(), userPwd, profile.getServiceId(), profile.getProfileId(), keyValuePairs);
+  }
+
+  @Override
+  public boolean isAuthInformationAvailable(Profile profile, String userPwd) {
+    return isAuthInformationAvailable(profile.getProfileId(), profile.getUser().getUserId(), profile.getServiceId(), userPwd);
+  }
+
+  @Override
+  public Token getToken(Profile profile, String userPwd, Long backupdate, boolean reusable) {
+    return getToken(profile.getUser().getUserId(), userPwd, new Long[]{profile.getServiceId()}, new Long[]{profile.getProfileId()}, backupdate, reusable);
+  }
+
+ 
 }

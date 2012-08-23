@@ -64,13 +64,13 @@ public interface BusinessLogic {
 	public void deleteDatasinkPlugin(String name);
 	
 	// profile operation
-	public void addProfileEntries(Long profileId, Properties entries);
+	public void addProfileEntries(Long profileId, Properties entries, String keyRing);
 	
 	//validate profile operation
-	public ValidationNotes validateProfile(String username, Long profileId);
+	public ValidationNotes validateProfile(String username, Long profileId, String keyRing);
 	
 	//metadata operations	
-	public Properties getMetadata(String username, Long profileId);
+	public Properties getMetadata(String username, Long profileId, String keyRing);
 	
 	//action operations
 	public List<ActionDescribable> getActions();
@@ -79,7 +79,7 @@ public interface BusinessLogic {
 	public void deleteActionPlugin(String name);
 	
 	//job & validation operations
-	public ValidationNotes validateBackupJob(String username, Long jobId);	
+	public ValidationNotes validateBackupJob(String username, Long jobId, String keyRing);	
 	public BackupJob createBackupJob(String username, List<Long> sourceProfiles, Long sinkProfileId, Map<Long, String[]> sourceOptions, String[] requiredActions, String timeExpression, String keyRing);
 	public List<BackupJob> getJobs(String username);
 	public void deleteJob(String username, Long jobId);

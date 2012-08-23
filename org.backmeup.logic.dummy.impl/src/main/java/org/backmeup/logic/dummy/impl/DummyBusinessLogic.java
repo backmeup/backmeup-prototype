@@ -67,6 +67,11 @@ public class DummyBusinessLogic implements BusinessLogic {
   private Map<Long, SearchResponse> searches;
   private Map<User, String> passwords;
   
+  private static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
+  private static final long DELAY_WEEKLY = 24 * 60 * 60 * 1000 * 7;
+  private static final long DELAY_MONTHLY = (long)(24 * 60 * 60 * 1000 * 365.242199 / 12.0);
+  private static final long DELAY_YEARLY = (long)(24 * 60 * 60 * 1000 * 365.242199);
+  
   public DummyBusinessLogic() {
     User u1 = new User(0l, "Sepp", "sepp@mail.at");
     User u2 = new User(1l, "Marion", "marion@mail.at");
@@ -215,14 +220,14 @@ public class DummyBusinessLogic implements BusinessLogic {
 
     profiles = new ArrayList<Profile>();
     profiles.add(new Profile(500l, u1, "Dropbox-Source",
-        "org.backmeup.dropbox", Type.Source));
+        "org.backmeup.dropbox", Type.Source, 100L));
     profiles.add(new Profile(501l, u1, "Wuala-Sink", "org.backmeup.wuala",
-        Type.Sink));
+        Type.Sink, 100L));
 
     profiles.add(new Profile(502l, u3, "Dropbox-Source",
-        "org.backmeup.dropbox", Type.Source));
+        "org.backmeup.dropbox", Type.Source, 100L));
     profiles.add(new Profile(503l, u3, "Wuala-Sink", "org.backmeup.wuala",
-        Type.Sink));
+        Type.Sink, 100L));
     jobs = new ArrayList<BackupJob>();
 
     actions = new HashMap<String, ActionDescribable>();
@@ -251,7 +256,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     Set<ProfileOptions> popts = new HashSet<ProfileOptions>();
     popts.add(new ProfileOptions(findProfile(500), null));
     BackupJob aJob = new BackupJob(u1, popts, findProfile(501),
-        reqActions, "* * * * *");   
+        reqActions, new Date(), 5000);   
     aJob.setId(maxId++);
     jobs.add(aJob);
     status = new ArrayList<Status>();
@@ -265,7 +270,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     Set<ProfileOptions> popts2 = new HashSet<ProfileOptions>();
     popts2.add(new ProfileOptions(findProfile(502), null));
     BackupJob bJob = new BackupJob(u3, popts2, findProfile(502),
-        reqActions, "* * * * *");
+        reqActions, new Date(), 5000);
     bJob.setId(maxId++);
     jobs.add(bJob);
     status.add(new Status(bJob, "Ein Status", "INFO", new Date(100)));
@@ -453,7 +458,7 @@ public class DummyBusinessLogic implements BusinessLogic {
       throw new InvalidCredentialsException();
 
     Profile p = new Profile(maxId++, u, profileName, source.getId(),
-        Type.Source);
+        Type.Source, 100L);
     profiles.add(p);
 
     if ("Dropbox".equals(source.getTitle())) {
@@ -480,7 +485,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     for (Object keyObj : props.keySet()) {
       String key = (String) keyObj;
       String value = props.getProperty(key);
-      p.putEntry(key, value);
+      //p.putEntry(key, value);
     }
   }
 
@@ -532,7 +537,7 @@ public class DummyBusinessLogic implements BusinessLogic {
 
   public BackupJob createBackupJob(String username, List<Long> sourceProfiles,
       Long sinkProfileId, Map<Long, String[]> sourceOptions,
-      String[] requiredActions, String cronTime, String keyRing) {
+      String[] requiredActions, String timeExpression, String keyRing) {
 
     User user = findUser(username);
     if (user == null)
@@ -555,11 +560,27 @@ public class DummyBusinessLogic implements BusinessLogic {
       throw new IllegalArgumentException("Sink-profile not found "
           + sinkProfileId);
 
-    if (cronTime == null)
+    if (timeExpression == null)
       throw new IllegalArgumentException("Cron expression missing");
-
+    
+    Date start = null;
+    long delay = 0;
+    if (timeExpression.equalsIgnoreCase("daily")) {
+      start = new Date();
+      delay = DELAY_DAILY;      
+    } else if (timeExpression.equalsIgnoreCase("weekly")) {
+      start = new Date();
+      delay = DELAY_WEEKLY;
+    } else if (timeExpression.equalsIgnoreCase("monthly")) {
+      start = new Date();
+      delay = DELAY_MONTHLY;
+    } else {
+      start = new Date();
+      delay = DELAY_YEARLY;
+    }
+    
     BackupJob job = new BackupJob(user, sources, sinkProfile,
-        findActions(requiredActions), cronTime);
+        findActions(requiredActions), start, delay);
     job.setId(maxId++);
     jobs.add(job);
     return job;
@@ -744,7 +765,7 @@ public class DummyBusinessLogic implements BusinessLogic {
   }
 
   @Override
-  public Properties getMetadata(String username, Long profileId) {
+  public Properties getMetadata(String username, Long profileId, String keyRing) {
     User u = findUser(username);
     if (u == null)
       throw new UnknownUserException(username);
@@ -759,7 +780,7 @@ public class DummyBusinessLogic implements BusinessLogic {
   }
 
   @Override
-  public ValidationNotes validateBackupJob(String username, Long jobId) {
+  public ValidationNotes validateBackupJob(String username, Long jobId, String keyRing) {
     BackupJob job = findJob(username, jobId);
     if (job == null) {
       throw new IllegalArgumentException("Unknown job with id: " + jobId);
@@ -776,7 +797,7 @@ public class DummyBusinessLogic implements BusinessLogic {
         notes.addValidationEntry(ValidationExceptionType.Error, String.format("No plug-in found with id %s", po.getProfile().getDesc()));
       }
       
-      Properties meta = getMetadata(username, po.getProfile().getProfileId());
+      Properties meta = getMetadata(username, po.getProfile().getProfileId(), keyRing);
       String quota = meta.getProperty(Metadata.QUOTA);
       if (quota != null) {
         requiredSpace += Double.parseDouble(meta.getProperty(Metadata.QUOTA));
@@ -796,7 +817,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     requiredSpace *= 1.1;
 
     // TODO: validate sink profile
-    Properties meta = getMetadata(username, job.getSinkProfile().getProfileId());
+    Properties meta = getMetadata(username, job.getSinkProfile().getProfileId(), keyRing);
     String sinkQuota = meta.getProperty(Metadata.QUOTA);
     String sinkQuotaLimit = meta.getProperty(Metadata.QUOTA_LIMIT);
     if (sinkQuota != null && sinkQuotaLimit != null) {
@@ -822,13 +843,13 @@ public class DummyBusinessLogic implements BusinessLogic {
   }
 
   @Override
-  public ValidationNotes validateProfile(String username, Long profileId) {
+  public ValidationNotes validateProfile(String username, Long profileId, String keyRing) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public void addProfileEntries(Long profileId, Properties entries) {
+  public void addProfileEntries(Long profileId, Properties entries, String keyRing) {
     // TODO Auto-generated method stub
     
   }

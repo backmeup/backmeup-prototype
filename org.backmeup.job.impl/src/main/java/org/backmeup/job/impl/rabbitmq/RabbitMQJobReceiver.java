@@ -3,7 +3,14 @@ package org.backmeup.job.impl.rabbitmq;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.backmeup.job.impl.BackupJobRunner;
+import org.backmeup.model.BackupJob;
+import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.plugin.Plugin;
+import org.backmeup.plugin.api.storage.StorageReader;
+import org.backmeup.plugin.api.storage.StorageWriter;
+import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorageReader;
+import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorageWriter;
 import org.backmeup.plugin.osgi.PluginImpl;
 
 import com.rabbitmq.client.Channel;
@@ -56,11 +63,13 @@ public class RabbitMQJobReceiver {
 		this.mqName = mqName;
 		
 		// Start up the Plugin manager
+		log.info("Starting plugin framework");
 		this.plugins = new PluginImpl(pluginsDir, osgiTempDir, EXPORTED_PACKAGES);
 		this.plugins.startup();
 	    ((PluginImpl)plugins).waitForInitialStartup();
 	    
 	    // Connect to the message queue
+	    log.info("Connecting to the message queue");
 		ConnectionFactory factory = new ConnectionFactory();
 	    factory.setHost(mqHost);
 	    
@@ -81,6 +90,7 @@ public class RabbitMQJobReceiver {
 				@Override
 				public void run() {
 					try {
+						log.info("Starting message queue receiver");
 					    QueueingConsumer consumer = new QueueingConsumer(mqChannel);
 					    mqChannel.basicConsume(mqName, true, consumer);
 						
@@ -88,11 +98,20 @@ public class RabbitMQJobReceiver {
 					    	QueueingConsumer.Delivery delivery = consumer.nextDelivery();
 					    	String message = new String(delivery.getBody());
 					    	log.info("Received: " + message);
+					    	
+					    	BackupJob job = JsonSerializer.deserialize(message, BackupJob.class);
+					    	
+			                StorageReader reader = new LocalFilesystemStorageReader();
+			                StorageWriter writer = new LocalFilesystemStorageWriter();
+			                
+			        		BackupJobRunner runner = new BackupJobRunner(plugins);
+			        		runner.executeBackup(job, reader, writer);
 					    }
 					    
 					    log.info("Stopping message queue receiver");
 					    mqChannel.close();
 					    mqConnection.close();
+					    plugins.shutdown();
 					    log.info("Message queue receiver stopped");
 					} catch (IOException e) {
 						// Should only happen if message queue is down

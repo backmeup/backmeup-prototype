@@ -40,7 +40,8 @@ public class FileDataObject implements DataObject {
 
 	@Override
 	public MetainfoContainer getMetainfo() {
-		return null;
+	    MetainfoContainer metainfo = new MetainfoContainer();
+	    return metainfo;
 	}
 
 }

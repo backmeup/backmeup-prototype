@@ -1,4 +1,4 @@
-package org.backmeup.job.impl.hadoop;
+package org.backmeup.job.impl.amqp;
 
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.osgi.PluginImpl;

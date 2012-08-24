@@ -1,4 +1,4 @@
-package org.backmeup.job.impl.amqp;
+package org.backmeup.job.impl.hadoop;
 
 import java.io.IOException;
 import java.util.Properties;

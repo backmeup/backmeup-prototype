@@ -2,6 +2,7 @@ package org.backmeup.job.impl.rabbitmq;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.ConnectException;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -43,49 +44,62 @@ public class RabbitMQJobTest {
 	
 	private RabbitMQJobReceiver mqRecevier;
 	
+	private boolean fRabbitMQInstalled = true;
+	
 	@Before
-	public void setUp() throws IOException {
+	public void setUp() throws Exception {
 		// Setup connection to the message queue
 		System.out.println("Connecting test sender to message queue");
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost(MQ_HOST);
 		
-		mqConnection = factory.newConnection();
-		mqChannel = mqConnection.createChannel();
-		mqChannel.queueDeclare(MQ_NAME, false, false, false, null);		
+		try {
+			mqConnection = factory.newConnection();
+			mqChannel = mqConnection.createChannel();
+			mqChannel.queueDeclare(MQ_NAME, false, false, false, null);		
+		} catch (ConnectException e) {
+			System.out.println("WARNING: RabbitMQ not installed or shutdown");
+			fRabbitMQInstalled = false;
+		}
 	}
 	
 	@Test
-	public void testRabbitMQJobExecution() throws IOException, InterruptedException {		
-		// Set up a receiver
-		mqRecevier = new RabbitMQJobReceiver(MQ_HOST, MQ_NAME, PLUGINS_DIR, OSGI_TEMP_DIR);
-		mqRecevier.start();
-		
-		// Send job into the queue
-		Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(2000);
-					mqChannel.basicPublish("", MQ_NAME, null, BACKUP_JOB.getBytes());
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}				
-			}
-		});
-		t.start();
-		
-		// Wait for 10 seconds
-		Thread.sleep(5000);
-		System.out.println("Completing test");
+	public void testRabbitMQJobExecution() throws IOException, InterruptedException {	
+		if (fRabbitMQInstalled) {
+			// Set up a receiver
+			mqRecevier = new RabbitMQJobReceiver(MQ_HOST, MQ_NAME, PLUGINS_DIR, OSGI_TEMP_DIR);
+			mqRecevier.start();
+			
+			// Send job into the queue
+			Thread t = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(2000);
+						mqChannel.basicPublish("", MQ_NAME, null, BACKUP_JOB.getBytes());
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}				
+				}
+			});
+			t.start();
+			
+			// Wait for 10 seconds
+			Thread.sleep(5000);
+			System.out.println("Completing test");
+		} else {
+			System.out.println("Skipping RabbitMQ test");
+		}
 	}
 	
 	@After
 	public void tearDown() throws IOException {
-		mqRecevier.stop();
-		mqChannel.close();
-		mqConnection.close();
+		if (fRabbitMQInstalled) {
+			mqRecevier.stop();
+			mqChannel.close();
+			mqConnection.close();
+		}
 		
 	    FileUtils.deleteDirectory(new File(OSGI_TEMP_DIR));
 	}

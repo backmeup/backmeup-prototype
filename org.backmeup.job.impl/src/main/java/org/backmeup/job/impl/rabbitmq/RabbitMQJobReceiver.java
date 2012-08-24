@@ -1,4 +1,4 @@
-package org.backmeup.job.impl.amqp;
+package org.backmeup.job.impl.rabbitmq;
 
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.osgi.PluginImpl;
@@ -11,7 +11,7 @@ import com.rabbitmq.client.ConnectionFactory;
  * 
  * @author Rainer Simon <rainer.simon@ait.ac.at>
  */
-public class StandaloneRabbitMQJobRunner {
+public class RabbitMQJobReceiver {
 	
 	private static final String EXPORTED_PACKAGES =
 			"org.backmeup.plugin.spi " +
@@ -28,7 +28,7 @@ public class StandaloneRabbitMQJobRunner {
 		System.out.println("Starting...");
 	}
 	
-	public StandaloneRabbitMQJobRunner(String pluginsDir, String osgiTempDir) {
+	public RabbitMQJobReceiver(String pluginsDir, String osgiTempDir) {
 		// Start up the Plugin manager
 		this.plugins = new PluginImpl(pluginsDir, osgiTempDir, EXPORTED_PACKAGES);
 		this.plugins.startup();

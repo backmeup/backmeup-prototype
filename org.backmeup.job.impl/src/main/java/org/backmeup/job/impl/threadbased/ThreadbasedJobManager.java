@@ -1,4 +1,4 @@
-package org.backmeup.job.impl.inmemory;
+package org.backmeup.job.impl.threadbased;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -13,7 +13,6 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -21,7 +20,6 @@ import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.dal.StatusDao;
-import org.backmeup.job.JobManager;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
@@ -153,7 +151,7 @@ public class ThreadbasedJobManager /* implements JobManager  */{
           jobs.remove(0);
           try {
             conn.begin();
-            String keepCnt = job.getUser().getUserProperty(UserProperty.PROP_KEEP_BACKUP);
+            job.getUser().getUserProperty(UserProperty.PROP_KEEP_BACKUP);
             //TODO: Keep "keepCnt" backups and start to overwrite the very first one if you hit "keepCnt".
             job = getBackupJobDao().findById(job.getId());
             Status s = new Status(job, String.format(

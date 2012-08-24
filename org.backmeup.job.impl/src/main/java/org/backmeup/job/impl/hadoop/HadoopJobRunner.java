@@ -1,7 +1,6 @@
 package org.backmeup.job.impl.hadoop;
 
 import java.io.IOException;
-import java.util.Properties;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.BytesWritable;
@@ -13,14 +12,8 @@ import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 import org.backmeup.job.impl.BackupJobRunner;
 import org.backmeup.model.BackupJob;
-import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.plugin.Plugin;
-import org.backmeup.plugin.api.connectors.Datasink;
-import org.backmeup.plugin.api.connectors.Datasource;
-import org.backmeup.plugin.api.connectors.DatasourceException;
-import org.backmeup.plugin.api.connectors.Progressable;
-import org.backmeup.plugin.api.storage.StorageException;
 import org.backmeup.plugin.api.storage.StorageReader;
 import org.backmeup.plugin.api.storage.StorageWriter;
 import org.backmeup.plugin.api.storage.hdfs.HdfsStorageReader;

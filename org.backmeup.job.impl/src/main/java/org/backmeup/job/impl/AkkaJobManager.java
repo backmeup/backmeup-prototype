@@ -1,42 +1,35 @@
 package org.backmeup.job.impl;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.MiniDFSCluster;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MiniMRCluster;
+import org.apache.log4j.Logger;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.job.JobManager;
-import org.backmeup.job.impl.hadoop.HadoopJobRunner;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.User;
-import org.backmeup.model.serializer.JsonSerializer;
 
 import akka.actor.ActorSystem;
 import akka.util.Duration;
 
 /**
- * A 'JobManager' implementation that supports scheduled execution (backed by
- * the BackendJob entities in the database) using Akka and Hadoop.
+ * An abstract {@link JobManager} implementation that supports scheduled execution 
+ * backed by the Akka actor framework.
+ * 
+ * Subclasses of this class need to define what should happen when the job is
+ * triggered by implementing the 'newJobRunner' method.
  * 
  * @author Rainer Simon <rainer.simon@ait.ac.at>
  */
-@ApplicationScoped
-public class AkkaJobManager implements JobManager {
+abstract public class AkkaJobManager implements JobManager {
 	
 	private static final ActorSystem system = ActorSystem.create();
 	
@@ -46,40 +39,10 @@ public class AkkaJobManager implements JobManager {
 	@Inject
 	private DataAccessLayer dal;
 	
-	/**
-	 * HDFS Distributed filesystem cluster
-	 * TODO inject
-	 */
-	private MiniDFSCluster dfsCluster = null;
-	
-	/**
-	 * Hadoop Map/Reduce cluster
-	 * TODO inject
-	 */
-	private MiniMRCluster mrCluster = null;
+	protected Logger log = Logger.getLogger(this.getClass());
 
 	private BackupJobDao getDao() {
-		// BackupJobDao lazy creation - TODO inject
 		return dal.createBackupJobDao();
-	}
-	
-	private MiniDFSCluster getHDFS() throws IOException {
-		// HDFS cluster lazy creation
-		if (dfsCluster == null) {
-		    Configuration conf = new Configuration();
-		    conf.set("dfs.datanode.data.dir.perm", "775");
-		    dfsCluster = new MiniDFSCluster(conf, 1, true, null);
-		    dfsCluster.getFileSystem().makeQualified(new Path("input"));
-		    dfsCluster.getFileSystem().makeQualified(new Path("output"));
-		}
-		
-		return dfsCluster;
-	}
-	
-	private MiniMRCluster getMRC() throws IOException {
-		if (mrCluster == null)
-			mrCluster = new MiniMRCluster(1, getHDFS().getFileSystem().getUri().toString(), 1);
-		return mrCluster;
 	}
 
 	@Override
@@ -102,44 +65,6 @@ public class AkkaJobManager implements JobManager {
 	    return job;
 	}
 	
-	public void queueJob(final BackupJob job) {
-		try {		    
-			// maybe we want to start immediately for the first time, and then add the delay
-			long executeIn = job.getStart().getTime() + job.getDelay();  
-	    
-			system.scheduler().scheduleOnce(
-				Duration.create(executeIn, TimeUnit.MILLISECONDS), 
-				new Runnable() {
-					@Override
-					public void run() {
-						try {
-							JobConf jobConf = getMRC().createJobConf();
-							jobConf.setJobName("job" + job.getId());
-							jobConf.setJarByClass(HadoopJobRunner.class);
-							jobConf.setMapRunnerClass(HadoopJobRunner.class);
-							jobConf.setSpeculativeExecution(false);
-							jobConf.setNumMapTasks(1);
-							jobConf.setNumReduceTasks(0);
-							jobConf.set("job", JsonSerializer.serialize(job));
-							
-							// TODO configure via properties
-							jobConf.set("pluginsDir", "/home/simonr/Workspaces/backmeup/backmeup-prototype/org.backmeup.embedded/autodeploy");
-							jobConf.set("osgiTempDir", "/home/simonr/Workspaces/backmeup/backmeup-prototype/osgi-tmp");
-							jobConf.set("indexURI", "http://localhost:9200");
-
-							JobClient.runJob(jobConf);
-						} catch (IOException e) {
-							// TODO error handling not forseen in the interface?
-							throw new RuntimeException(e);
-						}
-					}
-				});
-		} catch (Exception e) {
-			// TODO there must be error handling defined in the JobManager!
-			throw new RuntimeException(e);
-		}		
-	}
-
 	@Override
 	public BackupJob getBackUpJob(Long jobId) {
 	  return getDao().findById(jobId);  	  	
@@ -161,6 +86,22 @@ public class AkkaJobManager implements JobManager {
 	@Override
 	public void shutdown() {
 		// Do nothing
+	}
+	
+	abstract protected Runnable newJobRunner(final BackupJob job);
+	
+	private void queueJob(BackupJob job) {
+		try {		    
+			// maybe we want to start immediately for the first time, and then add the delay
+			long executeIn = job.getStart().getTime() + job.getDelay();  
+	    
+			system.scheduler().scheduleOnce(
+				Duration.create(executeIn, TimeUnit.MILLISECONDS), 
+				newJobRunner(job));
+		} catch (Exception e) {
+			// TODO there must be error handling defined in the JobManager!
+			throw new RuntimeException(e);
+		}		
 	}
 
 }

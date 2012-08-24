@@ -1,4 +1,4 @@
-package org.backmeup.job.impl.inmemory;
+package org.backmeup.job.impl.threadbased;
 
 import java.io.IOException;
 import java.io.InputStream;

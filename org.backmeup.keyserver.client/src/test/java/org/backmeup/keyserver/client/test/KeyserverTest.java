@@ -137,6 +137,8 @@ public class KeyserverTest {
     // data might be crawled after 3 seconds again
     t.setBackupdate(new Date().getTime() + 3000);
     AuthDataResult authData = ks.getData(t);
+    Assert.assertNotNull(authData.getNewToken());
+    t = authData.getNewToken();
     for (AuthData ad  : authData.getAuthinfos()) {
       Assert.assertTrue(ad.getAi_data().containsKey("oauthtoken"));
       Assert.assertEquals("asdfasdf", ad.getAi_data().get("oauthtoken"));

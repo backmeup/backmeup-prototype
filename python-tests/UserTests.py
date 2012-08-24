@@ -18,6 +18,7 @@ class TestUsers(TestCase):
 
   def test_register_user(self):
     result = register_user("TestUser", "password", "keyRing", "TestUser")
+    print result.data
     self.assertEquals(result.code, httplib.NO_CONTENT)
     result = register_user("TestUser", "password", "keyRing", "TestUser")
     self.assertEquals(result.code, httplib.BAD_REQUEST) #already created

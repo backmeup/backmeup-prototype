@@ -11,6 +11,7 @@ public interface Keyserver {
   public boolean isUserRegistered(Long userId);
   public void deleteUser(Long userId);
   public boolean validateUser(Long userId, String password);
+  public void changeUserPassword(Long userId, String oldPassword, String newPassword);
   
   //Service operations
   public void addService(Long serviceId);

@@ -2,9 +2,11 @@ package org.backmeup.keyserver.client.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.Map.Entry;
@@ -72,31 +74,31 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   @Inject
   @Named("keyserver.path")
   private String path;
-  
+
   @Inject
   @Named("keyserver.keystore")
   private String keystore;
-  
+
   @Inject
   @Named("keyserver.keystoreType")
   private String keystoreType;
-  
+
   @Inject
   @Named("keyserver.keystorePwd")
   private String keystorePwd;
-  
+
   @Inject
   @Named("keyserver.truststore")
   private String truststore;
-  
+
   @Inject
   @Named("keyserver.truststoreType")
   private String truststoreType;
-  
+
   @Inject
   @Named("keyserver.truststorePwd")
   private String truststorePwd;
-  
+
   @Inject
   @Named("keyserver.allowAllHostnames")
   private boolean allowAllHostnames;
@@ -104,36 +106,50 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   public Keyserver() {
 
   }
-  
+
   private SchemeRegistry schemeRegistry;
-  
+
   private DefaultHttpClient createClient() {
     if (scheme.equals("http")) {
       return new DefaultHttpClient();
-    } else if (schemeRegistry == null) {   
+    } else if (schemeRegistry == null) {
       try {
-        KeyStore keystore = KeyStore.getInstance(keystoreType != null ? keystoreType : KeyStore.getDefaultType());
-        InputStream keystoreInput = getClass().getClassLoader().getResourceAsStream(this.keystore);
-        keystore.load(keystoreInput, keystorePwd != null ? keystorePwd.toCharArray() : null);
+        KeyStore keystore = KeyStore
+            .getInstance(keystoreType != null ? keystoreType : KeyStore
+                .getDefaultType());
+        InputStream keystoreInput = getClass().getClassLoader()
+            .getResourceAsStream(this.keystore);
+        keystore.load(keystoreInput,
+            keystorePwd != null ? keystorePwd.toCharArray() : null);
         keystoreInput.close();
-        
-        // load the truststore, leave it null to rely on cacerts distributed with the JVM
+  //TODO: Don't throw nullpoint if one of the keystore files couldn't be loaded
+        // load the truststore, leave it null to rely on cacerts distributed
+        // with the JVM
         KeyStore truststore = null;
         if (this.truststore != null) {
-          truststore = KeyStore.getInstance(truststoreType != null ? truststoreType : KeyStore.getDefaultType());          
-          InputStream truststoreInput = getClass().getClassLoader().getResourceAsStream(this.truststore);    
-          truststore.load(truststoreInput, truststorePwd != null ? truststorePwd.toCharArray() : null);
+          truststore = KeyStore
+              .getInstance(truststoreType != null ? truststoreType : KeyStore
+                  .getDefaultType());
+          InputStream truststoreInput = getClass().getClassLoader()
+              .getResourceAsStream(this.truststore);
+          truststore.load(truststoreInput,
+              truststorePwd != null ? truststorePwd.toCharArray() : null);
           truststoreInput.close();
         }
-        schemeRegistry = new SchemeRegistry();      
-        SSLSocketFactory lSchemeSocketFactory = new SSLSocketFactory(SSLSocketFactory.TLS, keystore, keystorePwd, truststore, (SecureRandom)null, allowAllHostnames ? SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER : SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);        
+        schemeRegistry = new SchemeRegistry();
+        SSLSocketFactory lSchemeSocketFactory = new SSLSocketFactory(
+            SSLSocketFactory.TLS, keystore, keystorePwd, truststore,
+            (SecureRandom) null,
+            allowAllHostnames ? SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER
+                : SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
         schemeRegistry.register(new Scheme("https", 443, lSchemeSocketFactory));
       } catch (Exception e) {
         throw new BackMeUpException(e);
       }
     }
     final HttpParams httpParams = new BasicHttpParams();
-    return new DefaultHttpClient(new SingleClientConnManager(schemeRegistry), httpParams);
+    return new DefaultHttpClient(new SingleClientConnManager(schemeRegistry),
+        httpParams);
   }
 
   private Result execute(String path, ReqType type) {
@@ -141,7 +157,7 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   }
 
   private Result execute(String path, ReqType type, String jsonParams) {
-    
+
     HttpClient client = createClient();
 
     try {
@@ -192,13 +208,19 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   // User Operations
   @Override
   public void registerUser(Long userId, String password) {
-    Result response = execute(path + "/users/" + userId + "/" + password + "/register",
-        ReqType.POST);
-    if (response.response.getStatusLine().getStatusCode() != 204) {
-      throw new BackMeUpException("Error during user creation: error code was "
-          + response.response.getStatusLine().getStatusCode() + "; message: "
-          + response.response.getStatusLine().getReasonPhrase() + "; Data: " + response.content);
-    }
+    
+    try {
+      Result response = execute(path + "/users/" + userId + "/" + URLEncoder.encode(password, "UTF-8")
+          + "/register", ReqType.POST);
+      if (response.response.getStatusLine().getStatusCode() != 204) {
+        throw new BackMeUpException("Error during user creation: error code was "
+            + response.response.getStatusLine().getStatusCode() + "; message: "
+            + response.response.getStatusLine().getReasonPhrase() + "; Data: "
+            + response.content);
+      }
+    } catch (UnsupportedEncodingException e) {
+      throw new BackMeUpException(e);
+    }    
   }
 
   @Override
@@ -216,17 +238,34 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     Result response = execute(path + "/users/" + userId, ReqType.GET);
     return response.response.getStatusLine().getStatusCode() == 200;
   }
-  
+
   @Override
   public boolean validateUser(Long userId, String password) {
-	Result response = execute(path + "/users/" + userId + "/" + password + "/validate", ReqType.GET);
-	if (response.response.getStatusLine().getStatusCode() != 204) {
-		//TODO: Log response here!
-		return false;
-	}
-  	return true;
+    Result response;
+    try {
+      response = execute(
+          path + "/users/" + userId + "/"
+              + URLEncoder.encode(password, "UTF-8") + "/validate", ReqType.GET);
+      return response.response.getStatusLine().getStatusCode() == 204;
+    } catch (UnsupportedEncodingException e) {
+      throw new BackMeUpException(e);
+    }
   }
   
+  @Override
+  public void changeUserPassword(Long userId, String oldPassword,
+      String newPassword) {        
+    try {
+      Result response = execute(
+            path + "/users/" + userId + "/"
+                + URLEncoder.encode(oldPassword, "UTF-8") + "/" + URLEncoder.encode(newPassword, "UTF-8") + "/changeuserpwd", ReqType.GET);
+      if (response.response.getStatusLine().getStatusCode() != 204)    
+        throw new BackMeUpException(response.content);
+    } catch (UnsupportedEncodingException e) {
+      throw new BackMeUpException(e);
+    }
+  }
+
   // Service Operations
   @Override
   public void addService(Long serviceId) {
@@ -252,14 +291,15 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
           + "; Data: " + response.content);
     }
   }
-  
+
   private class PropertiesSerializer implements JsonSerializer<Properties> {
     @Override
     public JsonElement serialize(Properties src, Type typeOfSrc,
         JsonSerializationContext context) {
       JsonObject parent = new JsonObject();
       for (Entry<Object, Object> entry : src.entrySet()) {
-        parent.add((String)entry.getKey(), new JsonPrimitive((String)entry.getValue()));
+        parent.add((String) entry.getKey(),
+            new JsonPrimitive((String) entry.getValue()));
       }
       return parent;
     }
@@ -272,36 +312,44 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     GsonBuilder gb = new GsonBuilder();
     gb.registerTypeAdapter(Properties.class, new PropertiesSerializer());
     Gson g = gb.create();
-    String json = g.toJson(new AuthUsrPwd(userId, userPwd, serviceId, authInfoId,
-        keyValuePairs));
-    Result response = execute(path + "/authinfos/add", ReqType.POST,
-        json);
+    String json = g.toJson(new AuthUsrPwd(userId, userPwd, serviceId,
+        authInfoId, keyValuePairs));
+    Result response = execute(path + "/authinfos/add", ReqType.POST, json);
     if (response.response.getStatusLine().getStatusCode() != 204) {
-      throw new BackMeUpException("Failed to addAuthInfo! Data: " + response.content);
+      throw new BackMeUpException("Failed to addAuthInfo! Data: "
+          + response.content);
     }
   }
- 
 
   @Override
   public boolean isAuthInformationAvailable(Long authInfoId, Long userId,
       Long serviceId, String userPwd) {
     // TODO: Determine if query parameters will be encrypted with SSL
-    Result r = execute(path + "/authinfos/" + authInfoId + "/" + userId + "/" + serviceId + "/" + userPwd, ReqType.GET);
-    return r.response.getStatusLine().getStatusCode() == 200;
+    
+    try {
+      Result r = execute(path + "/authinfos/" + authInfoId + "/" + userId + "/"
+          + serviceId + "/" + URLEncoder.encode(userPwd, "UTF-8"), ReqType.GET);
+      return r.response.getStatusLine().getStatusCode() == 200;
+    } catch (UnsupportedEncodingException e) {
+      throw new BackMeUpException(e);
+    }
   }
 
   @Override
-  public void deleteAuthInfo(Long authInfoId) {    
+  public void deleteAuthInfo(Long authInfoId) {
     Result r = execute(path + "/authinfos/" + authInfoId, ReqType.DELETE);
     if (r.response.getStatusLine().getStatusCode() != 204)
-      throw new BackMeUpException("Failed to delete authinfo " + authInfoId + ". Data: " + r.content);
+      throw new BackMeUpException("Failed to delete authinfo " + authInfoId
+          + ". Data: " + r.content);
   }
 
   @Override
   public Token getToken(Long userId, String userPwd, Long[] services,
       Long[] authinfos, Long backupdate, boolean reusable) {
     Gson g = new Gson();
-    String json = g.toJson(new TokenRequest(userId, userPwd, services, authinfos, backupdate, reusable));
+    String json = g.toJson(new TokenRequest(userId, userPwd, services,
+        authinfos, backupdate, reusable));
+    System.out.println("REQUESTING: " + json);
     Result r = execute(path + "/tokens/token", ReqType.POST, json);
     if (r.response.getStatusLine().getStatusCode() == 200) {
       return g.fromJson(r.content, Token.class);
@@ -309,12 +357,12 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     throw new BackMeUpException("Failed to retrieve a token: " + r.content);
   }
 
-  
   @Override
   public AuthDataResult getData(Token token) {
     Gson g = new Gson();
     String json = g.toJson(token);
     Result r = execute(path + "/tokens/data", ReqType.POST, json);
+    System.out.println("REQUESTING: " + json);
     if (r.response.getStatusLine().getStatusCode() == 200) {
       return g.fromJson(r.content, AuthDataResult.class);
     }
@@ -322,19 +370,26 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   }
 
   @Override
-  public void addAuthInfo(Profile profile, String userPwd, Properties keyValuePairs) {
-    addAuthInfo(profile.getUser().getUserId(), userPwd, profile.getServiceId(), profile.getProfileId(), keyValuePairs);
+  public void addAuthInfo(Profile profile, String userPwd,
+      Properties keyValuePairs) {
+    addAuthInfo(profile.getUser().getUserId(), userPwd, profile.getServiceId(),
+        profile.getProfileId(), keyValuePairs);
   }
 
   @Override
   public boolean isAuthInformationAvailable(Profile profile, String userPwd) {
-    return isAuthInformationAvailable(profile.getProfileId(), profile.getUser().getUserId(), profile.getServiceId(), userPwd);
+    return isAuthInformationAvailable(profile.getProfileId(), profile.getUser()
+        .getUserId(), profile.getServiceId(), userPwd);
   }
 
   @Override
-  public Token getToken(Profile profile, String userPwd, Long backupdate, boolean reusable) {
-    return getToken(profile.getUser().getUserId(), userPwd, new Long[]{profile.getServiceId()}, new Long[]{profile.getProfileId()}, backupdate, reusable);
+  public Token getToken(Profile profile, String userPwd, Long backupdate,
+      boolean reusable) {
+    return getToken(profile.getUser().getUserId(), userPwd,
+        new Long[] { profile.getServiceId() },
+        new Long[] { profile.getProfileId() }, backupdate, reusable);
   }
 
- 
+
+
 }

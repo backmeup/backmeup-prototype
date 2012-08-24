@@ -15,7 +15,8 @@
 		<class>org.backmeup.model.ActionProfile</class>
 		<class>org.backmeup.model.FileItem</class>
 		<class>org.backmeup.model.UserProperty</class>
-		<class>org.backmeup.model.Service</class>
+		<class>org.backmeup.model.Service</class>		
+		<class>org.backmeup.model.Token</class>
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
 			<property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:testdb" />

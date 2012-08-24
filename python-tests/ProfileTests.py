@@ -18,7 +18,7 @@ class TestProfiles(TestCase):
 
   def test_update_profile_entries(self):
     # update non existing profile
-    res = update_profile(100, {"A": "B"})
+    res = update_profile(100, {"A": "B"}, "p1")
     self.assertEquals(res.code, httplib.BAD_REQUEST)
     
     # update existing profile
@@ -28,6 +28,6 @@ class TestProfiles(TestCase):
     print res.data
     profileId = res.data["profileId"]
 
-    res = update_profile(profileId, {"AKey" : "AVal", "AnotherKey" : "AnotherValue", "B" : "A"})
+    res = update_profile(profileId, {"AKey" : "AVal", "AnotherKey" : "AnotherValue", "B" : "A"}, "p1")
     self.assertEquals(res.code, httplib.NO_CONTENT)
 

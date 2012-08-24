@@ -1,8 +1,15 @@
 package org.backmeup.keyserver.client;
 
+import org.backmeup.model.Token;
+
+
 public class AuthDataResult {
+
+  private Token newToken;  
+  
   public static class UserData {
     private Long bmu_user_id;
+    
 
     public Long getBmu_user_id() {
       return bmu_user_id;
@@ -20,7 +27,6 @@ public class AuthDataResult {
       super();
       this.bmu_user_id = bmu_user_id;
     }
-
   }
 
   public static class ServiceData {
@@ -83,6 +89,15 @@ public class AuthDataResult {
 
   public void setAuthinfos(AuthData[] authinfos) {
     this.authinfos = authinfos;
+  }
+
+  
+  public Token getNewToken() {
+    return newToken;  
+  }
+
+  public void setNewToken(Token newToken) {
+    this.newToken = newToken;
   }
 
 }

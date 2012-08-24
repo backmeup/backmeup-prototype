@@ -3,7 +3,6 @@ package org.backmeup.rest;
 import java.util.Properties;
 
 import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -27,7 +26,7 @@ public class Metadata extends Base {
    return container;
   }
   
-  @GET
+  @POST
   @Produces("application/json")
   @Path("/{username}/{profileId}")
   public MetadataContainer getMetadata(

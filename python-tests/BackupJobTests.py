@@ -39,9 +39,9 @@ class TestBackupJobs(TestCase):
     
     sinkId = auth_datasink("TestUser", SINK_PLUGIN_ID, "SinkProfile", "pass2").data["profileId"]
 
-    update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET})
+    update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET}, "pass2")
     
-    update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET})
+    update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET}, "pass2")
 
     create_backup_job("TestUser", "pass2", [sourceId], [], sinkId, "daily")    
     
@@ -66,9 +66,9 @@ class TestBackupJobs(TestCase):
     
     sinkId = auth_datasink("TestUser2", SINK_PLUGIN_ID, "SinkProfile", "kb").data["profileId"]
 
-    update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET})
+    update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET}, "kb")
     
-    update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET})
+    update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET}, "kb")
 
     # test with unknown user
     res = create_backup_job("UnknownUser", "asdf", [sourceId], [], sinkId, "weekly")
@@ -102,21 +102,21 @@ class TestBackupJobs(TestCase):
     
     sinkId = auth_datasink("TestUser3", SINK_PLUGIN_ID, "SinkProfile", "kb").data["profileId"]
 
-    update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET})
+    update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET}, "kb")
     
-    update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET})
+    update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET}, "kb")
     
     res = create_backup_job("TestUser3", "kb", [sourceId], [], sinkId, "weekly")
     jobId = res.data["jobId"]
 
     # test bad things
-    res = validate_backup_job("UnknwnUser", 1234);
+    res = validate_backup_job("UnknwnUser", 1234, "kb");
     self.assertEquals(res.code, httplib.NOT_FOUND); # unknown user
     
-    res = validate_backup_job("TestUser3", 1234);
+    res = validate_backup_job("TestUser3", 1234, "kb");
     self.assertEquals(res.code, httplib.BAD_REQUEST); # invalid job
 
-    res = validate_backup_job("TestUser3", jobId); # valid user + job
+    res = validate_backup_job("TestUser3", jobId, "kb"); # valid user + job
     self.assertEquals(res.code, httplib.OK);
     self.assertEquals(res.data["hasErrors"], False);
     # TODO: More complex test cases which analyze hasErrors = true
@@ -128,9 +128,9 @@ class TestBackupJobs(TestCase):
     
     sinkId = auth_datasink("TestUser3", SINK_PLUGIN_ID, "SinkProfile", "kb").data["profileId"]
 
-    update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET})
+    update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET}, "kb")
     
-    update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET})
+    update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET}, "kb")
     
     res = create_backup_job("TestUser3", "kb", [sourceId], [], sinkId, "weekly")
     jobId = res.data["jobId"]
@@ -150,9 +150,9 @@ class TestBackupJobs(TestCase):
     
     sinkId = auth_datasink("TestUser3", SINK_PLUGIN_ID, "SinkProfile", "kb").data["profileId"]
 
-    update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET})
+    update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET}, "kb")
     
-    update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET})
+    update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET}, "kb")
     
     res = create_backup_job("TestUser3", "kb", [sourceId], [], sinkId, "weekly")
     jobId = res.data["jobId"]

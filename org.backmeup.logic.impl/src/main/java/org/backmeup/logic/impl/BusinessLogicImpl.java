@@ -182,12 +182,9 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (!keyserverClient.validateUser(u.getUserId(), oldPassword)) {      
         conn.rollback();
         throw new InvalidCredentialsException();
-      }
-      // TODO: Set the new password within the keyserver!
-      /*if (newPassword != null)
-        u.setPassword(newPassword);
-      if (newKeyRing != null)
-        u.setKeyRing(newKeyRing);*/
+      }      
+      // TODO: Remove keyring from change user options
+      keyserverClient.changeUserPassword(u.getUserId(), oldPassword, newPassword);      
       if (newEmail != null)
         u.setEmail(newEmail);
       udao.save(u);

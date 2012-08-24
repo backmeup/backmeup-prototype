@@ -109,8 +109,8 @@ public class ThreadbasedJobManager implements JobManager {
   }
   
   private Token getToken(BackupJob job, Date executionTime, String password) {
-    Set<Long> usedServices = new HashSet<Long>();
-    Set<Long> authenticationInfos = new HashSet<Long>();
+    List<Long> usedServices = new ArrayList<Long>();
+    List<Long> authenticationInfos = new ArrayList<Long>();
     usedServices.add(job.getSinkProfile().getServiceId());
     authenticationInfos.add(job.getSinkProfile().getProfileId());
     for (ProfileOptions p : job.getSourceProfiles()) {
@@ -118,8 +118,7 @@ public class ThreadbasedJobManager implements JobManager {
       authenticationInfos.add(p.getProfile().getProfileId());
     }
     Long[] serviceIds = usedServices.toArray(new Long[]{});
-    Long[] authIds = authenticationInfos.toArray(new Long[]{});
-  //TODO: check if it is even possible to guess a correct backup date!    
+    Long[] authIds = authenticationInfos.toArray(new Long[]{});   
     Token t = keyserver.getToken(job.getUser().getUserId(), password, serviceIds, authIds, new Date().getTime(), true);
     return t;
   } 

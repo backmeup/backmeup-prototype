@@ -1,4 +1,4 @@
-package org.backmeup.job.impl;
+package org.backmeup.job.impl.hadoop;
 
 import java.io.File;
 import java.io.FileReader;

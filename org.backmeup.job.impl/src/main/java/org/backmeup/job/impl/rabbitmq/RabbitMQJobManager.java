@@ -13,9 +13,8 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 /**
- * An implementation of {@link AkkaJobManager} implementation that pushes
- * backup jobs into a RabbitMQ queue, where they can be handled by worker
- * nodes.
+ * An implementation of {@link AkkaJobManager} that pushes backup jobs into 
+ * a RabbitMQ queue, where they can be handled by worker nodes.
  * 
  * @author Rainer Simon <rainer.simon@ait.ac.at>
  */

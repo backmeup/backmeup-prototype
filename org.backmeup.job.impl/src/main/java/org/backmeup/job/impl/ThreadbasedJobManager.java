@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -22,11 +23,15 @@ import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.dal.StatusDao;
 import org.backmeup.job.JobManager;
+import org.backmeup.keyserver.client.AuthData;
+import org.backmeup.keyserver.client.AuthDataResult;
+import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Status;
+import org.backmeup.model.Token;
 import org.backmeup.model.User;
 import org.backmeup.model.UserProperty;
 import org.backmeup.model.exceptions.BackMeUpException;
@@ -92,6 +97,9 @@ public class ThreadbasedJobManager implements JobManager {
   @Named("job.backupname")
   private String backupNamePattern;
   
+  @Inject
+  private Keyserver keyserver;
+  
   private boolean started;
 
   public ThreadbasedJobManager() {
@@ -99,12 +107,32 @@ public class ThreadbasedJobManager implements JobManager {
     this.allJobs = Collections.synchronizedMap(new HashMap<Long, BackupJob>());
     //temporaryDirectory = "temp"; 
   }
+  
+  private Token getToken(BackupJob job, Date executionTime, String password) {
+    List<Long> usedServices = new ArrayList<Long>();
+    List<Long> authenticationInfos = new ArrayList<Long>();
+    usedServices.add(job.getSinkProfile().getServiceId());
+    authenticationInfos.add(job.getSinkProfile().getProfileId());
+    for (ProfileOptions p : job.getSourceProfiles()) {
+      usedServices.add(p.getProfile().getServiceId());
+      authenticationInfos.add(p.getProfile().getProfileId());
+    }
+    Long[] serviceIds = usedServices.toArray(new Long[]{});
+    Long[] authIds = authenticationInfos.toArray(new Long[]{});   
+    Token t = keyserver.getToken(job.getUser().getUserId(), password, serviceIds, authIds, new Date().getTime(), true);
+    return t;
+  } 
 
   public BackupJob createBackupJob(User user,
       Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
-      Set<ActionProfile> requiredActions, String timeExpression, String keyRing) {
+      Set<ActionProfile> requiredActions, Date start, long delay, String keyRing) {
+    
     BackupJob bj = new BackupJob(user, sourceProfiles, sinkProfile,
-        requiredActions, timeExpression);
+        requiredActions, start, delay);
+   
+    Date executionTime = new Date(start.getTime() + delay);
+    Token t = getToken(bj, executionTime, keyRing);    
+    bj.setToken(t);
     bj = getBackupJobDao().save(bj);
     jobs.add(bj);
     allJobs.put(bj.getId(), bj);
@@ -162,16 +190,20 @@ public class ThreadbasedJobManager implements JobManager {
 
             getStatusDao().save(s);
             conn.commit();
+            
+            AuthDataResult adr = keyserver.getData(job.getToken());            
+            Map<Long, AuthData> authData = new HashMap<Long, AuthData>();
+            for (AuthData ad : adr.getAuthinfos()) {
+              authData.put(ad.getBmu_authinfo_id(), ad);
+            }
 
             Datasink sink = plugins.getDatasink(job.getSinkProfile().getDesc());
-            Properties sinkProps = job.getSinkProfile()
-                .getEntriesAsProperties();
+            Properties sinkProps = authData.get(job.getSinkProfile().getProfileId()).getAiData();
             boolean hasErrors = false;
             for (ProfileOptions po : job.getSourceProfiles()) {
               Datasource source = plugins.getDatasource(po.getProfile()
                   .getDesc());
-              Properties sourceProperties = po.getProfile()
-                  .getEntriesAsProperties();
+              Properties sourceProperties = authData.get(po.getProfile().getProfileId()).getAiData();
               try {
                 StorageWriter writer = new LocalFilesystemStorageWriter();
                 StorageReader reader = new LocalFilesystemStorageReader();

@@ -93,16 +93,17 @@ def post_auth_datasink(user, profileId, keyRing, authParams):
 
 ##### Profile operations #####
 
-def update_profile(profileId, params):
-  return com.request("PUT", "/profiles/" + str(profileId), params)
+def update_profile(profileId, params, keyRing):
+  params["keyRing"] = keyRing
+  return com.request("POST", "/profiles/" + str(profileId), params)
 
 ##### Metadata operations #####
 
-def get_specific_metadata(user, profileId, prop):
-  return com.request("GET", "/meta/" + user + "/" + str(profileId) + "/" + prop)
+def get_specific_metadata(user, profileId, prop, keyRing):
+  return com.request("POST", "/meta/" + user + "/" + str(profileId) + "/" + prop, {"keyRing" : keyRing})
 
-def get_metadata(user, profileId):
-  return com.request("GET", "/meta/" + user + "/" + str(profileId))
+def get_metadata(user, profileId, keyRing):
+  return com.request("POST", "/meta/" + user + "/" + str(profileId), {"keyRing" : keyRing})
 
 ##### Backup-Job operations #####
 
@@ -110,8 +111,8 @@ def get_backup_jobs(user):
   return com.request("GET", "/jobs/" + user)
 
 
-def validate_backup_job(user, jobId):
-  return com.request("GET", "/jobs/" + user + "/validate/" + str(jobId))
+def validate_backup_job(user, jobId, keyRing):
+  return com.request("POST", "/jobs/" + user + "/validate/" + str(jobId), {"keyRing" : keyRing})
 
 def create_backup_job(user, keyRing, sourceProfileIds, requiredActions, sinkProfileId, when):
   params = {"sourceProfileIds" : sourceProfileIds,

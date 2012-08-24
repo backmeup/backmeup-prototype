@@ -23,13 +23,13 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 
 	@SuppressWarnings("unchecked")
 	public User findByName(String username) {
-		Query q = em.createQuery("SELECT u FROM User u WHERE username = ?");
-		q.setParameter(1, username);		
+		Query q = em.createQuery("SELECT u FROM User u WHERE username = :username");
+		q.setParameter("username", username);		
 		List<User> users = q.getResultList();
 		User u = users.size() > 0 ? users.get(0) : null;		
 		return u;
 	}
-
+	
 	@SuppressWarnings("unchecked")
   @Override
   public User findByVerificationKey(String verificationKey) {
@@ -39,5 +39,5 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
     User u = users.size() > 0 ? users.get(0) : null;    
     return u;
   }
-
 }
+

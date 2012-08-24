@@ -24,24 +24,24 @@ class TestMetadata(TestCase):
     profileId = result.data["profileId"]
 
     result2 = update_profile(profileId, 
-        {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET})
+        {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET}, "password")
     
     # get metadata for unknown user; should not work!
-    result = get_specific_metadata("UnknownUser", profileId, "META_BACKUP_FREQUENCY")
+    result = get_specific_metadata("UnknownUser", profileId, "META_BACKUP_FREQUENCY", "password")
     self.assertEquals(result.code, httplib.BAD_REQUEST)
     
     # get metadata for unknown profile; should not work!
-    result = get_specific_metadata("UnknownUser", 99999, "META_BACKUP_FREQUENCY")
+    result = get_specific_metadata("UnknownUser", 99999, "META_BACKUP_FREQUENCY", "password")
     self.assertEquals(result.code, httplib.BAD_REQUEST)
 
     # get BACKUP_FREQUENCY
-    result = get_specific_metadata("TestUser", profileId, "META_BACKUP_FREQUENCY")
+    result = get_specific_metadata("TestUser", profileId, "META_BACKUP_FREQUENCY", "password")
     self.assertIn("metadata", result.data)
     self.assertIn("META_BACKUP_FREQUENCY", result.data["metadata"])
     self.assertEquals(result.data["metadata"]["META_BACKUP_FREQUENCY"], METADATA_TEST_EXPECTED_FREQUENCY)
 
     # get metadata for known user; should work 
-    result = get_specific_metadata("TestUser", profileId, METADATA_TEST_SPECIFIC_META)
+    result = get_specific_metadata("TestUser", profileId, METADATA_TEST_SPECIFIC_META, "password")
     self.assertEquals(result.code, httplib.OK)
     self.assertIn(METADATA_TEST_SPECIFIC_META, result.data["metadata"])
 
@@ -53,24 +53,24 @@ class TestMetadata(TestCase):
     profileId = result.data["profileId"]
 
     result2 = update_profile(profileId, 
-        {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET})
+        {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET}, "password")
    
     # get metadata for unknown user; should not work!
-    result = get_metadata("UnknownUser", profileId)
+    result = get_metadata("UnknownUser", profileId, "password")
     self.assertEquals(result.code, httplib.BAD_REQUEST)
     
     # get metadata for unknown profile; should not work!
-    result = get_metadata("UnknownUser", 99999)
+    result = get_metadata("UnknownUser", 99999, "password")
     self.assertEquals(result.code, httplib.BAD_REQUEST)
 
     # get BACKUP_FREQUENCY
-    result = get_metadata("TestUser", profileId)
+    result = get_metadata("TestUser", profileId, "password")
     self.assertIn("metadata", result.data)
     self.assertIn("META_BACKUP_FREQUENCY", result.data["metadata"])
     self.assertEquals(result.data["metadata"]["META_BACKUP_FREQUENCY"], METADATA_TEST_EXPECTED_FREQUENCY)
 
     # get metadata for known user; should work 
-    result = get_metadata("TestUser", profileId)
+    result = get_metadata("TestUser", profileId, "password")
     self.assertEquals(result.code, httplib.OK)
     self.assertIn(METADATA_TEST_SPECIFIC_META, result.data["metadata"])
 

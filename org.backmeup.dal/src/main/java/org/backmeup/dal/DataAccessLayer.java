@@ -2,6 +2,7 @@ package org.backmeup.dal;
 
 
 
+
 /**
  * The DataAccessLayer provides access to any kind of 
  * database. It uses Data Access Objects (e.g. UserDao) 
@@ -20,6 +21,8 @@ public interface DataAccessLayer {
 	public StatusDao createStatusDao();
 	
 	public BackupJobDao createBackupJobDao();
+	
+	public ServiceDao createServiceDao();
 	
 	public void setConnection(Object connection);
 	

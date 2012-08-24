@@ -24,6 +24,16 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
+			<artifactId>keyserver.client</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.backmeup</groupId>
 			<artifactId>plugin</artifactId>
 			<version>${project.version}</version>
@@ -31,6 +41,11 @@
 		<dependency>
 			<groupId>org.backmeup</groupId>
 			<artifactId>logic</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
+			<artifactId>keyserver.client</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -47,11 +62,6 @@
 			<groupId>org.jboss.weld.se</groupId>
 			<artifactId>weld-se</artifactId>
 			<version>${weld.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.4</version>
 		</dependency>
 
 		<!-- test relevant dependencies -->

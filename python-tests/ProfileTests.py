@@ -11,14 +11,14 @@ logger.addHandler(logging.NullHandler())
 
 class TestProfiles(TestCase):
   def setUp(self):
-    pass
+    self.tearDown() 
 
   def tearDown(self):
     delete_user("TestUser")
 
   def test_update_profile_entries(self):
     # update non existing profile
-    res = update_profile(100, {"A": "B"})
+    res = update_profile(100, {"A": "B"}, "password")
     self.assertEquals(res.code, httplib.BAD_REQUEST)
     
     # update existing profile
@@ -28,6 +28,6 @@ class TestProfiles(TestCase):
     res = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "MetaTestProfile", "password")
     profileId = res.data["profileId"]
 
-    res = update_profile(profileId, {"AKey" : "AVal", "AnotherKey" : "AnotherValue", "B" : "A"})
+    res = update_profile(profileId, {"AKey" : "AVal", "AnotherKey" : "AnotherValue", "B" : "A"}, "password")
     self.assertEquals(res.code, httplib.NO_CONTENT)
 

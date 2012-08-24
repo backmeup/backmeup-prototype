@@ -99,11 +99,14 @@ public class BusinessLogicImplTest {
     assert (u2 != null);
     assert (u2.getUserId() != null);
     assert (u.getUserId() != null);
-    assert (u.getUserId().equals(u2.getUserId()));
-    assert (u.getPassword().equals(u2.getPassword()));
+    assert (u.getUserId().equals(u2.getUserId()));    
     assert (u.getUsername().equals(u2.getUsername()));
     assert (u.getEmail().equals(u2.getEmail()));
-    assert (u.getKeyRing().equals(u2.getKeyRing()));
+    try {
+      logic.deleteUser("Seppl");
+    } catch (Exception e) {
+
+    }
   }
 
   @Test
@@ -131,8 +134,6 @@ public class BusinessLogicImplTest {
     User u = logic.register("Seppl", "superlongpassword", "superlongpassword", "backmeup1@trash-mail.com");
     assert (u != null);
     assert ("Seppl".equals(u.getUsername()));
-    assert ("superlongpassword".equals(u.getPassword()));
-    assert ("superlongpassword".equals(u.getKeyRing()));
     assert ("backmeup1@trash-mail.com".equals(u.getEmail()));
     
     try {

@@ -91,14 +91,15 @@ public class Datasinks extends Base {
         ar.getRequiredInputs(), ar.getTypeMapping(), ar.getRedirectURL(), true);
   }
 
-  @GET
+  @POST
   @Path("/{username}/validate/{profileId}")
   @Produces("application/json")
   public ValidationNotesContainer validateProfiles(
       @PathParam("username") String username, 
-      @PathParam("profileId") String profileId) {
+      @PathParam("profileId") String profileId,
+      @PathParam("keyRing") String keyRing) {
     return new ValidationNotesContainer(getLogic().validateProfile(username,
-        Long.parseLong(profileId)));
+        Long.parseLong(profileId), keyRing));
   }
 
   @POST

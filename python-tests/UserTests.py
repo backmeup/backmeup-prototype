@@ -68,6 +68,7 @@ class TestUsers(TestCase):
     res = register_user("ChangeUser", "p1####++*%192?`", "abcdefgh", "TestUser@trash-mail.com")
     verify_email(res.data["verificationKey"])
     result = change_user("ChangeUser", "p1####++*%192?`", "pwneu123", "abcdefgh", "TestUser@trash-mail.com")
+
     self.assertEquals(result.code, httplib.NO_CONTENT)
     result = change_user("ChangeUser", "p1####++*%192?`", "pwneu123", "abcdefgh", "TestUser@trash-mail.com")
     self.assertEquals(result.code, httplib.UNAUTHORIZED)
@@ -85,6 +86,7 @@ class TestUsers(TestCase):
     self.assertEquals(result.data["username"], "GetUser")
     self.assertEquals(result.data["email"], "GetUser@trash-mail.com")
     change_user("GetUser", "12345678", "123456789101112", "12345678", "GetUser@trash-mail.com")
+
     result = get_user("GetUser")
     self.assertEquals(result.code, httplib.OK)
     self.assertEquals(result.data["username"], "GetUser")

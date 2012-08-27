@@ -153,6 +153,8 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
                 .getDefaultType());
         InputStream keystoreInput = getClass().getClassLoader()
             .getResourceAsStream(this.keystore);
+        if (keystoreInput == null)
+          throw new BackMeUpException(String.format("bl.properties: has been configured to use keystore \"%s\", but the file does not exist. Please copy the keystore to the resources folder of the project.", this.keystore));
         keystore.load(keystoreInput,
             keystorePwd != null ? keystorePwd.toCharArray() : null);
         keystoreInput.close();
@@ -166,6 +168,8 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
                   .getDefaultType());
           InputStream truststoreInput = getClass().getClassLoader()
               .getResourceAsStream(this.truststore);
+          if (truststoreInput == null)
+            throw new BackMeUpException(String.format("bl.properties: has been configured to use truststore \"%s\", but the file does not exist. Please copy the truststore to the resources folder of the project.", this.truststore));
           truststore.load(truststoreInput,
               truststorePwd != null ? truststorePwd.toCharArray() : null);
           truststoreInput.close();

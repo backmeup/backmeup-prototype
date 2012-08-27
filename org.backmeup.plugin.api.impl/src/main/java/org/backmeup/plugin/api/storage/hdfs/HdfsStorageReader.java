@@ -3,7 +3,6 @@ package org.backmeup.plugin.api.storage.hdfs;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;
@@ -12,25 +11,24 @@ import org.apache.hadoop.io.Text;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.StorageException;
 import org.backmeup.plugin.api.storage.StorageReader;
-import org.backmeup.plugin.api.storage.hdfs.util.HdfsManager;
 
 public class HdfsStorageReader extends StorageReader {
 
-	private FileSystem fileSystem;
+	private FileSystem filesystem;
 	private String path;
-	private Configuration config;
 	private SequenceFile.Reader reader;
 	private HdfsIterator hdfsIt;
+	
+	public HdfsStorageReader(FileSystem filesystem) {
+		this.filesystem = filesystem;
+	}
 
 	@Override
 	public void open(String path) throws StorageException {
 		this.path = path;
 		Path thePath = new Path(path);
-		HdfsManager manager = HdfsManager.getInstance();
-		this.fileSystem = manager.getFileSystem();
-		this.config = manager.getConfig();
 		try {
-			reader = new SequenceFile.Reader(fileSystem, thePath, config);
+			reader = new SequenceFile.Reader(filesystem, thePath, filesystem.getConf());
 		} catch (IOException e) {
 			throw new StorageException(e);
 		}
@@ -87,6 +85,7 @@ public class HdfsStorageReader extends StorageReader {
 
 		@Override
 		public DataObject next() {
+			System.out.println("Returning next DataObject: " + path);
 			if (!hasNextCalled) {
 				try {
 					reader.next(key, value);

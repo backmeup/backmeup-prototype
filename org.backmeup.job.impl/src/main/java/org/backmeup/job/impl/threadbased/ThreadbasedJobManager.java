@@ -1,4 +1,4 @@
-package org.backmeup.job.impl;
+package org.backmeup.job.impl.threadbased;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -7,14 +7,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -22,7 +20,6 @@ import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.dal.StatusDao;
-import org.backmeup.job.JobManager;
 import org.backmeup.keyserver.client.AuthData;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
@@ -56,8 +53,8 @@ import org.backmeup.utilities.mail.Mailer;
  * @author fschoeppl
  * 
  */
-@ApplicationScoped
-public class ThreadbasedJobManager implements JobManager {
+// @ApplicationScoped
+public class ThreadbasedJobManager /* implements JobManager  */{
 
   public class ConsoleProgressor implements Progressable {
     public void progress(String message) {
@@ -106,21 +103,6 @@ public class ThreadbasedJobManager implements JobManager {
     this.jobs = Collections.synchronizedList(new ArrayList<BackupJob>());
     this.allJobs = Collections.synchronizedMap(new HashMap<Long, BackupJob>());
     //temporaryDirectory = "temp"; 
-  }
-  
-  private Token getToken(BackupJob job, Date executionTime, String password) {
-    List<Long> usedServices = new ArrayList<Long>();
-    List<Long> authenticationInfos = new ArrayList<Long>();
-    usedServices.add(job.getSinkProfile().getServiceId());
-    authenticationInfos.add(job.getSinkProfile().getProfileId());
-    for (ProfileOptions p : job.getSourceProfiles()) {
-      usedServices.add(p.getProfile().getServiceId());
-      authenticationInfos.add(p.getProfile().getProfileId());
-    }
-    Long[] serviceIds = usedServices.toArray(new Long[]{});
-    Long[] authIds = authenticationInfos.toArray(new Long[]{});   
-    Token t = keyserver.getToken(job.getUser().getUserId(), password, serviceIds, authIds, new Date().getTime(), true);
-    return t;
   } 
 
   public BackupJob createBackupJob(User user,
@@ -130,8 +112,8 @@ public class ThreadbasedJobManager implements JobManager {
     BackupJob bj = new BackupJob(user, sourceProfiles, sinkProfile,
         requiredActions, start, delay);
    
-    Date executionTime = new Date(start.getTime() + delay);
-    Token t = getToken(bj, executionTime, keyRing);    
+    Long executionTime = start.getTime() + delay;
+    Token t = keyserver.getToken(bj, keyRing, executionTime, true);    
     bj.setToken(t);
     bj = getBackupJobDao().save(bj);
     jobs.add(bj);
@@ -181,7 +163,7 @@ public class ThreadbasedJobManager implements JobManager {
           jobs.remove(0);
           try {
             conn.begin();
-            String keepCnt = job.getUser().getUserProperty(UserProperty.PROP_KEEP_BACKUP);
+            job.getUser().getUserProperty(UserProperty.PROP_KEEP_BACKUP);
             //TODO: Keep "keepCnt" backups and start to overwrite the very first one if you hit "keepCnt".
             job = getBackupJobDao().findById(job.getId());
             Status s = new Status(job, String.format(
@@ -320,7 +302,7 @@ public class ThreadbasedJobManager implements JobManager {
     this.plugins = plugins;
   }
 
-  @Override
+  // @Override
   public void start() {
     System.out.println("Starting up ThreadbasedJobManager!");
     if (!started) {
@@ -330,7 +312,7 @@ public class ThreadbasedJobManager implements JobManager {
     }
   }
 
-  @Override
+  // @Override
   public BackupJob getBackUpJob(Long jobId) {
     return allJobs.get(jobId);
   }

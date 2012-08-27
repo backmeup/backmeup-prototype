@@ -71,7 +71,7 @@ public class Users extends Base {
 	}
 	
 	@GET
-	@Path("{verificationKey}/verfiyEmail")
+	@Path("{verificationKey}/verifyEmail")
 	@Produces("application/json")
 	public void verifyEmailAddress(@PathParam("verificationKey") String verificationKey) {
 	  getLogic().verifyEmailAddress(verificationKey);

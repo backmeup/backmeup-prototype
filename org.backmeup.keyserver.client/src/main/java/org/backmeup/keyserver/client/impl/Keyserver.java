@@ -10,6 +10,9 @@ import java.net.URLEncoder;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
@@ -39,7 +42,9 @@ import org.apache.http.protocol.HTTP;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.AuthUsrPwd;
 import org.backmeup.keyserver.client.TokenRequest;
+import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
+import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
 import org.backmeup.model.exceptions.BackMeUpException;
 
@@ -106,6 +111,35 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   public Keyserver() {
 
   }
+  
+  // use for http communication
+  public Keyserver(String host, String path, boolean allowAllHostnames) {
+    this("http", host, path, null, null, null, null, null, null, allowAllHostnames);    
+  }
+  
+  // use for https communication
+  public Keyserver(String host, String path, String keystore,
+      String keystoreType, String keystorePwd, String truststore,
+      String truststoreType, String truststorePwd, boolean allowAllHostnames) {
+    this("https", host, path, keystore, keystoreType, keystorePwd, truststore, truststoreType, truststorePwd, allowAllHostnames);
+  }
+
+  private Keyserver(String scheme, String host, String path, String keystore,
+      String keystoreType, String keystorePwd, String truststore,
+      String truststoreType, String truststorePwd, boolean allowAllHostnames) {
+    this.scheme = scheme;
+    this.host = host;
+    this.path = path;
+    this.keystore = keystore;
+    this.keystoreType = keystoreType;
+    this.keystorePwd = keystorePwd;
+    this.truststore = truststore;
+    this.truststoreType = truststoreType;
+    this.truststorePwd = truststorePwd;
+    this.allowAllHostnames = allowAllHostnames;
+  }
+
+
 
   private SchemeRegistry schemeRegistry;
 
@@ -388,6 +422,22 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     return getToken(profile.getUser().getUserId(), userPwd,
         new Long[] { profile.getServiceId() },
         new Long[] { profile.getProfileId() }, backupdate, reusable);
+  }
+
+  @Override
+  public Token getToken(BackupJob job, String userPwd, Long backupdate, boolean reusable) {
+    List<Long> usedServices = new ArrayList<Long>();
+    List<Long> authenticationInfos = new ArrayList<Long>();
+    usedServices.add(job.getSinkProfile().getServiceId());
+    authenticationInfos.add(job.getSinkProfile().getProfileId());
+    for (ProfileOptions p : job.getSourceProfiles()) {
+      usedServices.add(p.getProfile().getServiceId());
+      authenticationInfos.add(p.getProfile().getProfileId());
+    }
+    Long[] serviceIds = usedServices.toArray(new Long[]{});
+    Long[] authIds = authenticationInfos.toArray(new Long[]{});   
+    Token t = getToken(job.getUser().getUserId(), userPwd, serviceIds, authIds, new Date().getTime(), reusable);
+    return t;
   }
 
 

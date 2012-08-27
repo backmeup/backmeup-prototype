@@ -14,6 +14,11 @@
 	</properties>
 	<dependencies>
 		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.2.2</version>
+		</dependency>
+		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
 			<version>1.0.1.Final</version>
@@ -22,6 +27,12 @@
 			<groupId>org.jboss.weld.se</groupId>
 			<artifactId>weld-se-core</artifactId>
 			<version>${weld.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>
@@ -38,6 +49,7 @@
 						<Bundle-Version>${project.version}</Bundle-Version>
 						<Export-Package>org.backmeup.model,org.backmeup.model.spi,org.backmeup.model.exceptions</Export-Package>
 						<Embed-Directory>lib</Embed-Directory>
+						<Embed-Dependency>gson</Embed-Dependency>
 						<Import-Package>!javax.*</Import-Package>
 					</instructions>
 				</configuration>

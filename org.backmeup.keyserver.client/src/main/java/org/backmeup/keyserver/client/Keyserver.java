@@ -2,6 +2,7 @@ package org.backmeup.keyserver.client;
 
 import java.util.Properties;
 
+import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
 import org.backmeup.model.Token;
 
@@ -28,5 +29,6 @@ public interface Keyserver {
   // Token operations
   public Token getToken(Long userId, String userPwd, Long[] services, Long[] authinfos, Long backupdate, boolean reusable);
   public Token getToken(Profile profile, String userPwd, Long backupdate, boolean reusable);
+  public Token getToken(BackupJob job, String userPwd, Long backupdate, boolean reusable);
   public AuthDataResult getData(Token token);
 }

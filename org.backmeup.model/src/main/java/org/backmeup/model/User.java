@@ -118,4 +118,10 @@ public class User {
   public void setActivated(boolean isActivated) {
     this.isActivated = isActivated;
   }
+  
+  @Override
+  public String toString() {
+	  // For debug purposes
+	  return username;
+  }
 }

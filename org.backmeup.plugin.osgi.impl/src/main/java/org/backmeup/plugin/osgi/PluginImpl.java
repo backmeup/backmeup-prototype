@@ -100,6 +100,10 @@ public class PluginImpl implements Plugin {
       started = true;
     }
   }
+  
+  public void waitForInitialStartup() {
+    deploymentMonitor.waitForInitialRun();
+  }
 
   private void startDeploymentMonitor() {
     this.deploymentMonitor = new DeployMonitor(bundleContext(),

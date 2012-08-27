@@ -96,9 +96,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   private static final String INVALID_USER = "org.backmeup.logic.impl.BusinessLogicImpl.INVALID_USER";
   private static final String UNKNOWN_PROFILE = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_PROFILE";
   private static final String UNKNOWN_ACTION = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_ACTION";
-  
   private static final String VERIFICATION_EMAIL_SUBJECT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_SUBJECT";
-
   private static final String VERIFICATION_EMAIL_CONTENT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_CONTENT";
 
   private static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
@@ -182,9 +180,6 @@ public class BusinessLogicImpl implements BusinessLogic {
       User u = getUser(username, false);
       UserDao userDao = getUserDao();
       
-      if (u == null) {
-        throw new IllegalArgumentException(textBundle.getString(INVALID_USER));
-      }
       keyserverClient.deleteUser(u.getUserId());
 
       BackupJobDao jobDao = getBackupJobDao();
@@ -213,8 +208,8 @@ public class BusinessLogicImpl implements BusinessLogic {
       String newPassword, String newKeyRing, String newEmail) {
     try {
       conn.begin();
+      User u = getUser(username);
       UserDao udao = getUserDao();
-      User u = udao.findByName(username);
       if (!keyserverClient.validateUser(u.getUserId(), oldPassword)) {      
         conn.rollback();
         throw new InvalidCredentialsException();
@@ -246,7 +241,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   public User login(String username, String password) {
     try {
       conn.begin();
-      User u = getUserDao().findByName(username);
+      User u = getUser(username, false);           
       if (u == null || !keyserverClient.validateUser(u.getUserId(), password))
     	  throw new InvalidCredentialsException();
       
@@ -288,10 +283,16 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (existingUser != null) {
         throw new AlreadyRegisteredException(existingUser.getUsername());
       }
+      existingUser = userDao.findByEmail(email);
+      if (existingUser != null) {
+        throw new AlreadyRegisteredException(existingUser.getEmail());
+      }
       User u = new User(username, email);
+      u.setActivated(false);
       generateNewVerificationKey(u, Long.toString(new Date().getTime()));
       u = userDao.save(u);
       keyserverClient.registerUser(u.getUserId(), password);
+      sendVerificationEmail(u);
       conn.commit();
       return u;
     } finally {
@@ -598,13 +599,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     AuthRequest ar = new AuthRequest();
     try {
       conn.begin();
-      UserDao userDao = getUserDao();
-      User user = userDao.findByName(username);
-      if (user == null) {
-        conn.rollback();
-        throw new IllegalArgumentException(String.format(
-            textBundle.getString(USER_DOESNT_EXIST), username));
-      }
+      User user = getUser(username);
 
       if (!keyserverClient.validateUser(user.getUserId(), keyRing)) {
         conn.rollback();
@@ -636,6 +631,7 @@ public class BusinessLogicImpl implements BusinessLogic {
           typeMapping.put(key, ibType.toString());
         }
         ar.setTypeMapping(typeMapping);
+        profile = getProfileDao().save(profile);        
         break;
       }       
       

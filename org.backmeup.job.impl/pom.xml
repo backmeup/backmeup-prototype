@@ -7,6 +7,14 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>job.impl</artifactId>
+	
+	<repositories>
+		<repository>
+  			<id>typesafe</id>
+  			<name>Typesafe Repository</name>
+  			<url>http://repo.typesafe.com/typesafe/releases/</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -26,6 +34,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.backmeup</groupId>
+			<artifactId>plugin.api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
 			<artifactId>plugin.api.impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -35,9 +48,60 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.backmeup</groupId>			
+			<artifactId>plugin.osgi.impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
+			<artifactId>model</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.backmeup</groupId>
 			<artifactId>utilities</artifactId>
 			<version>${project.version}</version>
-		</dependency>		
+		</dependency>	
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-core</artifactId>
+			<version>1.0.3</version>
+			<exclusions>
+				<exclusion>
+					<groupId>hsqldb</groupId>
+					<artifactId>hsqldb</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-test</artifactId>
+			<version>1.0.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+			<version>2.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-actor</artifactId>
+			<version>2.0.3</version>
+		</dependency>
+		<dependency>
+  			<groupId>com.rabbitmq</groupId>
+  			<artifactId>amqp-client</artifactId>
+  			<version>2.8.6</version>
+		</dependency>
+		<dependency>
+    		<groupId>org.quartz-scheduler</groupId>
+    		<artifactId>quartz</artifactId>
+    		<version>2.1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency> 
 	</dependencies>
 </project>

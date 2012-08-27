@@ -30,11 +30,6 @@ public class HdfsUtil {
 	public HdfsUtil() {
 	}
 	
-	public void open() {
-		HdfsManager manager = HdfsManager.getInstance();
-		hdfs = manager.getFileSystem();
-	}
-	
 	public void close() {
 		try {
 			hdfs.close();

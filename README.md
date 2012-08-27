@@ -18,15 +18,17 @@ Instructions on how to set up Maven on your machine are [available here]
 
 1. Change to the project folder to which you cloned the project repository
 
-2. Build parts of the project: `mvn clean package install`
+2. Configure the platform to your needs: [Configuration](https://github.com/backmeup/backmeup-prototype/wiki/configuration)
 
-3. Build plugins: 
+3. Build parts of the project: `mvn clean package install`
+
+4. Build plugins: 
 ```
 cd plugins
 mvn clean package install
 ```
 
-4. Setup standard-plugins and built plugins (dropbox and skydrive currently):
+5. Setup standard-plugins and built plugins (dropbox and skydrive currently):
 ```
 cd org.backmeup.embedded
 mkdir autodeploy
@@ -34,15 +36,17 @@ cp ../standard-plugins/*.jar autodeploy
 cp ../plugins/build/*.jar autodeploy
 ```
 
-5. To start the embedded-rest-server, change to folder org.backmeup.embedded and type `mvn -P standard exec:exec`
+6. Set your appkeys & appsecrets of the plugins, e.g. open dropbox-x.x.jar and edit dropbox.properties
 
-6. To start the dummy-rest-server, change to folder org.backmeup.embedded and type `mvn -P dummy exec:exec`
+7. To start the embedded-rest-server, change to folder org.backmeup.embedded and type `mvn -P standard exec:exec`
 
-7. To start the rest server in debug mode, use the additional debug profile: `mvn -P standard,debug exec:exec` (the debug-port will be 1044)
+8. To start the dummy-rest-server, change to folder org.backmeup.embedded and type `mvn -P dummy exec:exec`
 
-8. All parts are eclipse-projects aswell. To add them to your workspace use the eclipse command `Add Existing Projects`
+9. To start the rest server in debug mode, use the additional debug profile: `mvn -P standard,debug exec:exec` (the debug-port will be 1044)
 
-9. To use maven within eclipse, install the Maven Integration (m2e) Plugin (http://www.eclipse.org/m2e/)
+10. All parts are eclipse-projects aswell. To add them to your workspace use the eclipse command `Add Existing Projects`
+
+11. To use maven within eclipse, install the Maven Integration (m2e) Plugin (http://www.eclipse.org/m2e/)
 
 ## Further Information 
 

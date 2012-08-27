@@ -75,7 +75,7 @@ class Comm :
       self._retry_count = 0;
       rr = RequestResult(resp.status, resp.reason, result, location)
       if (int(resp.status) >= 400):
-        logger.debug(str(rr))
+        logger.warning(str(rr))
       return rr
     except Exception as se:
       logger.debug("Exception during request: " + str(se))

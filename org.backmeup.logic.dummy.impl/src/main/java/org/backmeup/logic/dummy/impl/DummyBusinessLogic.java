@@ -66,12 +66,13 @@ public class DummyBusinessLogic implements BusinessLogic {
   private Map<String, ActionDescribable> actions;
   private Map<Long, SearchResponse> searches;
   private Map<User, String> passwords;
-  
+
   private static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
   private static final long DELAY_WEEKLY = 24 * 60 * 60 * 1000 * 7;
-  private static final long DELAY_MONTHLY = (long)(24 * 60 * 60 * 1000 * 365.242199 / 12.0);
-  private static final long DELAY_YEARLY = (long)(24 * 60 * 60 * 1000 * 365.242199);
-  
+  private static final long DELAY_MONTHLY = (long) (24 * 60 * 60 * 1000
+      * 365.242199 / 12.0);
+  private static final long DELAY_YEARLY = (long) (24 * 60 * 60 * 1000 * 365.242199);
+
   public DummyBusinessLogic() {
     User u1 = new User(0l, "Sepp", "sepp@mail.at");
     User u2 = new User(1l, "Marion", "marion@mail.at");
@@ -252,11 +253,11 @@ public class DummyBusinessLogic implements BusinessLogic {
     });
 
     Set<ActionProfile> reqActions = new HashSet<ActionProfile>();
-    reqActions.add(new ActionProfile("org.backmeup.rsa" ));
+    reqActions.add(new ActionProfile("org.backmeup.rsa"));
     Set<ProfileOptions> popts = new HashSet<ProfileOptions>();
     popts.add(new ProfileOptions(findProfile(500), null));
-    BackupJob aJob = new BackupJob(u1, popts, findProfile(501),
-        reqActions, new Date(), 5000);   
+    BackupJob aJob = new BackupJob(u1, popts, findProfile(501), reqActions,
+        new Date(), 5000);
     aJob.setId(maxId++);
     jobs.add(aJob);
     status = new ArrayList<Status>();
@@ -269,8 +270,8 @@ public class DummyBusinessLogic implements BusinessLogic {
 
     Set<ProfileOptions> popts2 = new HashSet<ProfileOptions>();
     popts2.add(new ProfileOptions(findProfile(502), null));
-    BackupJob bJob = new BackupJob(u3, popts2, findProfile(502),
-        reqActions, new Date(), 5000);
+    BackupJob bJob = new BackupJob(u3, popts2, findProfile(502), reqActions,
+        new Date(), 5000);
     bJob.setId(maxId++);
     jobs.add(bJob);
     status.add(new Status(bJob, "Ein Status", "INFO", new Date(100)));
@@ -295,12 +296,12 @@ public class DummyBusinessLogic implements BusinessLogic {
   public User changeUser(String username, String oldPassword,
       String newPassword, String newKeyRing, String newEmail) {
     User u = findUser(username);
-    /*if (!u.getPassword().equals(oldPassword))
-      throw new InvalidCredentialsException();
-    if (newPassword != null)
-      u.setPassword(newPassword);
-    if (newKeyRing != null)
-      u.setKeyRing(newKeyRing);*/
+    /*
+     * if (!u.getPassword().equals(oldPassword)) throw new
+     * InvalidCredentialsException(); if (newPassword != null)
+     * u.setPassword(newPassword); if (newKeyRing != null)
+     * u.setKeyRing(newKeyRing);
+     */
     if (newEmail != null)
       u.setEmail(newEmail);
     return u;
@@ -485,7 +486,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     for (Object keyObj : props.keySet()) {
       String key = (String) keyObj;
       String value = props.getProperty(key);
-      //p.putEntry(key, value);
+      // p.putEntry(key, value);
     }
   }
 
@@ -562,12 +563,12 @@ public class DummyBusinessLogic implements BusinessLogic {
 
     if (timeExpression == null)
       throw new IllegalArgumentException("Cron expression missing");
-    
+
     Date start = null;
     long delay = 0;
     if (timeExpression.equalsIgnoreCase("daily")) {
       start = new Date();
-      delay = DELAY_DAILY;      
+      delay = DELAY_DAILY;
     } else if (timeExpression.equalsIgnoreCase("weekly")) {
       start = new Date();
       delay = DELAY_WEEKLY;
@@ -578,7 +579,7 @@ public class DummyBusinessLogic implements BusinessLogic {
       start = new Date();
       delay = DELAY_YEARLY;
     }
-    
+
     BackupJob job = new BackupJob(user, sources, sinkProfile,
         findActions(requiredActions), start, delay);
     job.setId(maxId++);
@@ -780,7 +781,8 @@ public class DummyBusinessLogic implements BusinessLogic {
   }
 
   @Override
-  public ValidationNotes validateBackupJob(String username, Long jobId, String keyRing) {
+  public ValidationNotes validateBackupJob(String username, Long jobId,
+      String keyRing) {
     BackupJob job = findJob(username, jobId);
     if (job == null) {
       throw new IllegalArgumentException("Unknown job with id: " + jobId);
@@ -792,12 +794,15 @@ public class DummyBusinessLogic implements BusinessLogic {
     double requiredSpace = 0;
     for (ProfileOptions po : job.getSourceProfiles()) {
       // TODO: start validation of profile
-      SourceSinkDescribable ssd = findSourceDescribable(po.getProfile().getDesc());      
+      SourceSinkDescribable ssd = findSourceDescribable(po.getProfile()
+          .getDesc());
       if (ssd == null) {
-        notes.addValidationEntry(ValidationExceptionType.Error, String.format("No plug-in found with id %s", po.getProfile().getDesc()));
+        notes.addValidationEntry(ValidationExceptionType.Error, String.format(
+            "No plug-in found with id %s", po.getProfile().getDesc()));
       }
-      
-      Properties meta = getMetadata(username, po.getProfile().getProfileId(), keyRing);
+
+      Properties meta = getMetadata(username, po.getProfile().getProfileId(),
+          keyRing);
       String quota = meta.getProperty(Metadata.QUOTA);
       if (quota != null) {
         requiredSpace += Double.parseDouble(meta.getProperty(Metadata.QUOTA));
@@ -817,7 +822,8 @@ public class DummyBusinessLogic implements BusinessLogic {
     requiredSpace *= 1.1;
 
     // TODO: validate sink profile
-    Properties meta = getMetadata(username, job.getSinkProfile().getProfileId(), keyRing);
+    Properties meta = getMetadata(username,
+        job.getSinkProfile().getProfileId(), keyRing);
     String sinkQuota = meta.getProperty(Metadata.QUOTA);
     String sinkQuotaLimit = meta.getProperty(Metadata.QUOTA_LIMIT);
     if (sinkQuota != null && sinkQuotaLimit != null) {
@@ -843,27 +849,29 @@ public class DummyBusinessLogic implements BusinessLogic {
   }
 
   @Override
-  public ValidationNotes validateProfile(String username, Long profileId, String keyRing) {
+  public ValidationNotes validateProfile(String username, Long profileId,
+      String keyRing) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public void addProfileEntries(Long profileId, Properties entries, String keyRing) {
+  public void addProfileEntries(Long profileId, Properties entries,
+      String keyRing) {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void setUserProperty(String username, String key, String value) {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void deleteUserProperty(String username, String key) {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override

@@ -29,7 +29,7 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
 		User u = users.size() > 0 ? users.get(0) : null;		
 		return u;
 	}
-	
+
 	@SuppressWarnings("unchecked")
   @Override
   public User findByVerificationKey(String verificationKey) {
@@ -39,5 +39,14 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
     User u = users.size() > 0 ? users.get(0) : null;    
     return u;
   }
-}
 
+	@SuppressWarnings("unchecked")
+  @Override
+  public User findByEmail(String email) {
+    Query q = em.createQuery("SELECT u FROM User u WHERE email = :email");
+    q.setParameter("email", email);
+    List<User> users = q.getResultList();
+    User u = users.size() > 0 ? users.get(0) : null;    
+    return u;
+  }
+}

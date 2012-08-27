@@ -1,5 +1,7 @@
 package org.backmeup.keyserver.client;
 
+import java.util.Properties;
+
 import org.backmeup.model.Token;
 
 
@@ -100,4 +102,12 @@ public class AuthDataResult {
     this.newToken = newToken;
   }
 
+  public Properties getByProfileId(Long profileId) {
+    for (int i = 0; i < services.length; i++) {
+      if (services[i].getBmu_service_id() == profileId) {
+        return authinfos[i].getAiData();
+      }
+    }
+    return new Properties();
+  }
 }

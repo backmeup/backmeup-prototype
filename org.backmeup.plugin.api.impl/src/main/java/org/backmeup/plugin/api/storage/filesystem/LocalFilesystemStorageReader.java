@@ -70,4 +70,11 @@ public class LocalFilesystemStorageReader extends StorageReader {
 		
 	}
 
+  @Override
+  public int getDataObjectCount() throws StorageException {
+    final List<DataObject> flatList = new ArrayList<DataObject>(); 
+    addToList(directory, "/", flatList);
+    return flatList.size();
+  }
+
 }

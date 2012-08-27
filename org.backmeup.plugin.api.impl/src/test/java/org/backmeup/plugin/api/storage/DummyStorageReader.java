@@ -31,4 +31,9 @@ public class DummyStorageReader extends StorageReader {
 		// Do nothing - this is just a dummy
 	}
 
+  @Override
+  public int getDataObjectCount() throws StorageException {
+    return 3;
+  }
+
 }

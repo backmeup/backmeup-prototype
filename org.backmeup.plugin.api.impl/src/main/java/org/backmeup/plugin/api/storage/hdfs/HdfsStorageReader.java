@@ -104,4 +104,10 @@ public class HdfsStorageReader extends StorageReader {
 		}
 
 	}
+
+  @Override
+  public int getDataObjectCount() throws StorageException {
+    // TODO Auto-generated method stub
+    return 0;
+  }
 }

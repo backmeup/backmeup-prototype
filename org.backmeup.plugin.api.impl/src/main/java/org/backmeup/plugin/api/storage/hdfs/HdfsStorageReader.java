@@ -15,9 +15,10 @@ import org.backmeup.plugin.api.storage.StorageReader;
 public class HdfsStorageReader extends StorageReader {
 
 	private FileSystem filesystem;
-	private String path;
-	private SequenceFile.Reader reader;
-	private HdfsIterator hdfsIt;
+	private Path path;
+	
+	private SequenceFile.Reader reader = null;
+	private HdfsIterator hdfsIt = null;
 	
 	public HdfsStorageReader(FileSystem filesystem) {
 		this.filesystem = filesystem;
@@ -25,20 +26,14 @@ public class HdfsStorageReader extends StorageReader {
 
 	@Override
 	public void open(String path) throws StorageException {
-		this.path = path;
-		Path thePath = new Path(path);
-		try {
-			reader = new SequenceFile.Reader(filesystem, thePath, filesystem.getConf());
-		} catch (IOException e) {
-			throw new StorageException(e);
-		}
-		this.hdfsIt = null;
+		this.path = new Path(path);
 	}
 
 	@Override
 	public void close() throws StorageException {
 		try {
-			reader.close();
+			if (reader != null)
+				reader.close();
 		} catch (IOException e) {
 			throw new StorageException(e);
 		}
@@ -46,14 +41,18 @@ public class HdfsStorageReader extends StorageReader {
 
 	@Override
 	public Iterator<DataObject> getDataObjects() throws StorageException {
-		if (hdfsIt == null) {
-			try {
-				hdfsIt = new HdfsIterator();
-			} catch (InstantiationException e) {
-				throw new StorageException(e);
-			} catch (IllegalAccessException e) {
-				throw new StorageException(e);
-			}
+		try {
+			if (reader != null)
+				reader.close();
+			
+			reader = new SequenceFile.Reader(filesystem, path, filesystem.getConf());
+			hdfsIt = new HdfsIterator();
+		} catch (IOException e) {
+			throw new StorageException(e);
+		} catch (InstantiationException e) {
+			throw new StorageException(e);
+		} catch (IllegalAccessException e) {
+			throw new StorageException(e);
 		}
 		return hdfsIt;
 	}
@@ -94,7 +93,7 @@ public class HdfsStorageReader extends StorageReader {
 					return null;
 				}				
 			}
-			return new HdfsDataObject(path, key.toString(), value.getBytes(), value.getLength());
+			return new HdfsDataObject(path.toString(), key.toString(), value.getBytes(), value.getLength());
 		}
 
 		@Override
@@ -107,7 +106,12 @@ public class HdfsStorageReader extends StorageReader {
 
   @Override
   public int getDataObjectCount() throws StorageException {
-    // TODO Auto-generated method stub
-    return 0;
+	  int counter = 0;
+	  Iterator<DataObject> objects = getDataObjects();
+	  while (objects.hasNext())
+		  counter++;
+	  
+	  return counter;
   }
+  
 }

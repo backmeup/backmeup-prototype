@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"	
+	default-activation="lazy">
+	<service id="discmailingDescriptorService" ref="discmailingDescriptor" auto-export="interfaces">
+		<service-properties>
+			<entry key="name" value="org.backmeup.discmailing"/>
+		</service-properties>
+	</service>
+	<service id="discmailingAuthService" ref="discmailingAuthenticator" auto-export="interfaces">
+		<service-properties>
+			<entry key="name" value="org.backmeup.discmailing"/>
+		</service-properties>
+	</service>
+	<service id="discmailingDatasinkService" ref="discmailingDatasink" auto-export="interfaces">
+		<service-properties>
+			<entry key="name" value="org.backmeup.discmailing"/>
+		</service-properties>
+	</service>
+</blueprint>

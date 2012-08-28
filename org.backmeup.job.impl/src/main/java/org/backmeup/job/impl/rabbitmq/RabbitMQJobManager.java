@@ -8,6 +8,7 @@ import javax.inject.Named;
 
 import org.backmeup.job.impl.AkkaJobManager;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.exceptions.BackMeUpException;
 import org.backmeup.model.serializer.JsonSerializer;
 
 import com.rabbitmq.client.Channel;
@@ -45,13 +46,24 @@ public class RabbitMQJobManager extends AkkaJobManager {
 	private Channel mqChannel;
 	
 	public RabbitMQJobManager() throws IOException {
-		init();
+		//init();
 	}
 	
 	RabbitMQJobManager(String mqHost, String mqName) throws IOException {
 		this.mqHost = mqHost;
 		this.mqName = mqName;
 		init();
+	}
+	
+	@Override
+	public void start() {
+	  super.start();
+	  try {
+      init();
+    } catch (IOException e) {     
+      //TODO: Log or rethrow Exception
+      throw new BackMeUpException(e);
+    }
 	}
 	
 	private void init() throws IOException {

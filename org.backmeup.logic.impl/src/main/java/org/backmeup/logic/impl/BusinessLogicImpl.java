@@ -575,19 +575,6 @@ public class BusinessLogicImpl implements BusinessLogic {
     // TODO Auto-generated method stub
     return null;
   }
-  
-  private Service getServiceModelByName(String serviceName) {
-    ServiceDao serviceDao = dal.createServiceDao();
-    Service serviceModel = serviceDao.findById(serviceName.hashCode());
-    
-    if (serviceModel == null) {
-      serviceModel = new Service(new Long(serviceName.hashCode()), serviceName);
-      serviceModel = serviceDao.save(serviceModel);
-      if (!keyserverClient.isServiceRegistered(serviceModel.getServiceId()))
-        keyserverClient.addService(serviceModel.getServiceId());
-    }
-    return serviceModel;
-  }
 
   public AuthRequest preAuth(String username, String uniqueDescIdentifier,
       String profileName, String keyRing) throws PluginException,
@@ -604,8 +591,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (!keyserverClient.validateUser(user.getUserId(), keyRing)) {
         conn.rollback();
         throw new InvalidCredentialsException();
-      }
-      //Service serviceModel = getServiceModelByName(desc.getId());
+      }      
       Profile profile = new Profile(getUserDao().findByName(username),
           profileName, uniqueDescIdentifier, type);
       switch (auth.getAuthType()) {
@@ -618,7 +604,9 @@ public class BusinessLogicImpl implements BusinessLogic {
         ar.setRedirectURL(redirectUrl);        
         // TODO Store all properties within keyserver & don't store them within the local database!
         
-        profile = getProfileDao().save(profile);        
+        profile = getProfileDao().save(profile);       
+        if (!keyserverClient.isServiceRegistered(profile.getProfileId()))
+          keyserverClient.addService(profile.getProfileId());
         keyserverClient.addAuthInfo(profile, keyRing, p);
         break;
       case InputBased:
@@ -631,7 +619,10 @@ public class BusinessLogicImpl implements BusinessLogic {
           typeMapping.put(key, ibType.toString());
         }
         ar.setTypeMapping(typeMapping);
-        profile = getProfileDao().save(profile);        
+        profile = getProfileDao().save(profile);
+        if (!keyserverClient.isServiceRegistered(profile.getProfileId()))
+          keyserverClient.addService(profile.getProfileId());
+        //keyserverClient.addAuthInfo(profile, keyRing, p);
         break;
       }       
       
@@ -650,7 +641,8 @@ public class BusinessLogicImpl implements BusinessLogic {
       ProfileDao profileDao = getProfileDao();
       Profile p = profileDao.findById(profileId);
 
-      Service serviceModel = getServiceModelByName(p.getDesc());
+      if (!keyserverClient.isServiceRegistered(p.getProfileId()))
+        keyserverClient.addService(p.getProfileId());
       if (keyserverClient.isAuthInformationAvailable(p, keyRing)) {
         Token t = keyserverClient.getToken(p, keyRing, new Date().getTime(), false);
         AuthDataResult adr = keyserverClient.getData(t);

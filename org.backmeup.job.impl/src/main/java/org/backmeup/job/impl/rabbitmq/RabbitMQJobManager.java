@@ -3,6 +3,8 @@ package org.backmeup.job.impl.rabbitmq;
 import java.io.IOException;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.backmeup.job.impl.AkkaJobManager;
 import org.backmeup.model.BackupJob;
@@ -21,9 +23,15 @@ import com.rabbitmq.client.ConnectionFactory;
 @ApplicationScoped
 public class RabbitMQJobManager extends AkkaJobManager {
 	
+	@Inject
+	@Named("message.queue.host")
+	private String mqHost;
+	
 	/**
 	 * Message queue name
 	 */
+	@Inject
+	@Named("message.queue.name")
 	private String mqName;
 	
 	/**
@@ -36,16 +44,24 @@ public class RabbitMQJobManager extends AkkaJobManager {
 	 */
 	private Channel mqChannel;
 	
-	public RabbitMQJobManager(String mqHost, String mqName) throws IOException {
+	public RabbitMQJobManager() throws IOException {
+		init();
+	}
+	
+	RabbitMQJobManager(String mqHost, String mqName) throws IOException {
+		this.mqHost = mqHost;
 		this.mqName = mqName;
-		
+		init();
+	}
+	
+	private void init() throws IOException {
 		// Setup connection to the message queue
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost(mqHost);
 		
 		mqConnection = factory.newConnection();
 		mqChannel = mqConnection.createChannel();
-		mqChannel.queueDeclare(mqName, false, false, false, null);
+		mqChannel.queueDeclare(mqName, false, false, false, null);		
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package org.backmeup.job.impl.rabbitmq;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
@@ -62,12 +63,13 @@ public class RabbitMQJobReceiver {
 	
 	private Logger log = Logger.getLogger(this.getClass());
 	
-	public RabbitMQJobReceiver(String mqHost, String mqName, String pluginsDir, String osgiTempDir) throws IOException {
+	public RabbitMQJobReceiver(String mqHost, String mqName, String pluginsDir) throws IOException {
 		this.mqName = mqName;
 		
 		// Start up the Plugin manager
 		log.info("Starting plugin framework");
-		this.plugins = new PluginImpl(pluginsDir, osgiTempDir, EXPORTED_PACKAGES);
+		File osgiTemp = File.createTempFile("osgi-temp", Long.toString(System.nanoTime()));
+		this.plugins = new PluginImpl(pluginsDir, osgiTemp.getAbsolutePath(), EXPORTED_PACKAGES);
 		this.plugins.startup();
 	    ((PluginImpl)plugins).waitForInitialStartup();
 	    

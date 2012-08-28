@@ -1,5 +1,7 @@
 package org.backmeup.embedded;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,6 +10,7 @@ import java.util.List;
 
 import javax.ws.rs.core.UriBuilder;
 
+import org.backmeup.job.impl.rabbitmq.RabbitMQJobReceiver;
 import org.backmeup.rest.Actions;
 import org.backmeup.rest.BackupJobs;
 import org.backmeup.rest.Backups;
@@ -83,6 +86,11 @@ public class Main {
 	public static Client startIndexClient() {
 		return indexNode.client();
 	}
+	
+	public static RabbitMQJobReceiver startRabbitMQWorker() throws IOException {
+		File autodeploy = new File("autodeploy");
+		return new RabbitMQJobReceiver("localhost", "backmeup", autodeploy.getAbsolutePath());
+	}
 
 	public static void main(String[] args) throws Exception {
 		String[] items = System.getProperty("java.class.path").split(";");
@@ -94,6 +102,8 @@ public class Main {
 
 		TJWSEmbeddedJaxrsServer tjws = startServer();	
 		System.out.println(String.format("BackMeUp REST Server started at %s", BASE_URI));
+		RabbitMQJobReceiver receiver = startRabbitMQWorker();
+		System.out.println("RabbitMQWorker running");
 		Client indexClient = startIndexClient();
 		System.out.println("ElasticSearch index running at http://localhost:9200/");
 		System.out.println("Hit enter to stop...");
@@ -101,6 +111,7 @@ public class Main {
 		System.in.read();
 		tjws.stop();
 		indexClient.close();
+		receiver.stop();
 		System.exit(0);
 	}
 

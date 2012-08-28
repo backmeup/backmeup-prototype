@@ -1,10 +1,8 @@
 package org.backmeup.job.impl.rabbitmq;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,9 +18,7 @@ public class RabbitMQJobTest {
 	private static final String MQ_NAME = "test-queue";
 	
 	private static final String PLUGINS_DIR = "/home/simonr/Workspaces/backmeup/backmeup-prototype/org.backmeup.embedded/autodeploy";
-	
-	private static final String OSGI_TEMP_DIR = "/home/simonr/Workspaces/backmeup/backmeup-prototype/osgi-tmp";
-	
+		
 	private static final String BACKUP_JOB =
 			"{\"user\":{\"userId\":1,\"username\":\"Sepp\",\"password\":\"pw\"," + 
 	        "\"keyRing\":\"k3yr1nG\",\"email\":\"e@ma.il\",\"isActivated\":false,\"properties\":[]}," +
@@ -67,7 +63,7 @@ public class RabbitMQJobTest {
 	public void testRabbitMQJobExecution() throws IOException, InterruptedException {	
 		if (fRabbitMQInstalled) {
 			// Set up a receiver
-			mqRecevier = new RabbitMQJobReceiver(MQ_HOST, MQ_NAME, PLUGINS_DIR, OSGI_TEMP_DIR);
+			mqRecevier = new RabbitMQJobReceiver(MQ_HOST, MQ_NAME, PLUGINS_DIR);
 			mqRecevier.start();
 			
 			// Send job into the queue
@@ -100,8 +96,6 @@ public class RabbitMQJobTest {
 			mqChannel.close();
 			mqConnection.close();
 		}
-		
-	    FileUtils.deleteDirectory(new File(OSGI_TEMP_DIR));
 	}
 
 }

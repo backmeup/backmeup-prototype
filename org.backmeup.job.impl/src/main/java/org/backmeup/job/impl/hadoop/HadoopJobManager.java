@@ -19,8 +19,7 @@ import org.backmeup.model.serializer.JsonSerializer;
  * 
  * @author Rainer Simon <rainer.simon@ait.ac.at>
  */
-// @ApplicationScoped
-public class HadoopJobManager extends AkkaJobManager {
+public class HadoopJobManager  {
 	
 	/**
 	 * HDFS Distributed filesystem cluster
@@ -53,7 +52,7 @@ public class HadoopJobManager extends AkkaJobManager {
 		return mrCluster;
 	}
 	
-	@Override
+	// @Override
 	protected Runnable newJobRunner(final BackupJob job) {
 		return new Runnable() {
 			@Override

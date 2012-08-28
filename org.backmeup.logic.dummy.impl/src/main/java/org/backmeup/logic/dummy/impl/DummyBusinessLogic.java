@@ -221,14 +221,14 @@ public class DummyBusinessLogic implements BusinessLogic {
 
     profiles = new ArrayList<Profile>();
     profiles.add(new Profile(500l, u1, "Dropbox-Source",
-        "org.backmeup.dropbox", Type.Source, 100L));
+        "org.backmeup.dropbox", Type.Source));
     profiles.add(new Profile(501l, u1, "Wuala-Sink", "org.backmeup.wuala",
-        Type.Sink, 100L));
+        Type.Sink));
 
     profiles.add(new Profile(502l, u3, "Dropbox-Source",
-        "org.backmeup.dropbox", Type.Source, 100L));
+        "org.backmeup.dropbox", Type.Source));
     profiles.add(new Profile(503l, u3, "Wuala-Sink", "org.backmeup.wuala",
-        Type.Sink, 100L));
+        Type.Sink));
     jobs = new ArrayList<BackupJob>();
 
     actions = new HashMap<String, ActionDescribable>();
@@ -459,7 +459,7 @@ public class DummyBusinessLogic implements BusinessLogic {
       throw new InvalidCredentialsException();
 
     Profile p = new Profile(maxId++, u, profileName, source.getId(),
-        Type.Source, 100L);
+        Type.Source);
     profiles.add(p);
 
     if ("Dropbox".equals(source.getTitle())) {

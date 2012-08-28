@@ -32,7 +32,6 @@ public class Profile {
 	private User user;
 	private String profileName;
 	private String desc;
-	private Long serviceId;
 	
 	@Enumerated(EnumType.STRING)
 	private Type sourceAndOrSink;	
@@ -41,17 +40,16 @@ public class Profile {
 	}
 	
 	
-	public Profile(User user, String profileName, String desc, Type source, Long serviceId) {
-		this(null, user, profileName, desc, source, serviceId);
+	public Profile(User user, String profileName, String desc, Type source) {
+		this(null, user, profileName, desc, source);
 	}
 
-	public Profile(Long profileId, User user, String profileName, String desc, Type sourceAndOrSink, Long serviceId) {
+	public Profile(Long profileId, User user, String profileName, String desc, Type sourceAndOrSink) {
 		this.profileId = profileId;
 		this.user = user;
 		this.profileName = profileName;
 		this.sourceAndOrSink = sourceAndOrSink;
 		this.desc = desc;
-		this.serviceId = serviceId;
 		
 	}
 	public Long getProfileId() {
@@ -86,14 +84,4 @@ public class Profile {
 	public void setType(Type sourceAndOrSink) {
 		this.sourceAndOrSink = sourceAndOrSink;
 	}
-
-
-  public Long getServiceId() {
-    return serviceId;
-  }
-
-
-  public void setServiceId(Long serviceId) {
-    this.serviceId = serviceId;
-  }
 }

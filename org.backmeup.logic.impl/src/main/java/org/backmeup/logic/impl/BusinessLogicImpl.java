@@ -605,9 +605,9 @@ public class BusinessLogicImpl implements BusinessLogic {
         conn.rollback();
         throw new InvalidCredentialsException();
       }
-      Service serviceModel = getServiceModelByName(desc.getId());
+      //Service serviceModel = getServiceModelByName(desc.getId());
       Profile profile = new Profile(getUserDao().findByName(username),
-          profileName, uniqueDescIdentifier, type, serviceModel.getServiceId());
+          profileName, uniqueDescIdentifier, type);
       switch (auth.getAuthType()) {
       case OAuth:
         OAuthBased oauth = plugins

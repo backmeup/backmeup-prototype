@@ -410,21 +410,21 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   @Override
   public void addAuthInfo(Profile profile, String userPwd,
       Properties keyValuePairs) {
-    addAuthInfo(profile.getUser().getUserId(), userPwd, profile.getServiceId(),
+    addAuthInfo(profile.getUser().getUserId(), userPwd, profile.getProfileId(),
         profile.getProfileId(), keyValuePairs);
   }
 
   @Override
   public boolean isAuthInformationAvailable(Profile profile, String userPwd) {
     return isAuthInformationAvailable(profile.getProfileId(), profile.getUser()
-        .getUserId(), profile.getServiceId(), userPwd);
+        .getUserId(), profile.getProfileId(), userPwd);
   }
 
   @Override
   public Token getToken(Profile profile, String userPwd, Long backupdate,
       boolean reusable) {
     return getToken(profile.getUser().getUserId(), userPwd,
-        new Long[] { profile.getServiceId() },
+        new Long[] { profile.getProfileId() },
         new Long[] { profile.getProfileId() }, backupdate, reusable);
   }
 
@@ -432,10 +432,10 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   public Token getToken(BackupJob job, String userPwd, Long backupdate, boolean reusable) {
     List<Long> usedServices = new ArrayList<Long>();
     List<Long> authenticationInfos = new ArrayList<Long>();
-    usedServices.add(job.getSinkProfile().getServiceId());
+    usedServices.add(job.getSinkProfile().getProfileId());
     authenticationInfos.add(job.getSinkProfile().getProfileId());
     for (ProfileOptions p : job.getSourceProfiles()) {
-      usedServices.add(p.getProfile().getServiceId());
+      usedServices.add(p.getProfile().getProfileId());
       authenticationInfos.add(p.getProfile().getProfileId());
     }
     Long[] serviceIds = usedServices.toArray(new Long[]{});

@@ -48,10 +48,10 @@ public class SerializiationTests {
   public void testBackupJobSerializiation() {
     User user = new User(1L, "Sepp", "Sepp@Mail.at");
     Set<ProfileOptions> options = new HashSet<ProfileOptions>();
-    Profile source = new Profile(2L, user, "TestProfile", "org.backmeup.source", Type.Source, (long)"org.backmeup.source".hashCode());
+    Profile source = new Profile(2L, user, "TestProfile", "org.backmeup.source", Type.Source);
     ProfileOptions po = new ProfileOptions(source, new String[]{"folder1", "folder2"});
     options.add(po);
-    Profile sink = new Profile(2L, user, "TestProfile2", "org.backmeup.sink", Type.Sink, (long)"org.backmeup.sink".hashCode());
+    Profile sink = new Profile(2L, user, "TestProfile2", "org.backmeup.sink", Type.Sink);
     Set<ActionProfile> actions = new HashSet<ActionProfile>();
     BackupJob job = new BackupJob(user, options, sink, actions, new Date(), new Date().getTime() + 1000000L);
     String serializedJob = JsonSerializer.serialize(job);

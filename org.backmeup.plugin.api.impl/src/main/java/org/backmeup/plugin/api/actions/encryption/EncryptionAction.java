@@ -6,6 +6,7 @@ import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.StorageReader;
+import org.backmeup.plugin.api.storage.StorageWriter;
 
 public class EncryptionAction implements Action
 {
@@ -13,7 +14,7 @@ public class EncryptionAction implements Action
 	private final String PROP_PASSWORD = "org.backmeup.encryption.password";
 	
 	@Override
-	public String doAction (Properties accessData, StorageReader storage, Progressable progressor) throws ActionException
+	public void doAction (Properties accessData, StorageReader storage, StorageWriter ouptut, Progressable progressor) throws ActionException
 	{
 		String password;
 		int containers;
@@ -53,8 +54,6 @@ public class EncryptionAction implements Action
 		}
 		
 		// TODO create container(s)
-		// TODO move files to container(s)
-		
-		return "";
+		// TODO move files to container(s)			
 	}
 }

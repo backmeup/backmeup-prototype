@@ -4,10 +4,11 @@ import java.util.Properties;
 
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.StorageReader;
+import org.backmeup.plugin.api.storage.StorageWriter;
 
 public interface Action {
 
-	public String doAction(Properties accessData, StorageReader storage, Progressable progressor)
+	public void doAction(Properties parameters, StorageReader input, StorageWriter output, Progressable progressor)
 			throws ActionException;
 	
 }

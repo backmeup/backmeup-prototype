@@ -107,7 +107,7 @@ public class ThreadbasedJobManager /* implements JobManager  */{
 
   public BackupJob createBackupJob(User user,
       Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
-      Set<ActionProfile> requiredActions, Date start, long delay, String keyRing) {
+      List<ActionProfile> requiredActions, Date start, long delay, String keyRing) {
     
     BackupJob bj = new BackupJob(user, sourceProfiles, sinkProfile,
         requiredActions, start, delay);

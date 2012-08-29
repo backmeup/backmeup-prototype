@@ -250,10 +250,15 @@ public class DummyBusinessLogic implements BusinessLogic {
         Properties props = new Properties();
         return props;
       }
+
+      @Override
+      public int getPriority() {
+        return 200;
+      }
     });
 
-    Set<ActionProfile> reqActions = new HashSet<ActionProfile>();
-    reqActions.add(new ActionProfile("org.backmeup.rsa"));
+    List<ActionProfile> reqActions = new ArrayList<ActionProfile>();
+    reqActions.add(new ActionProfile("org.backmeup.rsa", 1));
     Set<ProfileOptions> popts = new HashSet<ProfileOptions>();
     popts.add(new ProfileOptions(findProfile(500), null));
     BackupJob aJob = new BackupJob(u1, popts, findProfile(501), reqActions,
@@ -745,12 +750,12 @@ public class DummyBusinessLogic implements BusinessLogic {
     return null;
   }
 
-  private Set<ActionProfile> findActions(String[] actionIds) {
-    Set<ActionProfile> actionDescs = new HashSet<ActionProfile>();
+  private List<ActionProfile> findActions(String[] actionIds) {
+    List<ActionProfile> actionDescs = new ArrayList<ActionProfile>();
     for (String action : actionIds) {
       ActionDescribable itm = actions.get(action);
       if (itm != null) {
-        actionDescs.add(new ActionProfile(itm.getId()));
+        actionDescs.add(new ActionProfile(itm.getId(), itm.getPriority()));
       }
     }
     return actionDescs;

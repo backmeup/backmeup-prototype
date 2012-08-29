@@ -24,21 +24,16 @@ public class FilesplittAction implements Action
 	private static final long CONTAINER_SIZE = 10 * 1024 * 1024; // 10 MiB
 	private static final String CONTAINER_PATH = "/container";
 
-	private StorageWriter writer = null;
-
 	@Override
-	public String doAction (Properties accessData, StorageReader storage, Progressable progressor) throws ActionException
+	public void doAction (Properties parameters, StorageReader input, StorageWriter output, Progressable progressor) throws ActionException
 	{
-		progressor.progress (START_FILESPLITT_PROCESS);
-		
-		// TODO Rewrite do new API
-		writer = StorageWriter.configuredRuntimeInstance ();
+		progressor.progress (START_FILESPLITT_PROCESS);		
 
 		FileContainers fcs = new FileContainers (CONTAINER_PATH, CONTAINER_SIZE);
 
 		try
 		{
-			PriorityQueue<DataObject> sorted = new PriorityQueue<DataObject> (storage.getDataObjectCount(), new Comparator<DataObject> ()
+			PriorityQueue<DataObject> sorted = new PriorityQueue<DataObject> (input.getDataObjectCount(), new Comparator<DataObject> ()
 			{
 				@Override
 				public int compare (DataObject do1, DataObject do2)
@@ -80,7 +75,7 @@ public class FilesplittAction implements Action
 			});
 
 			progressor.progress (FILESPLITT_SORT);
-			Iterator<DataObject> dataObjects = storage.getDataObjects ();
+			Iterator<DataObject> dataObjects = input.getDataObjects ();
 			while (dataObjects.hasNext () == true)
 			{
 				DataObject daob = dataObjects.next ();
@@ -95,17 +90,17 @@ public class FilesplittAction implements Action
 				daob = sorted.peek ();
 			}
 
-			accessData.setProperty ("org.backmeup.filesplitting.containercount", fcs.getContainers ().size () + "");
+			parameters.setProperty ("org.backmeup.filesplitting.containercount", fcs.getContainers ().size () + "");
 			
 			int container = 0;
 			for (FileContainer fc : fcs.getContainers ())
 			{
-				accessData.setProperty ("org.backmeup.filesplitting.container." + container + ".size", fc.getContainersize () + "");
+				parameters.setProperty ("org.backmeup.filesplitting.container." + container + ".size", fc.getContainersize () + "");
 				container++;
 				
 				for (int i = 0; i < fc.getContainerElementCount (); i++)
 				{
-					writer.addFile (fc.getContainerElementData (i), fc.getContainerElementPath (i), fc.getContainerElementMetaInfo (i));
+					output.addFile (fc.getContainerElementData (i), fc.getContainerElementPath (i), fc.getContainerElementMetaInfo (i));
 				}
 			}
 		}
@@ -115,7 +110,5 @@ public class FilesplittAction implements Action
 		}
 		
 		progressor.progress (FILESPLITT_PROCESS_COMPLETE);
-
-		return "";
 	}
 }

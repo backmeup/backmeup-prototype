@@ -329,7 +329,7 @@ public class PluginImpl implements Plugin {
   }
 
   public ActionDescribable getActionById(String actionId) {
-    return service(ActionDescribable.class, actionId);
+    return service(ActionDescribable.class, "(name=" + actionId + ")");
   }
 
   public List<SourceSinkDescribable> getConnectedDatasinks() {

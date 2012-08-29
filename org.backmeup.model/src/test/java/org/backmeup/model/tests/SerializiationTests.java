@@ -1,8 +1,10 @@
 package org.backmeup.model.tests;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.backmeup.model.ActionProfile;
@@ -52,7 +54,7 @@ public class SerializiationTests {
     ProfileOptions po = new ProfileOptions(source, new String[]{"folder1", "folder2"});
     options.add(po);
     Profile sink = new Profile(2L, user, "TestProfile2", "org.backmeup.sink", Type.Sink);
-    Set<ActionProfile> actions = new HashSet<ActionProfile>();
+    List<ActionProfile> actions = new ArrayList<ActionProfile>();
     BackupJob job = new BackupJob(user, options, sink, actions, new Date(), new Date().getTime() + 1000000L);
     String serializedJob = JsonSerializer.serialize(job);
     BackupJob restored = JsonSerializer.deserialize(serializedJob, BackupJob.class);

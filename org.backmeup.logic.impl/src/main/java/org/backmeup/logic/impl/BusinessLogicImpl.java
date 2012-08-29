@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,7 +26,6 @@ import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.dal.ProfileDao;
-import org.backmeup.dal.ServiceDao;
 import org.backmeup.dal.StatusDao;
 import org.backmeup.dal.UserDao;
 import org.backmeup.job.JobManager;
@@ -39,7 +40,6 @@ import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.ProtocolDetails;
 import org.backmeup.model.ProtocolOverview;
 import org.backmeup.model.SearchResponse;
-import org.backmeup.model.Service;
 import org.backmeup.model.Status;
 import org.backmeup.model.Token;
 import org.backmeup.model.User;
@@ -99,7 +99,8 @@ public class BusinessLogicImpl implements BusinessLogic {
   private static final String VERIFICATION_EMAIL_SUBJECT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_SUBJECT";
   private static final String VERIFICATION_EMAIL_CONTENT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_CONTENT";
 
-  private static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
+  //private static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
+  private static final long DELAY_DAILY = 10 * 1000;
   private static final long DELAY_WEEKLY = 24 * 60 * 60 * 1000 * 7;
   private static final long DELAY_MONTHLY = (long)(24 * 60 * 60 * 1000 * 365.242199 / 12.0);
   private static final long DELAY_YEARLY = (long)(24 * 60 * 60 * 1000 * 365.242199);
@@ -479,7 +480,7 @@ public class BusinessLogicImpl implements BusinessLogic {
             textBundle.getString(UNKNOWN_PROFILE), sinkProfileId));
       }
 
-      Set<ActionProfile> actions = new HashSet<ActionProfile>();
+      List<ActionProfile> actions = new ArrayList<ActionProfile>();
       if (requiredActions != null) {
         for (String action : requiredActions) {
           ActionDescribable ad = plugins.getActionById(action);
@@ -487,9 +488,10 @@ public class BusinessLogicImpl implements BusinessLogic {
             throw new IllegalArgumentException(String.format(
                 textBundle.getString(UNKNOWN_ACTION), action));
           }
-          actions.add(new ActionProfile(ad.getId()));
+          actions.add(new ActionProfile(ad.getId(), ad.getPriority()));          
         }
       }           
+      Collections.sort(actions);
       
       Date start = null;
       long delay = 0;

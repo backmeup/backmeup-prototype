@@ -1,6 +1,7 @@
 package org.backmeup.job;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import org.backmeup.model.ActionProfile;
@@ -25,7 +26,7 @@ public interface JobManager {
 
 	public BackupJob createBackupJob(User user,
 			Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
-			Set<ActionProfile> requiredActions, Date start, long delay, String keyRing);	
+			List<ActionProfile> requiredActions, Date start, long delay, String keyRing);	
 
 	
 	public BackupJob getBackUpJob(Long jobId);

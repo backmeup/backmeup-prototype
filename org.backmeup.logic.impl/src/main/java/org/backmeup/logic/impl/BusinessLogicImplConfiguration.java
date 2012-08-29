@@ -6,6 +6,8 @@ import java.util.Properties;
 
 import javax.enterprise.inject.Produces;
 import javax.inject.Named;
+
+import org.backmeup.configuration.Configuration;
 /**
  * The BusinessLogicImplConfiguration class provides
  * access to the bl.properties file.
@@ -16,46 +18,29 @@ import javax.inject.Named;
  *
  */
 public class BusinessLogicImplConfiguration {
-	private Properties loadProperties() {
-		Properties props = new Properties();
-		InputStream is = null;
-		try {
-			is = getClass().getClassLoader().getResourceAsStream("bl.properties");
-			props.load(is);						
-		} catch (Exception e) {
-		} finally {
-			if (is != null)
-				try {
-					is.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-		}
-		return props;
-	}
-	
+  
 	@Produces
 	@Named("callbackUrl")
 	public String getCallbackUrl() {
-		return this.loadProperties().getProperty("callbackUrl");
+	  return Configuration.getConfig().getProperty("callbackUrl");		
 	}
 	
 	@Produces
 	@Named("emailVerificationUrl")
 	public String getEmailVerificationUrl() {
-	  return this.loadProperties().getProperty("emailVerificationUrl");
+	  return Configuration.getConfig().getProperty("emailVerificationUrl");	  
 	}
 	
 	@Produces
 	@Named("minimalPasswordLength")
 	public int getMinimalPasswordLength() {
-	  String minimalPasswordLength = this.loadProperties().getProperty("minimalPasswordLength");
+	  String minimalPasswordLength = Configuration.getConfig().getProperty("minimalPasswordLength");
 	  return Integer.parseInt(minimalPasswordLength);
 	}	
 	
 	@Produces
 	@Named("emailRegex")
 	public String getEmailRegex() {
-	  return this.loadProperties().getProperty("emailRegex");
+	  return Configuration.getConfig().getProperty("emailRegex");
 	}
 }

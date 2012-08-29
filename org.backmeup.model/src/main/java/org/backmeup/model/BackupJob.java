@@ -1,7 +1,9 @@
 package org.backmeup.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -39,7 +41,7 @@ public class BackupJob {
   @ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER)
   private Profile sinkProfile;
   @OneToMany(cascade=CascadeType.ALL)
-  private Set<ActionProfile> requiredActions = new HashSet<ActionProfile>();
+  private List<ActionProfile> requiredActions = new ArrayList<ActionProfile>();
   @Temporal(TemporalType.TIMESTAMP)
   private Date start;
   private long delay;
@@ -51,7 +53,7 @@ public class BackupJob {
   }
 
   public BackupJob(User user, Set<ProfileOptions> sourceProfile,
-      Profile sinkProfile, Set<ActionProfile> requiredActions,
+      Profile sinkProfile, List<ActionProfile> requiredActions,
       Date start, long delay) {
     this.user = user;
     this.sourceProfiles = sourceProfile;
@@ -93,11 +95,11 @@ public class BackupJob {
     this.sinkProfile = sinkProfile;
   }
 
-  public Set<ActionProfile> getRequiredActions() {
+  public List<ActionProfile> getRequiredActions() {
     return requiredActions;
   }
 
-  public void setRequiredActions(Set<ActionProfile> requiredActions) {
+  public void setRequiredActions(List<ActionProfile> requiredActions) {
     this.requiredActions = requiredActions;
   }
 

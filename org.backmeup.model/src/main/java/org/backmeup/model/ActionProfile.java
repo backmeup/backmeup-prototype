@@ -6,28 +6,41 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class ActionProfile {
+public class ActionProfile implements Comparable<ActionProfile> {
   @Id
   @GeneratedValue(strategy=GenerationType.IDENTITY)
   private Long id;
   private String actionId;
+  private int priority;
   
   public ActionProfile() {
   }
   
-  public ActionProfile(String actionId) {
+  public ActionProfile(String actionId, int priority) {
     this.actionId = actionId;
+    this.priority = priority;    
   }
+  
   public Long getId() {
     return id;
   }
+  
   public void setId(Long id) {
     this.id = id;
   }
+  
   public String getActionId() {
     return actionId;
   }
+  
   public void setActionId(String actionId) {
     this.actionId = actionId;
+  }
+
+  @Override
+  public int compareTo(ActionProfile o) {
+    if (o == null)
+      return -1;    
+    return this.priority - o.priority;
   }
 }

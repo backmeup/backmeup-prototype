@@ -1,6 +1,7 @@
 package org.backmeup.job.impl;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -53,7 +54,7 @@ abstract public class AkkaJobManager implements JobManager {
 	@Override
 	public BackupJob createBackupJob(User user,
 			Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
-			Set<ActionProfile> requiredActions, Date start, long delayInMs,
+			List<ActionProfile> requiredActions, Date start, long delayInMs,
 			String keyRing) {
 		
 		// Create BackupJob entity in DB...
@@ -102,7 +103,7 @@ abstract public class AkkaJobManager implements JobManager {
 	private void queueJob(BackupJob job) {
 		try {		    
 			// maybe we want to start immediately for the first time, and then add the delay
-			long executeIn = job.getStart().getTime() + job.getDelay();  
+			long executeIn = job.getDelay();  
 	    
 			system.scheduler().scheduleOnce(
 				Duration.create(executeIn, TimeUnit.MILLISECONDS), 

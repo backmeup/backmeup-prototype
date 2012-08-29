@@ -35,7 +35,8 @@ public class RabbitMQJobReceiver {
 			"org.backmeup.plugin.api.connectors " +
 			"org.backmeup.plugin.api.storage " +
 			"com.google.gson " + 
-			"org.backmeup.plugin.api";
+			"org.backmeup.plugin.api " + 
+			"org.backmeup.plugin.api.actions";
 	
 	private Plugin plugins;
 	

@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.ws.rs.core.UriBuilder;
 
+import org.backmeup.configuration.Configuration;
 import org.backmeup.job.impl.rabbitmq.RabbitMQJobReceiver;
 import org.backmeup.rest.Actions;
 import org.backmeup.rest.BackupJobs;
@@ -89,7 +90,9 @@ public class Main {
 	
 	public static RabbitMQJobReceiver startRabbitMQWorker() throws IOException {
 		File autodeploy = new File("autodeploy");
-		return new RabbitMQJobReceiver("localhost", "backmeup", autodeploy.getAbsolutePath());
+		RabbitMQJobReceiver rec = new RabbitMQJobReceiver(Configuration.getConfig().getProperty("message.queue.host"), Configuration.getConfig().getProperty("message.queue.name"), autodeploy.getAbsolutePath());
+		rec.start();
+		return rec;
 	}
 
 	public static void main(String[] args) throws Exception {

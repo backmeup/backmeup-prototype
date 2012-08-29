@@ -31,36 +31,12 @@ public class AuthDataResult {
     }
   }
 
-  public static class ServiceData {
-    private Long bmu_service_id;
-
-    public Long getBmu_service_id() {
-      return bmu_service_id;
-    }
-
-    public void setBmu_service_id(Long bmu_service_id) {
-      this.bmu_service_id = bmu_service_id;
-    }
-
-    public ServiceData(Long bmu_service_id) {
-      super();
-      this.bmu_service_id = bmu_service_id;
-    }
-
-    public ServiceData() {
-      super();
-    }
-
-  }
-
-  private ServiceData[] services;
   private UserData user;
   private AuthData[] authinfos;
 
-  public AuthDataResult(ServiceData[] services, UserData user,
+  public AuthDataResult(UserData user,
       AuthData[] authinfos) {
     super();
-    this.services = services;
     this.user = user;
     this.authinfos = authinfos;
   }
@@ -69,14 +45,7 @@ public class AuthDataResult {
     super();
   }
 
-  public ServiceData[] getServices() {
-    return services;
-  }
-
-  public void setServices(ServiceData[] services) {
-    this.services = services;
-  }
-
+  
   public UserData getUser() {
     return user;
   }
@@ -103,8 +72,8 @@ public class AuthDataResult {
   }
 
   public Properties getByProfileId(Long profileId) {
-    for (int i = 0; i < services.length; i++) {
-      if (services[i].getBmu_service_id() == profileId) {
+    for (int i = 0; i < authinfos.length; i++) {
+      if (authinfos[i].getBmu_authinfo_id() == profileId) {
         return authinfos[i].getAiData();
       }
     }

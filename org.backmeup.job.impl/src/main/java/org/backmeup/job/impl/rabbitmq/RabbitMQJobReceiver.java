@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.backmeup.configuration.Configuration;
 import org.backmeup.job.impl.BackupJobRunner;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.BackupJob;
@@ -75,9 +76,9 @@ public class RabbitMQJobReceiver {
 	    ((PluginImpl)plugins).waitForInitialStartup();
 	    
 	  //TODO: Exchange with https constructor; use parameters from bl.properties + truststores from plone
-	    keyserver = new org.backmeup.keyserver.client.impl.Keyserver(       
-	      "keysrv.backmeup.at",
-	      "/keysrv",
+	    keyserver = new org.backmeup.keyserver.client.impl.Keyserver(
+	      Configuration.getConfig().getProperty("keyserver.host"),
+	      Configuration.getConfig().getProperty("keyserver.path"),
 	      true
 	    );
 	    

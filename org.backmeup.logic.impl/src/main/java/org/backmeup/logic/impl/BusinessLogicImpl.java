@@ -100,7 +100,8 @@ public class BusinessLogicImpl implements BusinessLogic {
   private static final String VERIFICATION_EMAIL_CONTENT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_CONTENT";
 
   //private static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
-  private static final long DELAY_DAILY = 10 * 1000;
+  private static final long DELAY_REALTIME = 1 * 1000;
+  private static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
   private static final long DELAY_WEEKLY = 24 * 60 * 60 * 1000 * 7;
   private static final long DELAY_MONTHLY = (long)(24 * 60 * 60 * 1000 * 365.242199 / 12.0);
   private static final long DELAY_YEARLY = (long)(24 * 60 * 60 * 1000 * 365.242199);
@@ -504,9 +505,12 @@ public class BusinessLogicImpl implements BusinessLogic {
       } else if (timeExpression.equalsIgnoreCase("monthly")) {
         start = new Date();
         delay = DELAY_MONTHLY;
-      } else {
+      } else if (timeExpression.equalsIgnoreCase("yearly")) {
         start = new Date();
         delay = DELAY_YEARLY;
+      } else {
+        start = new Date();
+        delay = DELAY_REALTIME;
       }
       
       BackupJob job = jobManager.createBackupJob(user, profiles, sink, actions,

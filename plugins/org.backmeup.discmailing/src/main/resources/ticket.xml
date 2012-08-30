@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<ticket>
+        <version>4.0</version>
+
+        <sources>
+        <source>
+                <name>main</name>
+                <type>local</type>
+        </source>
+        </sources>
+
+        <job>
+                <type>burn</type>
+                <values>
+                        <value name="ticket_name">backmeup burn ticket</value>
+                </values>
+                <settings>
+                        <value name="store">yes</value>
+                        <value name="autostart">yes</value>
+                        <value name="simulate">no</value>
+                        <value name="quantity">1</value>
+                        <value name="verify">md5</value>
+                        <value name="verify_amount">100</value>
+                </settings>
+                <image>
+                        <type>create</type>
+                        <data>
+                                <sourcename>main</sourcename>
+                                <mapping>
+                                        <path>/data/backmeup/users/(userid)/(jobid)/</path>
+                                        <destination>/</destination>
+                                </mapping>
+                        </data>
+                </image>
+                <label>
+                        <type>create</type>
+                        <basis>120</basis>
+                        <block>
+                                <type>text</type>
+                                <align>center</align>
+                                <position>
+                                        <x>60</x>
+                                        <y>100</y>
+                                </position>
+                                <text>
+                                        <color>rgb(0,0,0)</color>
+                                        <size>12</size>
+                                        <line>(name) (id)</line>
+                                        <line>(Adresse)</line>
+                                        <file sourcename="main">/opt/usr/openrc/res/fonts/FreeSans.ttf</file>
+                                </text>
+                        </block>
+                </label>
+        </job>
+</ticket>

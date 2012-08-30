@@ -21,12 +21,12 @@ import com.jcraft.jsch.SftpException;
 public class DiscmailingDatasink implements Datasink {
 
 	@Override
-	public String upload(Properties accessData, StorageReader storage,
+	public String upload(Properties items, StorageReader storage,
 			Progressable progressor) throws StorageException  {
 		
-		DiscmailingHelper helper = new DiscmailingHelper();
+		DiscmailingHelper helper = DiscmailingHelper.getInstance();
 		
-		String destination = helper.getDestination();
+		String target = helper.getTarget();
          
         Session session = helper.getSshSession();       
         ChannelSftp sftpChannel =  helper.getSftpChannel(session);
@@ -36,7 +36,16 @@ public class DiscmailingDatasink implements Datasink {
         }
         
         System.out.println("Connected");
-        		
+
+        //generate XML Ticket
+        try {
+        	InputStream in = helper.generateTicket(items);
+      		String path = helper.getTicketpath() + "/ticket.xml";
+      		sftpChannel.put(in, path);
+      	} catch (Exception e) {
+      		throw new PluginException(DiscmailingDescriptor.DISC_ID, "Error during upload of file %s", e);
+      	}
+        
 		Iterator<DataObject> it = storage.getDataObjects();
 		int i = 1;
 		while(it.hasNext()) {
@@ -44,17 +53,16 @@ public class DiscmailingDatasink implements Datasink {
 			try {
 				byte[] data = dataObj.getBytes();
 				InputStream bis = new ByteArrayInputStream(data);
-				String remotePath = destination + dataObj.getPath();
-				String log = String.format("Uploading file %s (Number: %d)...", remotePath, i++);
+				String path = target + dataObj.getPath();
+				String log = String.format("Uploading file %s (Number: %d)...", path, i++);
 				System.out.println(log);
 				progressor.progress(log);
 				try {
-					
 					File f = new File(dataObj.getPath());
-					if (!directoryExists(destination + f.getParent(), sftpChannel)) {
-						mkdirRec(remotePath, sftpChannel);
+					if (!directoryExists(target + f.getParent(), sftpChannel)) {
+						mkdirRec(path, sftpChannel);
 					}					
-					sftpChannel.put(bis, remotePath);
+					sftpChannel.put(bis, path);
 				}
 				catch (SftpException e) {
                         e.printStackTrace();

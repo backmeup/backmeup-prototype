@@ -1,8 +1,24 @@
 package org.backmeup.discmailing;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -12,21 +28,17 @@ import com.jcraft.jsch.Session;
 
 public class DiscmailingHelper {
 	
-	private String appKey;
-	
-	private String appSecret;
+	private String host;
 
-	private String hostname;
+	private String user;
 	
-	private String username;
+	private String target;
 	
-	private String password;
-	
-	private String destination;
+	private String ticketpath;
 	
 	private int port;
 	
-	private String privateKey;
+	private String sshkey;
 	
 	public DiscmailingHelper() {
 		Properties properties = new Properties();
@@ -41,22 +53,24 @@ public class DiscmailingHelper {
 			throw new RuntimeException("Fatal error: could not load discmailing.properties: " + e.getMessage());
 		}
 		
-		hostname = properties.getProperty("hostname");
-		username = properties.getProperty("username");
-		password = properties.getProperty("password");
-		destination = properties.getProperty("destination");
-		port = Integer.parseInt(properties.getProperty("port"));
-		privateKey = properties.getProperty("privateKey");
+		host = properties.getProperty("remote.host");
+		user = properties.getProperty("remote.user");
+		target = properties.getProperty("remote.target");
+		ticketpath = properties.getProperty("remote.ticketpath");
+		port = Integer.parseInt(properties.getProperty("remote.port"));
+		sshkey = properties.getProperty("ssh.key");
 		
-		appKey = properties.getProperty("app.key");
-		appSecret = properties.getProperty("app.secret");
+	}
+	
+	public static DiscmailingHelper getInstance() {
+		return new DiscmailingHelper();
 	}
 	
 	public Session getSshSession() {
 		try {
 			JSch jsch = new JSch();
-	        jsch.addIdentity(privateKey);
-	        Session session = jsch.getSession(username, hostname, port);
+	        jsch.addIdentity(sshkey);
+	        Session session = jsch.getSession(user, host, port);
 	        session.setConfig("StrictHostKeyChecking", "no");
 	        return session;
 		}
@@ -79,36 +93,71 @@ public class DiscmailingHelper {
         	return null;
         }
 	}
+	
+	public InputStream generateTicket(Properties items) {
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder;
+		Document doc;
+		try {
+			docBuilder = docFactory.newDocumentBuilder();
+		    InputStream is = getClass().getClassLoader().getResourceAsStream("ticket.xml");
+			doc = docBuilder.parse(is);
+			
+			Element el = (Element) doc.getElementsByTagName("values").item(0);
 
-	public String getAppKey() {
-		return appKey;
+			el.appendChild(addValue(doc, "firstname", "Test"));
+			el.appendChild(addValue(doc, "surname", "User"));
+			el.appendChild(addValue(doc, "street", items.getProperty("Street")));
+			el.appendChild(addValue(doc, "city", items.getProperty("City")));
+			el.appendChild(addValue(doc, "postcode", items.getProperty("Postcode")));
+			
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			Source source = new DOMSource(doc);
+			Result result = new StreamResult(outputStream);
+			
+			Transformer transformer = TransformerFactory.newInstance().newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "8");
+			transformer.transform(source, result);
+			
+			InputStream ticket = new ByteArrayInputStream(outputStream.toByteArray());
+			return ticket;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
-	public String getAppSecret() {
-		return appSecret;
+	private Element addValue(Document doc, String value, String text) {
+		Element e = doc.createElement("value");
+		Text t = doc.createTextNode(text);
+		e.appendChild(t);
+		e.setAttribute("name", value);
+		return e;
+	}
+	
+	public String getHost() {
+		return host;
 	}
 
-	public String getHostname() {
-		return hostname;
+	public String getUser() {
+		return user;
 	}
 
-	public String getUsername() {
-		return username;
+	public String getTarget() {
+		return target;
 	}
 
-	public String getPassword() {
-		return password;
-	}
-
-	public String getDestination() {
-		return destination;
+	public String getTicketpath() {
+		return ticketpath;
 	}
 
 	public int getPort() {
 		return port;
 	}
 
-	public String getPrivateKey() {
-		return privateKey;
+	public String getSshkey() {
+		return sshkey;
 	}
 }

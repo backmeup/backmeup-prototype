@@ -350,6 +350,11 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     GsonBuilder gb = new GsonBuilder();
     gb.registerTypeAdapter(Properties.class, new PropertiesSerializer());
     Gson g = gb.create();
+    try {
+      userPwd = URLEncoder.encode(userPwd, "UTF-8");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     String json = g.toJson(new AuthUsrPwd(userId, userPwd, serviceId,
         authInfoId, keyValuePairs));
     Result response = execute(path + "/authinfos/add", ReqType.POST, json);
@@ -385,6 +390,11 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   public Token getToken(Long userId, String userPwd, Long[] services,
       Long[] authinfos, Long backupdate, boolean reusable) {
     Gson g = new Gson();
+    try {
+      userPwd = URLEncoder.encode(userPwd, "UTF-8");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     String json = g.toJson(new TokenRequest(userId, userPwd, services,
         authinfos, backupdate, reusable));
     System.out.println("REQUESTING: " + json);

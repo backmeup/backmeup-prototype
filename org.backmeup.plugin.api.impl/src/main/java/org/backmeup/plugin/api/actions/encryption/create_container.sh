@@ -7,10 +7,10 @@
 #containername="/tmp/test.tc"
 #mountpoint="/tmp/mnt"
 
-password="$4"
-size="$3"
 containername="$1"
 mountpoint="$2"
+size="$3"
+password="$4"
 
 
 tccmd="truecrypt"

@@ -9,26 +9,26 @@ import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.storage.DataObject;
 
 public class EncryptionContainer
 {
-	private String container_path;
-	private String container_name;
+	private final String BMU_PATH_SEPARATOR = "/";
+	private final String FS_PATH_SEPARATOR = System.getProperty ("file.separator");
+	private final String SYS_TEMP_DIR = System.getProperty ("java.io.tmpdir");
+	
+	private String containerpath;
+	private String containername;
 	private String mountpoint;
 	private String password;
 	private long size;
 	private List<DataObject> data;
-
-	// TODO Remove this constructor
-	public EncryptionContainer ()
-	{
-	}
 	
-	public EncryptionContainer (String container_name,String container_path, String mountpoint, String password, long size)
-	{
-		this.container_name = container_name;
-		this.container_path = container_path;
+	public EncryptionContainer (String containername, String containerpath, String mountpoint, String password, long size)
+	{	
+		this.containername = containername;
+		this.containerpath = containerpath;
 		this.mountpoint = mountpoint;
 		this.password = password;
 		this.size = size;
@@ -46,29 +46,34 @@ public class EncryptionContainer
 		}
 	}
 
-	private void createContainer ()
+	private void createContainer () throws ActionException
 	{
-		File f = new File ("mountpoint");
+		File f = new File (mountpoint);
 		if (f.exists () == false)
 		{
-			f.mkdir ();
+			if (f.mkdirs () == false)
+			{
+				// TODO throw CantCreateFolder...
+				throw new ActionException ("Can't create mountpint: " + mountpoint);
+			}
 		}
 		else
 		{
-			// TODO throw something
+			// TODO throw FolderAlready...
+			throw new ActionException ("Mountpoint already exists: " + mountpoint);
 		}
 		
 		EncryptionTcManager tcmanager = new EncryptionTcManager ();
 		tcmanager.createContainer (this);
 	}
 
-	private void unmountContainer ()
+	private void unmountContainer () throws ActionException
 	{
 		EncryptionTcManager tcmanager = new EncryptionTcManager ();
 		tcmanager.unmountContainer (this);
 	}
 
-	public void writeContainer () throws IOException
+	public void writeContainer () throws IOException, ActionException
 	{
 		createContainer ();
 		writeData ();
@@ -77,14 +82,14 @@ public class EncryptionContainer
 	
 	public InputStream getContainer () throws FileNotFoundException
 	{
-		FileInputStream is = new FileInputStream (container_path);
+		FileInputStream is = new FileInputStream (containerpath);
 		
 		return is;
 	}
 	
 	public void deleteContainer ()
 	{
-		File file = new File (container_path + container_name);
+		File file = new File (containerpath);
 		file.delete ();
 	}
 
@@ -92,10 +97,15 @@ public class EncryptionContainer
 	{
 		this.data.add (data);
 	}
-
-	public String getContainer_path ()
+	
+	public String getContainername ()
 	{
-		return container_path;
+		return containername;
+	}
+
+	public String getContainerpath ()
+	{
+		return containerpath;
 	}
 
 	public String getMountpoint ()

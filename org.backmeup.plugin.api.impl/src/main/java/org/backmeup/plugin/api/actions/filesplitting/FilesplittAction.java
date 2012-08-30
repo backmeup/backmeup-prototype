@@ -103,6 +103,7 @@ public class FilesplittAction implements Action
 			for (FileContainer fc : fcs.getContainers ())
 			{
 				parameters.setProperty ("org.backmeup.filesplitting.container." + container + ".size", fc.getContainersize () + "");
+				parameters.setProperty ("org.backmeup.filesplitting.container." + container + ".name", fc.getContainerpath ());
 				container++;
 				
 				for (int i = 0; i < fc.getContainerElementCount (); i++)

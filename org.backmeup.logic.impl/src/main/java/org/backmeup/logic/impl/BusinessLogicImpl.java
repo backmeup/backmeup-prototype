@@ -643,6 +643,13 @@ public class BusinessLogicImpl implements BusinessLogic {
   public void postAuth(Long profileId, Properties props, String keyRing)
       throws PluginException, ValidationException, InvalidCredentialsException {
     try {
+      if (keyRing == null)
+        throw new IllegalArgumentException("keyRing-Parameter cannot be null!");
+      else if (profileId == null)
+        throw new IllegalArgumentException("profileId-Parameter cannot be null!");
+      else if (props == null)
+        throw new IllegalArgumentException("properties-Parameter cannot be null!");
+      
       conn.begin();
       ProfileDao profileDao = getProfileDao();
       Profile p = profileDao.findById(profileId);

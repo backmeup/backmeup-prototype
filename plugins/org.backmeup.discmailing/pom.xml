@@ -55,7 +55,7 @@
 						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Name>${project.name}</Bundle-Name>
 						<Bundle-Version>${project.version}</Bundle-Version>
-						<Import-Package>!keypairgen, !javax.*,!org.ietf.*,!signature,!userauth,*</Import-Package>
+						<Import-Package>!keypairgen, !org.ietf.*,!signature,!userauth,*</Import-Package>
 						<Embed-Dependency>jsch,jzlib</Embed-Dependency>
 						<Embed-Transitive>false</Embed-Transitive>
 						<Embed-Directory>lib</Embed-Directory>

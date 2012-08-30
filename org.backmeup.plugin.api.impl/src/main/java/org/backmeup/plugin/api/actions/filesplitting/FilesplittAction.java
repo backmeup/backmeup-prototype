@@ -22,14 +22,17 @@ public class FilesplittAction implements Action
 	private static final String FILESPLITT_PROCESS_COMPLETE = "Filesplitting complete";
 	
 	private static final long CONTAINER_SIZE = 10 * 1024 * 1024; // 10 MiB
-	private static final String CONTAINER_PATH = "/container";
+	private static final String CONTAINER_CRYPT_EXTENSION = ".tc";
+
+	private StorageWriter writer = null;
 
 	@Override
 	public void doAction (Properties parameters, StorageReader input, StorageWriter output, Progressable progressor) throws ActionException
 	{
-		progressor.progress (START_FILESPLITT_PROCESS);		
-
-		FileContainers fcs = new FileContainers (CONTAINER_PATH, CONTAINER_SIZE);
+		progressor.progress (START_FILESPLITT_PROCESS);
+		
+		// TODO Rewrite do new API
+		writer = output;
 
 		try
 		{
@@ -74,6 +77,8 @@ public class FilesplittAction implements Action
 				}
 			});
 
+			
+			
 			progressor.progress (FILESPLITT_SORT);
 			Iterator<DataObject> dataObjects = input.getDataObjects ();
 			while (dataObjects.hasNext () == true)
@@ -81,6 +86,8 @@ public class FilesplittAction implements Action
 				DataObject daob = dataObjects.next ();
 				sorted.add (daob);
 			}
+			
+			FileContainers fcs = new FileContainers (CONTAINER_SIZE, false);
 
 			progressor.progress (FILESPLITT_SPLITT);
 			DataObject daob = sorted.peek ();
@@ -100,7 +107,7 @@ public class FilesplittAction implements Action
 				
 				for (int i = 0; i < fc.getContainerElementCount (); i++)
 				{
-					output.addFile (fc.getContainerElementData (i), fc.getContainerElementPath (i), fc.getContainerElementMetaInfo (i));
+					writer.addFile (fc.getContainerElementData (i), fc.getContainerElementPath (i), fc.getContainerElementMetaInfo (i));
 				}
 			}
 		}

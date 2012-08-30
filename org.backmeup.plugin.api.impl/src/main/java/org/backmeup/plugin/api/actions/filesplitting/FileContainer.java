@@ -11,6 +11,8 @@ import org.backmeup.plugin.api.storage.DataObject;
 
 public class FileContainer
 {
+	private static String PATH_SEPARATOR = "/";
+	
 	private long containermaxsize;
 	private long containersize;
 	private String containerpath;
@@ -46,6 +48,16 @@ public class FileContainer
 		return true;
 	}
 	
+	public void setContainerpath (String containerpath)
+	{
+		this.containerpath = containerpath;
+	}
+	
+	public String getContainerpath ()
+	{
+		return containerpath;
+	}
+	
 	public int getContainerElementCount ()
 	{
 		return dataobjects.size ();
@@ -59,7 +71,19 @@ public class FileContainer
 	
 	public String getContainerElementPath (int index)
 	{
-		return (containerpath + "/" + dataobjects.get (index).getPath ());
+		String[] parts = dataobjects.get (index).getPath ().split (PATH_SEPARATOR);
+		parts[0] = containerpath;
+		
+		String new_path = "";
+		for (String part : parts)
+		{
+			new_path += part + PATH_SEPARATOR;
+		}
+		// Remove the last PATH_SEPARATOR ("/") 
+		new_path = new_path.substring (0, new_path.length () - 1);
+		
+		
+		return new_path;
 	}
 	
 	public long getContainerElementLength (int index)

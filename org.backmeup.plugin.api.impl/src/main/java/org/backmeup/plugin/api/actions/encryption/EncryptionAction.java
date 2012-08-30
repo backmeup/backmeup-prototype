@@ -1,10 +1,12 @@
 package org.backmeup.plugin.api.actions.encryption;
 
+import java.util.Iterator;
 import java.util.Properties;
 
 import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
+import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.StorageReader;
 import org.backmeup.plugin.api.storage.StorageWriter;
 
@@ -51,6 +53,20 @@ public class EncryptionAction implements Action
 		else
 		{
 			throw new ActionException ("Property \"" + PROP_PASSWORD + "\" is not set");
+		}
+		
+		try
+		{
+
+			Iterator<DataObject> dataObjects = storage.getDataObjects ();
+			while (dataObjects.hasNext () == true)
+			{
+				DataObject daob = dataObjects.next ();
+			}
+		}
+		catch (Exception e)
+		{
+			throw new ActionException (e);
 		}
 		
 		// TODO create container(s)

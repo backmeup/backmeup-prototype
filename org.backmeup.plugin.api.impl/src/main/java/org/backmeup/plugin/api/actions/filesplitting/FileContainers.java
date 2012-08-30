@@ -1,6 +1,6 @@
 package org.backmeup.plugin.api.actions.filesplitting;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.backmeup.plugin.api.actions.ActionException;
@@ -9,45 +9,43 @@ import org.backmeup.plugin.api.storage.DataObject;
 public class FileContainers
 {
 	private static int CONTAINER_LIMIT = 999;
+	private static String PART_NUM_FORMAT = "%03d";
+	private static String PATH_SEPARATOR = "/";
 	
 	private List<FileContainer> filecontainers;
-	private String containerpath;
 	private long containermaxsize;
 	private FileContainer currcontainer;
+	boolean encrypt;
 	
-	public FileContainers (String containerpath, long containermaxsize)
+	public FileContainers (long containermaxsize, boolean encrypt)
 	{
-		this.containerpath = containerpath;
 		this.containermaxsize = containermaxsize;
+		this.encrypt = encrypt;
 		
-		filecontainers = new ArrayList<FileContainer> ();
-		currcontainer = new FileContainer (containerpath + "_000", containermaxsize);
+		filecontainers = new LinkedList<FileContainer> ();
+		currcontainer = null;
 	}
 	
-	private String getNewContainerpath () throws ActionException
+	private String getNewContainerpath (String path) throws ActionException
 	{
-		if (filecontainers.size () < 10)
-		{
-			return containerpath + "_00" + filecontainers.size ();
-		}
+		String containerpath = path.split(PATH_SEPARATOR)[0];
 		
-		if (filecontainers.size () > 10)
+		if (encrypt == false)
 		{
-			return containerpath + "_0" + filecontainers.size ();
+			containerpath = containerpath + "_part" + String.format (PART_NUM_FORMAT, filecontainers.size () + 1);
 		}
-		
-		if (filecontainers.size () > 100)
+		else
 		{
-			return containerpath + "_" + filecontainers.size ();
+			containerpath = containerpath + "_part" + String.format (PART_NUM_FORMAT, filecontainers.size () + 1) + ".tc";	
 		}
 		
 		if (filecontainers.size () > CONTAINER_LIMIT)
 		{
 			// TODO throw new ToMuchSplitt...
-			throw new ActionException ("Cant split data in more than " + CONTAINER_LIMIT + " containers");
+			throw new ActionException ("Can't split data in more than " + CONTAINER_LIMIT + " containers");
 		}
 		
-		return "";
+		return containerpath;
 	}
 	
 	public void addData (DataObject data) throws ActionException
@@ -58,16 +56,30 @@ public class FileContainers
 			throw new ActionException ("File (path: " + data.getPath () + ", size: " + data.getLength () + ") is bigger than maximum container size (" + containermaxsize + ").");
 		}
 		
+		if (currcontainer == null)
+		{
+			currcontainer = new FileContainer (getNewContainerpath(data.getPath ()), containermaxsize);
+		}
+		
 		if (currcontainer.addData (data) == false)
 		{
 			filecontainers.add (currcontainer);
-			currcontainer = new FileContainer (getNewContainerpath (), containermaxsize);
+			currcontainer = new FileContainer (getNewContainerpath (data.getPath ()), containermaxsize);
 			currcontainer.addData (data);
 		}
 	}
 	
 	public List<FileContainer> getContainers ()
 	{
+		// Remove the _part001 extension if only one part exists
+		if (filecontainers.size () == 1)
+		{
+			String new_containerpath = filecontainers.get (0).getContainerpath ();
+			new_containerpath = new_containerpath.replaceAll ("_part001", "");
+			
+			filecontainers.get (0).setContainerpath (new_containerpath);
+		}
+		
 		return filecontainers;
 	}
 }

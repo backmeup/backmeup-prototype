@@ -11,6 +11,8 @@ import org.backmeup.plugin.api.storage.DataObject;
 public class FileDataObject implements DataObject {
 
 	private File file;
+	
+	private File metaFile;
 
 	private String path;
 
@@ -20,6 +22,7 @@ public class FileDataObject implements DataObject {
 	
 	public FileDataObject(File file, String path) {
 		this.file = file;
+		this.metaFile = new File(file.getAbsolutePath() + ".meta.json");
 		this.path = path;
 	}
 
@@ -40,6 +43,7 @@ public class FileDataObject implements DataObject {
 
 	@Override
 	public MetainfoContainer getMetainfo() {
+		// TODO deserialize metainfo file from JSON
 	    MetainfoContainer metainfo = new MetainfoContainer();
 	    return metainfo;
 	}

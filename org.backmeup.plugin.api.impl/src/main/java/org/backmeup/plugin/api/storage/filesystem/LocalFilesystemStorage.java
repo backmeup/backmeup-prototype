@@ -126,14 +126,22 @@ public class LocalFilesystemStorage extends Storage {
 	public void moveFile(String fromPath, String toPath) throws StorageException {	
 		try {
 			File from = new File(rootDir, fromPath);
+			File to = new File(rootDir, toPath);
+			
+			if (from.isDirectory() || to.isDirectory())
+				throw new StorageException("Cannot move directories");
+				
 			if (!from.exists())
 				throw new StorageException("Cannot move " + fromPath + " - does not exist");
 			
-			File to = new File(rootDir, toPath);
 			if (to.exists())
 				throw new StorageException("Cannot move to " + toPath + " - already exists");
 				
  			FileUtils.moveFile(from, to);
+ 			
+ 			File fromMeta = new File(rootDir, fromPath + ".meta.json");
+ 			if (fromMeta.exists())
+ 				FileUtils.moveFile(fromMeta, new File(rootDir, toPath + ".meta.json"));
 		} catch (IOException e) {
 			throw new StorageException(e);
 		} 
@@ -146,6 +154,10 @@ public class LocalFilesystemStorage extends Storage {
 			throw new StorageException("Cannot remove " + path + " - does not exist");
 		
 		file.delete();
+		
+		File meta = new File(rootDir, path + ".meta.json");
+		if (meta.exists())
+			meta.delete();
 	}
 
 }

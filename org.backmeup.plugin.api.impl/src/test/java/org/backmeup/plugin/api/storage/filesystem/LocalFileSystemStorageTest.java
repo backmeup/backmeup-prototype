@@ -9,6 +9,7 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.apache.tools.ant.filters.StringInputStream;
+import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
@@ -39,18 +40,24 @@ public class LocalFileSystemStorageTest {
 		storage.open(ROOT_PATH);
 		
 		// Add two test files
-		storage.addFile(new StringInputStream(TEST_TXT_1), "/hello1.txt", null);
-		storage.addFile(new StringInputStream(TEST_TXT_2), "/mydirectory/hello2.txt", null);
+		storage.addFile(new StringInputStream(TEST_TXT_1), "/hello1.txt", new MetainfoContainer());
+		storage.addFile(new StringInputStream(TEST_TXT_2), "/mydirectory/hello2.txt", new MetainfoContainer());
 		
 		File rootPath = new File(ROOT_PATH);	
 		File file1 = new File(rootPath, "hello1.txt");
+		File meta1 = new File(rootPath, "hello1.txt.meta.json");
 		File file2 = new File(new File(rootPath, "mydirectory"), "hello2.txt");
+		File meta2 = new File(new File(rootPath, "mydirectory"), "hello2.txt.meta.json");
 		
-		// Both should exist on the file system
+		// Both files and meta json should exist on the file system
 		Assert.assertTrue(file1.exists());
 		Assert.assertTrue(file1.isFile());
+		Assert.assertTrue(meta1.exists());
+		Assert.assertTrue(meta1.isFile());
 		Assert.assertTrue(file2.exists());
 		Assert.assertTrue(file2.isFile());
+		Assert.assertTrue(meta2.exists());
+		Assert.assertTrue(meta2.isFile());
 	}
 	
 	@Test
@@ -93,12 +100,24 @@ public class LocalFileSystemStorageTest {
 		Storage storage = new LocalFilesystemStorage();
 		storage.open(ROOT_PATH);
 		
+		// Trying to move a directory should throw a StorageException
+		try {
+			storage.moveFile("/mydirectory/", "/my-new-directory/");
+			Assert.fail();
+		} catch (StorageException e) {
+			Assert.assertTrue(e.getMessage().contains("directories"));
+		}
+		
+		// Move file
 		storage.moveFile("/mydirectory/hello2.txt", "/my-new-directory/hello3.txt");
 		
 		File dir = new File(ROOT_PATH, "my-new-directory");
 		File file = new File(dir, "hello3.txt");
+		File meta = new File(dir, "hello3.txt.meta.json");
 		Assert.assertTrue(file.exists());
 		Assert.assertTrue(file.isFile());
+		Assert.assertTrue(meta.exists());
+		Assert.assertTrue(meta.isFile());
 	}
 	
 	@Test
@@ -107,11 +126,14 @@ public class LocalFileSystemStorageTest {
 		storage.open(ROOT_PATH);
 		
 		File file = new File(new File(ROOT_PATH, "my-new-directory"), "hello3.txt");
+		File meta = new File(new File(ROOT_PATH, "my-new-directory"), "hello3.txt.meta.json");
 		Assert.assertTrue(file.exists());
+		Assert.assertTrue(meta.exists());
 		
 		storage.removeFile("/my-new-directory/hello3.txt");
 		
 		Assert.assertFalse(file.exists());
+		Assert.assertFalse(meta.exists());
 	}
 	
 	@Test

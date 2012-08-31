@@ -13,6 +13,7 @@ import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.StorageException;
 import org.backmeup.plugin.api.storage.StorageWriter;
 
+@Deprecated
 public class HdfsStorageWriter extends StorageWriter {
 	
 	private FileSystem filesystem;

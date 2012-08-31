@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.Map.Entry;
 
-import org.apache.hadoop.hdfs.server.common.Storage;
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.StorageException;
@@ -22,12 +21,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-/**
- * An implementation of {@link Storage} based on a directory on the local file
- * system.
- * 
- * @author Rainer Simon <rainer.simon@ait.ac.at>
- */
+@Deprecated
 public class LocalFilesystemStorageWriter extends StorageWriter {
   
   public Gson getGson() {

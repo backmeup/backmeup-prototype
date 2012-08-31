@@ -12,6 +12,7 @@ import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.StorageException;
 import org.backmeup.plugin.api.storage.StorageReader;
 
+@Deprecated
 public class HdfsStorageReader extends StorageReader {
 
 	private FileSystem filesystem;

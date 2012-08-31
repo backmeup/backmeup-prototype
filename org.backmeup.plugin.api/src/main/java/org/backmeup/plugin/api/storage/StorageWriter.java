@@ -4,6 +4,10 @@ import java.io.InputStream;
 
 import org.backmeup.plugin.api.MetainfoContainer;
 
+/**
+ * @deprecated  Use {@link Storage} instead
+ */
+@Deprecated
 public abstract class StorageWriter {
 	
 	private static Class<? extends StorageWriter> clazz = null;

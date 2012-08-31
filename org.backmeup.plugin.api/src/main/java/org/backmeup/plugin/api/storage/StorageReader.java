@@ -2,6 +2,10 @@ package org.backmeup.plugin.api.storage;
 
 import java.util.Iterator;
 
+/**
+ * @deprecated  Use {@link Storage} instead
+ */
+@Deprecated
 public abstract class StorageReader {
 	
 	private static Class<? extends StorageReader> clazz = null;

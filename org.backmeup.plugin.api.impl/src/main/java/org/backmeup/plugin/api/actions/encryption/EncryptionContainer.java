@@ -13,11 +13,7 @@ import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.storage.DataObject;
 
 public class EncryptionContainer
-{
-	private final String BMU_PATH_SEPARATOR = "/";
-	private final String FS_PATH_SEPARATOR = System.getProperty ("file.separator");
-	private final String SYS_TEMP_DIR = System.getProperty ("java.io.tmpdir");
-	
+{	
 	private String containerpath;
 	private String containername;
 	private String mountpoint;

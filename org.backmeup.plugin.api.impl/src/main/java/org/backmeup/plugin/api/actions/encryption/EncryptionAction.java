@@ -1,6 +1,5 @@
 package org.backmeup.plugin.api.actions.encryption;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
 

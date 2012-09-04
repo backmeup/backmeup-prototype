@@ -94,6 +94,11 @@ public class EncryptionContainer
 		this.data.add (data);
 	}
 	
+	public List<DataObject> getData ()
+	{
+		return data;
+	}
+
 	public String getContainername ()
 	{
 		return containername;

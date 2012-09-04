@@ -69,7 +69,7 @@ public class FileContainer
 		return is;
 	}
 	
-	public String getContainerElementPath (int index)
+	public String getContainerElementNewPath (int index)
 	{
 		String[] parts = dataobjects.get (index).getPath ().split (PATH_SEPARATOR);
 		parts[0] = containerpath;
@@ -84,6 +84,11 @@ public class FileContainer
 		
 		
 		return new_path;
+	}
+	
+	public String getContainerElementOldPath (int index)
+	{
+		return dataobjects.get (index).getPath ();
 	}
 	
 	public long getContainerElementLength (int index)

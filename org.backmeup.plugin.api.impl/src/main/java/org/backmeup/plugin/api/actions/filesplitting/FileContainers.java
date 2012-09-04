@@ -11,6 +11,7 @@ public class FileContainers
 	private static int CONTAINER_LIMIT = 999;
 	private static String PART_NUM_FORMAT = "%03d";
 	private static String PATH_SEPARATOR = "/";
+	private static final String CONTAINER_CRYPT_EXTENSION = ".tc";
 	
 	private List<FileContainer> filecontainers;
 	private long containermaxsize;
@@ -36,7 +37,7 @@ public class FileContainers
 		}
 		else
 		{
-			containerpath = containerpath + "_part" + String.format (PART_NUM_FORMAT, filecontainers.size () + 1) + ".tc";	
+			containerpath = containerpath + "_part" + String.format (PART_NUM_FORMAT, filecontainers.size () + 1) + CONTAINER_CRYPT_EXTENSION;	
 		}
 		
 		if (filecontainers.size () > CONTAINER_LIMIT)

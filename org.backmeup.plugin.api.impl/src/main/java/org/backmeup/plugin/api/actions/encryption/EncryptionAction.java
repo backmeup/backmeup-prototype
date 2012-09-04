@@ -3,10 +3,12 @@ package org.backmeup.plugin.api.actions.encryption;
 import java.util.Iterator;
 import java.util.Properties;
 
+import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DataObject;
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageReader;
 import org.backmeup.plugin.api.storage.StorageWriter;
 
@@ -16,8 +18,11 @@ public class EncryptionAction implements Action
 	private final String PROP_PASSWORD = "org.backmeup.encryption.password";
 	
 	@Override
-	public void doAction (Properties parameters, StorageReader storage, StorageWriter output, Progressable progressor) throws ActionException
+	public void doAction (Properties parameters, StorageReader input, StorageWriter output, Progressable progressor) throws ActionException
 	{
+		// TODO rewrite to new Storage interface
+		Storage storage = null;
+		
 		String password;
 		int containers;
 		long[] containersize;
@@ -86,8 +91,13 @@ public class EncryptionAction implements Action
 			try
 			{
 				container.writeContainer ();
-				output.addFile (container.getContainer (), container.getContainername ());
+				storage.addFile (container.getContainer (), container.getContainername (), new MetainfoContainer ());
 				container.deleteContainer ();
+				
+				for (DataObject daob : container.getData ())
+				{
+					storage.removeFile (daob.getPath ());
+				}
 			}
 			catch (Exception e)
 			{

@@ -11,6 +11,7 @@ import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DataObject;
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageReader;
 import org.backmeup.plugin.api.storage.StorageWriter;
 
@@ -22,9 +23,6 @@ public class FilesplittAction implements Action
 	private static final String FILESPLITT_PROCESS_COMPLETE = "Filesplitting complete";
 	
 	private static final long CONTAINER_SIZE = 10 * 1024 * 1024; // 10 MiB
-	private static final String CONTAINER_CRYPT_EXTENSION = ".tc";
-
-	private StorageWriter writer = null;
 
 	@Override
 	public void doAction (Properties parameters, StorageReader input, StorageWriter output, Progressable progressor) throws ActionException
@@ -32,11 +30,11 @@ public class FilesplittAction implements Action
 		progressor.progress (START_FILESPLITT_PROCESS);
 		
 		// TODO Rewrite do new API
-		writer = output;
+		Storage storage = null;
 
 		try
 		{
-			PriorityQueue<DataObject> sorted = new PriorityQueue<DataObject> (input.getDataObjectCount(), new Comparator<DataObject> ()
+			PriorityQueue<DataObject> sorted = new PriorityQueue<DataObject> (storage.getDataObjectCount(), new Comparator<DataObject> ()
 			{
 				@Override
 				public int compare (DataObject do1, DataObject do2)
@@ -80,7 +78,7 @@ public class FilesplittAction implements Action
 			
 			
 			progressor.progress (FILESPLITT_SORT);
-			Iterator<DataObject> dataObjects = input.getDataObjects ();
+			Iterator<DataObject> dataObjects = storage.getDataObjects ();
 			while (dataObjects.hasNext () == true)
 			{
 				DataObject daob = dataObjects.next ();
@@ -108,7 +106,7 @@ public class FilesplittAction implements Action
 				
 				for (int i = 0; i < fc.getContainerElementCount (); i++)
 				{
-					writer.addFile (fc.getContainerElementData (i), fc.getContainerElementPath (i), fc.getContainerElementMetaInfo (i));
+					storage.moveFile (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i));
 				}
 			}
 		}

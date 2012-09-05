@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.ecs.Document;
+import org.apache.ecs.html.A;
 import org.apache.ecs.html.H1;
 import org.apache.ecs.html.H2;
 import org.apache.ecs.html.IMG;
@@ -74,11 +75,11 @@ public class TwitterDatasource implements Datasource {
 
 		arg2.progress("Downloading User-Information...");
 		String document = downloadUser(twitter, arg1);
-		arg2.progress("Downloading RetweetsOfMe...");
+		arg2.progress("Downloading Retweets of me...");
 		downloadSimpleTable(twitter, "RetweetsOfMe", arg1);
-		arg2.progress("Downloading RetweetsToMe...");
+		arg2.progress("Downloading Retweets to me...");
 		downloadSimpleTable(twitter, "RetweetsToMe", arg1);
-		arg2.progress("Downloading RetweetsByMe...");
+		arg2.progress("Downloading Retweets by me...");
 		downloadSimpleTable(twitter, "RetweetsByMe", arg1);
 
 		// to create Timeline-Metadata retweets are needed
@@ -145,8 +146,6 @@ public class TwitterDatasource implements Datasource {
 				HttpURLConnection.setFollowRedirects(false);
 				HttpURLConnection con = (HttpURLConnection) url
 						.openConnection();
-
-				con.setRequestMethod("HEAD");
 
 				if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
 					MetainfoContainer metadata = new MetainfoContainer();
@@ -263,7 +262,7 @@ public class TwitterDatasource implements Datasource {
 
 			HttpURLConnection.setFollowRedirects(false);
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
-			con.setRequestMethod("HEAD");
+			// con.setRequestMethod("HEAD");
 			if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				MetainfoContainer metadata = new MetainfoContainer();
 
@@ -290,12 +289,13 @@ public class TwitterDatasource implements Datasource {
 			doc.appendBody("Friend(s): " + acct.getFriends() + " Follower(s): "
 					+ acct.getFollowers());
 			doc.appendBody(new br());
-			doc.appendBody("<a href = 'Favorites.html'>Favourit(en)</a>: "
-					+ acct.getFavorites() + " Update(s): " + acct.getUpdates());
+			doc.appendBody(new A("Favorites.html", "Favourit(en)"));
+			doc.appendBody(acct.getFavorites() + " Update(s): "
+					+ acct.getUpdates());
 			doc.appendBody(new br());
-			doc.appendBody("<a href = 'RetweetsToMe.html'>RetweetsToMe</a>   ");
-			doc.appendBody("<a href = 'RetweetsOfMe.html'>RetweetsOfMe</a>   ");
-			doc.appendBody("<a href = 'RetweetsByMe.html'>RetweetsByMe</a>   ");
+			doc.appendBody(new A("RetweetsToMe.html", "Retweets to me "));
+			doc.appendBody(new A("RetweetsOfMe.html", "Retweets of me "));
+			doc.appendBody(new A("RetweetsByMe.html", "Retweets by me "));
 
 			doc.appendBody(new H2("User-Listen"));
 
@@ -306,8 +306,8 @@ public class TwitterDatasource implements Datasource {
 				lists = twitter.getUserLists(user.getId(), cursor);
 				for (Object l : lists) {
 					UserList ul = (UserList) l;
-					doc.appendBody("<a href= 'list" + ul.getId() + ".html'>"
-							+ ul.getFullName() + "</a>");
+					doc.appendBody(new A("list" + ul.getId() + ".html", ul
+							.getFullName()));
 				}
 			} while ((cursor = lists.getNextCursor()) != 0);
 
@@ -340,8 +340,10 @@ public class TwitterDatasource implements Datasource {
 					if (state.getMediaEntities() != null) {
 						String media = extractMedia(state,
 								"timeline" + user.getId(), storage);
-						td = new TD("<a href='" + media + "'> media </a>");
-						tr.addElement(td);
+						if (media != null) {
+							td = new TD(new A(media, "media"));
+							tr.addElement(td);
+						}
 					}
 
 				}
@@ -415,16 +417,16 @@ public class TwitterDatasource implements Datasource {
 						metainfo.setType("retweet");
 
 						if (states.contains(source)) {
-							td.addElement("<a href = 'timeline" + user.getId()
-									+ ".html#" + source.getId()
-									+ "'> go to Source-Tweet </a>");
+							td.addElement(new A("timeline" + user.getId()
+									+ ".html#" + source.getId(),
+									"go to Source-Tweet"));
 						}
 					} else {
 						metainfo.setType("favourit");
 						if (states.contains(state)) {
-							td.addElement("<a href = 'timeline" + user.getId()
-									+ ".html#" + state.getId()
-									+ "'> go to Source-Tweet </a>");
+							td.addElement(new A("timeline" + user.getId()
+									+ ".html#" + state.getId(),
+									"go to Source-Tweet"));
 						}
 					}
 
@@ -443,7 +445,7 @@ public class TwitterDatasource implements Datasource {
 					if (state.getMediaEntities() != null) {
 						String media = extractMedia(state, type, storage);
 						if (!media.equals("")) {
-							td = new TD("<a href='" + media + "'> media </a>");
+							td = new TD(new A(media, "media"));
 							tr.addElement(td);
 						}
 					}
@@ -612,7 +614,7 @@ public class TwitterDatasource implements Datasource {
 						String media = extractMedia(state,
 								"list" + list.getId(), storage);
 						if (!media.equals("")) {
-							td = new TD("<a href='" + media + "'> media </a>");
+							td = new TD(new A(media, "media"));
 							tr.addElement(td);
 						}
 					}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" default-activation="lazy">	
+	<bean id="facebookDescriptor" class="org.backmeup.facebook.FacebookDescriptor"/>
+	<bean id="facebookAuthenticator" class="org.backmeup.facebook.FacebookAuthenticator"/>
+	<bean id="facebookDatasource" class="org.backmeup.facebook.FacebookDatasource"/>	
+	<bean id="facebookValidator" class="org.backmeup.facebook.FacebookValidator"/>
+</blueprint>

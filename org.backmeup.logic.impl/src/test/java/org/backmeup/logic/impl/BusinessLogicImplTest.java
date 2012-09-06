@@ -536,4 +536,66 @@ public class BusinessLogicImplTest {
 			.getProfileId(), null, null, "now", "123");
 	*/
 	}
+  @Test
+  public void testFacebook() throws IOException {
+	/*try {
+		User u = logic.register("mmurauer", "123", "123",
+				"michaela.murauer@yahoo.com");
+	} catch (AlreadyRegisteredException are) {
+	}
+		
+	// register twitter datasource
+
+	AuthRequest ar = logic.preAuth("mmurauer", "org.backmeup.facebook",
+		"My Facebook Profile", "123");
+
+	Properties props = new Properties();
+
+		
+	System.out.println("Open the following URL: " + ar.getRedirectURL());
+		
+	props = new Properties();
+	BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+	String input = br.readLine();
+	
+	String data = input.substring(input.indexOf('#')+1);
+	String[] entries = data.split("&");
+	for (String entry : entries) {
+		String[] pair = entry.split("=");
+		props.setProperty(pair[0], pair[1]);
+	}
+	
+	logic.postAuth(ar.getProfile().getProfileId(), props, "123");
+		
+	logic.validateProfile("mmurauer", ar.getProfile().getProfileId());
+
+	// register skydrive datasink (changed to dropbox)
+
+	AuthRequest ar2 = logic.preAuth("mmurauer", "org.backmeup.dropbox",
+			"Dropbox-Profile", "123");
+
+	System.out.println("Open the following URL: " + ar2.getRedirectURL());
+
+	props = new Properties();
+	br = new BufferedReader(new InputStreamReader(System.in));
+	data = br.readLine();
+		
+	// data => code=1234567&somethingelse=otherPropery&...
+	entries = data.split("&");
+	for (String entry : entries) {
+		String[] pair = entry.split("=");
+		props.setProperty(pair[0], pair[1]);
+	}
+
+	logic.postAuth(ar2.getProfile().getProfileId(), props, "123");
+
+	List<Long> sources = new ArrayList<Long>();
+
+	sources.add(ar.getProfile().getProfileId());
+
+	// create and exceute a backupjob from moodle to skydrive
+	logic.createBackupJob("mmurauer", sources, ar2.getProfile()
+			.getProfileId(), null, null, "now", "123");
+	*/
+	}
 }

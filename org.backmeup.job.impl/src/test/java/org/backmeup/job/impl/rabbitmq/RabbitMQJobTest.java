@@ -17,7 +17,7 @@ public class RabbitMQJobTest {
 	
 	private static final String MQ_NAME = "test-queue";
 	
-	private static final String PLUGINS_DIR = "/home/simonr/Workspaces/backmeup/backmeup-prototype/org.backmeup.embedded/autodeploy";
+	private static final String PLUGINS_DIR = "../org.backmeup.embedded/autodeploy";
 		
 	private static final String BACKUP_JOB =
 			"{\"user\":{\"userId\":1,\"username\":\"Sepp\",\"password\":\"pw\"," + 

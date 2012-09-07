@@ -34,8 +34,8 @@ public class HadoopJobManagerTest {
   private static final String TEST_INPUT_PATH = "src/test/resources";
   private static final String TEST_OUTPUT_PATH = "hadoop-output";
   
-  private static final String PLUGINS_DIR = "/home/simonr/Workspaces/backmeup/backmeup-prototype/org.backmeup.embedded/autodeploy";
-  private static final String OSGI_TEMP_DIR = "/home/simonr/Workspaces/backmeup/backmeup-prototype/osgi-tmp";
+  private static final String PLUGINS_DIR = "../org.backmeup.embedded/autodeploy";
+  private static final String OSGI_TEMP_DIR = "../osgi-tmp";
   private static final String INDEX_URI = "http://localhost:9200";
   
   private static final String BACKUP_JOB =

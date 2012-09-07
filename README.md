@@ -20,7 +20,7 @@ Instructions on how to set up Maven on your machine are [available here]
 
 2. Configure the platform to your needs: [Configuration](https://github.com/backmeup/backmeup-prototype/wiki/configuration)
 
-3. Build parts of the project: `mvn clean package install`
+3. Build parts of the project: `mvn clean package install` (Note: use `mvn clean package install -DskipTests` to build without running tests)
 
 4. Build plugins: 
 ```

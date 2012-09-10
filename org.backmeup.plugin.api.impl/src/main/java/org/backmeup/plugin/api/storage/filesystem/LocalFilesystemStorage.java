@@ -111,7 +111,7 @@ public class LocalFilesystemStorage extends Storage {
 			os.close();
 			is.close();
 			if (metadata != null) {
-			  byte[] json = getGson().toJson(metadata).getBytes("UTF-8");
+			  byte[] json = MetainfoContainer.toJSON(metadata).getBytes("UTF-8");
 			  File metaFile = new File(rootDir, path + ".meta.json");
 			  os = new FileOutputStream(metaFile);
 			  os.write(json, 0, json.length);

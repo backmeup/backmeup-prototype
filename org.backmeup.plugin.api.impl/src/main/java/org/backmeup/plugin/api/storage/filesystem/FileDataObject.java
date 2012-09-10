@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.DataObject;
@@ -43,9 +44,13 @@ public class FileDataObject implements DataObject {
 
 	@Override
 	public MetainfoContainer getMetainfo() {
-		// TODO deserialize metainfo file from JSON
-	    MetainfoContainer metainfo = new MetainfoContainer();
-	    return metainfo;
+		try {
+			String json = FileUtils.readFileToString(metaFile);
+			return MetainfoContainer.fromJSON(json);
+		} catch (IOException e) {
+			// Return empty MetainfoContainer if JSON doesn't exist
+			return new MetainfoContainer();
+		}
 	}
 
 }

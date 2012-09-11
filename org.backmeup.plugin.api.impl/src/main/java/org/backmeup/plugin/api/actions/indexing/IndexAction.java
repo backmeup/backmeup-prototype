@@ -44,7 +44,9 @@ public class IndexAction implements Action {
 
 				progressor.progress(INDEXING + dob.getPath());				
 				ElasticSearchIndexer indexer = new ElasticSearchIndexer(client);
-				indexer.doIndexing(dob, meta);
+				
+				// TODO username needs to be available to action
+				indexer.doIndexing("dummy", dob, meta);
 			}
 		} catch (Exception e) {
 			throw new ActionException(e);

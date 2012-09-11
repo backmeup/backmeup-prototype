@@ -47,13 +47,15 @@ public class ElasticSearchIndexer {
 		this.client = client;
 	}
 	
-	public void doIndexing(DataObject dataObject, Map<String, String> meta) throws IOException {
+	public void doIndexing(String username, DataObject dataObject, Map<String, String> meta) throws IOException {
 		// Build the index object
 		XContentBuilder contentBuilder = XContentFactory.jsonBuilder().startObject();
 		
 		for (String metaKey : meta.keySet()) {
 			contentBuilder = contentBuilder.field(metaKey, meta.get(metaKey));
 		}
+		
+		contentBuilder.field("owner", username);
 		
 		MetainfoContainer metainfoContainer = dataObject.getMetainfo();
 		if (metainfoContainer != null) {

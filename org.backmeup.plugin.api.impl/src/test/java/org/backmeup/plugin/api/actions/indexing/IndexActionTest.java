@@ -73,15 +73,31 @@ public class IndexActionTest {
 			Map<String, Object> source = hit.getSource();
 			for (String key : source.keySet()) {
 				System.out.println(key + ": " + source.get(key));
-				Assert.assertEquals("Content-Type", key);
+				Assert.assertTrue(key.equals("Content-Type") || key.equals("owner"));
 				// System.out.println(source.get(key));
 				Assert.assertTrue(
 						source.get(key).toString().startsWith("application/") ||
-						source.get(key).toString().startsWith("image/"));
+						source.get(key).toString().startsWith("image/") ||
+						source.get(key).toString().equals("dummy"));
 			}
 		}
 		
 		System.out.println("Done.");
+	}
+	
+	@Test
+	public void verifyQuery() {
+		System.out.println("Verifying keyword search");
+		Client client = node.client();
+		
+		ElasticSearchIndexClient idx = new ElasticSearchIndexClient(client);
+		SearchResponse response = idx.queryBackup("dummy", "application*");
+		
+		for (SearchHit hit : response.getHits()) {
+			System.out.println(hit.getSourceAsString());
+		}
+		
+		Assert.assertEquals(3, response.getHits().totalHits());
 	}
 
 }

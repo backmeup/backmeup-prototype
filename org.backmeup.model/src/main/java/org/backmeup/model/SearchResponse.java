@@ -12,27 +12,33 @@ import java.util.List;
 public class SearchResponse {
 	private long id;
 	private int progress;
+	private String query;
 	private List<SearchEntry> files;
 	private List<CountedEntry> bySource;
 	private List<CountedEntry> byType;
 	
-	public SearchResponse() {
+	public SearchResponse(String query) {
+		this.query = query;
 	}	
 	
-	public SearchResponse(long id, int status, List<SearchEntry> files) {
-		this(id, status, files, null, null);
+	public SearchResponse(long id, int status, String query, List<SearchEntry> files) {
+		this(id, status, query, files, null, null);
 	}
 	
-	public SearchResponse(long id, int status, List<CountedEntry> bySource, List<CountedEntry> byType) {
-		this(id, status, null, bySource, byType);
+	public SearchResponse(long id, int status, String query, List<CountedEntry> bySource, List<CountedEntry> byType) {
+		this(id, status, query, null, bySource, byType);
 	}
 	
-	public SearchResponse(long id, int status, List<SearchEntry> files, List<CountedEntry> bySource, List<CountedEntry> byType) {
+	public SearchResponse(long id, int status, String query, List<SearchEntry> files, List<CountedEntry> bySource, List<CountedEntry> byType) {
 		this.id = id;
 		this.progress = status;
 		this.files = files;
 		this.bySource = bySource;
 		this.byType = byType;
+	}
+	
+	public String getQuery() {
+		return query;
 	}
 	
 	public List<CountedEntry> getBySource() {

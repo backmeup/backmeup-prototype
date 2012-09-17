@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.dal.ProfileDao;
+import org.backmeup.dal.SearchResponseDao;
 import org.backmeup.dal.ServiceDao;
 import org.backmeup.dal.StatusDao;
 import org.backmeup.dal.UserDao;
@@ -34,6 +35,10 @@ public class DataAccessLayerImpl implements DataAccessLayer {
   public StatusDao createStatusDao() {
     return new StatusDaoImpl(threaLocalEntityManager.get());
   }
+  
+  public SearchResponseDao createSearchResponseDao() {
+    return new SearchResponseDaoImpl(threaLocalEntityManager.get());
+  }
 
   public BackupJobDao createBackupJobDao() {
     return new BackupJobDaoImpl(threaLocalEntityManager.get());
@@ -46,5 +51,5 @@ public class DataAccessLayerImpl implements DataAccessLayer {
   public void setConnection(Object connection) {
     this.threaLocalEntityManager.set((EntityManager) connection);
   }
-
+  
 }

@@ -26,6 +26,7 @@ import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.dal.ProfileDao;
+import org.backmeup.dal.SearchResponseDao;
 import org.backmeup.dal.StatusDao;
 import org.backmeup.dal.UserDao;
 import org.backmeup.job.JobManager;
@@ -61,6 +62,7 @@ import org.backmeup.model.spi.ValidationExceptionType;
 import org.backmeup.model.spi.Validationable;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.Metadata;
+import org.backmeup.plugin.api.actions.indexing.ElasticSearchIndexClient;
 import org.backmeup.plugin.spi.Authorizable;
 import org.backmeup.plugin.spi.Authorizable.AuthorizationType;
 import org.backmeup.plugin.spi.InputBased;
@@ -153,9 +155,13 @@ public class BusinessLogicImpl implements BusinessLogic {
   public BackupJobDao getBackupJobDao() {
     return dal.createBackupJobDao();
   }
-
+ 
   private StatusDao getStatusDao() {
     return dal.createStatusDao();
+  }
+  
+  private SearchResponseDao getSearchResponseDao() {
+    return dal.createSearchResponseDao();
   }
 
   public User getUser(String username) {
@@ -696,14 +702,39 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public long searchBackup(String username, String keyRingPassword, String query) {
-    // TODO Auto-generated method stub
-    return 0;
+	  conn.begin();
+      User user = getUser(username);     
+
+      if (!keyserverClient.validateUser(user.getUserId(), keyRingPassword))
+        throw new InvalidCredentialsException();
+      
+      SearchResponse search = new SearchResponse(query);
+      SearchResponseDao searchDao = getSearchResponseDao();
+      searchDao.save(search);
+      
+      return search.getId();
   }
 
   public SearchResponse queryBackup(String username, long searchId,
       String filterType, String filterValue) {
-    // TODO Auto-generated method stub
-    return null;
+    
+    conn.begin();
+    
+    // TODO shouldn't we verify the user here again?
+    
+    SearchResponse search = getSearchResponseDao().findById(searchId);
+    String query = search.getQuery();
+    
+    // TODO make configurable: Configuration.getConfig().getProperty("YourProperty");
+    
+    String host = "localhost";
+    int port = 9200;
+    
+    ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);
+    org.elasticsearch.action.search.SearchResponse response = client.queryBackup(username, query);
+    
+    // TODO translate search response formats - this returns an empty result now!
+    return search;
   }
 
   public DataAccessLayer getDataAccessLayer() {

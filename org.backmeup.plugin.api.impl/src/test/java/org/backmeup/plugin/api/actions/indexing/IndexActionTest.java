@@ -18,7 +18,9 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -35,20 +37,11 @@ public class IndexActionTest {
 		}
 	};
 	
-	@BeforeClass
-	public static void setup() {
+	@Before
+	public void setup() throws ActionException {
 		node = NodeBuilder.nodeBuilder().local(true).clusterName(ELASTICSEARCH_CLUSTERNAME).node();		
-	}
-	
-	@AfterClass
-	public static void tearDown() throws IOException {
-		node.close();
-		FileUtils.deleteDirectory(new File("data"));
-	}
-	
-	@Test
-    public void testIndexAction() throws ActionException {
-		System.out.println("Indexing test data...");
+		
+		System.out.println("Setting up test index...");
 		// Dummy storage reader on the src/test/resources directory
 		StorageReader reader = new DummyStorageReader();
 		
@@ -59,6 +52,12 @@ public class IndexActionTest {
 		IndexAction action = new IndexAction(client);
 		action.doAction(null, reader, null, logProgressable);
 		System.out.println("Done.");
+	}
+	
+	@After
+	public void tearDown() throws IOException {
+		node.close();
+		FileUtils.deleteDirectory(new File("data"));
 	}
 	
 	@Test

@@ -98,8 +98,7 @@ public class LocalFileSystemStorageTest {
 	@Test
 	public void testMoveFile() throws StorageException {
 		Storage storage = new LocalFilesystemStorage();
-		storage.open(ROOT_PATH);
-		
+		storage.open(ROOT_PATH);		
 		// Trying to move a directory should throw a StorageException
 		try {
 			storage.moveFile("/mydirectory/", "/my-new-directory/");
@@ -109,6 +108,21 @@ public class LocalFileSystemStorageTest {
 		}
 		
 		// Move file
+		try {
+		  storage.removeFile("/my-new-directory/hello3.txt");
+		} catch (StorageException e) {		  
+		}
+		
+		try {
+      storage.removeFile("/my-new-directory/hello3.txt.meta.json");
+    } catch (StorageException e) {      
+    }
+		
+    // Prepare the test: Add two test files
+    storage.addFile(new StringInputStream(TEST_TXT_1), "/hello1.txt", new MetainfoContainer());
+    storage.addFile(new StringInputStream(TEST_TXT_2), "/mydirectory/hello2.txt", new MetainfoContainer());
+		
+    // Move them
 		storage.moveFile("/mydirectory/hello2.txt", "/my-new-directory/hello3.txt");
 		
 		File dir = new File(ROOT_PATH, "my-new-directory");
@@ -126,7 +140,15 @@ public class LocalFileSystemStorageTest {
 		storage.open(ROOT_PATH);
 		
 		File file = new File(new File(ROOT_PATH, "my-new-directory"), "hello3.txt");
+		try {
+      file.createNewFile();
+    } catch (IOException e1) { }
+		
 		File meta = new File(new File(ROOT_PATH, "my-new-directory"), "hello3.txt.meta.json");
+		try {
+      meta.createNewFile();
+    } catch (IOException e) { }
+		
 		Assert.assertTrue(file.exists());
 		Assert.assertTrue(meta.exists());
 		

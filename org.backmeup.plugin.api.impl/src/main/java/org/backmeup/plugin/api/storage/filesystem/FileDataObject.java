@@ -29,7 +29,13 @@ public class FileDataObject implements DataObject {
 
 	@Override
 	public byte[] getBytes() throws IOException {
-		return IOUtils.toByteArray(new FileReader(file));
+	  FileReader fr = null;
+	  try {
+  	  fr = new FileReader(file);
+  		return IOUtils.toByteArray(fr);
+	  } finally {
+	    fr.close();
+	  }
 	}
 	
 	@Override

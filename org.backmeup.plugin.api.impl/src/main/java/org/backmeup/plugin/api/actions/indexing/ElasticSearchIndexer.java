@@ -56,6 +56,7 @@ public class ElasticSearchIndexer {
 		}
 		
 		contentBuilder.field("owner", username);
+		contentBuilder.field("path", dataObject.getPath());
 		
 		MetainfoContainer metainfoContainer = dataObject.getMetainfo();
 		if (metainfoContainer != null) {

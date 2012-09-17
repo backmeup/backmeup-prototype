@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.codec.binary.Base64;
+import org.backmeup.configuration.Configuration;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
@@ -41,6 +42,7 @@ import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.ProtocolDetails;
 import org.backmeup.model.ProtocolOverview;
 import org.backmeup.model.SearchResponse;
+import org.backmeup.model.SearchResponse.SearchEntry;
 import org.backmeup.model.Status;
 import org.backmeup.model.Token;
 import org.backmeup.model.User;
@@ -68,6 +70,7 @@ import org.backmeup.plugin.spi.Authorizable.AuthorizationType;
 import org.backmeup.plugin.spi.InputBased;
 import org.backmeup.plugin.spi.OAuthBased;
 import org.backmeup.utilities.mail.Mailer;
+import org.elasticsearch.search.SearchHit;
 
 /**
  * Implements the BusinessLogic interface by delegating most operations to
@@ -100,6 +103,9 @@ public class BusinessLogicImpl implements BusinessLogic {
   private static final String UNKNOWN_ACTION = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_ACTION";
   private static final String VERIFICATION_EMAIL_SUBJECT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_SUBJECT";
   private static final String VERIFICATION_EMAIL_CONTENT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_CONTENT";
+  
+  private static final String INDEX_HOST = "index.host";
+  private static final String INDEX_PORT = "index.port";
 
   //private static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
   private static final long DELAY_REALTIME = 1 * 1000;
@@ -702,39 +708,51 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public long searchBackup(String username, String keyRingPassword, String query) {
-	  conn.begin();
-      User user = getUser(username);     
-
-      if (!keyserverClient.validateUser(user.getUserId(), keyRingPassword))
-        throw new InvalidCredentialsException();
-      
-      SearchResponse search = new SearchResponse(query);
-      SearchResponseDao searchDao = getSearchResponseDao();
-      searchDao.save(search);
-      
-      return search.getId();
+	  try {
+		  conn.begin();
+	      User user = getUser(username);     
+	
+	      if (!keyserverClient.validateUser(user.getUserId(), keyRingPassword))
+	        throw new InvalidCredentialsException();
+	      
+	      SearchResponse search = new SearchResponse(query);
+	      SearchResponseDao searchDao = getSearchResponseDao();
+	      searchDao.save(search);
+	      
+	      return search.getId();
+	  } finally {
+		  conn.rollback();
+	  }
   }
 
   public SearchResponse queryBackup(String username, long searchId,
       String filterType, String filterValue) {
     
-    conn.begin();
-    
-    // TODO shouldn't we verify the user here again?
-    
-    SearchResponse search = getSearchResponseDao().findById(searchId);
-    String query = search.getQuery();
-    
-    // TODO make configurable: Configuration.getConfig().getProperty("YourProperty");
-    
-    String host = "localhost";
-    int port = 9200;
-    
-    ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);
-    org.elasticsearch.action.search.SearchResponse response = client.queryBackup(username, query);
-    
-    // TODO translate search response formats - this returns an empty result now!
-    return search;
+	  try {
+	    conn.begin();
+	    
+	    // TODO shouldn't we verify the user?
+	    
+	    SearchResponse search = getSearchResponseDao().findById(searchId);
+	    String query = search.getQuery();
+	    
+	    Configuration config = Configuration.getConfig();
+	    String host = config.getProperty(INDEX_HOST);
+	    int port = Integer.parseInt(config.getProperty(INDEX_PORT));
+	    
+	    ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);
+	    org.elasticsearch.action.search.SearchResponse response = client.queryBackup(username, query);
+	    
+	    List<SearchEntry> entries = new ArrayList<SearchResponse.SearchEntry>();
+	    for (SearchHit hit : response.getHits()) {
+	    	SearchEntry entry = new SearchEntry();
+	    	entry.setTitle(hit.field("path").getValue().toString());
+	    }
+	    search.setFiles(entries);
+	    return search;
+	  } finally {
+		conn.rollback();
+	  }
   }
 
   public DataAccessLayer getDataAccessLayer() {

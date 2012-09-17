@@ -72,11 +72,12 @@ public class IndexActionTest {
 			Map<String, Object> source = hit.getSource();
 			for (String key : source.keySet()) {
 				System.out.println(key + ": " + source.get(key));
-				Assert.assertTrue(key.equals("Content-Type") || key.equals("owner"));
+				Assert.assertTrue(key.equals("Content-Type") || key.equals("owner") || key.equals("path"));
 				// System.out.println(source.get(key));
 				Assert.assertTrue(
 						source.get(key).toString().startsWith("application/") ||
 						source.get(key).toString().startsWith("image/") ||
+						source.get(key).toString().startsWith("src") ||
 						source.get(key).toString().equals("dummy"));
 			}
 		}

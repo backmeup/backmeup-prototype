@@ -91,7 +91,7 @@ public class IndexActionTest {
 		Client client = node.client();
 		
 		ElasticSearchIndexClient idx = new ElasticSearchIndexClient(client);
-		SearchResponse response = idx.queryBackup("dummy", "application*");
+		SearchResponse response = idx.queryBackup("dummy", "creative-commons");
 		
 		for (SearchHit hit : response.getHits()) {
 			System.out.println(hit.getSourceAsString());

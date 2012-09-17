@@ -26,6 +26,7 @@ import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.dal.ProfileDao;
+import org.backmeup.dal.SearchResponseDao;
 import org.backmeup.dal.StatusDao;
 import org.backmeup.dal.UserDao;
 import org.backmeup.job.JobManager;
@@ -153,9 +154,13 @@ public class BusinessLogicImpl implements BusinessLogic {
   public BackupJobDao getBackupJobDao() {
     return dal.createBackupJobDao();
   }
-
+ 
   private StatusDao getStatusDao() {
     return dal.createStatusDao();
+  }
+  
+  private SearchResponseDao getSearchResponseDao() {
+    return dal.createSearchResponseDao();
   }
 
   public User getUser(String username) {
@@ -696,8 +701,17 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public long searchBackup(String username, String keyRingPassword, String query) {
-    // TODO Auto-generated method stub
-    return 0;
+	  conn.begin();
+      User user = getUser(username);     
+
+      if (!keyserverClient.validateUser(user.getUserId(), keyRingPassword))
+        throw new InvalidCredentialsException();
+      
+      SearchResponse search = new SearchResponse();
+      SearchResponseDao searchDao = getSearchResponseDao();
+      searchDao.save(search);
+      
+      return search.getId();
   }
 
   public SearchResponse queryBackup(String username, long searchId,

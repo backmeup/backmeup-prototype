@@ -24,6 +24,8 @@ public interface DataAccessLayer {
 	
 	public ServiceDao createServiceDao();
 	
+	public SearchResponseDao createSearchResponseDao();
+	
 	public void setConnection(Object connection);
 	
 }

@@ -669,7 +669,7 @@ public class DummyBusinessLogic implements BusinessLogic {
         "http://athumbnail.png"));
     responses.add(new SearchEntry(maxId++, new Date(), "image", "image3.png",
         "http://athumbnail.png"));
-    searches.put(id, new SearchResponse(0, 100, responses));
+    searches.put(id, new SearchResponse(0, 100, "query", responses));
 
     List<CountedEntry> bySource = new ArrayList<CountedEntry>();
     bySource.add(new CountedEntry("Facebook", 258));
@@ -678,7 +678,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     List<CountedEntry> byType = new ArrayList<CountedEntry>();
     byType.add(new CountedEntry("Fotos", 32));
     byType.add(new CountedEntry("Word", 1));
-    searches.put(id, new SearchResponse(0, 100, responses, bySource, byType));
+    searches.put(id, new SearchResponse(0, 100, "query", responses, bySource, byType));
     return id;
   }
 
@@ -688,7 +688,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     if (sr == null)
       throw new IllegalArgumentException("Unknown searchId " + searchId);
 
-    SearchResponse sr2 = new SearchResponse();
+    SearchResponse sr2 = new SearchResponse("query");
     if (filterType == null) {
       sr2.setByType(sr.getByType());
       sr2.setBySource(sr.getBySource());

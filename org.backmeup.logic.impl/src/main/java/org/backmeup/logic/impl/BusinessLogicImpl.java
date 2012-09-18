@@ -64,7 +64,10 @@ import org.backmeup.model.spi.ValidationExceptionType;
 import org.backmeup.model.spi.Validationable;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.Metadata;
+import org.backmeup.plugin.api.actions.encryption.EncryptionDescribable;
+import org.backmeup.plugin.api.actions.filesplitting.FilesplittDescribable;
 import org.backmeup.plugin.api.actions.indexing.ElasticSearchIndexClient;
+import org.backmeup.plugin.api.actions.indexing.IndexDescribable;
 import org.backmeup.plugin.spi.Authorizable;
 import org.backmeup.plugin.spi.Authorizable.AuthorizationType;
 import org.backmeup.plugin.spi.InputBased;
@@ -439,8 +442,12 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public List<ActionDescribable> getActions() {
-    // TODO Auto-generated method stub
-    return null;
+    List<ActionDescribable> actions = plugins.getActions();
+    //TODO: Move all internal actions to real OSGi bundles!!    
+    actions.add(new IndexDescribable());
+    actions.add(new FilesplittDescribable());
+    actions.add(new EncryptionDescribable());
+    return actions;
   }
 
   public List<String> getActionOptions(String actionId) {

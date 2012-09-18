@@ -12,9 +12,15 @@ class TestActions(TestCase):
   def tearDown(self):
     pass
 
-  @skip("Not yet implemented")
   def test_get_actions(self):
-    self.fail("Implement tests + server-side")
+    res = get_actions()
+    self.assertEquals(res.code, httplib.OK)
+    self.assertIn("actions", res.data)
+    acts = res.data["actions"]
+    for action in acts:
+      self.assertIn("title", action)
+      self.assertIn("actionId", action)
+      self.assertIn("description", action)
     
   @skip("Not yet implemented")
   def test_get_action_options(self):

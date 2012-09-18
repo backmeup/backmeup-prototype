@@ -116,7 +116,7 @@ def validate_backup_job(user, jobId, keyRing):
 
 def create_backup_job(user, keyRing, sourceProfileIds, requiredActions, sinkProfileId, when):
   params = {"sourceProfileIds" : sourceProfileIds,
-            "requiredActions" : requiredActions,
+            "requiredActionIds" : requiredActions,
             "keyRing" : keyRing,
             "timeExpression" : when,
             "sinkProfileId" : sinkProfileId
@@ -153,4 +153,6 @@ def get_overview(user):
 #def validate_profile(user, profileId):
 #  return request("GET", "/datasources
 
-
+######### Action Operations #########
+def get_actions():
+  return com.request("GET", "/actions")

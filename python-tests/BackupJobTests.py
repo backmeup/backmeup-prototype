@@ -191,7 +191,24 @@ class TestBackupJobs(TestCase):
   def test_get_protocol_overview(self):
     self.fail("Implement tests + server-side")
 
-  @skip("Not yet implemented")
   def test_get_status_without_job_id(self):
-    self.fail("Implement tests + server-side")
+    res = register_user("TestUser3", "password", "password", "TestUser3@trash-mail.com")    
+    verify_email(res.data["verificationKey"])
+    sourceId = auth_datasource("TestUser3", SOURCE_PLUGIN_ID, "SrcProfile", "password").data["profileId"]
+    
+    sinkId = auth_datasink("TestUser3", SINK_PLUGIN_ID, "SinkProfile", "password").data["profileId"]
 
+    update_profile(sourceId, {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET}, "password")
+    
+    update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET}, "password")
+    
+    res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly")
+    jobId = res.data["jobId"]
+
+    res = get_all_backup_job_status("UnknownUser") # invalid user
+    self.assertEquals(res.code, httplib.NOT_FOUND)
+
+    res = get_all_backup_job_status("TestUser3") # valid user 
+    self.assertEquals(res.code, httplib.OK)
+    self.assertIn("backupStatus", res.data)
+    

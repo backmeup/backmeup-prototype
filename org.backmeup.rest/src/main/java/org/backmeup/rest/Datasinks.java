@@ -96,10 +96,10 @@ public class Datasinks extends Base {
   @Produces("application/json")
   public ValidationNotesContainer validateProfiles(
       @PathParam("username") String username, 
-      @PathParam("profileId") String profileId,
-      @PathParam("keyRing") String keyRing) {
+      @PathParam("profileId") Long profileId,
+      @FormParam("keyRing") String keyRing) {
     return new ValidationNotesContainer(getLogic().validateProfile(username,
-        Long.parseLong(profileId), keyRing));
+        profileId, keyRing));
   }
 
   @POST

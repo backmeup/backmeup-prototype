@@ -34,8 +34,11 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 			"org.backmeup.model.spi " +
 			"org.backmeup.plugin.api.connectors " +
 			"org.backmeup.plugin.api.storage " +
-			"com.google.gson " + 
-			"org.backmeup.plugin.api";
+			"com.google.gson " + 			
+			"org.backmeup.plugin.api " + 
+			"org.backmeup.plugin.api.actions " +
+			"javax.mail " +
+			"com.sun.imap ";
 	
 	private JobConf conf;
 	

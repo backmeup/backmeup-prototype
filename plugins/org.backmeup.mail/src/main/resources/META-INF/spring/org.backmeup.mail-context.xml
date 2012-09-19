@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" default-activation="lazy">	
+	<bean id="mailDescriptor" class="org.backmeup.mail.MailDescriptor"/>
+	<bean id="mailAuthenticator" class="org.backmeup.mail.MailAuthenticator"/>
+	<bean id="mailDatasource" class="org.backmeup.mail.MailDatasource"/>	
+</blueprint>

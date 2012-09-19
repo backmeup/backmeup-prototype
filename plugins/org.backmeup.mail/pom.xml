@@ -1,12 +1,26 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>plugins</artifactId>
-    <groupId>org.backmeup</groupId>
-    <version>0.0.1</version>
-  </parent>
-  <artifactId>mail</artifactId>
-  <packaging>bundle</packaging>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>plugins</artifactId>
+		<groupId>org.backmeup</groupId>
+		<version>0.0.1</version>
+	</parent>
+	<artifactId>mail</artifactId>
+	<packaging>bundle</packaging>
+	<repositories>
+		<repository>
+			<id>com.springsource.repository.bundles.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.backmeup</groupId>
@@ -26,12 +40,15 @@
 			<version>0.0.1</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
-			<version>1.4.5</version>
-		</dependency>
+			<artifactId>com.springsource.javax.mail</artifactId>
+			<version>1.4.1</version>
+		</dependency> 
+
+		<!-- dependency> <groupId>javax.mail</groupId> <artifactId>mail</artifactId> 
+			<version>1.4.5</version> </dependency> -->
 	</dependencies>
 	<build>
 		<plugins>
@@ -45,7 +62,7 @@
 						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Name>${project.name}</Bundle-Name>
 						<Bundle-Version>${project.version}</Bundle-Version>
-						<Import-Package>*</Import-Package>
+						<Import-Package>!sun.security*,javax.mail, com.sun.mail.imap, *</Import-Package>
 						<Embed-Dependency></Embed-Dependency>
 						<Embed-Transitive>false</Embed-Transitive>
 						<Embed-Directory>lib</Embed-Directory>
@@ -70,6 +87,12 @@
 									<groupId>${project.groupId}</groupId>
 									<artifactId>${project.artifactId}</artifactId>
 									<version>${project.version}</version>
+									<type>${project.packaging}</type>
+								</artifactItem>
+								<artifactItem>
+									<groupId>javax.mail</groupId>
+									<artifactId>com.springsource.javax.mail</artifactId>
+									<version>1.4.1</version>
 									<type>${project.packaging}</type>
 								</artifactItem>
 							</artifactItems>

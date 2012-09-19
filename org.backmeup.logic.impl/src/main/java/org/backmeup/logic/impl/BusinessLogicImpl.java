@@ -68,6 +68,7 @@ import org.backmeup.plugin.api.actions.encryption.EncryptionDescribable;
 import org.backmeup.plugin.api.actions.filesplitting.FilesplittDescribable;
 import org.backmeup.plugin.api.actions.indexing.ElasticSearchIndexClient;
 import org.backmeup.plugin.api.actions.indexing.IndexDescribable;
+import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.spi.Authorizable;
 import org.backmeup.plugin.spi.Authorizable.AuthorizationType;
 import org.backmeup.plugin.spi.InputBased;
@@ -396,8 +397,22 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   public List<String> getDatasourceOptions(String username, Long profileId,
       String keyRingPassword) {
-    // TODO Auto-generated method stub
-    return null;
+    try {
+      conn.beginOrJoin();
+      getUser(username);
+      ProfileDao pd = getProfileDao();
+      Profile p = pd.findById(profileId);
+      if (!p.getUser().getUsername().equals(username)) {
+        throw new IllegalArgumentException();
+      }      
+      Datasource source = plugins.getDatasource(p.getDesc());
+      Token t = keyserverClient.getToken(p, keyRingPassword, new Date().getTime(), false);
+      AuthDataResult authData = keyserverClient.getData(t);
+      Properties accessData = authData.getByProfileId(profileId);
+      return source.getAvailableOptions(accessData);      
+    } finally {
+      conn.rollback();
+    }
   }
 
   public void changeProfile(Long profileId, List<String> sourceOptions) {

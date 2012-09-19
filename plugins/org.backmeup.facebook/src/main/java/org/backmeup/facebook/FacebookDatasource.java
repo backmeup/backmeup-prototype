@@ -3,12 +3,13 @@ package org.backmeup.facebook;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import java.net.HttpURLConnection;
 
 import org.apache.ecs.Document;
 import org.apache.ecs.html.A;
@@ -19,13 +20,13 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
 import org.apache.ecs.xhtml.br;
 import org.apache.ecs.xhtml.ul;
+import org.backmeup.plugin.api.Metainfo;
+import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.api.connectors.DatasourceException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.StorageException;
 import org.backmeup.plugin.api.storage.StorageWriter;
-import org.backmeup.plugin.api.MetainfoContainer;
-import org.backmeup.plugin.api.Metainfo;
 
 import com.restfb.Connection;
 import com.restfb.DefaultFacebookClient;
@@ -1012,10 +1013,10 @@ public class FacebookDatasource implements Datasource {
 		}
 		for (int i = 0; i < str.length(); i++) {
 			if ((str.charAt(i) < ' ' || str.charAt(i) > '~')) {
-				if (str.charAt(i) != 'ä' && str.charAt(i) != 'Ä'
-						&& str.charAt(i) != 'ö' && str.charAt(i) != 'Ö'
-						&& str.charAt(i) != 'ü' && str.charAt(i) != 'Ü'
-						&& str.charAt(i) != 'ß') {
+				if (str.charAt(i) != 'Ã¤' && str.charAt(i) != 'Ã„'
+						&& str.charAt(i) != 'Ã¶' && str.charAt(i) != 'Ã–'
+						&& str.charAt(i) != 'Ã¼' && str.charAt(i) != 'Ãœ'
+						&& str.charAt(i) != 'ÃŸ') {
 					str = str.replace(str.charAt(i), '-');
 				}
 			}
@@ -1028,4 +1029,14 @@ public class FacebookDatasource implements Datasource {
 		
 		return str;
 	}
+
+  @Override
+  public List<String> getAvailableOptions(Properties accessData) {
+    // TODO Provide a list of options
+    List<String> facebookBackupOptions = new ArrayList<String>();
+    facebookBackupOptions.add("Pictures");
+    facebookBackupOptions.add("Videos");
+    facebookBackupOptions.add("Messages");
+    return facebookBackupOptions;
+  }
 }

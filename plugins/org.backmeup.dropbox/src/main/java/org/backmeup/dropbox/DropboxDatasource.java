@@ -89,5 +89,21 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 		}
 		html.append("</ul>");
 		return html.toString();
-	} 
+	}
+
+  @Override
+  public List<String> getAvailableOptions(Properties accessData) {
+    List<String> results = new ArrayList<String>();
+    DropboxAPI<WebAuthSession> api = DropboxHelper.getApi(accessData);
+    try {
+      Entry entry = api.metadata("/", 100, null, true, null);
+      for (Entry e : entry.contents) {
+        String encodedURI = e.path.replace(" ", "%20");
+        results.add(encodedURI);
+      }
+    } catch (DropboxException e) {
+      throw new PluginException(DropboxDescriptor.DROPBOX_ID, "Failed to determine root folders", e);
+    }
+    return results;
+  } 
 }

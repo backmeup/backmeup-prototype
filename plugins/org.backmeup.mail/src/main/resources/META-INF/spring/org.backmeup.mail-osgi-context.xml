@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"	
+	default-activation="lazy">
+	<service id="mailDescriptorService" ref="mailDescriptor" auto-export="interfaces">
+		<service-properties>
+			<entry key="name" value="org.backmeup.mail"/>
+		</service-properties>
+	</service>
+	<service id="mailAuthService" ref="mailAuthenticator" auto-export="interfaces">
+		<service-properties>
+			<entry key="name" value="org.backmeup.mail"/>
+		</service-properties>
+	</service>
+	<service id="mailDatasourceService" ref="mailDatasource" auto-export="interfaces">
+		<service-properties>
+			<entry key="name" value="org.backmeup.mail"/>
+		</service-properties>
+	</service>
+</blueprint>

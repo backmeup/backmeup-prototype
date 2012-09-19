@@ -43,5 +43,16 @@ public class SkyDriveDatasource extends FilesystemLikeDatasource {
 	public InputStream getFile(Properties accessData, FilesystemURI uri) {
 		Service s = SkyDriveSupport.getService(accessData);
 		return SkyDriveSupport.getContentAsStream(s.service, s.accessToken, uri.toString());
-	}	
+	}
+
+  @Override
+  public List<String> getAvailableOptions(Properties accessData) {
+    List<String> options = new ArrayList<String>();
+    String path = "me/skydrive";        
+    Service s = SkyDriveSupport.getService(accessData);
+    for (Entry e : SkyDriveSupport.getFolderContent(s.service, s.accessToken, path)) {
+      options.add(e.getName() + " (" + e.getId() + ")");      
+    }
+    return options;
+  }	
 }

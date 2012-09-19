@@ -7,6 +7,8 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
+import org.backmeup.model.BackupJob;
+import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DummyStorageReader;
@@ -30,6 +32,21 @@ public class IndexActionTest {
 	
 	private static final String ELASTICSEARCH_CLUSTERNAME = "testcluster";
 	
+	private static final String BACKUP_JOB =
+			"{\"user\":{\"userId\":1,\"username\":\"Sepp\",\"password\":\"pw\"," + 
+	        "\"keyRing\":\"k3yr1nG\",\"email\":\"e@ma.il\",\"isActivated\":false,\"properties\":[]}," +
+			"\"sourceProfiles\":" +
+			"[{\"profile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"Sepp\"," +
+			"\"password\":\"pw\",\"keyRing\":\"k3yr1nG\",\"email\":\"e@ma.il\",\"isActivated\":" +
+			"false,\"properties\":[]},\"profileName\":\"TestProfile\",\"desc\":" +
+			"\"org.backmeup.dummy\",\"sourceAndOrSink\":\"Source\"},\"options\":" + 
+			"[\"folder1\",\"folder2\"]}]," +
+			"\"sinkProfile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"Sepp\"" +
+			",\"password\":\"pw\",\"keyRing\":\"pw\",\"email\":\"e@ma.il\",\"isActivated\":" +
+			"false,\"properties\":[]},\"profileName\":\"TestProfile2\",\"desc\":" +
+			"\"org.backmeup.dummy\",\"sourceAndOrSink\":\"Sink\"},\"requiredActions\":[]," + 
+			"\"start\":\"1345203377704\",\"delay\":1345203258212}";
+	
 	private Progressable logProgressable = new Progressable() {
 		@Override
 		public void progress(String message) {
@@ -50,7 +67,10 @@ public class IndexActionTest {
 	  
 		// Index test files on the local ES index
 		IndexAction action = new IndexAction(client);
-		action.doAction(null, reader, null, logProgressable);
+		
+		BackupJob job = JsonSerializer.deserialize(BACKUP_JOB, BackupJob.class);
+		
+		action.doAction(null, reader, null, job, logProgressable);
 		System.out.println("Done.");
 	}
 	
@@ -72,13 +92,21 @@ public class IndexActionTest {
 			Map<String, Object> source = hit.getSource();
 			for (String key : source.keySet()) {
 				System.out.println(key + ": " + source.get(key));
-				Assert.assertTrue(key.equals("Content-Type") || key.equals("owner") || key.equals("path"));
-				// System.out.println(source.get(key));
-				Assert.assertTrue(
-						source.get(key).toString().startsWith("application/") ||
-						source.get(key).toString().startsWith("image/") ||
-						source.get(key).toString().startsWith("src") ||
-						source.get(key).toString().equals("dummy"));
+				
+				if (key.equals("owner_name"))
+					Assert.assertEquals("Sepp", source.get(key));
+				
+				if (key.equals("owner_id"))
+					Assert.assertEquals(1, source.get(key));
+				
+				if (key.equals("backup_sources"))
+					Assert.assertEquals("TestProfile", source.get(key));
+				
+				if (key.equals("backup_sink"))
+					Assert.assertEquals("TestProfile2", source.get(key));
+				
+				if (key.equals("path"))
+					Assert.assertTrue(source.get(key).toString().startsWith("src"));
 			}
 		}
 		
@@ -91,7 +119,7 @@ public class IndexActionTest {
 		Client client = node.client();
 		
 		ElasticSearchIndexClient idx = new ElasticSearchIndexClient(client);
-		SearchResponse response = idx.queryBackup("dummy", "creative-commons");
+		SearchResponse response = idx.queryBackup("Sepp", "creative-commons");
 		
 		for (SearchHit hit : response.getHits()) {
 			System.out.println(hit.getSourceAsString());

@@ -3,6 +3,7 @@ package org.backmeup.plugin.api.actions.encryption;
 import java.util.Iterator;
 import java.util.Properties;
 
+import org.backmeup.model.BackupJob;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
@@ -18,7 +19,7 @@ public class EncryptionAction implements Action
 	private final String PROP_PASSWORD = "org.backmeup.encryption.password";
 	
 	@Override
-	public void doAction (Properties parameters, StorageReader input, StorageWriter output, Progressable progressor) throws ActionException
+	public void doAction (Properties parameters, StorageReader input, StorageWriter output, BackupJob job, Progressable progressor) throws ActionException
 	{
 		// TODO rewrite to new Storage interface
 		Storage storage = null;

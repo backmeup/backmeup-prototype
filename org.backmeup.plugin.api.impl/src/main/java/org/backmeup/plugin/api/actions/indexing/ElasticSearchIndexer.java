@@ -1,10 +1,15 @@
 package org.backmeup.plugin.api.actions.indexing;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+import org.backmeup.model.BackupJob;
+import org.backmeup.model.ProfileOptions;
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.DataObject;
@@ -32,6 +37,12 @@ import org.elasticsearch.common.xcontent.XContentFactory;
  */
 public class ElasticSearchIndexer {
 	
+	private static final String FIELD_OWNER_ID = "owner_id";
+	private static final String FIELD_OWNER_NAME = "owner_name";
+	private static final String FIELD_PATH = "path";
+	private static final String BACKUP_SOURCES = "backup_sources";
+	private static final String BACKUP_SINK = "backup_sink";
+	
 	private static final String DOCUMENT_TYPE_BACKUP = "backup";
 	
 	private static final String INDEX_NAME = "backmeup";
@@ -47,7 +58,7 @@ public class ElasticSearchIndexer {
 		this.client = client;
 	}
 	
-	public void doIndexing(String username, DataObject dataObject, Map<String, String> meta) throws IOException {
+	public void doIndexing(BackupJob job, DataObject dataObject, Map<String, String> meta) throws IOException {
 		// Build the index object
 		XContentBuilder contentBuilder = XContentFactory.jsonBuilder().startObject();
 		
@@ -55,8 +66,17 @@ public class ElasticSearchIndexer {
 			contentBuilder = contentBuilder.field(metaKey, meta.get(metaKey));
 		}
 		
-		contentBuilder.field("owner", username);
-		contentBuilder.field("path", dataObject.getPath());
+		contentBuilder.field(FIELD_OWNER_ID, job.getUser().getUserId());
+		contentBuilder.field(FIELD_OWNER_NAME, job.getUser().getUsername());
+		contentBuilder.field(FIELD_PATH, dataObject.getPath());
+		contentBuilder.field(BACKUP_SINK, job.getSinkProfile().getProfileName());
+		
+		// Where's my Scala .map and mkString!?!
+		List<String> sourceNames = new ArrayList<String>(); 
+		for (ProfileOptions source : job.getSourceProfiles()) {
+			sourceNames.add(source.getProfile().getProfileName());			
+		}
+		contentBuilder.field(BACKUP_SOURCES, StringUtils.join(sourceNames, ", "));
 		
 		MetainfoContainer metainfoContainer = dataObject.getMetainfo();
 		if (metainfoContainer != null) {

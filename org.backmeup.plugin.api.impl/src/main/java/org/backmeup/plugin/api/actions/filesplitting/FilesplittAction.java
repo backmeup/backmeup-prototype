@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Properties;
 
+import org.backmeup.model.BackupJob;
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
@@ -25,7 +26,7 @@ public class FilesplittAction implements Action
 	private static final long CONTAINER_SIZE = 10 * 1024 * 1024; // 10 MiB
 
 	@Override
-	public void doAction (Properties parameters, StorageReader input, StorageWriter output, Progressable progressor) throws ActionException
+	public void doAction (Properties parameters, StorageReader input, StorageWriter output, BackupJob job, Progressable progressor) throws ActionException
 	{
 		progressor.progress (START_FILESPLITT_PROCESS);
 		

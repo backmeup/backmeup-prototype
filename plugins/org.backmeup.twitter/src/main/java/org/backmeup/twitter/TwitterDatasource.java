@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -646,4 +647,10 @@ public class TwitterDatasource implements Datasource {
 		}
 	}
 
+	@Override
+  public List<String> getAvailableOptions(Properties accessData) {
+    //TODO: Return a list of selectable resources that should be backed up
+    List<String> availableOptions = new ArrayList<String>();
+    return availableOptions;
+  }
 }

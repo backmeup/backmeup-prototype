@@ -3,7 +3,9 @@ package org.backmeup.dummy;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import org.backmeup.plugin.api.Metainfo;
@@ -60,6 +62,14 @@ public class DummyDatasource implements Datasource {
   @Override
   public String getStatistics(Properties accesssData) {
     return "statistics are empty";
+  }
+
+  @Override
+  public List<String> getAvailableOptions(Properties accessData) {
+    List<String> options = new ArrayList<String>();
+    options.add("option1");
+    options.add("option2");
+    return options;
   }
 
 }

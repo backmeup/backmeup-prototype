@@ -144,4 +144,11 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 		}
 		return results;
 	}
+
+  @Override
+  public List<String> getAvailableOptions(Properties accessData) {
+    //TODO: Return a list of selectable resources that should be backed up
+    List<String> availableOptions = new ArrayList<String>();
+    return availableOptions;
+  }
 }

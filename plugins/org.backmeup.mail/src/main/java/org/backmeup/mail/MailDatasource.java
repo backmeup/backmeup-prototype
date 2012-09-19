@@ -272,7 +272,7 @@ public class MailDatasource implements Datasource {
   public void downloadAll(Properties accessData, StorageWriter storage,
       Progressable progressor) throws DatasourceException, StorageException {
     try {
-      Session session = Session.getDefaultInstance(accessData);
+      Session session = Session.getInstance(accessData);
       Store store = session.getStore();
       store.connect(accessData.getProperty("mail.host"),
           accessData.getProperty("mail.user"),
@@ -293,5 +293,29 @@ public class MailDatasource implements Datasource {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+  }
+
+  @Override
+  public List<String> getAvailableOptions(Properties accessData) {
+    List<String> availOpts = new ArrayList<String>();
+    try {
+      Session session = Session.getInstance(accessData);
+      Store store = session.getStore();
+      store.connect(accessData.getProperty("mail.host"),
+          accessData.getProperty("mail.user"),
+          accessData.getProperty("mail.password"));
+      Folder[] folders = store.getDefaultFolder().list("*");
+      for (Folder folder : folders) {
+        availOpts.add(folder.getName());
+      }
+      store.close();
+    } catch (NoSuchProviderException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (MessagingException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return availOpts;
   }
 }

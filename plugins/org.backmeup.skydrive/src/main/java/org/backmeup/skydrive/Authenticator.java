@@ -39,6 +39,7 @@ public class Authenticator implements OAuthBased {
 	@Override
 	public String createRedirectURL(Properties inputProperties, String callback) {		
 		OAuthService service = buildService(callback);
+		inputProperties.setProperty("callback", callback);
 		return service.getAuthorizationUrl(null);
 	}
 

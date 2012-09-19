@@ -1,5 +1,6 @@
 package org.backmeup.plugin.api.connectors;
 
+import java.util.List;
 import java.util.Properties;
 
 import org.backmeup.plugin.api.storage.StorageException;
@@ -27,5 +28,13 @@ public interface Datasource {
 	 * @return statistics or any other information about the datasource
 	 */
 	public abstract String getStatistics(Properties accesssData);
+	
+	/**
+	 * Returns a List of items that might be choosen for the backup.
+	 * e.g. a social media plugin could return: "Pictures, Videos, Messages",
+	 *      a filestorage plugin could return the root folders of an account.
+	 * @return
+	 */
+	public List<String> getAvailableOptions(Properties accessData);
 
 }

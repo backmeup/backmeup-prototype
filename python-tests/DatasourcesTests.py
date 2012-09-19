@@ -2,6 +2,7 @@
 
 from RESTBackMeUp import *
 from unittest import TestCase, skip
+from TestConfig import *
 import httplib
 
 import logging
@@ -86,9 +87,9 @@ class TestDatasources(TestCase):
     logger.debug(str(res))
     #post_auth_datasource("TestUser3", res.data["profileId"], "password", {})
     # note that is specific for user and plug-in
+    update_profile(res.data["profileId"], {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET}, "password")
     res = generate_datasource_options("TestUser3", res.data["profileId"], "password")
     self.assertEquals(res.code, httplib.OK)
-    # Note: this must implemented on the server side first
     self.assertIn("sourceOptions", res.data)
     self.assertTrue(len(res.data["sourceOptions"]) > 0)
     

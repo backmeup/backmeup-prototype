@@ -5,11 +5,18 @@
 	<groupId>org.backmeup</groupId>
 	<artifactId>plugins</artifactId>
 	<version>0.0.1</version>
-	<packaging>pom</packaging>
+        <packaging>pom</packaging>
+	<properties>
+                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 	<modules>
 		<!-- build the plugins -->
-		<!-- module>org.backmeup.dropbox</module>
-                <module>org.backmeup.skydrive</module -->
+		<module>org.backmeup.mail</module>
+		<module>org.backmeup.discmailing</module>
+		<module>org.backmeup.facebook</module>
+		<module>org.backmeup.twitter</module>
+		<module>org.backmeup.dropbox</module>
+                <module>org.backmeup.skydrive</module>
                 <module>org.backmeup.moodle</module>
                 <module>org.backmeup.dummy</module>
 	</modules>

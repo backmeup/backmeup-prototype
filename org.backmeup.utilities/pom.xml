@@ -7,11 +7,29 @@
 		<version>0.0.1</version>
 	</parent>
 	<artifactId>utilities</artifactId>
+	<repositories>
+		<repository>
+			<id>com.springsource.repository.bundles.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>javax.mail</groupId>
+			<artifactId>com.springsource.javax.mail</artifactId>
+			<version>1.4.1</version>
+		</dependency> 
+		<!-- dependency>
+			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
 			<version>1.4.5</version>
-		</dependency>
+		</dependency>  -->
 	</dependencies>
 </project>

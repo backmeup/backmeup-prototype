@@ -40,8 +40,9 @@ public class ElasticSearchIndexer {
 	private static final String FIELD_OWNER_ID = "owner_id";
 	private static final String FIELD_OWNER_NAME = "owner_name";
 	private static final String FIELD_PATH = "path";
-	private static final String BACKUP_SOURCES = "backup_sources";
-	private static final String BACKUP_SINK = "backup_sink";
+	private static final String FIELD_BACKUP_SOURCES = "backup_sources";
+	private static final String FIELD_BACKUP_SINK = "backup_sink";
+	private static final String FIELD_FILE_HASH = "file_md5_hash";
 	
 	private static final String DOCUMENT_TYPE_BACKUP = "backup";
 	
@@ -69,14 +70,15 @@ public class ElasticSearchIndexer {
 		contentBuilder.field(FIELD_OWNER_ID, job.getUser().getUserId());
 		contentBuilder.field(FIELD_OWNER_NAME, job.getUser().getUsername());
 		contentBuilder.field(FIELD_PATH, dataObject.getPath());
-		contentBuilder.field(BACKUP_SINK, job.getSinkProfile().getProfileName());
+		contentBuilder.field(FIELD_FILE_HASH, dataObject.getMD5Hash());
+		contentBuilder.field(FIELD_BACKUP_SINK, job.getSinkProfile().getProfileName());
 		
 		// Where's my Scala .map and mkString!?!
 		List<String> sourceNames = new ArrayList<String>(); 
 		for (ProfileOptions source : job.getSourceProfiles()) {
 			sourceNames.add(source.getProfile().getProfileName());			
 		}
-		contentBuilder.field(BACKUP_SOURCES, StringUtils.join(sourceNames, ", "));
+		contentBuilder.field(FIELD_BACKUP_SOURCES, StringUtils.join(sourceNames, ", "));
 		
 		MetainfoContainer metainfoContainer = dataObject.getMetainfo();
 		if (metainfoContainer != null) {

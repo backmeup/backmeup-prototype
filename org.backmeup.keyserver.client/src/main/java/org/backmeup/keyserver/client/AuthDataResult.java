@@ -73,7 +73,7 @@ public class AuthDataResult {
 
   public Properties getByProfileId(Long profileId) {
     for (int i = 0; i < authinfos.length; i++) {
-      if (authinfos[i].getBmu_authinfo_id() == profileId) {
+      if (authinfos[i].getBmu_authinfo_id().equals(profileId)) {
         return authinfos[i].getAiData();
       }
     }

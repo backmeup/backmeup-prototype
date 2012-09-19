@@ -50,7 +50,7 @@ public class IndexActionTest {
 	  
 		// Index test files on the local ES index
 		IndexAction action = new IndexAction(client);
-		action.doAction(null, reader, null, logProgressable);
+		action.doAction(null, reader, null, null, logProgressable);
 		System.out.println("Done.");
 	}
 	

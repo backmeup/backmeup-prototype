@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import org.backmeup.model.BackupJob;
 import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
@@ -26,7 +27,7 @@ public class IndexAction implements Action {
 	private static final String INDEX_PROCESS_COMPLETE = "Indexing complete";
 	
 	@Override
-	public void doAction(Properties parameters, StorageReader input, StorageWriter output, Progressable progressor)
+	public void doAction(Properties parameters, StorageReader input, StorageWriter output, BackupJob job, Progressable progressor)
 			throws ActionException {
 		
 		progressor.progress(START_INDEX_PROCESS);

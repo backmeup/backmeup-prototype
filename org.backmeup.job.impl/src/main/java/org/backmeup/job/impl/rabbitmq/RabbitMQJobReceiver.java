@@ -111,17 +111,22 @@ public class RabbitMQJobReceiver {
 					    mqChannel.basicConsume(mqName, true, consumer);
 						
 					    while (listening) {
-					    	QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-					    	String message = new String(delivery.getBody());
-					    	log.info("Received: " + message);
-					    	
-					    	BackupJob job = JsonSerializer.deserialize(message, BackupJob.class);
-					    	
-			                StorageReader reader = new LocalFilesystemStorageReader();
-			                StorageWriter writer = new LocalFilesystemStorageWriter();
-			                
-			        		BackupJobRunner runner = new BackupJobRunner(plugins, keyserver);
-			        		runner.executeBackup(job, reader, writer);
+					      try {
+  					    	QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+  					    	String message = new String(delivery.getBody());
+  					    	log.info("Received: " + message);
+  					    	
+  					    	BackupJob job = JsonSerializer.deserialize(message, BackupJob.class);
+  					    	
+  			                StorageReader reader = new LocalFilesystemStorageReader();
+  			                StorageWriter writer = new LocalFilesystemStorageWriter();
+  			                
+  			        		BackupJobRunner runner = new BackupJobRunner(plugins, keyserver);
+  			        		runner.executeBackup(job, reader, writer);
+					      } catch (Exception ex) {
+					        //TODO Log exception
+					        ex.printStackTrace();
+					      }
 					    }
 					    
 					    log.info("Stopping message queue receiver");
@@ -133,8 +138,6 @@ public class RabbitMQJobReceiver {
 						// Should only happen if message queue is down
 						log.fatal(e.getMessage() + " - message queue down?");
 						throw new RuntimeException(e);
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);						
 					}
 				}
 			});

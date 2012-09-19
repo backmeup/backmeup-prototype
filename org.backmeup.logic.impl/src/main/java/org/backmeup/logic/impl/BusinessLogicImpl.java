@@ -64,7 +64,10 @@ import org.backmeup.model.spi.ValidationExceptionType;
 import org.backmeup.model.spi.Validationable;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.Metadata;
+import org.backmeup.plugin.api.actions.encryption.EncryptionDescribable;
+import org.backmeup.plugin.api.actions.filesplitting.FilesplittDescribable;
 import org.backmeup.plugin.api.actions.indexing.ElasticSearchIndexClient;
+import org.backmeup.plugin.api.actions.indexing.IndexDescribable;
 import org.backmeup.plugin.spi.Authorizable;
 import org.backmeup.plugin.spi.Authorizable.AuthorizationType;
 import org.backmeup.plugin.spi.InputBased;
@@ -439,8 +442,12 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public List<ActionDescribable> getActions() {
-    // TODO Auto-generated method stub
-    return null;
+    List<ActionDescribable> actions = plugins.getActions();
+    //TODO: Move all internal actions to real OSGi bundles!!    
+    actions.add(new IndexDescribable());
+    actions.add(new FilesplittDescribable());
+    actions.add(new EncryptionDescribable());
+    return actions;
   }
 
   public List<String> getActionOptions(String actionId) {
@@ -563,6 +570,17 @@ public class BusinessLogicImpl implements BusinessLogic {
       conn.rollback();
     }
   }
+  
+  private List<Status> getStatusForJob(BackupJob job, Date fromDate, Date toDate) {
+    try {
+      conn.beginOrJoin();            
+      StatusDao sd = dal.createStatusDao();
+      List<Status> stats = sd.findByJob(job.getUser().getUsername(), job.getId(), fromDate, toDate);
+      return stats;
+    } finally {
+      conn.rollback();
+    }
+  }
 
   public List<Status> getStatus(String username, Long jobId, Date fromDate,
       Date toDate) {
@@ -570,15 +588,23 @@ public class BusinessLogicImpl implements BusinessLogic {
       conn.begin();
       getUser(username);
       BackupJobDao jobDao = getBackupJobDao();
+      
+      if (jobId == null) {
+        List<Status> status = new ArrayList<Status>();
+        List<BackupJob> jobs = jobDao.findByUsername(username);
+        for (BackupJob job : jobs) {
+          status.addAll(getStatusForJob(job, fromDate, toDate));
+        }
+        return status;
+      }
+      
       BackupJob job = jobDao.findById(jobId);
       if (job == null)
         throw new IllegalArgumentException(String.format(NO_SUCH_JOB, jobId));
       if (!job.getUser().getUsername().equals(username))
         throw new IllegalArgumentException(String.format(JOB_USER_MISSMATCH,
             jobId, username));
-      StatusDao sd = dal.createStatusDao();
-      List<Status> stats = sd.findByJob(username, jobId, fromDate, toDate);
-      return stats;
+      return getStatusForJob(job, fromDate, toDate);
     } finally {
       conn.rollback();
     }

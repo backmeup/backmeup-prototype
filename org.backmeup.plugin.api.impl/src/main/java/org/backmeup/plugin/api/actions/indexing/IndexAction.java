@@ -47,7 +47,7 @@ public class IndexAction implements Action {
 				ElasticSearchIndexer indexer = new ElasticSearchIndexer(client);
 				
 				// TODO username needs to be available to action
-				indexer.doIndexing("dummy", dob, meta);
+				indexer.doIndexing(job, dob, meta);
 			}
 		} catch (Exception e) {
 			throw new ActionException(e);

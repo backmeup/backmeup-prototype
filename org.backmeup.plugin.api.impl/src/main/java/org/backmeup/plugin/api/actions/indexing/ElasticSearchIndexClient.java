@@ -9,6 +9,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 
 public class ElasticSearchIndexClient {
 	
+	private static final String FIELD_OWNER_NAME = "owner_name";
+	
 	private static final String INDEX_NAME = "backmeup";
 	
 	private Client client;
@@ -24,7 +26,7 @@ public class ElasticSearchIndexClient {
 	
 	public SearchResponse queryBackup(String username, String query) {
 		QueryBuilder qBuilder = QueryBuilders.boolQuery()
-				.must(QueryBuilders.termQuery("owner", username))
+				.must(QueryBuilders.termQuery(FIELD_OWNER_NAME, username.toLowerCase()))
 				.must(QueryBuilders.queryString(query));
 		
 		return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).execute().actionGet();

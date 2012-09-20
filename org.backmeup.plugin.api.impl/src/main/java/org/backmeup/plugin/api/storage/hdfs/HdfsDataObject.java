@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.DataObject;
 
-public class HdfsDataObject implements DataObject {
+public class HdfsDataObject extends DataObject {
 	
 	private String path;
 	private int length;

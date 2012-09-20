@@ -67,6 +67,7 @@ import org.backmeup.plugin.api.Metadata;
 import org.backmeup.plugin.api.actions.encryption.EncryptionDescribable;
 import org.backmeup.plugin.api.actions.filesplitting.FilesplittDescribable;
 import org.backmeup.plugin.api.actions.indexing.ElasticSearchIndexClient;
+import org.backmeup.plugin.api.actions.indexing.IndexUtils;
 import org.backmeup.plugin.api.actions.indexing.IndexDescribable;
 import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.spi.Authorizable;
@@ -782,14 +783,10 @@ public class BusinessLogicImpl implements BusinessLogic {
 	    int port = Integer.parseInt(config.getProperty(INDEX_PORT));
 	    
 	    ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);
-	    org.elasticsearch.action.search.SearchResponse response = client.queryBackup(username, query);
-	    
-	    List<SearchEntry> entries = new ArrayList<SearchResponse.SearchEntry>();
-	    for (SearchHit hit : response.getHits()) {
-	    	SearchEntry entry = new SearchEntry();
-	    	entry.setTitle(hit.field("path").getValue().toString());
-	    }
-	    search.setFiles(entries);
+	    org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(username, query);
+	    search.setFiles(IndexUtils.convertSearchEntries(esResponse));
+	    search.setBySource(IndexUtils.getBySource(esResponse));
+	    search.setByType(IndexUtils.getByType(esResponse));
 	    return search;
 	  } finally {
 		conn.rollback();

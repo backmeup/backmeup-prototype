@@ -1,7 +1,10 @@
 package org.backmeup.model;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Contains the result of a search when calling BusinessLogic#queryBackup
@@ -113,6 +116,7 @@ public class SearchResponse {
 		private String title;
 		private String type;
 		private String thumbnailUrl;
+		private Map<String, String> properties = new HashMap<String, String>();
 		
 		public SearchEntry() {
 			
@@ -125,6 +129,18 @@ public class SearchResponse {
 			this.title = title;
 			this.setType(type);
 			this.thumbnailUrl = thumbnailUrl;
+		}
+		
+		public String getProperty(String key) {
+			return properties.get(key);
+		}
+		
+		public void setProperty(String key, String value) {
+			properties.put(key, value);
+		}
+		
+		public Set<String> getPropertyKeys() {
+			return properties.keySet();
 		}
 		
 		public Date getTimeStamp() {

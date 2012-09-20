@@ -149,6 +149,12 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
   public List<String> getAvailableOptions(Properties accessData) {
     //TODO: Return a list of selectable resources that should be backed up
     List<String> availableOptions = new ArrayList<String>();
+    availableOptions.add("Wiki");
+    availableOptions.add("Url");
+    availableOptions.add("Page");
+    availableOptions.add("Assignment");
+    availableOptions.add("Resource");
+    availableOptions.add("Folder");
     return availableOptions;
   }
 }

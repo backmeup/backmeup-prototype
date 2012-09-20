@@ -9,7 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.DataObject;
 
-public class FileDataObject implements DataObject {
+public class FileDataObject extends DataObject {
 
 	private File file;
 	

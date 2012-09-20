@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Properties;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.backmeup.model.BackupJob;
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.actions.Action;
@@ -22,6 +23,9 @@ public class FilesplittAction implements Action
 	private static final String FILESPLITT_SORT = "Sorting files";
 	private static final String FILESPLITT_SPLITT = "Splitting files to container";
 	private static final String FILESPLITT_PROCESS_COMPLETE = "Filesplitting complete";
+	private static final String MOVE_FILES_TO_TMP = "Moving all files to tmp folder";
+	
+	private static String PATH_SEPARATOR = "/";
 	
 	private static final long CONTAINER_SIZE = 10 * 1024 * 1024; // 10 MiB
 
@@ -32,7 +36,6 @@ public class FilesplittAction implements Action
 		
 		// TODO Rewrite do new API
 		Storage storage = null;
-
 		try
 		{
 			PriorityQueue<DataObject> sorted = new PriorityQueue<DataObject> (storage.getDataObjectCount(), new Comparator<DataObject> ()
@@ -76,24 +79,36 @@ public class FilesplittAction implements Action
 				}
 			});
 
+
+			// TODO remove this workflow later
+			progressor.progress (MOVE_FILES_TO_TMP);
+			Iterator<DataObject> dataobjects = storage.getDataObjects ();
+			String tmp_dir = RandomStringUtils.randomAlphanumeric (16);
+			while (dataobjects.hasNext () == true)
+			{
+				DataObject daob = dataobjects.next ();
+				storage.moveFile (daob.getPath (), tmp_dir + PATH_SEPARATOR + daob.getPath ());
+			}
+			dataobjects = null;
 			
 			
 			progressor.progress (FILESPLITT_SORT);
-			Iterator<DataObject> dataObjects = storage.getDataObjects ();
-			while (dataObjects.hasNext () == true)
+			dataobjects = storage.getDataObjects ();
+			while (dataobjects.hasNext () == true)
 			{
-				DataObject daob = dataObjects.next ();
+				DataObject daob = dataobjects.next ();
 				sorted.add (daob);
 			}
 			
 			FileContainers fcs = new FileContainers (CONTAINER_SIZE, false);
 
 			progressor.progress (FILESPLITT_SPLITT);
-			DataObject daob = sorted.peek ();
+			
+			DataObject daob = sorted.poll ();
 			while (daob != null)
 			{
 				fcs.addData (daob);
-				daob = sorted.peek ();
+				daob = sorted.poll ();
 			}
 
 			parameters.setProperty ("org.backmeup.filesplitting.containercount", fcs.getContainers ().size () + "");
@@ -107,7 +122,8 @@ public class FilesplittAction implements Action
 				
 				for (int i = 0; i < fc.getContainerElementCount (); i++)
 				{
-					storage.moveFile (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i));
+					// TODO remove the tmp folder with new storage interface (existFolder)
+					storage.moveFile (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
 				}
 			}
 		}

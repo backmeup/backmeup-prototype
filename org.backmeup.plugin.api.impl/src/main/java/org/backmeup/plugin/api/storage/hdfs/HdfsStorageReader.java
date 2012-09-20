@@ -104,6 +104,12 @@ public class HdfsStorageReader extends StorageReader {
 		}
 
 	}
+	
+	@Override
+	public boolean existsPath(String path) throws StorageException {
+		// TODO implement
+		return false;
+	}
 
   @Override
   public int getDataObjectCount() throws StorageException {

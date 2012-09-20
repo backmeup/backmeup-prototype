@@ -19,6 +19,8 @@ public abstract class Storage {
 	
 	public abstract Iterator<DataObject> getDataObjects() throws StorageException;
 	
+	public abstract boolean existsPath(String path) throws StorageException;
+	
 	/** Write methods **/
 	
 	public abstract void addFile(InputStream is, String path, MetainfoContainer metadata) throws StorageException;

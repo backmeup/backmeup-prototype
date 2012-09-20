@@ -1013,10 +1013,11 @@ public class FacebookDatasource implements Datasource {
 		}
 		for (int i = 0; i < str.length(); i++) {
 			if ((str.charAt(i) < ' ' || str.charAt(i) > '~')) {
-				if (str.charAt(i) != 'ä' && str.charAt(i) != 'Ä'
-						&& str.charAt(i) != 'ö' && str.charAt(i) != 'Ö'
-						&& str.charAt(i) != 'ü' && str.charAt(i) != 'Ü'
-						&& str.charAt(i) != 'ß') {
+				//umlauts are allowed
+				if (str.charAt(i) != 228 && str.charAt(i) != 196
+						&& str.charAt(i) != 246 && str.charAt(i) != 214
+						&& str.charAt(i) != 252 && str.charAt(i) != 220
+						&& str.charAt(i) != 223) {
 					str = str.replace(str.charAt(i), '-');
 				}
 			}
@@ -1032,11 +1033,13 @@ public class FacebookDatasource implements Datasource {
 
   @Override
   public List<String> getAvailableOptions(Properties accessData) {
-    // TODO Provide a list of options
     List<String> facebookBackupOptions = new ArrayList<String>();
-    facebookBackupOptions.add("Pictures");
-    facebookBackupOptions.add("Videos");
-    facebookBackupOptions.add("Messages");
+    facebookBackupOptions.add("Profile");
+    facebookBackupOptions.add("Friends");
+    facebookBackupOptions.add("Friendslists");
+    facebookBackupOptions.add("Groups");
+    facebookBackupOptions.add("Photos");
+    facebookBackupOptions.add("Albums");
     return facebookBackupOptions;
   }
 }

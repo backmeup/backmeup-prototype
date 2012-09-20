@@ -1,12 +1,18 @@
 package org.backmeup.logic.impl;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import junit.framework.Assert;
 
 import org.backmeup.logic.BusinessLogic;
+import org.backmeup.model.AuthRequest;
 import org.backmeup.model.User;
+import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.NotAnEmailAddressException;
 import org.backmeup.model.exceptions.PasswordTooShortException;
 import org.backmeup.model.spi.SourceSinkDescribable;
@@ -45,7 +51,7 @@ public class BusinessLogicImplTest {
 
   @AfterClass
   public static void tearDown() {
-    // logic.shutdown();
+    //logic.shutdown();
   }
 
   /*
@@ -416,16 +422,19 @@ public class BusinessLogicImplTest {
 	public void testMoodle() throws IOException {
 	  /*
 		try {
-			User u = logic.register("fjungwirth", "123", "123",
-					"jungwirth.florian@gmail.com");
-
-		} catch (AlreadyRegisteredException are) {
-		}
-
+		try {
+      		logic.deleteUser("fjungwirth");
+    	} catch (Exception e) {
+    	}
+    	User u = logic.register("fjungwirth", "12345678", "12345678", "jungwirth.florian@gmail.com");
+    	logic.verifyEmailAddress(u.getVerificationKey());
+    
+	} catch (AlreadyRegisteredException are) {
+	}
 		// register moodle datasource
 
 		AuthRequest ar = logic.preAuth("fjungwirth", "org.backmeup.moodle",
-				"My Moodle Profile", "123");
+				"My Moodle Profile", "12345678");
 
 		// print ar to shell if needed
 
@@ -442,13 +451,13 @@ public class BusinessLogicImplTest {
 		props.setProperty("Moodle Server Url",
 				"http://gtn02.gtn-solutions.com/moodle20/");
 
-		logic.postAuth(ar.getProfile().getProfileId(), props, "123");
+		logic.postAuth(ar.getProfile().getProfileId(), props, "12345678");
 		//logic.validateProfile("fjungwirth", ar.getProfile().getProfileId());
 
 		// register skydrive datasink (changed to dropbox)
 
 		AuthRequest ar2 = logic.preAuth("fjungwirth", "org.backmeup.dropbox",
-				"Dropbox-Profile", "123");
+				"Dropbox-Profile", "12345678");
 
 		// print ar2 to shell if needed
 
@@ -469,7 +478,7 @@ public class BusinessLogicImplTest {
 			props.setProperty(pair[0], pair[1]);
 		}
 
-		logic.postAuth(ar2.getProfile().getProfileId(), props, "123");
+		logic.postAuth(ar2.getProfile().getProfileId(), props, "12345678");
 
 		List<Long> sources = new ArrayList<Long>();
 
@@ -477,23 +486,29 @@ public class BusinessLogicImplTest {
 
 		// create and exceute a backupjob from moodle to skydrive
 		logic.createBackupJob("fjungwirth", sources, ar2.getProfile()
-				.getProfileId(), null, null, "now", "123");
+				.getProfileId(), null, null, "now", "12345678");
 
 	*/
   }
   
   @Test
   public void testTwitter() throws IOException {
-	/*try {
-		User u = logic.register("mmurauer", "123", "123",
-				"michaela.murauer@yahoo.com");
+	/*
+	try {
+		try {
+      		logic.deleteUser("michaela.murauer@yahoo.com");
+    	} catch (Exception e) {
+    	}
+    	User u = logic.register("michaela.murauer@yahoo.com", "12345678", "12345678", "michaela.murauer@yahoo.com");
+    	logic.verifyEmailAddress(u.getVerificationKey());
+    
 	} catch (AlreadyRegisteredException are) {
 	}
 		
 	// register twitter datasource
 
-	AuthRequest ar = logic.preAuth("mmurauer", "org.backmeup.twitter",
-		"My Twitter Profile", "123");
+	AuthRequest ar = logic.preAuth("michaela.murauer@yahoo.com", "org.backmeup.twitter",
+		"My Twitter Profile", "12345678");
 
 	Properties props = new Properties();
 
@@ -511,14 +526,14 @@ public class BusinessLogicImplTest {
 		String[] pair = entry.split("=");
 		props.setProperty(pair[0], pair[1]);
 	}
-	logic.postAuth(ar.getProfile().getProfileId(), props, "123");
+	logic.postAuth(ar.getProfile().getProfileId(), props, "12345678");
 		
-	logic.validateProfile("mmurauer", ar.getProfile().getProfileId());
+	//logic.validateProfile("mmurauer", ar.getProfile().getProfileId());
 
 	// register skydrive datasink (changed to dropbox)
 
-	AuthRequest ar2 = logic.preAuth("mmurauer", "org.backmeup.dropbox",
-			"Dropbox-Profile", "123");
+	AuthRequest ar2 = logic.preAuth("michaela.murauer@yahoo.com", "org.backmeup.dropbox",
+			"Dropbox-Profile", "12345678");
 
 	System.out.println("Open the following URL: " + ar2.getRedirectURL());
 
@@ -533,29 +548,33 @@ public class BusinessLogicImplTest {
 		props.setProperty(pair[0], pair[1]);
 	}
 
-	logic.postAuth(ar2.getProfile().getProfileId(), props, "123");
+	logic.postAuth(ar2.getProfile().getProfileId(), props, "12345678");
 
 	List<Long> sources = new ArrayList<Long>();
 
 	sources.add(ar.getProfile().getProfileId());
 
 	// create and exceute a backupjob from moodle to skydrive
-	logic.createBackupJob("mmurauer", sources, ar2.getProfile()
-			.getProfileId(), null, null, "now", "123");
+	logic.createBackupJob("michaela.murauer@yahoo.com", sources, ar2.getProfile()
+			.getProfileId(), null, null, "now", "12345678");
 	*/
 	}
   @Test
   public void testFacebook() throws IOException {
-	/*try {
-		User u = logic.register("mmurauer", "123", "123",
-				"michaela.murauer@yahoo.com");
-	} catch (AlreadyRegisteredException are) {
-	}
-		
+	  /*try {
+			try {
+	      		logic.deleteUser("michaela.murauer@yahoo.com");
+	    	} catch (Exception e) {
+	    	}
+	    	User u = logic.register("michaela.murauer@yahoo.com", "12345678", "12345678", "michaela.murauer@yahoo.com");
+	    	logic.verifyEmailAddress(u.getVerificationKey());
+	    
+		} catch (AlreadyRegisteredException are) {
+		}	
 	// register twitter datasource
 
-	AuthRequest ar = logic.preAuth("mmurauer", "org.backmeup.facebook",
-		"My Facebook Profile", "123");
+	AuthRequest ar = logic.preAuth("michaela.murauer@yahoo.com", "org.backmeup.facebook",
+		"My Facebook Profile", "12345678");
 
 	Properties props = new Properties();
 
@@ -573,14 +592,14 @@ public class BusinessLogicImplTest {
 		props.setProperty(pair[0], pair[1]);
 	}
 	
-	logic.postAuth(ar.getProfile().getProfileId(), props, "123");
+	logic.postAuth(ar.getProfile().getProfileId(), props, "12345678");
 		
-	logic.validateProfile("mmurauer", ar.getProfile().getProfileId());
+	//logic.validateProfile("mmurauer", ar.getProfile().getProfileId());
 
 	// register skydrive datasink (changed to dropbox)
 
-	AuthRequest ar2 = logic.preAuth("mmurauer", "org.backmeup.dropbox",
-			"Dropbox-Profile", "123");
+	AuthRequest ar2 = logic.preAuth("michaela.murauer@yahoo.com", "org.backmeup.dropbox",
+			"Dropbox-Profile", "12345678");
 
 	System.out.println("Open the following URL: " + ar2.getRedirectURL());
 
@@ -595,15 +614,15 @@ public class BusinessLogicImplTest {
 		props.setProperty(pair[0], pair[1]);
 	}
 
-	logic.postAuth(ar2.getProfile().getProfileId(), props, "123");
+	logic.postAuth(ar2.getProfile().getProfileId(), props, "12345678");
 
 	List<Long> sources = new ArrayList<Long>();
 
 	sources.add(ar.getProfile().getProfileId());
 
 	// create and exceute a backupjob from moodle to skydrive
-	logic.createBackupJob("mmurauer", sources, ar2.getProfile()
-			.getProfileId(), null, null, "now", "123");
+	logic.createBackupJob("michaela.murauer@yahoo.com", sources, ar2.getProfile()
+			.getProfileId(), null, null, "now", "12345678");
 	*/
 	}
 }

@@ -1,6 +1,7 @@
 package org.backmeup.model;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -29,9 +30,9 @@ public class Profile {
 	@GeneratedValue
 	private Long profileId;
 	@ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER, optional=false)
-	private User user;
+	private BackMeUpUser user;
 	private String profileName;
-	private String desc;
+	private String description;
 	
 	@Enumerated(EnumType.STRING)
 	private Type sourceAndOrSink;	
@@ -40,16 +41,16 @@ public class Profile {
 	}
 	
 	
-	public Profile(User user, String profileName, String desc, Type source) {
+	public Profile(BackMeUpUser user, String profileName, String desc, Type source) {
 		this(null, user, profileName, desc, source);
 	}
 
-	public Profile(Long profileId, User user, String profileName, String desc, Type sourceAndOrSink) {
+	public Profile(Long profileId, BackMeUpUser user, String profileName, String desc, Type sourceAndOrSink) {
 		this.profileId = profileId;
 		this.user = user;
 		this.profileName = profileName;
 		this.sourceAndOrSink = sourceAndOrSink;
-		this.desc = desc;
+		this.description = desc;
 		
 	}
 	public Long getProfileId() {
@@ -58,10 +59,10 @@ public class Profile {
 	public void setProfileId(Long profileId) {
 		this.profileId = profileId;
 	}
-	public User getUser() {
+	public BackMeUpUser getUser() {
 		return user;
 	}
-	public void setUser(User user) {
+	public void setUser(BackMeUpUser user) {
 		this.user = user;
 	}
 	public String getProfileName() {
@@ -70,11 +71,11 @@ public class Profile {
 	public void setProfileName(String profileName) {
 		this.profileName = profileName;
 	}
-	public String getDesc() {
-		return desc;
+	public String getDescription() {
+		return description;
 	}
-	public void setDesc(String desc) {
-		this.desc = desc;
+	public void setDescription(String desc) {
+		this.description = desc;
 	} 
 	
 	public Type getType() {

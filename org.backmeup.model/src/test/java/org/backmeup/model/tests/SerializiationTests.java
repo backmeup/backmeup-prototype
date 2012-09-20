@@ -11,7 +11,7 @@ import org.backmeup.model.ActionProfile;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
-import org.backmeup.model.User;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.model.spi.SourceSinkDescribable.Type;
 import org.junit.Assert;
@@ -21,14 +21,14 @@ public class SerializiationTests {
   
   private void testProfiles(Profile p1, Profile p2) {
     
-    Assert.assertEquals(p1.getDesc(), p2.getDesc());
+    Assert.assertEquals(p1.getDescription(), p2.getDescription());
     Assert.assertEquals(p1.getProfileId(), p2.getProfileId());
     Assert.assertEquals(p1.getProfileName(), p2.getProfileName());
     Assert.assertEquals(p1.getType(), p2.getType());
     testUser(p1.getUser(), p2.getUser());    
   }
   
-  private void testUser(User u1, User u2) {
+  private void testUser(BackMeUpUser u1, BackMeUpUser u2) {
     Assert.assertEquals(u1.getUserId(), u2.getUserId());
     Assert.assertEquals(u1.getEmail(), u2.getEmail());
   }
@@ -48,7 +48,7 @@ public class SerializiationTests {
   
   @Test
   public void testBackupJobSerializiation() {
-    User user = new User(1L, "Sepp", "Sepp@Mail.at");
+    BackMeUpUser user = new BackMeUpUser(1L, "Sepp", "Sepp@Mail.at");
     Set<ProfileOptions> options = new HashSet<ProfileOptions>();
     Profile source = new Profile(2L, user, "TestProfile", "org.backmeup.source", Type.Source);
     ProfileOptions po = new ProfileOptions(source, new String[]{"folder1", "folder2"});

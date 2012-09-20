@@ -6,7 +6,7 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.backmeup.logic.BusinessLogic;
-import org.backmeup.model.User;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.exceptions.NotAnEmailAddressException;
 import org.backmeup.model.exceptions.PasswordTooShortException;
 import org.backmeup.model.spi.SourceSinkDescribable;

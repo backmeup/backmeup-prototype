@@ -1,6 +1,6 @@
 package org.backmeup.dal;
 
-import org.backmeup.model.User;
+import org.backmeup.model.BackMeUpUser;
 
 /**
   * The UserDao contains all database relevant
@@ -9,12 +9,12 @@ import org.backmeup.model.User;
  * @author fschoeppl
  *
  */
-public interface UserDao extends BaseDao<User> {
+public interface UserDao extends BaseDao<BackMeUpUser> {
 
-	public User findByName(String username);
+	public BackMeUpUser findByName(String username);
 	
-	public User findByVerificationKey(String verificationKey);
+	public BackMeUpUser findByVerificationKey(String verificationKey);
 	
-	public User findByEmail(String email);
+	public BackMeUpUser findByEmail(String email);
 	
 }

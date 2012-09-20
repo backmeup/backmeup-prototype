@@ -67,7 +67,7 @@ public class ElasticSearchIndexer {
 		contentBuilder.field(IndexUtils.FIELD_PATH, dataObject.getPath());
 		contentBuilder.field(IndexUtils.FIELD_FILE_HASH, dataObject.getMD5Hash());
 		contentBuilder.field(IndexUtils.FIELD_BACKUP_SINK, job.getSinkProfile().getProfileName());
-		contentBuilder.field(IndexUtils.FIELD_BACKUP_AT, new Date());
+		contentBuilder.field(IndexUtils.FIELD_BACKUP_AT, new Date().getTime());
 		
 		// Where's my Scala .map and mkString!?!
 		List<String> sourceNames = new ArrayList<String>(); 
@@ -96,7 +96,7 @@ public class ElasticSearchIndexer {
 	
 	private String getFilename(String path) {
 		if (path.indexOf('/') > -1)
-			return path.substring(path.indexOf('/') + 1);
+			return path.substring(path.lastIndexOf('/') + 1);
 		
 		return path;
 	}

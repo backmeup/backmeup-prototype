@@ -2,12 +2,15 @@ package org.backmeup.plugin.api.actions.indexing;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.SearchResponse.CountedEntry;
+import org.backmeup.model.SearchResponse.SearchEntry;
 import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
@@ -21,9 +24,7 @@ import org.elasticsearch.node.NodeBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class IndexActionTest {
@@ -123,6 +124,23 @@ public class IndexActionTest {
 		
 		for (SearchHit hit : response.getHits()) {
 			System.out.println(hit.getSourceAsString());
+		}
+		
+		List<SearchEntry> bmuSearchEntries = IndexUtils.convertSearchEntries(response);
+		for (SearchEntry entry : bmuSearchEntries) {
+			System.out.println("Result: " + entry.getTitle());
+		}
+		Assert.assertEquals(3, bmuSearchEntries.size());
+		
+		List<CountedEntry> bmuBySource = IndexUtils.getBySource(response);
+		for (CountedEntry entry : bmuBySource) {
+			System.out.println("From source: " + entry.getTitle() + ":  " + entry.getCount() + " results");
+		}
+		Assert.assertEquals(1, bmuBySource.size());
+		
+		List<CountedEntry> bmuByType = IndexUtils.getByType(response);
+		for (CountedEntry entry : bmuByType) {
+			System.out.println("For type: " + entry.getTitle() + ":  " + entry.getCount() + " results");
 		}
 		
 		Assert.assertEquals(3, response.getHits().totalHits());

@@ -2,8 +2,12 @@ package org.backmeup.plugin.api.actions.indexing;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.backmeup.model.SearchResponse;
 import org.backmeup.model.SearchResponse.CountedEntry;
 import org.backmeup.model.SearchResponse.SearchEntry;
@@ -33,31 +37,59 @@ public class IndexUtils {
 	public static List<SearchEntry> convertSearchEntries(org.elasticsearch.action.search.SearchResponse esResponse) {	    
 	    List<SearchEntry> entries = new ArrayList<SearchResponse.SearchEntry>();
 	    for (SearchHit hit : esResponse.getHits()) {
+	    	Map<String, Object> source = hit.getSource();
+
 	    	SearchEntry entry = new SearchEntry();
-	    	entry.setTitle(hit.field(FIELD_FILENAME).getValue().toString());
-	    	entry.setTimeStamp((Date) hit.field(IndexUtils.FIELD_BACKUP_AT).getValue());
+	    	entry.setTitle(source.get(FIELD_FILENAME).toString());
+	    	entry.setTimeStamp(new Date((Long) source.get(FIELD_BACKUP_AT)));
 	    	
-	    	SearchHitField contentType = hit.field(FIELD_CONTENT_TYPE);
+	    	Object contentType = source.get(FIELD_CONTENT_TYPE);
 	    	if (contentType != null) {
-	    		entry.setType(contentType.getValue().toString());
+	    		entry.setType(contentType.toString());
 	    	} else {
 	    		entry.setType("[unknown]");
 	    	}
 	    	
-	    	entry.setProperty(FIELD_PATH, hit.field(FIELD_PATH).toString());
-	    	entry.setProperty(FIELD_BACKUP_SOURCES, hit.field(FIELD_BACKUP_SOURCES).toString());
-	    	entry.setProperty(FIELD_BACKUP_SINK, hit.field(FIELD_BACKUP_SINK).toString());
-	    	entry.setProperty(FIELD_FILE_HASH, hit.field(FIELD_FILE_HASH).toString());
+	    	entry.setProperty(FIELD_PATH, source.get(FIELD_PATH).toString());
+	    	entry.setProperty(FIELD_BACKUP_SOURCES, source.get(FIELD_BACKUP_SOURCES).toString());
+	    	entry.setProperty(FIELD_BACKUP_SINK, source.get(FIELD_BACKUP_SINK).toString());
+	    	entry.setProperty(FIELD_FILE_HASH, source.get(FIELD_FILE_HASH).toString());
+	    	
+	    	entries.add(entry);
 	    }
 		return entries;
 	}
 	
-	public static List<CountedEntry> getBySource(org.elasticsearch.action.search.SearchResponse esResponse) {
-		return null;
+	public static List<CountedEntry> getBySource(org.elasticsearch.action.search.SearchResponse esResponse) {		
+		// TODO we currently group by 'list of sources' rather than source
+		return groupByField(esResponse, FIELD_BACKUP_SOURCES);
 	}
 	
 	public static List<CountedEntry> getByType(org.elasticsearch.action.search.SearchResponse esResponse) {
-		return null;
+		return groupByField(esResponse, FIELD_CONTENT_TYPE);
+	}
+	
+	private static List<CountedEntry> groupByField(org.elasticsearch.action.search.SearchResponse esResponse, String field) {
+		// Now where's my Scala groupBy!? *heul*
+		Map<String, Integer> groupedHits = new HashMap<String, Integer>();
+		for (SearchHit hit : esResponse.getHits()) {
+			String sourceName = hit.getSource().get(field).toString();
+			Integer count = groupedHits.get(sourceName);
+			if (count == null) {
+				count = Integer.valueOf(1);
+			} else {
+				count = Integer.valueOf(count.intValue() + 1);
+			}
+			groupedHits.put(sourceName, count);
+		}
+		
+		// ...and .map
+		List<CountedEntry> countedEntries = new ArrayList<SearchResponse.CountedEntry>();
+		for (Entry<String, Integer> entry : groupedHits.entrySet()) {
+			countedEntries.add(new CountedEntry(entry.getKey(), entry.getValue().intValue()));
+		}
+		
+		return countedEntries;		
 	}
 
 }

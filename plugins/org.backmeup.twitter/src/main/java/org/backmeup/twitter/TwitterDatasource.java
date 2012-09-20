@@ -649,8 +649,13 @@ public class TwitterDatasource implements Datasource {
 
 	@Override
   public List<String> getAvailableOptions(Properties accessData) {
-    //TODO: Return a list of selectable resources that should be backed up
-    List<String> availableOptions = new ArrayList<String>();
-    return availableOptions;
+    List<String> twitterBackupOptions = new ArrayList<String>();
+    twitterBackupOptions.add("Profile");
+    twitterBackupOptions.add("RetweetsToMe");
+    twitterBackupOptions.add("RetweetsByMe");
+    twitterBackupOptions.add("RetweetsOfMe");
+    twitterBackupOptions.add("Favourites");
+    twitterBackupOptions.add("Lists");
+    return twitterBackupOptions;
   }
 }

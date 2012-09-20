@@ -93,6 +93,14 @@ public class LocalFilesystemStorage extends Storage {
 		}
 	}
 	
+	@Override
+	public boolean existsPath(String path) throws StorageException {
+		if (path.startsWith("/")||path.startsWith("\\"))
+			path = path.substring(1);
+		
+		return new File(rootDir, path).exists();
+	}
+	
 	/** Write methods **/
 
 	@Override

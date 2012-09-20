@@ -39,6 +39,9 @@ public class LocalFileSystemStorageTest {
 		Storage storage = new LocalFilesystemStorage();
 		storage.open(ROOT_PATH);
 		
+		// Test exists path methdo (negative)
+		Assert.assertFalse(storage.existsPath("/mydirectory"));
+		
 		// Add two test files
 		storage.addFile(new StringInputStream(TEST_TXT_1), "/hello1.txt", new MetainfoContainer());
 		storage.addFile(new StringInputStream(TEST_TXT_2), "/mydirectory/hello2.txt", new MetainfoContainer());
@@ -58,6 +61,10 @@ public class LocalFileSystemStorageTest {
 		Assert.assertTrue(file2.isFile());
 		Assert.assertTrue(meta2.exists());
 		Assert.assertTrue(meta2.isFile());
+		
+		// Test existsPath method
+		Assert.assertTrue(storage.existsPath("/mydirectory"));
+		Assert.assertTrue(storage.existsPath("mydirectory"));
 	}
 	
 	@Test

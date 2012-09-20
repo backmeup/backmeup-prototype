@@ -64,6 +64,14 @@ public class LocalFilesystemStorageReader extends StorageReader {
 			objects.add(new FileDataObject(file, path + "/" + file.getName()));
 		}
 	}
+	
+	@Override
+	public boolean existsPath(String path) throws StorageException {
+		if (path.startsWith("/")||path.startsWith("\\"))
+			path = path.substring(1);
+		
+		return new File(directory, path).exists();
+	}
 
 	@Override
 	public void close() throws StorageException {

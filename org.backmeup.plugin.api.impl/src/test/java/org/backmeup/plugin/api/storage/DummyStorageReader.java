@@ -31,9 +31,15 @@ public class DummyStorageReader extends StorageReader {
 		// Do nothing - this is just a dummy
 	}
 
-  @Override
-  public int getDataObjectCount() throws StorageException {
-    return 3;
-  }
+	@Override
+	public int getDataObjectCount() throws StorageException {
+	return 3;
+	}
+	
+	@Override
+	public boolean existsPath(String path) throws StorageException {
+		// Just a dummy
+		return false;
+	}
 
 }

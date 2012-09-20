@@ -38,14 +38,6 @@ import org.elasticsearch.common.xcontent.XContentFactory;
  */
 public class ElasticSearchIndexer {
 	
-	private static final String FIELD_OWNER_ID = "owner_id";
-	private static final String FIELD_OWNER_NAME = "owner_name";
-	private static final String FIELD_PATH = "path";
-	private static final String FIELD_BACKUP_SOURCES = "backup_sources";
-	private static final String FIELD_BACKUP_SINK = "backup_sink";
-	private static final String FIELD_FILE_HASH = "file_md5_hash";
-	private static final String FIELD_BACKUP_AT = "backup_at";
-	
 	private static final String DOCUMENT_TYPE_BACKUP = "backup";
 	
 	private static final String INDEX_NAME = "backmeup";
@@ -69,19 +61,20 @@ public class ElasticSearchIndexer {
 			contentBuilder = contentBuilder.field(metaKey, meta.get(metaKey));
 		}
 		
-		contentBuilder.field(FIELD_OWNER_ID, job.getUser().getUserId());
-		contentBuilder.field(FIELD_OWNER_NAME, job.getUser().getUsername());
-		contentBuilder.field(FIELD_PATH, dataObject.getPath());
-		contentBuilder.field(FIELD_FILE_HASH, dataObject.getMD5Hash());
-		contentBuilder.field(FIELD_BACKUP_SINK, job.getSinkProfile().getProfileName());
-		contentBuilder.field(FIELD_BACKUP_AT, new Date());
+		contentBuilder.field(IndexUtils.FIELD_OWNER_ID, job.getUser().getUserId());
+		contentBuilder.field(IndexUtils.FIELD_OWNER_NAME, job.getUser().getUsername());
+		contentBuilder.field(IndexUtils.FIELD_FILENAME, getFilename(dataObject.getPath()));
+		contentBuilder.field(IndexUtils.FIELD_PATH, dataObject.getPath());
+		contentBuilder.field(IndexUtils.FIELD_FILE_HASH, dataObject.getMD5Hash());
+		contentBuilder.field(IndexUtils.FIELD_BACKUP_SINK, job.getSinkProfile().getProfileName());
+		contentBuilder.field(IndexUtils.FIELD_BACKUP_AT, new Date());
 		
 		// Where's my Scala .map and mkString!?!
 		List<String> sourceNames = new ArrayList<String>(); 
 		for (ProfileOptions source : job.getSourceProfiles()) {
 			sourceNames.add(source.getProfile().getProfileName());			
 		}
-		contentBuilder.field(FIELD_BACKUP_SOURCES, StringUtils.join(sourceNames, ", "));
+		contentBuilder.field(IndexUtils.FIELD_BACKUP_SOURCES, StringUtils.join(sourceNames, ", "));
 		
 		MetainfoContainer metainfoContainer = dataObject.getMetainfo();
 		if (metainfoContainer != null) {
@@ -99,6 +92,13 @@ public class ElasticSearchIndexer {
 		// Push to ES index
 		client.prepareIndex(INDEX_NAME, DOCUMENT_TYPE_BACKUP).setSource(contentBuilder)
 			.setRefresh(true).execute().actionGet();	
+	}
+	
+	private String getFilename(String path) {
+		if (path.indexOf('/') > -1)
+			return path.substring(path.indexOf('/') + 1);
+		
+		return path;
 	}
 
 }

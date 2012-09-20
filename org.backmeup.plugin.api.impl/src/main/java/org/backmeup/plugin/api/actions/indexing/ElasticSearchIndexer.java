@@ -2,6 +2,7 @@ package org.backmeup.plugin.api.actions.indexing;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class ElasticSearchIndexer {
 	private static final String FIELD_BACKUP_SOURCES = "backup_sources";
 	private static final String FIELD_BACKUP_SINK = "backup_sink";
 	private static final String FIELD_FILE_HASH = "file_md5_hash";
+	private static final String FIELD_BACKUP_AT = "backup_at";
 	
 	private static final String DOCUMENT_TYPE_BACKUP = "backup";
 	
@@ -72,6 +74,7 @@ public class ElasticSearchIndexer {
 		contentBuilder.field(FIELD_PATH, dataObject.getPath());
 		contentBuilder.field(FIELD_FILE_HASH, dataObject.getMD5Hash());
 		contentBuilder.field(FIELD_BACKUP_SINK, job.getSinkProfile().getProfileName());
+		contentBuilder.field(FIELD_BACKUP_AT, new Date());
 		
 		// Where's my Scala .map and mkString!?!
 		List<String> sourceNames = new ArrayList<String>(); 

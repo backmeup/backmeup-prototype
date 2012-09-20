@@ -27,6 +27,7 @@ public class FileContainers
 		currcontainer = null;
 	}
 	
+	@Deprecated
 	private String getNewContainerpath (String path) throws ActionException
 	{
 		String containerpath = path.split(PATH_SEPARATOR)[0];
@@ -49,6 +50,28 @@ public class FileContainers
 		return containerpath;
 	}
 	
+	private String getNewContainerpath () throws ActionException
+	{
+		String containerpath = "";
+		
+		if (encrypt == false)
+		{
+			containerpath = "part" + String.format (PART_NUM_FORMAT, filecontainers.size () + 1);
+		}
+		else
+		{
+			containerpath = "part" + String.format (PART_NUM_FORMAT, filecontainers.size () + 1) + CONTAINER_CRYPT_EXTENSION;	
+		}
+		
+		if (filecontainers.size () > CONTAINER_LIMIT)
+		{
+			// TODO throw new ToMuchSplitt...
+			throw new ActionException ("Can't split data in more than " + CONTAINER_LIMIT + " containers");
+		}
+		
+		return containerpath;
+	}
+	
 	public void addData (DataObject data) throws ActionException
 	{	
 		if (data.getLength () > containermaxsize)
@@ -59,13 +82,13 @@ public class FileContainers
 		
 		if (currcontainer == null)
 		{
-			currcontainer = new FileContainer (getNewContainerpath(data.getPath ()), containermaxsize);
+			currcontainer = new FileContainer (getNewContainerpath(), containermaxsize);
 		}
 		
 		if (currcontainer.addData (data) == false)
 		{
 			filecontainers.add (currcontainer);
-			currcontainer = new FileContainer (getNewContainerpath (data.getPath ()), containermaxsize);
+			currcontainer = new FileContainer (getNewContainerpath (), containermaxsize);
 			currcontainer.addData (data);
 		}
 	}

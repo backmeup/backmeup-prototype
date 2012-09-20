@@ -73,14 +73,16 @@ public class IndexUtils {
 		// Now where's my Scala groupBy!? *heul*
 		Map<String, Integer> groupedHits = new HashMap<String, Integer>();
 		for (SearchHit hit : esResponse.getHits()) {
-			String sourceName = hit.getSource().get(field).toString();
-			Integer count = groupedHits.get(sourceName);
-			if (count == null) {
-				count = Integer.valueOf(1);
-			} else {
-				count = Integer.valueOf(count.intValue() + 1);
+			if (hit.getSource().get(field) != null) {
+				String sourceName = hit.getSource().get(field).toString();
+				Integer count = groupedHits.get(sourceName);
+				if (count == null) {
+					count = Integer.valueOf(1);
+				} else {
+					count = Integer.valueOf(count.intValue() + 1);
+				}
+				groupedHits.put(sourceName, count);
 			}
-			groupedHits.put(sourceName, count);
 		}
 		
 		// ...and .map

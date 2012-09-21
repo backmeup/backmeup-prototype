@@ -108,7 +108,7 @@ public class LocalFileSystemStorageTest {
 		storage.open(ROOT_PATH);		
 		// Trying to move a directory should throw a StorageException
 		try {
-			storage.moveFile("/mydirectory/", "/my-new-directory/");
+			storage.move("/mydirectory/", "/my-new-directory/");
 			Assert.fail();
 		} catch (StorageException e) {
 			Assert.assertTrue(e.getMessage().contains("directories"));
@@ -130,7 +130,7 @@ public class LocalFileSystemStorageTest {
     storage.addFile(new StringInputStream(TEST_TXT_2), "/mydirectory/hello2.txt", new MetainfoContainer());
 		
     // Move them
-		storage.moveFile("/mydirectory/hello2.txt", "/my-new-directory/hello3.txt");
+		storage.move("/mydirectory/hello2.txt", "/my-new-directory/hello3.txt");
 		
 		File dir = new File(ROOT_PATH, "my-new-directory");
 		File file = new File(dir, "hello3.txt");

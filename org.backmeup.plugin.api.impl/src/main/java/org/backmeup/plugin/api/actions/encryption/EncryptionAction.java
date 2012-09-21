@@ -19,10 +19,10 @@ public class EncryptionAction implements Action
 	private final String PROP_PASSWORD = "org.backmeup.encryption.password";
 	
 	@Override
-	public void doAction (Properties parameters, StorageReader input, StorageWriter output, BackupJob job, Progressable progressor) throws ActionException
+	public void doAction (Properties parameters, Storage storage, BackupJob job, Progressable progressor) throws ActionException
 	{
 		// TODO rewrite to new Storage interface
-		Storage storage = null;
+		// Storage storage = null;
 		
 		String password;
 		int containers;

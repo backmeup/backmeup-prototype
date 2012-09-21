@@ -30,12 +30,12 @@ public class FilesplittAction implements Action
 	private static final long CONTAINER_SIZE = 10 * 1024 * 1024; // 10 MiB
 
 	@Override
-	public void doAction (Properties parameters, StorageReader input, StorageWriter output, BackupJob job, Progressable progressor) throws ActionException
+	public void doAction (Properties parameters, Storage storage, BackupJob job, Progressable progressor) throws ActionException
 	{
 		progressor.progress (START_FILESPLITT_PROCESS);
 		
 		// TODO Rewrite do new API
-		Storage storage = null;
+		// Storage storage = null;
 		try
 		{
 			PriorityQueue<DataObject> sorted = new PriorityQueue<DataObject> (storage.getDataObjectCount(), new Comparator<DataObject> ()
@@ -87,7 +87,7 @@ public class FilesplittAction implements Action
 			while (dataobjects.hasNext () == true)
 			{
 				DataObject daob = dataobjects.next ();
-				storage.moveFile (daob.getPath (), tmp_dir + PATH_SEPARATOR + daob.getPath ());
+				storage.move (daob.getPath (), tmp_dir + PATH_SEPARATOR + daob.getPath ());
 			}
 			dataobjects = null;
 			
@@ -123,7 +123,7 @@ public class FilesplittAction implements Action
 				for (int i = 0; i < fc.getContainerElementCount (); i++)
 				{
 					// TODO remove the tmp folder with new storage interface (existFolder)
-					storage.moveFile (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
+					storage.move (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
 				}
 			}
 		}

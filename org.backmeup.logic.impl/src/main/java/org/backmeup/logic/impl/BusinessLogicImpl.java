@@ -45,7 +45,7 @@ import org.backmeup.model.SearchResponse;
 import org.backmeup.model.SearchResponse.SearchEntry;
 import org.backmeup.model.Status;
 import org.backmeup.model.Token;
-import org.backmeup.model.User;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.BackMeUpException;
@@ -175,14 +175,14 @@ public class BusinessLogicImpl implements BusinessLogic {
     return dal.createSearchResponseDao();
   }
 
-  public User getUser(String username) {
+  public BackMeUpUser getUser(String username) {
     return getUser(username, true);
   }
   
-  public User getUser(String username, boolean checkActivation) {
+  public BackMeUpUser getUser(String username, boolean checkActivation) {
     try {
       conn.beginOrJoin();
-      User u = getUserDao().findByName(username);
+      BackMeUpUser u = getUserDao().findByName(username);
       if (u == null)
         throw new UnknownUserException(username);
       if (checkActivation && !u.isActivated())
@@ -193,10 +193,10 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
 
-  public User deleteUser(String username) {
+  public BackMeUpUser deleteUser(String username) {
     conn.begin();
     try {
-      User u = getUser(username, false);
+      BackMeUpUser u = getUser(username, false);
       UserDao userDao = getUserDao();
       
       keyserverClient.deleteUser(u.getUserId());
@@ -223,11 +223,11 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
 
-  public User changeUser(String username, String oldPassword,
+  public BackMeUpUser changeUser(String username, String oldPassword,
       String newPassword, String newKeyRing, String newEmail) {
     try {
       conn.begin();
-      User u = getUser(username);
+      BackMeUpUser u = getUser(username);
       UserDao udao = getUserDao();
       if (!keyserverClient.validateUser(u.getUserId(), oldPassword)) {      
         conn.rollback();
@@ -257,10 +257,10 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
 
-  public User login(String username, String password) {
+  public BackMeUpUser login(String username, String password) {
     try {
       conn.begin();
-      User u = getUser(username, false);           
+      BackMeUpUser u = getUser(username, false);           
       if (u == null || !keyserverClient.validateUser(u.getUserId(), password))
     	  throw new InvalidCredentialsException();
       
@@ -284,7 +284,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
 
-  public User register(String username, String password,
+  public BackMeUpUser register(String username, String password,
       String keyRingPassword, String email) throws AlreadyRegisteredException,
       IllegalArgumentException {
     if (username == null || password == null || keyRingPassword == null
@@ -298,7 +298,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 
       conn.begin();
       UserDao userDao = getUserDao();
-      User existingUser = userDao.findByName(username);
+      BackMeUpUser existingUser = userDao.findByName(username);
       if (existingUser != null) {
         throw new AlreadyRegisteredException(existingUser.getUsername());
       }
@@ -306,7 +306,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (existingUser != null) {
         throw new AlreadyRegisteredException(existingUser.getEmail());
       }
-      User u = new User(username, email);
+      BackMeUpUser u = new BackMeUpUser(username, email);
       u.setActivated(false);
       generateNewVerificationKey(u, Long.toString(new Date().getTime()));
       u = userDao.save(u);
@@ -319,12 +319,12 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
 
-  private void sendVerificationEmail(User u) {
+  private void sendVerificationEmail(BackMeUpUser u) {
     String verifierUrl = String.format(verificationUrl, u.getVerificationKey()); 
     Mailer.send(u.getEmail(), textBundle.getString(VERIFICATION_EMAIL_SUBJECT), String.format(textBundle.getString(VERIFICATION_EMAIL_CONTENT), verifierUrl));
   }
   
-  private void generateNewVerificationKey(User u, String additionalPart) {
+  private void generateNewVerificationKey(BackMeUpUser u, String additionalPart) {
     try {
       // http://stackoverflow.com/questions/4871094/generate-activation-urls-in-java-ee-6
       MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -343,7 +343,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   public void setUserProperty(String username, String key, String value) {
     try {
       conn.beginOrJoin();
-      User u = getUser(username);      
+      BackMeUpUser u = getUser(username);      
       u.setUserProperty(key, value);
       conn.commit();
     } finally {
@@ -356,7 +356,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   public void deleteUserProperty(String username, String key) {
     try {
       conn.beginOrJoin();
-      User u = getUser(username);           
+      BackMeUpUser u = getUser(username);           
       u.deleteUserProperty(key);
       conn.commit();
     } finally {
@@ -406,7 +406,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (!p.getUser().getUsername().equals(username)) {
         throw new IllegalArgumentException();
       }      
-      Datasource source = plugins.getDatasource(p.getDesc());
+      Datasource source = plugins.getDatasource(p.getDescription());
       Token t = keyserverClient.getToken(p, keyRingPassword, new Date().getTime(), false);
       AuthDataResult authData = keyserverClient.getData(t);
       Properties accessData = authData.getByProfileId(profileId);
@@ -486,7 +486,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       String[] requiredActions, String timeExpression, String keyRing) {
     try {
       conn.begin();
-      User user = getUser(username);     
+      BackMeUpUser user = getUser(username);     
 
       if (!keyserverClient.validateUser(user.getUserId(), keyRing))
         throw new InvalidCredentialsException();
@@ -646,7 +646,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     AuthRequest ar = new AuthRequest();
     try {
       conn.begin();
-      User user = getUser(username);
+      BackMeUpUser user = getUser(username);
 
       if (!keyserverClient.validateUser(user.getUserId(), keyRing)) {
         conn.rollback();
@@ -718,10 +718,10 @@ public class BusinessLogicImpl implements BusinessLogic {
         }        
       }
       
-      Authorizable auth = plugins.getAuthorizable(p.getDesc());
+      Authorizable auth = plugins.getAuthorizable(p.getDescription());
       if (auth.getAuthType() == AuthorizationType.InputBased) {
         InputBased inputBasedService = plugins.getInputBasedAuthorizable(p
-            .getDesc());
+            .getDescription());
         if (inputBasedService.isValid(props)) {
           auth.postAuthorize(props);          
           profileDao.save(p);
@@ -752,7 +752,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   public long searchBackup(String username, String keyRingPassword, String query) {
 	  try {
 		  conn.begin();
-	      User user = getUser(username);     
+	      BackMeUpUser user = getUser(username);     
 	
 	      if (!keyserverClient.validateUser(user.getUserId(), keyRingPassword))
 	        throw new InvalidCredentialsException();
@@ -858,10 +858,10 @@ public class BusinessLogicImpl implements BusinessLogic {
         throw new IllegalArgumentException(String.format(
             textBundle.getString(USER_HAS_NO_PROFILE), username, profileId));
       }
-      SourceSinkDescribable ssd = plugins.getSourceSinkById(p.getDesc());
+      SourceSinkDescribable ssd = plugins.getSourceSinkById(p.getDescription());
       if (ssd == null) {
         throw new IllegalArgumentException(String.format(
-            textBundle.getString(UNKNOWN_SOURCE_SINK), p.getDesc()));
+            textBundle.getString(UNKNOWN_SOURCE_SINK), p.getDescription()));
       }      
       
       
@@ -883,7 +883,7 @@ public class BusinessLogicImpl implements BusinessLogic {
         throw new IllegalArgumentException(String.format(
             textBundle.getString(USER_HAS_NO_PROFILE), username, profileId));
       }
-      Validationable validator = plugins.getValidator(p.getDesc());
+      Validationable validator = plugins.getValidator(p.getDescription());
       Properties accessData = fetchAuthenticationData(p, keyRing);
       return validator.validate(accessData);
 
@@ -920,11 +920,11 @@ public class BusinessLogicImpl implements BusinessLogic {
                   .getValidationEntries());
 
           SourceSinkDescribable ssd = plugins.getSourceSinkById(po.getProfile()
-              .getDesc());
+              .getDescription());
           if (ssd == null) {
             notes.addValidationEntry(ValidationExceptionType.Error, String
                 .format(textBundle.getString(NO_PLUG_IN_FOUND_WITH_ID), po
-                    .getProfile().getDesc()));
+                    .getProfile().getDescription()));
           }
 
           Properties meta = getMetadata(username, po.getProfile()
@@ -936,7 +936,7 @@ public class BusinessLogicImpl implements BusinessLogic {
           } else {
             notes.addValidationEntry(ValidationExceptionType.Warning, String
                 .format(textBundle.getString(CANNOT_COMPUTE_QUOTA), po
-                    .getProfile().getProfileName(), po.getProfile().getDesc()));
+                    .getProfile().getProfileName(), po.getProfile().getDescription()));
           }
         }
         // TODO: Add required space for index and encryption
@@ -959,13 +959,13 @@ public class BusinessLogicImpl implements BusinessLogic {
                 ValidationExceptionType.NotEnoughSpaceException, String.format(
                     textBundle.getString(NOT_ENOUGH_SPACE), requiredSpace,
                     freeSpace, job.getSinkProfile().getProfileName(), job
-                        .getSinkProfile().getDesc()));
+                        .getSinkProfile().getDescription()));
           }
         } else {
           notes.addValidationEntry(ValidationExceptionType.Warning, String
               .format(textBundle.getString(CANNOT_COMPUTE_FREE), job
                   .getSinkProfile().getProfileName(), job.getSinkProfile()
-                  .getDesc()));
+                  .getDescription()));
         }
       } catch (BackMeUpException bme) {
         notes.addValidationEntry(ValidationExceptionType.Error,
@@ -1002,11 +1002,11 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   @Override
-  public User verifyEmailAddress(String verificationKey) {
+  public BackMeUpUser verifyEmailAddress(String verificationKey) {
     try {
       conn.begin();
       UserDao dao = getUserDao();
-      User u = dao.findByVerificationKey(verificationKey);
+      BackMeUpUser u = dao.findByVerificationKey(verificationKey);
       if (u == null)
         throw new EmailVerificationException(verificationKey);      
       
@@ -1021,11 +1021,11 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   @Override
-  public User requestNewVerificationEmail(String username) {
+  public BackMeUpUser requestNewVerificationEmail(String username) {
     try {
       conn.begin();
       // don't check the activation here
-      User u = getUser(username, false);
+      BackMeUpUser u = getUser(username, false);
       if (u.isActivated())
         throw new UserAlreadyActivatedException(username);
       generateNewVerificationKey(u, new Date().getTime() + "");      

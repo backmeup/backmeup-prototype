@@ -32,7 +32,7 @@ import org.backmeup.model.SearchResponse;
 import org.backmeup.model.SearchResponse.CountedEntry;
 import org.backmeup.model.SearchResponse.SearchEntry;
 import org.backmeup.model.Status;
-import org.backmeup.model.User;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.InvalidCredentialsException;
@@ -57,7 +57,7 @@ import org.backmeup.plugin.api.Metadata;
 public class DummyBusinessLogic implements BusinessLogic {
   Long maxId = 3l;
 
-  private List<User> knownUsers;
+  private List<BackMeUpUser> knownUsers;
   private List<SourceSinkDescribable> sources;
   private List<SourceSinkDescribable> sinks;
   private List<Profile> profiles;
@@ -65,7 +65,7 @@ public class DummyBusinessLogic implements BusinessLogic {
   private List<Status> status;
   private Map<String, ActionDescribable> actions;
   private Map<Long, SearchResponse> searches;
-  private Map<User, String> passwords;
+  private Map<BackMeUpUser, String> passwords;
 
   private static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
   private static final long DELAY_WEEKLY = 24 * 60 * 60 * 1000 * 7;
@@ -74,14 +74,14 @@ public class DummyBusinessLogic implements BusinessLogic {
   private static final long DELAY_YEARLY = (long) (24 * 60 * 60 * 1000 * 365.242199);
 
   public DummyBusinessLogic() {
-    User u1 = new User(0l, "Sepp", "sepp@mail.at");
-    User u2 = new User(1l, "Marion", "marion@mail.at");
-    User u3 = new User(2l, "Phil", "em");
-    knownUsers = new ArrayList<User>();
+    BackMeUpUser u1 = new BackMeUpUser(0l, "Sepp", "sepp@mail.at");
+    BackMeUpUser u2 = new BackMeUpUser(1l, "Marion", "marion@mail.at");
+    BackMeUpUser u3 = new BackMeUpUser(2l, "Phil", "em");
+    knownUsers = new ArrayList<BackMeUpUser>();
     knownUsers.add(u1);
     knownUsers.add(u2);
     knownUsers.add(u3);
-    passwords = new HashMap<User, String>();
+    passwords = new HashMap<BackMeUpUser, String>();
     passwords.put(u1, "pw");
     passwords.put(u2, "1234");
     passwords.put(u3, "p1");
@@ -291,16 +291,16 @@ public class DummyBusinessLogic implements BusinessLogic {
 
   // user operations
 
-  public User getUser(String username) {
-    User u = findUser(username);
+  public BackMeUpUser getUser(String username) {
+    BackMeUpUser u = findUser(username);
     if (u == null)
       throw new UnknownUserException(username);
     return u;
   }
 
-  public User changeUser(String username, String oldPassword,
+  public BackMeUpUser changeUser(String username, String oldPassword,
       String newPassword, String newKeyRing, String newEmail) {
-    User u = findUser(username);
+    BackMeUpUser u = findUser(username);
     /*
      * if (!u.getPassword().equals(oldPassword)) throw new
      * InvalidCredentialsException(); if (newPassword != null)
@@ -312,16 +312,16 @@ public class DummyBusinessLogic implements BusinessLogic {
     return u;
   }
 
-  public User deleteUser(String username) {
-    User u = findUser(username);
+  public BackMeUpUser deleteUser(String username) {
+    BackMeUpUser u = findUser(username);
     if (u == null)
       throw new UnknownUserException(username);
     knownUsers.remove(u);
     return u;
   }
 
-  public User login(String username, String password) {
-    for (User u : knownUsers) {
+  public BackMeUpUser login(String username, String password) {
+    for (BackMeUpUser u : knownUsers) {
       if (u.getUsername().equals(username) && passwords.get(u).equals(password)) {
         return u;
       }
@@ -329,16 +329,16 @@ public class DummyBusinessLogic implements BusinessLogic {
     throw new InvalidCredentialsException();
   }
 
-  public User register(String username, String password, String keyRing,
+  public BackMeUpUser register(String username, String password, String keyRing,
       String email) {
     if (username == null || password == null || keyRing == null
         || email == null)
       throw new IllegalArgumentException("One of the given parameters is null!");
-    for (User u : knownUsers) {
+    for (BackMeUpUser u : knownUsers) {
       if (u.getUsername().equals(username))
         throw new AlreadyRegisteredException(u.getUsername());
     }
-    User user = new User(maxId++, username, email);
+    BackMeUpUser user = new BackMeUpUser(maxId++, username, email);
     passwords.put(user, password);
     knownUsers.add(user);
     return user;
@@ -363,7 +363,7 @@ public class DummyBusinessLogic implements BusinessLogic {
   public List<Profile> getDatasourceProfiles(String username) {
     List<Profile> cloneDs = new ArrayList<Profile>();
     for (Profile p : profiles) {
-      if (findSourceDescribable(p.getDesc()) != null
+      if (findSourceDescribable(p.getDescription()) != null
           && p.getUser().getUsername().equals(username)) {
         cloneDs.add(p);
       }
@@ -377,7 +377,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     if (p == null)
       throw new IllegalArgumentException("Invalid profile " + profileId);
 
-    SourceSinkDescribable ssd = findSourceSinkDescribable(p.getDesc());
+    SourceSinkDescribable ssd = findSourceSinkDescribable(p.getDescription());
     if (ssd == null)
       throw new IllegalArgumentException("No such plug-in for profile "
           + p.getProfileId());
@@ -436,7 +436,7 @@ public class DummyBusinessLogic implements BusinessLogic {
   public List<Profile> getDatasinkProfiles(String username) {
     List<Profile> cloneDs = new ArrayList<Profile>();
     for (Profile p : profiles) {
-      if (findSinkDescribable(p.getDesc()) != null
+      if (findSinkDescribable(p.getDescription()) != null
           && p.getUser().getUsername().equals(username)) {
         cloneDs.add(p);
       }
@@ -452,7 +452,7 @@ public class DummyBusinessLogic implements BusinessLogic {
       String profileName, String keyRing) throws PluginException,
       InvalidCredentialsException {
     SourceSinkDescribable source = findSourceSinkDescribable(uniqueDescIdentifier);
-    User u = findUser(username);
+    BackMeUpUser u = findUser(username);
 
     if (source == null)
       throw new IllegalArgumentException("Unknown plugin "
@@ -545,7 +545,7 @@ public class DummyBusinessLogic implements BusinessLogic {
       Long sinkProfileId, Map<Long, String[]> sourceOptions,
       String[] requiredActions, String timeExpression, String keyRing) {
 
-    User user = findUser(username);
+    BackMeUpUser user = findUser(username);
     if (user == null)
       throw new UnknownUserException(username);
 
@@ -732,8 +732,8 @@ public class DummyBusinessLogic implements BusinessLogic {
     return null;
   }
 
-  private User findUser(String username) {
-    for (User known : knownUsers) {
+  private BackMeUpUser findUser(String username) {
+    for (BackMeUpUser known : knownUsers) {
       if (known.getUsername().equals(username)) {
         return known;
       }
@@ -772,14 +772,14 @@ public class DummyBusinessLogic implements BusinessLogic {
 
   @Override
   public Properties getMetadata(String username, Long profileId, String keyRing) {
-    User u = findUser(username);
+    BackMeUpUser u = findUser(username);
     if (u == null)
       throw new UnknownUserException(username);
     Profile p = findProfile(profileId);
-    SourceSinkDescribable ssd = findSourceSinkDescribable(p.getDesc());
+    SourceSinkDescribable ssd = findSourceSinkDescribable(p.getDescription());
     if (ssd == null)
       throw new IllegalArgumentException("Unknown source/sink with id: "
-          + p.getDesc());
+          + p.getDescription());
 
     Properties props = new Properties();
     return ssd.getMetadata(props);
@@ -800,10 +800,10 @@ public class DummyBusinessLogic implements BusinessLogic {
     for (ProfileOptions po : job.getSourceProfiles()) {
       // TODO: start validation of profile
       SourceSinkDescribable ssd = findSourceDescribable(po.getProfile()
-          .getDesc());
+          .getDescription());
       if (ssd == null) {
         notes.addValidationEntry(ValidationExceptionType.Error, String.format(
-            "No plug-in found with id %s", po.getProfile().getDesc()));
+            "No plug-in found with id %s", po.getProfile().getDescription()));
       }
 
       Properties meta = getMetadata(username, po.getProfile().getProfileId(),
@@ -819,7 +819,7 @@ public class DummyBusinessLogic implements BusinessLogic {
                     .format(
                         "Cannot compute quota for profile '%s' and plugin '%s'. The required space for a backup could be more than the available space.",
                         po.getProfile().getProfileName(), po.getProfile()
-                            .getDesc()));
+                            .getDescription()));
       }
     }
     // TODO: Add required space for index and encryption
@@ -842,13 +842,13 @@ public class DummyBusinessLogic implements BusinessLogic {
                     .format(
                         "Not enough space for backup: Required space for backup was %d. Free space on service was %d. (Profile '%s' and plugin '%s')",
                         requiredSpace, freeSpace, job.getSinkProfile()
-                            .getProfileName(), job.getSinkProfile().getDesc()));
+                            .getProfileName(), job.getSinkProfile().getDescription()));
       }
     } else {
       notes.addValidationEntry(ValidationExceptionType.Warning, String.format(
           "Cannot compute free space for profile '%s' and plugin '%s'", job
               .getSinkProfile().getProfileName(), job.getSinkProfile()
-              .getDesc()));
+              .getDescription()));
     }
     return notes;
   }
@@ -880,13 +880,13 @@ public class DummyBusinessLogic implements BusinessLogic {
   }
 
   @Override
-  public User verifyEmailAddress(String verificationKey) {
+  public BackMeUpUser verifyEmailAddress(String verificationKey) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public User requestNewVerificationEmail(String username) {
+  public BackMeUpUser requestNewVerificationEmail(String username) {
     // TODO Auto-generated method stub
     return null;
   }

@@ -131,7 +131,8 @@ public class LocalFilesystemStorage extends Storage {
 	}
 
 	@Override
-	public void moveFile(String fromPath, String toPath) throws StorageException {	
+	public void move(String fromPath, String toPath) throws StorageException {
+		// TODO implement support for moving directories!
 		try {
 			File from = new File(rootDir, fromPath);
 			File to = new File(rootDir, toPath);

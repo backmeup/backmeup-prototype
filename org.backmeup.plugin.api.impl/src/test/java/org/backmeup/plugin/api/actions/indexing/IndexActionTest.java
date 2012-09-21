@@ -14,8 +14,8 @@ import org.backmeup.model.SearchResponse.SearchEntry;
 import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
-import org.backmeup.plugin.api.storage.DummyStorageReader;
-import org.backmeup.plugin.api.storage.StorageReader;
+import org.backmeup.plugin.api.storage.DummyStorage;
+import org.backmeup.plugin.api.storage.Storage;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -61,7 +61,7 @@ public class IndexActionTest {
 		
 		System.out.println("Setting up test index...");
 		// Dummy storage reader on the src/test/resources directory
-		StorageReader reader = new DummyStorageReader();
+		Storage storage = new DummyStorage();
 		
 		// Local ElasticSearch node
 		Client client = node.client();
@@ -71,7 +71,7 @@ public class IndexActionTest {
 		
 		BackupJob job = JsonSerializer.deserialize(BACKUP_JOB, BackupJob.class);
 		
-		action.doAction(null, reader, null, job, logProgressable);
+		action.doAction(null, storage, job, logProgressable);
 		System.out.println("Done.");
 	}
 	

@@ -1,16 +1,18 @@
 package org.backmeup.plugin.api.storage;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Iterator;
 import java.util.ArrayList;
 
+import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.filesystem.FileDataObject;
 
-public class DummyStorageReader extends StorageReader {
+public class DummyStorage extends Storage {
 	
 	private List<DataObject> dataObjects = new ArrayList<DataObject>();
 	
-	public DummyStorageReader() {
+	public DummyStorage() {
 		dataObjects.add(new FileDataObject("src/test/resources/creative-commons.jpg"));
 		dataObjects.add(new FileDataObject("src/test/resources/creative-commons.png"));
 		dataObjects.add(new FileDataObject("src/test/resources/creative-commons.pdf"));
@@ -40,6 +42,31 @@ public class DummyStorageReader extends StorageReader {
 	public boolean existsPath(String path) throws StorageException {
 		// Just a dummy
 		return false;
+	}
+
+	@Override
+	public void delete() throws StorageException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addFile(InputStream is, String path, MetainfoContainer metadata)
+			throws StorageException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeFile(String path) throws StorageException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void move(String fromPath, String toPath) throws StorageException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

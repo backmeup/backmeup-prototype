@@ -10,7 +10,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import org.backmeup.model.User;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.exceptions.UnknownUserPropertyException;
 import org.backmeup.rest.data.UserContainer;
 import org.backmeup.rest.data.VerificationContainer;
@@ -27,7 +27,7 @@ public class Users extends Base {
 	@Path("{username}")
 	@Produces("application/json")
 	public UserContainer getUser(@PathParam("username") String username) {
-		User user = getLogic().getUser(username);
+		BackMeUpUser user = getLogic().getUser(username);
 		return new UserContainer(user.getUsername(), user.getEmail());
 	}
 
@@ -65,7 +65,7 @@ public class Users extends Base {
 			@FormParam("password") String password,
 			@FormParam("keyRing") String keyRing,
 			@FormParam("email") String email) {	  
-	  User u = getLogic().register(username, password,
+	  BackMeUpUser u = getLogic().register(username, password,
 				keyRing, email);
 	  return new VerificationContainer(u.getUsername(), u.getVerificationKey());
 	}
@@ -81,7 +81,7 @@ public class Users extends Base {
 	@Path("{username}/newVerificationEmail")
 	@Produces("application/json")
 	public VerificationContainer requestNewVerificationEmail(@PathParam("username") String username) {
-	  User u = getLogic().requestNewVerificationEmail(username);
+	  BackMeUpUser u = getLogic().requestNewVerificationEmail(username);
 	  return new VerificationContainer(u.getUsername(), u.getVerificationKey());
 	}
 	

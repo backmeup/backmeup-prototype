@@ -1,26 +1,12 @@
 package org.backmeup.logic.impl;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
-import junit.framework.Assert;
 
 import org.backmeup.logic.BusinessLogic;
-import org.backmeup.model.AuthRequest;
-import org.backmeup.model.User;
-import org.backmeup.model.exceptions.AlreadyRegisteredException;
-import org.backmeup.model.exceptions.NotAnEmailAddressException;
-import org.backmeup.model.exceptions.PasswordTooShortException;
-import org.backmeup.model.spi.SourceSinkDescribable;
-import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.environment.se.WeldContainer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 
 //TODO: Remove plugin based tests from this class; they should be performed from within python or within the plugin itself!
 public class BusinessLogicImplTest {

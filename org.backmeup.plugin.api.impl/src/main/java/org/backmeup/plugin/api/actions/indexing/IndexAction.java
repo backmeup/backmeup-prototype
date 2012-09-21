@@ -9,8 +9,7 @@ import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DataObject;
-import org.backmeup.plugin.api.storage.StorageReader;
-import org.backmeup.plugin.api.storage.StorageWriter;
+import org.backmeup.plugin.api.storage.Storage;
 import org.elasticsearch.client.Client;
 
 public class IndexAction implements Action {
@@ -27,7 +26,7 @@ public class IndexAction implements Action {
 	private static final String INDEX_PROCESS_COMPLETE = "Indexing complete";
 	
 	@Override
-	public void doAction(Properties parameters, StorageReader input, StorageWriter output, BackupJob job, Progressable progressor)
+	public void doAction(Properties parameters, Storage storage, BackupJob job, Progressable progressor)
 			throws ActionException {
 		
 		progressor.progress(START_INDEX_PROCESS);
@@ -35,7 +34,7 @@ public class IndexAction implements Action {
 		TikaAnalyzer analyzer = new TikaAnalyzer();
 		
 		try {
-			Iterator<DataObject> dataObjects = input.getDataObjects();
+			Iterator<DataObject> dataObjects = storage.getDataObjects();
 			while (dataObjects.hasNext()) {
 				DataObject dob = dataObjects.next();
 				progressor.progress(ANALYZING + dob.getPath());

@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  * The User class represents a user of backmeup.
@@ -19,7 +20,7 @@ import javax.persistence.OneToMany;
  *
  */
 @Entity
-public class User {
+public class BackMeUpUser {
 	@Id	
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(nullable = false)
@@ -52,14 +53,14 @@ public class User {
 		this.email = email;
 	}
 
-	public User() {
+	public BackMeUpUser() {
 	}
 	
-	public User(String username, String email) {
+	public BackMeUpUser(String username, String email) {
 		this(null, username, email);
 	}
 	
-	public User(Long userId, String username, String email) {
+	public BackMeUpUser(Long userId, String username, String email) {
 		this.userId = userId;
 		this.username = username;
 		this.email = email;

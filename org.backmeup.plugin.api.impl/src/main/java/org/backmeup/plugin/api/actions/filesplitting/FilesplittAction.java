@@ -34,8 +34,6 @@ public class FilesplittAction implements Action
 	{
 		progressor.progress (START_FILESPLITT_PROCESS);
 		
-		// TODO Rewrite do new API
-		// Storage storage = null;
 		try
 		{
 			PriorityQueue<DataObject> sorted = new PriorityQueue<DataObject> (storage.getDataObjectCount(), new Comparator<DataObject> ()

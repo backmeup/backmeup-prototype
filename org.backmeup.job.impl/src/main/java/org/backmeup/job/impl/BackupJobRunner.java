@@ -47,6 +47,7 @@ public class BackupJobRunner {
 		Datasink sink = plugins.getDatasink(job.getSinkProfile().getDescription());
 		Properties sinkProperties = authenticationData.getByProfileId(job.getSinkProfile().getProfileId());
 		
+		// TODO insert updates to the BackupJobStatus DB entity
         for (ProfileOptions po : job.getSourceProfiles()) {
         	// Download from Source
             System.out.println("Downloading to temporary storage");

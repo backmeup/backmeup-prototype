@@ -32,6 +32,8 @@ public class IndexUtils {
 	
 	public static final String FIELD_CONTENT_TYPE = "Content-Type";
 	
+	public static final String FIELD_JOB_ID = "job_id";
+	
 	public static List<SearchEntry> convertSearchEntries(org.elasticsearch.action.search.SearchResponse esResponse) {	    
 	    List<SearchEntry> entries = new ArrayList<SearchResponse.SearchEntry>();
 	    for (SearchHit hit : esResponse.getHits()) {

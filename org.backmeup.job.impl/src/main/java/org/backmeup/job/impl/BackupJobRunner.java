@@ -5,10 +5,13 @@ import java.util.Properties;
 
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
+import org.backmeup.model.ActionProfile;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
+import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.plugin.Plugin;
+import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.connectors.Datasink;
 import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.api.connectors.DatasourceException;
@@ -70,6 +73,11 @@ public class BackupJobRunner {
         		System.out.println("ERROR: " + e.getMessage());
         	} 
         	System.out.println("Download complete.");
+        	
+        	// Execute Actions in sequence
+        	for (ActionProfile actionProfile : job.getRequiredActions()) {
+        		// TODO get actions from plugins & execute
+        	}
         	
         	// Upload to Sink
         	System.out.println("Uploading to Datasink");      	

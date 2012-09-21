@@ -132,25 +132,27 @@ public class LocalFilesystemStorage extends Storage {
 
 	@Override
 	public void move(String fromPath, String toPath) throws StorageException {
-		// TODO implement support for moving directories!
 		try {
 			File from = new File(rootDir, fromPath);
 			File to = new File(rootDir, toPath);
 			
-			if (from.isDirectory() || to.isDirectory())
-				throw new StorageException("Cannot move directories");
-				
 			if (!from.exists())
 				throw new StorageException("Cannot move " + fromPath + " - does not exist");
 			
 			if (to.exists())
 				throw new StorageException("Cannot move to " + toPath + " - already exists");
-				
- 			FileUtils.moveFile(from, to);
- 			
- 			File fromMeta = new File(rootDir, fromPath + ".meta.json");
- 			if (fromMeta.exists())
- 				FileUtils.moveFile(fromMeta, new File(rootDir, toPath + ".meta.json"));
+			
+			if (from.isDirectory()) {
+				// Move directories
+				FileUtils.moveDirectory(from, to);
+			} else {		
+				// Move files	
+	 			FileUtils.moveFile(from, to);
+	 			
+	 			File fromMeta = new File(rootDir, fromPath + ".meta.json");
+	 			if (fromMeta.exists())
+	 				FileUtils.moveFile(fromMeta, new File(rootDir, toPath + ".meta.json"));
+			}
 		} catch (IOException e) {
 			throw new StorageException(e);
 		} 

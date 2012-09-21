@@ -106,39 +106,38 @@ public class LocalFileSystemStorageTest {
 	public void testMoveFile() throws StorageException {
 		Storage storage = new LocalFilesystemStorage();
 		storage.open(ROOT_PATH);		
-		// Trying to move a directory should throw a StorageException
-		try {
-			storage.move("/mydirectory/", "/my-new-directory/");
-			Assert.fail();
-		} catch (StorageException e) {
-			Assert.assertTrue(e.getMessage().contains("directories"));
-		}
+		
+		// Prepare the test: Add two test files
+		storage.addFile(new StringInputStream(TEST_TXT_1), "/mydirectory/hello1.txt", new MetainfoContainer());
+		storage.addFile(new StringInputStream(TEST_TXT_2), "/mydirectory/hello2.txt", new MetainfoContainer());
+		
+		// Move directory
+		storage.move("/mydirectory", "/my-new-directory");
+		
+		File dir1 = new File(ROOT_PATH, "my-new-directory");
+		File file1 = new File(dir1, "hello1.txt");
+		File file2 = new File(dir1, "hello2.txt");
+		File meta1 = new File(dir1, "hello1.txt.meta.json");
+		File meta2 = new File(dir1, "hello2.txt.meta.json");
+		Assert.assertTrue(file1.exists());
+		Assert.assertTrue(file1.isFile());
+		Assert.assertTrue(meta1.exists());
+		Assert.assertTrue(meta1.isFile());
+		
+		Assert.assertTrue(file2.exists());
+		Assert.assertTrue(file2.isFile());
+		Assert.assertTrue(meta2.exists());
+		Assert.assertTrue(meta2.isFile());
 		
 		// Move file
-		try {
-		  storage.removeFile("/my-new-directory/hello3.txt");
-		} catch (StorageException e) {		  
-		}
-		
-		try {
-      storage.removeFile("/my-new-directory/hello3.txt.meta.json");
-    } catch (StorageException e) {      
-    }
-		
-    // Prepare the test: Add two test files
-    storage.addFile(new StringInputStream(TEST_TXT_1), "/hello1.txt", new MetainfoContainer());
-    storage.addFile(new StringInputStream(TEST_TXT_2), "/mydirectory/hello2.txt", new MetainfoContainer());
-		
-    // Move them
-		storage.move("/mydirectory/hello2.txt", "/my-new-directory/hello3.txt");
-		
-		File dir = new File(ROOT_PATH, "my-new-directory");
-		File file = new File(dir, "hello3.txt");
-		File meta = new File(dir, "hello3.txt.meta.json");
-		Assert.assertTrue(file.exists());
-		Assert.assertTrue(file.isFile());
-		Assert.assertTrue(meta.exists());
-		Assert.assertTrue(meta.isFile());
+		storage.move("/my-new-directory/hello1.txt", "/yet-another-directory/hello3.txt");
+		File dir2 = new File(ROOT_PATH, "yet-another-directory");
+		File file3 = new File(dir2, "hello3.txt");
+		File meta3 = new File(dir2, "hello3.txt.meta.json");
+		Assert.assertTrue(file3.exists());
+		Assert.assertTrue(file3.isFile());
+		Assert.assertTrue(meta3.exists());
+		Assert.assertTrue(meta3.isFile());
 	}
 	
 	@Test

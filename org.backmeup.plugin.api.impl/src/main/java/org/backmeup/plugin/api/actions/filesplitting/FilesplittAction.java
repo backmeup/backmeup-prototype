@@ -34,8 +34,6 @@ public class FilesplittAction implements Action
 	{
 		progressor.progress (START_FILESPLITT_PROCESS);
 		
-		// TODO Rewrite do new API
-		// Storage storage = null;
 		try
 		{
 			PriorityQueue<DataObject> sorted = new PriorityQueue<DataObject> (storage.getDataObjectCount(), new Comparator<DataObject> ()
@@ -83,7 +81,13 @@ public class FilesplittAction implements Action
 			// TODO remove this workflow later
 			progressor.progress (MOVE_FILES_TO_TMP);
 			Iterator<DataObject> dataobjects = storage.getDataObjects ();
+			
 			String tmp_dir = RandomStringUtils.randomAlphanumeric (16);
+			while (storage.existsPath (tmp_dir) == true)
+			{
+				tmp_dir = RandomStringUtils.randomAlphanumeric (16);
+			}
+			
 			while (dataobjects.hasNext () == true)
 			{
 				DataObject daob = dataobjects.next ();
@@ -119,6 +123,11 @@ public class FilesplittAction implements Action
 				parameters.setProperty ("org.backmeup.filesplitting.container." + container + ".size", fc.getContainersize () + "");
 				parameters.setProperty ("org.backmeup.filesplitting.container." + container + ".name", fc.getContainerpath ());
 				container++;
+				
+				if (storage.existsPath (fc.getContainerpath ()) == true)
+				{
+					// TODO handle the problem and remove the workarround
+				}
 				
 				for (int i = 0; i < fc.getContainerElementCount (); i++)
 				{

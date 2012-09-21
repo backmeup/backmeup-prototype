@@ -18,7 +18,7 @@ import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
-import org.backmeup.model.User;
+import org.backmeup.model.BackMeUpUser;
 
 import akka.actor.ActorSystem;
 import akka.util.Duration;
@@ -52,7 +52,7 @@ abstract public class AkkaJobManager implements JobManager {
 	}
 
 	@Override
-	public BackupJob createBackupJob(User user,
+	public BackupJob createBackupJob(BackMeUpUser user,
 			Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
 			List<ActionProfile> requiredActions, Date start, long delayInMs,
 			String keyRing) {

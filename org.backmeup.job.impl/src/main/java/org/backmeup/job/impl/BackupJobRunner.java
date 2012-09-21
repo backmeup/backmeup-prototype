@@ -44,13 +44,13 @@ public class BackupJobRunner {
 		job.setToken(newToken);
 	  // TODO: store newToken for the next backup schedule		
 		
-		Datasink sink = plugins.getDatasink(job.getSinkProfile().getDesc());
+		Datasink sink = plugins.getDatasink(job.getSinkProfile().getDescription());
 		Properties sinkProperties = authenticationData.getByProfileId(job.getSinkProfile().getProfileId());
 		
         for (ProfileOptions po : job.getSourceProfiles()) {
         	// Download from Source
             System.out.println("Downloading to temporary storage");
-        	Datasource source = plugins.getDatasource(po.getProfile().getDesc());
+        	Datasource source = plugins.getDatasource(po.getProfile().getDescription());
         	Properties sourceProperties = authenticationData.getByProfileId(po.getProfile().getProfileId());
         	try {
         		storageWriter.open(tempDir);

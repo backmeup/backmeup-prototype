@@ -29,7 +29,7 @@ import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Status;
 import org.backmeup.model.Token;
-import org.backmeup.model.User;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.UserProperty;
 import org.backmeup.model.exceptions.BackMeUpException;
 import org.backmeup.plugin.Plugin;
@@ -105,7 +105,7 @@ public class ThreadbasedJobManager /* implements JobManager  */{
     //temporaryDirectory = "temp"; 
   } 
 
-  public BackupJob createBackupJob(User user,
+  public BackupJob createBackupJob(BackMeUpUser user,
       Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
       List<ActionProfile> requiredActions, Date start, long delay, String keyRing) {
     
@@ -179,12 +179,12 @@ public class ThreadbasedJobManager /* implements JobManager  */{
               authData.put(ad.getBmu_authinfo_id(), ad);
             }
 
-            Datasink sink = plugins.getDatasink(job.getSinkProfile().getDesc());
+            Datasink sink = plugins.getDatasink(job.getSinkProfile().getDescription());
             Properties sinkProps = authData.get(job.getSinkProfile().getProfileId()).getAiData();
             boolean hasErrors = false;
             for (ProfileOptions po : job.getSourceProfiles()) {
               Datasource source = plugins.getDatasource(po.getProfile()
-                  .getDesc());
+                  .getDescription());
               Properties sourceProperties = authData.get(po.getProfile().getProfileId()).getAiData();
               try {
                 StorageWriter writer = new LocalFilesystemStorageWriter();

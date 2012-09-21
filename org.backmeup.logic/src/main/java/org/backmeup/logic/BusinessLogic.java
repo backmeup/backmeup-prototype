@@ -13,7 +13,7 @@ import org.backmeup.model.ProtocolDetails;
 import org.backmeup.model.ProtocolOverview;
 import org.backmeup.model.SearchResponse;
 import org.backmeup.model.Status;
-import org.backmeup.model.User;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.InvalidCredentialsException;
@@ -38,13 +38,13 @@ import org.backmeup.model.spi.SourceSinkDescribable;
 public interface BusinessLogic {
 	
 	// user operations 
-	public User getUser(String username);
-	public User deleteUser(String username);
-	public User changeUser(String username, String oldPassword, String newPassword, String newKeyRing, String newEmail);	
-	public User login(String username, String password);
-	public User register(String username, String password, String keyRing, String email) throws AlreadyRegisteredException, IllegalArgumentException;
-	public User verifyEmailAddress(String verificationKey);
-	public User requestNewVerificationEmail(String username);
+	public BackMeUpUser getUser(String username);
+	public BackMeUpUser deleteUser(String username);
+	public BackMeUpUser changeUser(String username, String oldPassword, String newPassword, String newKeyRing, String newEmail);	
+	public BackMeUpUser login(String username, String password);
+	public BackMeUpUser register(String username, String password, String keyRing, String email) throws AlreadyRegisteredException, IllegalArgumentException;
+	public BackMeUpUser verifyEmailAddress(String verificationKey);
+	public BackMeUpUser requestNewVerificationEmail(String username);
 	
 	// user property operations
 	public void setUserProperty(String username, String key, String value);

@@ -1,4 +1,4 @@
-package org.backmeup.logic.impl.util;
+package org.backmeup.dal.jpa.util;
 
 import java.util.Stack;
 

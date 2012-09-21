@@ -6,7 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.backmeup.dal.UserDao;
-import org.backmeup.model.User;
+import org.backmeup.model.BackMeUpUser;
 
 /**
  * The ProfileDaoImpl realizes the ProfileDao interface with 
@@ -15,38 +15,38 @@ import org.backmeup.model.User;
  * @author fschoeppl
  *
  */
-public class UserDaoImpl extends BaseDaoImpl<User> implements UserDao {
+public class UserDaoImpl extends BaseDaoImpl<BackMeUpUser> implements UserDao {
 
 	public UserDaoImpl(EntityManager em) {
 		super(em);
 	}
 
 	@SuppressWarnings("unchecked")
-	public User findByName(String username) {
-		Query q = em.createQuery("SELECT u FROM User u WHERE username = :username");
+	public BackMeUpUser findByName(String username) {
+		Query q = em.createQuery("SELECT u FROM BackMeUpUser u WHERE username = :username");
 		q.setParameter("username", username);		
-		List<User> users = q.getResultList();
-		User u = users.size() > 0 ? users.get(0) : null;		
+		List<BackMeUpUser> users = q.getResultList();
+		BackMeUpUser u = users.size() > 0 ? users.get(0) : null;		
 		return u;
 	}
 
 	@SuppressWarnings("unchecked")
   @Override
-  public User findByVerificationKey(String verificationKey) {
-    Query q = em.createQuery("SELECT u FROM User u WHERE verificationKey = :verificationKey");
+  public BackMeUpUser findByVerificationKey(String verificationKey) {
+    Query q = em.createQuery("SELECT u FROM BackMeUpUser u WHERE verificationKey = :verificationKey");
     q.setParameter("verificationKey", verificationKey);    
-    List<User> users = q.getResultList();
-    User u = users.size() > 0 ? users.get(0) : null;    
+    List<BackMeUpUser> users = q.getResultList();
+    BackMeUpUser u = users.size() > 0 ? users.get(0) : null;    
     return u;
   }
 
 	@SuppressWarnings("unchecked")
   @Override
-  public User findByEmail(String email) {
-    Query q = em.createQuery("SELECT u FROM User u WHERE email = :email");
+  public BackMeUpUser findByEmail(String email) {
+    Query q = em.createQuery("SELECT u FROM BackMeUpUser u WHERE email = :email");
     q.setParameter("email", email);
-    List<User> users = q.getResultList();
-    User u = users.size() > 0 ? users.get(0) : null;    
+    List<BackMeUpUser> users = q.getResultList();
+    BackMeUpUser u = users.size() > 0 ? users.get(0) : null;    
     return u;
   }
 }

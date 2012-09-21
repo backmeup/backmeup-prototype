@@ -7,12 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
 import org.backmeup.model.SearchResponse;
 import org.backmeup.model.SearchResponse.CountedEntry;
 import org.backmeup.model.SearchResponse.SearchEntry;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHitField;
 
 public class IndexUtils {
 	
@@ -39,9 +37,16 @@ public class IndexUtils {
 	    for (SearchHit hit : esResponse.getHits()) {
 	    	Map<String, Object> source = hit.getSource();
 
+	    	String hash = source.get(FIELD_FILE_HASH).toString();
+	    	Integer owner = (Integer) source.get(FIELD_OWNER_ID);
+	    	Long timestamp = (Long) source.get(FIELD_BACKUP_AT);
+	    	
 	    	SearchEntry entry = new SearchEntry();
+	    	
+	    	// We're constructing a (reasonably) unique ID using owner, hash and timestamp
+	    	entry.setFileId(owner + ":" + hash + ":" + timestamp);
 	    	entry.setTitle(source.get(FIELD_FILENAME).toString());
-	    	entry.setTimeStamp(new Date((Long) source.get(FIELD_BACKUP_AT)));
+	    	entry.setTimeStamp(new Date(timestamp));
 	    	
 	    	Object contentType = source.get(FIELD_CONTENT_TYPE);
 	    	if (contentType != null) {
@@ -53,7 +58,7 @@ public class IndexUtils {
 	    	entry.setProperty(FIELD_PATH, source.get(FIELD_PATH).toString());
 	    	entry.setProperty(FIELD_BACKUP_SOURCES, source.get(FIELD_BACKUP_SOURCES).toString());
 	    	entry.setProperty(FIELD_BACKUP_SINK, source.get(FIELD_BACKUP_SINK).toString());
-	    	entry.setProperty(FIELD_FILE_HASH, source.get(FIELD_FILE_HASH).toString());
+	    	entry.setProperty(FIELD_FILE_HASH, hash);
 	    	
 	    	entries.add(entry);
 	    }

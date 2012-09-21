@@ -663,11 +663,11 @@ public class DummyBusinessLogic implements BusinessLogic {
   public long searchBackup(String username, String keyRingPassword, String query) {
     long id = maxId++;
     List<SearchEntry> responses = new ArrayList<SearchEntry>();
-    responses.add(new SearchEntry(maxId++, new Date(), "image", "image1.png",
+    responses.add(new SearchEntry(Long.toString(maxId++), new Date(), "image", "image1.png",
         "http://athumbnail.png"));
-    responses.add(new SearchEntry(maxId++, new Date(), "image", "image2.png",
+    responses.add(new SearchEntry(Long.toString(maxId++), new Date(), "image", "image2.png",
         "http://athumbnail.png"));
-    responses.add(new SearchEntry(maxId++, new Date(), "image", "image3.png",
+    responses.add(new SearchEntry(Long.toString(maxId++), new Date(), "image", "image3.png",
         "http://athumbnail.png"));
     searches.put(id, new SearchResponse(0, 100, "query", responses));
 

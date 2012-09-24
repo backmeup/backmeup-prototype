@@ -1,5 +1,7 @@
 package org.backmeup.model.spi;
 
+import java.util.List;
+
 /**
  * Action plugins which will be activated during the backup process 
  * (Download from Datasource -> Action -> Upload to Datasink)
@@ -10,4 +12,6 @@ package org.backmeup.model.spi;
  */
 public interface ActionDescribable extends Describable {
 	public int getPriority();
+	
+	public List<String> getAvailableOptions ();
 }

@@ -64,6 +64,7 @@ import org.backmeup.model.spi.ValidationExceptionType;
 import org.backmeup.model.spi.Validationable;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.Metadata;
+import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.encryption.EncryptionDescribable;
 import org.backmeup.plugin.api.actions.filesplitting.FilesplittDescribable;
 import org.backmeup.plugin.api.actions.indexing.ElasticSearchIndexClient;
@@ -76,6 +77,7 @@ import org.backmeup.plugin.spi.InputBased;
 import org.backmeup.plugin.spi.OAuthBased;
 import org.backmeup.utilities.mail.Mailer;
 import org.elasticsearch.search.SearchHit;
+import org.hibernate.UnknownProfileException;
 
 /**
  * Implements the BusinessLogic interface by delegating most operations to
@@ -416,9 +418,37 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
 
-  public void changeProfile(Long profileId, List<String> sourceOptions) {
-    // TODO Auto-generated method stub
-
+  public void changeProfile(Long profileId, Long jobId, List<String> sourceOptions)
+  {
+  	  try
+	  {
+		  conn.beginOrJoin();
+		  ProfileDao pd = getProfileDao ();
+		  Profile p = pd.findById (profileId);
+		  if (p == null)
+		  {
+			  throw new UnknownProfileException (String.format (textBundle.getString(UNKNOWN_PROFILE), profileId));
+		  }
+		  
+		  BackupJobDao bd = getBackupJobDao ();
+		  BackupJob backupjob = bd.findById (jobId);
+		  
+		  Set<ProfileOptions> profileoptions = backupjob.getSourceProfiles ();
+		  for (ProfileOptions option : profileoptions)
+		  {
+			  if (option.getProfile ().getProfileId () == p.getProfileId ())
+			  {
+				  String[] new_options = sourceOptions.toArray (new String[sourceOptions.size ()]);
+				  option.setOptions (new_options);
+			  }
+		  }
+		  
+		  conn.commit ();
+	  }
+	  finally
+	  {
+		  conn.rollback();
+	  }
   }
 
   public void uploadDatasourcePlugin(String filename, InputStream data) {
@@ -466,9 +496,11 @@ public class BusinessLogicImpl implements BusinessLogic {
     return actions;
   }
 
-  public List<String> getActionOptions(String actionId) {
-    // TODO Auto-generated method stub
-    return null;
+  public List<String> getActionOptions(String actionId)
+  {
+	  ActionDescribable action = plugins.getActionById (actionId);
+	  
+	  return action.getAvailableOptions ();
   }
 
   public void uploadActionPlugin(String filename, InputStream data) {

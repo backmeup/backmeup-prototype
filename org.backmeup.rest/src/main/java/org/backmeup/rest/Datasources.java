@@ -73,10 +73,14 @@ public class Datasources extends Base {
 	}
 	
 	@PUT
-	@Path("/{username}/profiles/{profileId}")
+	@Path("/{username}/profiles/{profileId}/{jobId}")
 	@Produces("application/json")
-	public void updateProfile(@PathParam("username") String username, @PathParam("profileId") Long profileId, @FormParam("sourceOptions") List<String> sourceOptions) {
-		getLogic().changeProfile(profileId, sourceOptions);		
+	public void updateProfile(
+			@PathParam("username") String username,
+			@PathParam("profileId") Long profileId,
+			@PathParam("jobId") Long jobId,
+			@FormParam("sourceOptions") List<String> sourceOptions) {
+		getLogic().changeProfile(profileId, jobId, sourceOptions);		
 	}
 
 	@POST

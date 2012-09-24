@@ -33,6 +33,11 @@
 			<artifactId>logic</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
+			<artifactId>utilities</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<!-- core library -->
 
 		<dependency>

@@ -156,3 +156,18 @@ def get_overview(user):
 ######### Action Operations #########
 def get_actions():
   return com.request("GET", "/actions")
+
+######### Mail Operations ###########
+def send_text_mail(to, subject, msg):
+  return com.request("POST", "/mails/send/text", {
+      "to" : to,
+      "subject" : subject,
+      "message" : msg
+    })
+
+def send_html_mail(to, subject, msg):
+  return com.request("POST", "/mails/send/html", {
+      "to" : to,
+      "subject" : subject,
+      "message" : msg
+    })

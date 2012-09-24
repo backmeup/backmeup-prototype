@@ -27,6 +27,6 @@ public abstract class Storage {
 	
 	public abstract void removeFile(String path) throws StorageException;
 	
-	public abstract void moveFile(String fromPath, String toPath) throws StorageException;
+	public abstract void move(String fromPath, String toPath) throws StorageException;
 	
 }

@@ -111,7 +111,7 @@ public class SearchResponse {
 	}
 
 	public static class SearchEntry {
-		private long fileId;
+		private String fileId;
 		private Date timeStamp;
 		private String title;
 		private String type;
@@ -122,7 +122,7 @@ public class SearchResponse {
 			
 		}
 		
-		public SearchEntry(long fileId, Date timeStamp, String type, String title,
+		public SearchEntry(String fileId, Date timeStamp, String type, String title,
 				String thumbnailUrl) {
 			this.fileId = fileId;
 			this.timeStamp = timeStamp;
@@ -162,11 +162,11 @@ public class SearchResponse {
 			this.thumbnailUrl = thumbnailUrl;
 		}
 
-		public long getFileId() {
+		public String getFileId() {
 			return fileId;
 		}
 
-		public void setFileId(long id) {
+		public void setFileId(String id) {
 			this.fileId = id;
 		}
 

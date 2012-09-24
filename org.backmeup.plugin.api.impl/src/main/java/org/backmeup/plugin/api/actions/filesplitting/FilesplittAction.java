@@ -14,8 +14,6 @@ import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.Storage;
-import org.backmeup.plugin.api.storage.StorageReader;
-import org.backmeup.plugin.api.storage.StorageWriter;
 
 public class FilesplittAction implements Action
 {
@@ -30,12 +28,10 @@ public class FilesplittAction implements Action
 	private static final long CONTAINER_SIZE = 10 * 1024 * 1024; // 10 MiB
 
 	@Override
-	public void doAction (Properties parameters, StorageReader input, StorageWriter output, BackupJob job, Progressable progressor) throws ActionException
+	public void doAction (Properties parameters, Storage storage, BackupJob job, Progressable progressor) throws ActionException
 	{
 		progressor.progress (START_FILESPLITT_PROCESS);
 		
-		// TODO Rewrite do new API
-		Storage storage = null;
 		try
 		{
 			PriorityQueue<DataObject> sorted = new PriorityQueue<DataObject> (storage.getDataObjectCount(), new Comparator<DataObject> ()
@@ -83,11 +79,17 @@ public class FilesplittAction implements Action
 			// TODO remove this workflow later
 			progressor.progress (MOVE_FILES_TO_TMP);
 			Iterator<DataObject> dataobjects = storage.getDataObjects ();
+			
 			String tmp_dir = RandomStringUtils.randomAlphanumeric (16);
+			while (storage.existsPath (tmp_dir) == true)
+			{
+				tmp_dir = RandomStringUtils.randomAlphanumeric (16);
+			}
+			
 			while (dataobjects.hasNext () == true)
 			{
 				DataObject daob = dataobjects.next ();
-				storage.moveFile (daob.getPath (), tmp_dir + PATH_SEPARATOR + daob.getPath ());
+				storage.move (daob.getPath (), tmp_dir + PATH_SEPARATOR + daob.getPath ());
 			}
 			dataobjects = null;
 			
@@ -120,10 +122,15 @@ public class FilesplittAction implements Action
 				parameters.setProperty ("org.backmeup.filesplitting.container." + container + ".name", fc.getContainerpath ());
 				container++;
 				
+				if (storage.existsPath (fc.getContainerpath ()) == true)
+				{
+					// TODO handle the problem and remove the workarround
+				}
+				
 				for (int i = 0; i < fc.getContainerElementCount (); i++)
 				{
 					// TODO remove the tmp folder with new storage interface (existFolder)
-					storage.moveFile (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
+					storage.move (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
 				}
 			}
 		}

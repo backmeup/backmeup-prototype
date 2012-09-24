@@ -93,13 +93,18 @@ public class RabbitMQJobManager extends AkkaJobManager {
 			@Override
 			public void run() {
 				try {
-					log.info("Sending job to processing queue: " + job.getId());
-					String json = JsonSerializer.serialize(job);
+				  conn.beginOrJoin();
+				  // we need a JPA-managed instance
+				  BackupJob job2 = dal.createBackupJobDao().findById(job.getId());
+					log.info("Sending job to processing queue: " + job2.getId());
+					String json = JsonSerializer.serialize(job2);
 					mqChannel.basicPublish("", mqName, null, json.getBytes());
 				} catch (IOException e) {
 					// Should only happen if message queue is down
 					log.fatal(e.getMessage() + " - message queue down?");
 					throw new RuntimeException(e);
+				} finally {
+				  conn.rollback();
 				}
 			}
 		};

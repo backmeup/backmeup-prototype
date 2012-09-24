@@ -37,10 +37,10 @@ abstract public class AkkaJobManager implements JobManager {
 	private static final ActorSystem system = ActorSystem.create();
 	
 	@Inject
-	private Connection conn;
+	protected Connection conn;
 	
 	@Inject
-	private DataAccessLayer dal;
+	protected DataAccessLayer dal;
 	
 	@Inject
 	private Keyserver keyserver;

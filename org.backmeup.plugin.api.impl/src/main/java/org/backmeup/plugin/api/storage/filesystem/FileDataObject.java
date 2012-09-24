@@ -1,6 +1,7 @@
 package org.backmeup.plugin.api.storage.filesystem;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -29,12 +30,12 @@ public class FileDataObject extends DataObject {
 
 	@Override
 	public byte[] getBytes() throws IOException {
-	  FileReader fr = null;
+	  FileInputStream fis = null;
 	  try {
-  	  fr = new FileReader(file);
-  		return IOUtils.toByteArray(fr);
+	    fis = new FileInputStream(file);
+  		return IOUtils.toByteArray(fis);
 	  } finally {
-	    fr.close();
+	    fis.close();
 	  }
 	}
 	

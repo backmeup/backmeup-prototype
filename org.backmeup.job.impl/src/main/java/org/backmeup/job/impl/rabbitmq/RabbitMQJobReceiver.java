@@ -3,8 +3,14 @@ package org.backmeup.job.impl.rabbitmq;
 import java.io.File;
 import java.io.IOException;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
 import org.apache.log4j.Logger;
 import org.backmeup.configuration.Configuration;
+import org.backmeup.dal.DataAccessLayer;
+import org.backmeup.dal.jpa.DataAccessLayerImpl;
+import org.backmeup.dal.jpa.util.ConnectionImpl;
 import org.backmeup.job.impl.BackupJobRunner;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.BackupJob;
@@ -45,6 +51,9 @@ public class RabbitMQJobReceiver {
 	
 	private Keyserver keyserver;
 	
+	private DataAccessLayer dal;
+	private org.backmeup.dal.Connection conn;
+	
 	/**
 	 * Message queue name
 	 */
@@ -66,6 +75,8 @@ public class RabbitMQJobReceiver {
 	private boolean listening = false;
 	
 	private Logger log = Logger.getLogger(this.getClass());
+
+  private EntityManagerFactory emFactory;
 	
 	public RabbitMQJobReceiver(String mqHost, String mqName, String pluginsDir) throws IOException {
 		this.mqName = mqName;
@@ -92,6 +103,15 @@ public class RabbitMQJobReceiver {
 	    mqConnection = factory.newConnection();
 	    mqChannel = mqConnection.createChannel();
 	    mqChannel.queueDeclare(mqName, false, false, false, null);
+	  
+	  // prepare data access layer
+	  // TODO: Use weld to setup the RabbitMQJobReceiver instead of manual weaving 
+	  dal = new DataAccessLayerImpl();
+	  // make sure you have a valid META-INF/persistence.xml file pointing to the core database 
+	  emFactory = Persistence.createEntityManagerFactory("org.backmeup.jpa");
+	  conn = new ConnectionImpl();
+	  ((ConnectionImpl)conn).setDataAccessLayer(dal);
+	  ((ConnectionImpl)conn).setEntityManagerFactory(emFactory);	  
 	}
 	
 	public boolean isListening() {
@@ -121,11 +141,12 @@ public class RabbitMQJobReceiver {
   			                StorageReader reader = new LocalFilesystemStorageReader();
   			                StorageWriter writer = new LocalFilesystemStorageWriter();
   			                
-  			        		BackupJobRunner runner = new BackupJobRunner(plugins, keyserver);
+  			        		BackupJobRunner runner = new BackupJobRunner(plugins, keyserver, conn, dal);
   			        		runner.executeBackup(job, reader, writer);
 					      } catch (Exception ex) {
 					        //TODO Log exception
 					        ex.printStackTrace();
+					        log.fatal(ex.getMessage() + " - failed to process job");
 					      }
 					    }
 					    
@@ -133,6 +154,7 @@ public class RabbitMQJobReceiver {
 					    mqChannel.close();
 					    mqConnection.close();
 					    plugins.shutdown();
+					    emFactory.close();
 					    log.info("Message queue receiver stopped");
 					} catch (IOException e) {
 						// Should only happen if message queue is down

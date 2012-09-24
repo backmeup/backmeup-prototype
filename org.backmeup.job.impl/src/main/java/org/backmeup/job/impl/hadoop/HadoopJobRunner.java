@@ -89,7 +89,8 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 		StorageWriter storageWriter = new HdfsStorageWriter(hdfs);
 		StorageReader storageReader = new HdfsStorageReader(hdfs);
 
-		BackupJobRunner runner = new BackupJobRunner(plugins, keyserver);
+		//TODO: Add parameters like in the rabbitmqjobreceiver
+		BackupJobRunner runner = new BackupJobRunner(plugins, keyserver, null, null);
 		runner.executeBackup(job, storageReader, storageWriter);
 			
 		plugins.shutdown();

@@ -29,6 +29,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.backmeup</groupId>
+			<artifactId>dal.jpa.impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
 			<artifactId>plugin</artifactId>
 			<version>${project.version}</version>
 		</dependency>

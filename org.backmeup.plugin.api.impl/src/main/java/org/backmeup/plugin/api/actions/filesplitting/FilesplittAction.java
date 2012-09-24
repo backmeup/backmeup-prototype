@@ -14,8 +14,6 @@ import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.Storage;
-import org.backmeup.plugin.api.storage.StorageReader;
-import org.backmeup.plugin.api.storage.StorageWriter;
 
 public class FilesplittAction implements Action
 {

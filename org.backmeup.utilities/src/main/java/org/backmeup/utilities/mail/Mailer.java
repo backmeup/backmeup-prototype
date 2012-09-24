@@ -20,33 +20,46 @@ public class Mailer {
     service = Executors.newFixedThreadPool(4);
   }
   
-  public static void send(final String to, final String subject, final String text) {    
+  public static void send(final String to, final String subject, final String text) {
+    send(to, subject, text, "text/plain");
+  }
+  
+  public static void synchronousSend(final String to, final String subject, final String text, final String mimeType) {
+    executeSend(to, subject, text, mimeType);
+  }
+  
+  private static void executeSend(final String to, final String subject, final String text, final String mimeType) {
+    final Properties props = getMailSettings();
+    try {      
+      // Get session
+      Session session = Session.getDefaultInstance(props, new Authenticator() {      
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+          return new PasswordAuthentication(props.getProperty("mail.user"), props.getProperty("mail.password"));
+        }
+      });
+      // Define message
+      MimeMessage message = new MimeMessage(session);
+
+      message.setFrom(new InternetAddress(props.getProperty("mail.from")));
+      message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+      message.setSubject(subject);
+      message.setContent(text, mimeType);
+
+      // Send message
+      Transport.send(message);
+    } catch (Exception e) {
+      //TODO: Log exception
+      throw new RuntimeException(e);
+      //e.printStackTrace();
+    } 
+  }
+  
+  public static void send(final String to, final String subject, final String text, final String mimeType) {    
     // Get system properties
     service.submit(new Runnable() {
       public void run() {
-        final Properties props = getMailSettings();
-        try {      
-          // Get session
-          Session session = Session.getDefaultInstance(props, new Authenticator() {      
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-              return new PasswordAuthentication(props.getProperty("mail.user"), props.getProperty("mail.password"));
-            }
-          });
-          // Define message
-          MimeMessage message = new MimeMessage(session);
-
-          message.setFrom(new InternetAddress(props.getProperty("mail.from")));
-          message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-          message.setSubject(subject);
-          message.setText(text);
-
-          // Send message
-          Transport.send(message);
-        } catch (Exception e) {
-          //TODO: Log exception
-          //e.printStackTrace();
-        } 
+        executeSend(to, subject, text, mimeType);
       }
     });    
   }

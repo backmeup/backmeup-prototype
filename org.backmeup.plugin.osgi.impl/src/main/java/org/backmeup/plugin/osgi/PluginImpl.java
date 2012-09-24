@@ -222,6 +222,7 @@ public class PluginImpl implements Plugin {
               throw new PluginUnavailableException(filter);
             }
             Object instance = bundleContext().getService(ref);
+            //TODO: Throw exception if instance is null! This might happen if <packaging>bundle</packaging> is missing in pom.xml
             Object ret = null;
             try {
               ret = method.invoke(instance, os);

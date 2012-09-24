@@ -17,6 +17,7 @@ import org.backmeup.rest.BackupJobs;
 import org.backmeup.rest.Backups;
 import org.backmeup.rest.Datasinks;
 import org.backmeup.rest.Datasources;
+import org.backmeup.rest.Mails;
 import org.backmeup.rest.Profiles;
 import org.backmeup.rest.Users;
 import org.backmeup.rest.exceptionmapper.AlreadyRegisteredExceptionMapper;
@@ -60,6 +61,7 @@ public class Main {
 		classes.add(Datasources.class.getName());
 		classes.add(Users.class.getName());
 		classes.add(Profiles.class.getName());
+		classes.add(Mails.class.getName());
 		classes.add(org.backmeup.rest.Metadata.class.getName());
 		tjws.getDeployment().getResourceClasses().addAll(classes);
 		tjws.getDeployment().getProviderClasses()

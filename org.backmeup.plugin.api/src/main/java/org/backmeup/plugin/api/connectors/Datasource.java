@@ -30,7 +30,7 @@ public interface Datasource {
 	public abstract String getStatistics(Properties accesssData);
 	
 	/**
-	 * Returns a List of items that might be choosen for the backup.
+	 * Returns a List of items that might be chosen for the backup.
 	 * e.g. a social media plugin could return: "Pictures, Videos, Messages",
 	 *      a filestorage plugin could return the root folders of an account.
 	 * @return

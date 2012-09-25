@@ -77,7 +77,6 @@ import org.backmeup.plugin.spi.InputBased;
 import org.backmeup.plugin.spi.OAuthBased;
 import org.backmeup.utilities.mail.Mailer;
 import org.elasticsearch.search.SearchHit;
-import org.hibernate.UnknownProfileException;
 
 /**
  * Implements the BusinessLogic interface by delegating most operations to
@@ -427,7 +426,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 		  Profile p = pd.findById (profileId);
 		  if (p == null)
 		  {
-			  throw new UnknownProfileException (String.format (textBundle.getString(UNKNOWN_PROFILE), profileId));
+			  throw new IllegalArgumentException (String.format (textBundle.getString(UNKNOWN_PROFILE), profileId));
 		  }
 		  
 		  BackupJobDao bd = getBackupJobDao ();

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -255,6 +256,12 @@ public class DummyBusinessLogic implements BusinessLogic {
       public int getPriority() {
         return 200;
       }
+      
+      @Override
+      public List<String> getAvailableOptions()
+      {
+    	  return new LinkedList<String> ();
+      }
     });
 
     List<ActionProfile> reqActions = new ArrayList<ActionProfile>();
@@ -394,7 +401,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     return folders;
   }
 
-  public void changeProfile(Long profileId, List<String> sourceOptions) {
+  public void changeProfile(Long profileId, Long jobId, List<String> sourceOptions) {
     Profile p = findProfile(profileId);
     if (p == null)
       throw new IllegalArgumentException("Invalid profile");

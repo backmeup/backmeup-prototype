@@ -18,7 +18,8 @@ import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
-import org.apache.ecs.xhtml.br;
+import org.apache.ecs.html.BR;
+//import org.apache.ecs.xhtml.br;
 
 import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.plugin.api.connectors.Datasource;
@@ -91,6 +92,13 @@ public class TwitterDatasource implements Datasource {
 		arg2.progress("Downloading User-Lists...");
 		downloadLists(twitter, arg1);
 
+		try {
+			System.out.println(twitter.getRateLimitStatus().getRemainingHits());
+		} catch (TwitterException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override
@@ -111,10 +119,22 @@ public class TwitterDatasource implements Datasource {
 		if (text.contains("http")) {
 			textLink.insert(text.indexOf("http"), "<a href=");
 			String link = text.substring(text.indexOf("http"));
-			textLink.append(">" + link + "</a>");
+			textLink.append(" target='_blank' >" + link + "</a>");
 		}
 
 		return textLink.toString();
+	}
+
+	private Document createDocument(String title, String header) {
+		Document doc = (Document) new Document();
+		doc.appendHead("<meta http-equiv='content-type' content='text/html; charset=UTF-8' />");
+
+		doc.appendTitle(title);
+		doc.appendBody(new Table().addElement(
+				new TD().addElement(new IMG(new TwitterDescriptor()
+						.getImageURL()).setHeight(50).setWidth(50)))
+				.addElement(new TD().addElement(new H1(header))));
+		return doc;
 	}
 
 	private Metainfo statusMetadata(Status status, String type) {
@@ -140,8 +160,8 @@ public class TwitterDatasource implements Datasource {
 			MediaEntity[] media = state.getMediaEntities();
 			for (MediaEntity m : media) {
 				URL url = m.getMediaURL();
-				String extension = url.toString().substring(
-						url.toString().length() - 4);
+				int indexDot = url.toString().lastIndexOf('.');
+				String extension = url.toString().substring(indexDot);
 
 				// check if URL-content exists
 				HttpURLConnection.setFollowRedirects(false);
@@ -187,8 +207,8 @@ public class TwitterDatasource implements Datasource {
 			MetainfoContainer metadata = new MetainfoContainer();
 
 			URL url = user.getProfileImageURL();
-			String extension = url.toString().substring(
-					url.toString().length() - 4);
+			int indexDot = url.toString().lastIndexOf('.');
+			String extension = url.toString().substring(indexDot);
 
 			Metainfo userInfo = new Metainfo();
 
@@ -196,7 +216,7 @@ public class TwitterDatasource implements Datasource {
 			userInfo.setAttribute("screenName", user.getScreenName());
 			userInfo.setAttribute("profileImage", "profileImage" + extension);
 			userInfo.setBackupDate(new Date());
-			userInfo.setDestination("timeline" + user.getId() + ".html");
+			userInfo.setDestination("index.html");
 			userInfo.setId(Long.toString(user.getId()));
 			userInfo.setModified(user.getCreatedAt());
 			userInfo.setSource(TWITTER);
@@ -208,7 +228,7 @@ public class TwitterDatasource implements Datasource {
 
 			// create metadata for each state, seperate Tweets and Retweets
 			for (Status state : states) {
-				tweetInfo = statusMetadata(state, "timeline");
+				tweetInfo = statusMetadata(state, "index");
 				if (retweets.contains(state.getId())) {
 					tweetInfo.setParent(Long.toString(state
 							.getRetweetedStatus().getId()));
@@ -222,7 +242,7 @@ public class TwitterDatasource implements Datasource {
 			}
 
 			InputStream is = new ByteArrayInputStream(document.getBytes());
-			storage.addFile(is, "timeline" + user.getId() + ".html", metadata);
+			storage.addFile(is, "index.html", metadata);
 
 		} catch (StorageException e) {
 			throw new PluginException(TwitterDescriptor.TWITTER_ID,
@@ -242,28 +262,21 @@ public class TwitterDatasource implements Datasource {
 			List<Status> timeline = twitter.getHomeTimeline(paging);
 
 			// create HTML timeline+userID.html
-			Document doc = (Document) new Document().appendTitle(
-					"Timeline" + user.getId()).appendBody(
-					new Table().addElement(
-							new TD().addElement(new IMG(desc.getImageURL())
-									.setHeight(50).setWidth(50))).addElement(
-							new TD().addElement(new H1("Twitter - User"))));
+			Document doc = createDocument("Index", "Twitter - User");
 
 			doc.appendBody("Username: " + user.getName());
-			doc.appendBody(new br());
-			doc.appendBody("UserID: " + user.getId());
-			doc.appendBody(new br());
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
+			doc.appendBody(new BR());
 
 			// save profile image in extra file (profileImage.extension) if
 			// exists
 			URL url = user.getProfileImageURL();
-			String extension = url.toString().substring(
-					url.toString().length() - 4);
+			int indexDot = url.toString().lastIndexOf('.');
+			String extension = url.toString().substring(indexDot);
 
 			HttpURLConnection.setFollowRedirects(false);
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
-			// con.setRequestMethod("HEAD");
+
 			if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				MetainfoContainer metadata = new MetainfoContainer();
 
@@ -283,20 +296,20 @@ public class TwitterDatasource implements Datasource {
 				doc.appendBody(img);
 			}
 
-			doc.appendBody(new br());
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
+			doc.appendBody(new BR());
 
 			AccountTotals acct = twitter.getAccountTotals();
 			doc.appendBody("Friend(s): " + acct.getFriends() + " Follower(s): "
 					+ acct.getFollowers());
-			doc.appendBody(new br());
-			doc.appendBody(new A("Favorites.html", "Favourit(en)"));
+			doc.appendBody(new BR());
+			doc.appendBody(new A("Favorites.html", "Favorite(s)"));
 			doc.appendBody(acct.getFavorites() + " Update(s): "
 					+ acct.getUpdates());
-			doc.appendBody(new br());
-			doc.appendBody(new A("RetweetsToMe.html", "Retweets to me "));
-			doc.appendBody(new A("RetweetsOfMe.html", "Retweets of me "));
-			doc.appendBody(new A("RetweetsByMe.html", "Retweets by me "));
+			doc.appendBody(new BR());
+			doc.appendBody(new A("RetweetsToMe.html", "Retweets to me   "));
+			doc.appendBody(new A("RetweetsOfMe.html", "   Retweets of me   "));
+			doc.appendBody(new A("RetweetsByMe.html", "   Retweets by me"));
 
 			doc.appendBody(new H2("User-Listen"));
 
@@ -339,10 +352,9 @@ public class TwitterDatasource implements Datasource {
 
 					// extract media entities and save in separate file
 					if (state.getMediaEntities() != null) {
-						String media = extractMedia(state,
-								"timeline" + user.getId(), storage);
+						String media = extractMedia(state, "index", storage);
 						if (media != null) {
-							td = new TD(new A(media, "media"));
+							td = new TD("<a href = "+media+" target='_blank' > media </a>");
 							tr.addElement(td);
 						}
 					}
@@ -379,14 +391,7 @@ public class TwitterDatasource implements Datasource {
 			List<Status> download = getTypeStates(twitter, type, paging);
 
 			// create HTML type.html
-			Document doc = (Document) new Document().appendTitle(type)
-					.appendBody(
-							new Table().addElement(
-									new TD().addElement(new IMG(desc
-											.getImageURL()).setHeight(50)
-											.setWidth(50))).addElement(
-									new TD().addElement(new H1("Twitter - "
-											+ type))));
+			Document doc = createDocument(type, "Twitter - " + type);
 
 			doc.appendBody(new H2("<a name = '#test'>Your last </a> " + type
 					+ "(maximum of 3200)"));
@@ -397,7 +402,7 @@ public class TwitterDatasource implements Datasource {
 			table.setBorder(3);
 			Status lastState = null;
 
-			while (download.size() > 1) {
+			while (download.size() >= 1) {
 				for (Status state : download) {
 
 					Metainfo metainfo = statusMetadata(state, type);
@@ -405,8 +410,8 @@ public class TwitterDatasource implements Datasource {
 					String text = createLink(state.getText());
 					tr = new TR();
 					td = new TD();
-
-					if (!(type.equals("Favorites"))) {
+					if ((type.equals("RetweetsByMe") || (type
+							.equals("RetweetsToMe")))) {
 						retweets.add(state.getId());
 						Status source = state.getRetweetedStatus();
 
@@ -418,15 +423,13 @@ public class TwitterDatasource implements Datasource {
 						metainfo.setType("retweet");
 
 						if (states.contains(source)) {
-							td.addElement(new A("timeline" + user.getId()
-									+ ".html#" + source.getId(),
+							td.addElement(new A("index.html#" + source.getId(),
 									"go to Source-Tweet"));
 						}
 					} else {
 						metainfo.setType("favourit");
 						if (states.contains(state)) {
-							td.addElement(new A("timeline" + user.getId()
-									+ ".html#" + state.getId(),
+							td.addElement(new A("index.html#" + state.getId(),
 									"go to Source-Tweet"));
 						}
 					}
@@ -446,7 +449,7 @@ public class TwitterDatasource implements Datasource {
 					if (state.getMediaEntities() != null) {
 						String media = extractMedia(state, type, storage);
 						if (!media.equals("")) {
-							td = new TD(new A(media, "media"));
+							td = new TD("<a href = "+media+" target='_blank' > media </a>");
 							tr.addElement(td);
 						}
 					}
@@ -456,6 +459,8 @@ public class TwitterDatasource implements Datasource {
 				}
 				paging.setMaxId(lastState.getId());
 				download = getTypeStates(twitter, type, paging);
+				if (download.size() == 1)
+					download.remove(0);
 			}
 
 			doc.appendBody(table);
@@ -513,66 +518,67 @@ public class TwitterDatasource implements Datasource {
 			metadata.addMetainfo(listInfo);
 
 			// create HTML list+listID.html
-			Document doc = (Document) new Document().appendTitle(
-					"List" + listId).appendBody(
-					new Table().addElement(
-							new TD().addElement(new IMG(desc.getImageURL())
-									.setHeight(50).setWidth(50))).addElement(
-							new TD().addElement(new H1("Twitter - List"))));
+			Document doc = createDocument("List" + listId, "Twitter - List");
 
 			doc.appendBody("Listname: " + list.getFullName());
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 			doc.appendBody("ListID: " + listId);
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 			doc.appendBody("Beschreibung: " + list.getDescription());
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 			doc.appendBody("Member(s): " + list.getMemberCount());
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 			doc.appendBody("Subscriber(s): " + list.getSubscriberCount());
 
-			doc.appendBody(new br());
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
+			doc.appendBody(new BR());
 
-			doc.appendBody(new H2("Members: "));
 			long cursor = -1;
 			PagableResponseList users;
 			TR tr = null;
 			TD td = null;
-			Table memberTable = new Table();
-			memberTable.setBorder(3);
 
-			do {
-				users = twitter.getUserListMembers(listId, cursor);
-				tr = new TR();
-				for (Object objUser : users) {
-					User user = (User) objUser;
-					td = new TD("@" + user.getScreenName());
-					tr.addElement(td);
-				}
-				memberTable.addElement(tr);
-			} while ((cursor = users.getNextCursor()) != 0);
+			if (list.getMemberCount() > 0) {
+				doc.appendBody(new H2("Members: "));
+				Table memberTable = new Table();
+				memberTable.setBorder(3);
 
-			doc.appendBody(memberTable);
+				do {
+					users = twitter.getUserListMembers(listId, cursor);
+					tr = new TR();
+					for (Object objUser : users) {
+						User user = (User) objUser;
+						td = new TD("@" + user.getScreenName());
+						tr.addElement(td);
+					}
+					memberTable.addElement(tr);
+				} while ((cursor = users.getNextCursor()) != 0);
 
-			doc.appendBody(new H2("Subscribers: "));
+				doc.appendBody(memberTable);
+				doc.appendBody(new BR());
+			}
 
-			cursor = -1;
-			Table subscriberTable = new Table();
-			subscriberTable.setBorder(3);
+			if (list.getSubscriberCount() > 0) {
+				doc.appendBody(new H2("Subscribers: "));
 
-			do {
-				users = twitter.getUserListSubscribers(listId, cursor);
-				tr = new TR();
-				for (Object objUser : users) {
-					User user = (User) objUser;
-					td = new TD("@" + user.getScreenName());
-					tr.addElement(td);
-				}
-				subscriberTable.addElement(tr);
-			} while ((cursor = users.getNextCursor()) != 0);
+				cursor = -1;
+				Table subscriberTable = new Table();
+				subscriberTable.setBorder(3);
 
-			doc.appendBody(subscriberTable);
+				do {
+					users = twitter.getUserListSubscribers(listId, cursor);
+					tr = new TR();
+					for (Object objUser : users) {
+						User user = (User) objUser;
+						td = new TD("@" + user.getScreenName());
+						tr.addElement(td);
+					}
+					subscriberTable.addElement(tr);
+				} while ((cursor = users.getNextCursor()) != 0);
 
+				doc.appendBody(subscriberTable);
+				doc.appendBody(new BR());
+			}
 			List<Status> states = twitter.getUserListStatuses(listId, paging);
 
 			Table stateTable = new Table();
@@ -615,7 +621,7 @@ public class TwitterDatasource implements Datasource {
 						String media = extractMedia(state,
 								"list" + list.getId(), storage);
 						if (!media.equals("")) {
-							td = new TD(new A(media, "media"));
+							td = new TD("<a href = "+media+" target='_blank' > media </a>");
 							tr.addElement(td);
 						}
 					}
@@ -648,14 +654,14 @@ public class TwitterDatasource implements Datasource {
 	}
 
 	@Override
-  public List<String> getAvailableOptions(Properties accessData) {
-    List<String> twitterBackupOptions = new ArrayList<String>();
-    twitterBackupOptions.add("Profile");
-    twitterBackupOptions.add("RetweetsToMe");
-    twitterBackupOptions.add("RetweetsByMe");
-    twitterBackupOptions.add("RetweetsOfMe");
-    twitterBackupOptions.add("Favourites");
-    twitterBackupOptions.add("Lists");
-    return twitterBackupOptions;
-  }
+	public List<String> getAvailableOptions(Properties accessData) {
+		List<String> twitterBackupOptions = new ArrayList<String>();
+		twitterBackupOptions.add("Profile");
+		twitterBackupOptions.add("RetweetsToMe");
+		twitterBackupOptions.add("RetweetsByMe");
+		twitterBackupOptions.add("RetweetsOfMe");
+		twitterBackupOptions.add("Favourites");
+		twitterBackupOptions.add("Lists");
+		return twitterBackupOptions;
+	}
 }

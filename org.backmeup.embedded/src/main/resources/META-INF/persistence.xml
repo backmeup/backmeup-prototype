@@ -6,7 +6,7 @@
 	<persistence-unit name="org.backmeup.jpa"
 		transaction-type="RESOURCE_LOCAL">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
-		<class>org.backmeup.model.User</class>
+		<class>org.backmeup.model.BackMeUpUser</class>
 		<class>org.backmeup.model.ProfileEntry</class>
 		<class>org.backmeup.model.Profile</class>
 		<class>org.backmeup.model.Status</class>

@@ -202,6 +202,7 @@ public class FacebookDatasource implements Datasource {
 				if (comment.getUpdatedTime() != null)
 					commentinfo.setModified(comment.getUpdatedTime());
 				commentinfo.setParent(parent);
+				commentinfo.setSource("facebook");
 				commentinfo.setType("comment");
 
 				linkUser(comment.getFrom().getId(), checkName(comment.getFrom()
@@ -376,6 +377,7 @@ public class FacebookDatasource implements Datasource {
 		listinfo.setBackupDate(new Date());
 		listinfo.setDestination(getFriendlistFilename(name + id));
 		listinfo.setId(id);
+		listinfo.setSource("facebook");
 		listinfo.setType("list");
 		metainfo.addMetainfo(listinfo);
 
@@ -421,6 +423,7 @@ public class FacebookDatasource implements Datasource {
 		postinfo.setBackupDate(new Date());
 		postinfo.setDestination(getPostFilename(post.getId()));
 		postinfo.setId(post.getId());
+		postinfo.setSource("facebook");
 
 		if (post.getUpdatedTime() != null)
 			postinfo.setModified(post.getUpdatedTime());
@@ -460,8 +463,8 @@ public class FacebookDatasource implements Datasource {
 			doc.appendBody(new br());
 		}
 		if (post.getLink() != null) {
-			doc.appendBody("Link: ").appendBody(
-					new A(post.getLink(), post.getLink()));
+			doc.appendBody("Link: ").appendBody("<a href="+post.getLink()+" target='_blank'>" +
+					post.getLink()+"</a>");
 			doc.appendBody(new br());
 		}
 		if (post.getSource() != null) {
@@ -498,6 +501,7 @@ public class FacebookDatasource implements Datasource {
 		albuminfo.setId(album.getId());
 		if (album.getUpdatedTime() != null)
 			albuminfo.setModified(album.getUpdatedTime());
+		albuminfo.setSource("facebook");
 		albuminfo.setType("album");
 
 		Document doc = createDocument(name, "Facebook - Album");
@@ -519,8 +523,8 @@ public class FacebookDatasource implements Datasource {
 			doc.appendBody(new br());
 		}
 		if (album.getLink() != null) {
-			doc.appendBody("Link: ").appendBody(
-					new A(album.getLink(), album.getLink()));
+			doc.appendBody("Link: ").appendBody("<a href="+album.getLink()+" target='_blank'>" +
+					album.getLink()+"</a>");
 			doc.appendBody(new br());
 		}
 
@@ -554,6 +558,7 @@ public class FacebookDatasource implements Datasource {
 		photoinfo.setBackupDate(new Date());
 		photoinfo.setId(photo.getId());
 		photoinfo.setModified(photo.getUpdatedTime());
+		photoinfo.setSource("facebook");
 		photoinfo.setType("photo");
 		if (!parent.equals(""))
 			photoinfo.setParent(parent);
@@ -577,15 +582,15 @@ public class FacebookDatasource implements Datasource {
 			doc.appendBody(new br());
 		}
 		if (photo.getLink() != null) {
-			doc.appendBody("Link: ").appendBody(
-					new A(photo.getLink(), photo.getLink()));
+			doc.appendBody("Link: ").appendBody("<a href="+photo.getLink()+" target='_blank'>" +
+					photo.getLink()+"</a>");
 			doc.appendBody(new br());
 		}
 		if (photo.getSource() == null) {
 			throw new DatasourceException("error while downloading photos");
 		}
-		doc.appendBody("Source: ").appendBody(
-				new A(photo.getSource(), photo.getSource()));
+		doc.appendBody("Source: ").appendBody("<a href="+photo.getSource()+" target='_blank'>" +
+				photo.getSource()+"</a>");
 		doc.appendBody(new br());
 
 		String ending = ".jpg";// only jpg supported
@@ -647,6 +652,7 @@ public class FacebookDatasource implements Datasource {
 		groupinfo.setDestination(getGroupFilename(name + g.getId()));
 		groupinfo.setId(g.getId());
 		groupinfo.setModified(g.getUpdatedTime());
+		groupinfo.setSource("facebook");
 		groupinfo.setType("group");
 		metainfo.addMetainfo(groupinfo);
 
@@ -674,7 +680,8 @@ public class FacebookDatasource implements Datasource {
 		}
 		if (g.getLink() != null) {
 			doc.appendBody("Link: ")
-					.appendBody(new A(g.getLink(), g.getLink()));
+					.appendBody("<a href="+g.getLink()+" target='_blank'>" +
+							g.getLink()+"</a>");
 			doc.appendBody(new br());
 		}
 
@@ -700,19 +707,20 @@ public class FacebookDatasource implements Datasource {
 		userinfo.setId(name + u.getId());
 		if (u.getUpdatedTime() != null)
 			userinfo.setModified(u.getUpdatedTime());
+		userinfo.setSource("facebook");
 		userinfo.setType("user");
 
 		// get profile picture
 		String pic = downloadProfilePicture(name + u.getId(), u.getId(),
 				storage, progr);
 
-		userinfo.setAttribute("profilePicture", pic);
+		userinfo.setAttribute("profilePicture", "Friends/"+pic);
 		metainfo.addMetainfo(userinfo);
 
 		// create HTML
 		Document doc = createDocument(name, "Facebook - User");
 
-		doc.appendBody("Username: " + name);
+		doc.appendBody("Name: " + name);
 		doc.appendBody(new br());
 
 		if (u.getUsername() != null) {
@@ -835,7 +843,8 @@ public class FacebookDatasource implements Datasource {
 		}
 		if (u.getLink() != null) {
 			doc.appendBody("Link: ")
-					.appendBody(new A(u.getLink(), u.getLink()));
+					.appendBody("<a href="+u.getLink()+" target='_blank'>" +
+							u.getLink()+"</a>");
 			;
 			doc.appendBody(new br());
 		}
@@ -898,6 +907,7 @@ public class FacebookDatasource implements Datasource {
 		photoinfo.setAttribute("name", name);
 		photoinfo.setBackupDate(new Date());
 		photoinfo.setDestination(fileName);
+		photoinfo.setSource("facebook");
 		photoinfo.setType("photo");
 
 		String uPicLoc = null;

@@ -92,12 +92,12 @@ public class TwitterDatasource implements Datasource {
 		arg2.progress("Downloading User-Lists...");
 		downloadLists(twitter, arg1);
 
-		try {
+		/*try {
 			System.out.println(twitter.getRateLimitStatus().getRemainingHits());
 		} catch (TwitterException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 
 	}
 
@@ -427,7 +427,8 @@ public class TwitterDatasource implements Datasource {
 									"go to Source-Tweet"));
 						}
 					} else {
-						metainfo.setType("favourit");
+						if(type.equals("RetweetsOfMe")) metainfo.setType("retweet");
+						else metainfo.setType("favourit");
 						if (states.contains(state)) {
 							td.addElement(new A("index.html#" + state.getId(),
 									"go to Source-Tweet"));
@@ -522,9 +523,7 @@ public class TwitterDatasource implements Datasource {
 
 			doc.appendBody("Listname: " + list.getFullName());
 			doc.appendBody(new BR());
-			doc.appendBody("ListID: " + listId);
-			doc.appendBody(new BR());
-			doc.appendBody("Beschreibung: " + list.getDescription());
+			doc.appendBody("Description: " + list.getDescription());
 			doc.appendBody(new BR());
 			doc.appendBody("Member(s): " + list.getMemberCount());
 			doc.appendBody(new BR());

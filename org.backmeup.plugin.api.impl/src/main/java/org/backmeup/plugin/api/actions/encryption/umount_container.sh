@@ -31,4 +31,4 @@ check_result ()
 
 
 ${tccmd} -d ${containername} > /dev/null 2>&1
-echo $?
+check_result $?

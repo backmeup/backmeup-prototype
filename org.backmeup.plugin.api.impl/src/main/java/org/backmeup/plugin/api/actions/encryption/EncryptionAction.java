@@ -86,8 +86,6 @@ public class EncryptionAction implements Action
 		{
 			try
 			{
-				//TODO remove unencrypted files from container
-				
 				container.writeContainer ();
 				storage.addFile (container.getContainer (), container.getContainername (), new MetainfoContainer ());
 				container.deleteContainer ();

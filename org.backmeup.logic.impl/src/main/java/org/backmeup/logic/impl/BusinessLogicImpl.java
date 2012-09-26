@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -497,9 +498,26 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   public List<String> getActionOptions(String actionId)
   {
-	  ActionDescribable action = plugins.getActionById (actionId);
+	  //TODO : Move all internal actions to real OSGi bundles!!
+	  //ActionDescribable action = plugins.getActionById (actionId);
+	  //return action.getAvailableOptions ();
 	  
-	  return action.getAvailableOptions ();
+	  if (actionId.equals ("org.backmeup.indexer"))
+	  {
+		  return new IndexDescribable().getAvailableOptions ();
+	  }
+	  else if (actionId.equals ("org.backmeup.filesplitting"))
+	  {
+		  return new FilesplittDescribable().getAvailableOptions();
+	  }
+	  else if (actionId.equals ("org.backmeup.encryption"))
+	  {
+		  return new EncryptionDescribable().getAvailableOptions ();
+	  }
+	  else
+	  {
+		  return new LinkedList<String> ();
+	  }
   }
 
   public void uploadActionPlugin(String filename, InputStream data) {

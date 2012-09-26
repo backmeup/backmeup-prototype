@@ -37,16 +37,15 @@ import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.logic.BusinessLogic;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.AuthRequest;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.ProtocolDetails;
 import org.backmeup.model.ProtocolOverview;
 import org.backmeup.model.SearchResponse;
-import org.backmeup.model.SearchResponse.SearchEntry;
 import org.backmeup.model.Status;
 import org.backmeup.model.Token;
-import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.BackMeUpException;
@@ -65,19 +64,17 @@ import org.backmeup.model.spi.ValidationExceptionType;
 import org.backmeup.model.spi.Validationable;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.Metadata;
-import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.encryption.EncryptionDescribable;
 import org.backmeup.plugin.api.actions.filesplitting.FilesplittDescribable;
 import org.backmeup.plugin.api.actions.indexing.ElasticSearchIndexClient;
-import org.backmeup.plugin.api.actions.indexing.IndexUtils;
 import org.backmeup.plugin.api.actions.indexing.IndexDescribable;
+import org.backmeup.plugin.api.actions.indexing.IndexUtils;
 import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.spi.Authorizable;
 import org.backmeup.plugin.spi.Authorizable.AuthorizationType;
 import org.backmeup.plugin.spi.InputBased;
 import org.backmeup.plugin.spi.OAuthBased;
 import org.backmeup.utilities.mail.Mailer;
-import org.elasticsearch.search.SearchHit;
 
 /**
  * Implements the BusinessLogic interface by delegating most operations to
@@ -568,7 +565,17 @@ public class BusinessLogicImpl implements BusinessLogic {
       List<ActionProfile> actions = new ArrayList<ActionProfile>();
       if (requiredActions != null) {
         for (String action : requiredActions) {
-          ActionDescribable ad = plugins.getActionById(action);
+          ActionDescribable ad = null;
+          // TODO: Remove workaround for embedded action plugins
+          if ("org.backmeup.filesplitting".equals(action)) {
+            ad = new FilesplittDescribable();
+          } else if ("org.backmeup.indexer".equals(action)) {
+            ad = new IndexDescribable();
+          } else if ("org.backmeup.encryption".equals(action)) {
+            ad = new EncryptionDescribable();
+          } else {
+            ad = plugins.getActionById(action);
+          }
           if (ad == null) {
             throw new IllegalArgumentException(String.format(
                 textBundle.getString(UNKNOWN_ACTION), action));

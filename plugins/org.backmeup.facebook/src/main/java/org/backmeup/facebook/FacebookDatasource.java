@@ -212,6 +212,8 @@ public class FacebookDatasource implements Datasource {
 				String likes = downloadLikes(comment.getId(), "comment", doc,
 						client, storage, progr);
 
+				doc.appendBody(new br());
+				
 				if (likes != null)
 					commentinfo.setAttribute("likes", likes);
 
@@ -346,12 +348,15 @@ public class FacebookDatasource implements Datasource {
 				"me/friendlists", CategorizedFacebookType.class);
 		do {
 			for (CategorizedFacebookType friendlist : lists.getData()) {
-				doc.appendBody(new A(
-						downloadFriendlist(friendlist.getId(),
-								checkName(friendlist.getName()), client,
-								storage, progr),
-						checkName(friendlist.getName())));
-				doc.appendBody(new br());
+				Connection<User> members = client.fetchConnection(
+						friendlist.getId() + "/members", User.class);
+				
+				if (members.getData().size() > 0) {
+					doc.appendBody(new A(downloadFriendlist(friendlist.getId(),
+							checkName(friendlist.getName()), client, storage,
+							progr), checkName(friendlist.getName())));
+					doc.appendBody(new br());
+				}
 			}
 		} while (lists.hasNext()
 				&& (lists = client.fetchConnectionPage(lists.getNextPageUrl(),
@@ -380,8 +385,6 @@ public class FacebookDatasource implements Datasource {
 		Document doc = createDocument(name, "Facebook - Friendlist");
 
 		doc.appendBody("Name: " + name);
-		doc.appendBody(new br());
-		doc.appendBody("ID: " + id);
 		doc.appendBody(new H2("Members"));
 
 		// download members
@@ -501,8 +504,6 @@ public class FacebookDatasource implements Datasource {
 
 		doc.appendBody("Name: " + name);
 		doc.appendBody(new br());
-		doc.appendBody("Album ID: " + album.getId());
-		doc.appendBody(new br());
 		if (album.getDescription() != null) {
 			doc.appendBody("Description: " + album.getDescription());
 			doc.appendBody(new br());
@@ -565,8 +566,6 @@ public class FacebookDatasource implements Datasource {
 
 			photoinfo.setAttribute("name", photo.getName());
 		}
-		doc.appendBody("Photo ID: " + photo.getId());
-		doc.appendBody(new br());
 		if (photo.getFrom() != null) {
 			doc.appendBody("From: ");
 			linkUser(photo.getFrom().getId(), checkName(photo.getFrom()
@@ -606,8 +605,6 @@ public class FacebookDatasource implements Datasource {
 			for (Tag tag : photo.getTags()) {
 				linkUser(tag.getId(), checkName(tag.getName()), "photo", doc,
 						client, storage, progr);
-				doc.appendBody(" (" + (tag.getX() < 10 ? "0" : "") + tag.getX()
-						+ ":" + (tag.getY() < 10 ? "0" : "") + tag.getY() + ")");
 				doc.appendBody(new br());
 
 				tags += checkName(tag.getName()) + " ";
@@ -656,8 +653,6 @@ public class FacebookDatasource implements Datasource {
 		Document doc = createDocument(name, "Facebook - Group");
 
 		doc.appendBody("Groupname: " + name);
-		doc.appendBody(new br());
-		doc.appendBody("GroupID: " + g.getId());
 		doc.appendBody(new br());
 		if (g.getDescription() != null) {
 			doc.appendBody("Description: " + g.getDescription());
@@ -719,8 +714,6 @@ public class FacebookDatasource implements Datasource {
 
 		doc.appendBody("Username: " + name);
 		doc.appendBody(new br());
-		doc.appendBody("UserID: " + u.getId());
-		doc.appendBody(new br());
 
 		if (u.getUsername() != null) {
 			doc.appendBody("Username: " + u.getUsername());
@@ -768,14 +761,6 @@ public class FacebookDatasource implements Datasource {
 			doc.appendBody(new ul(languages));
 			doc.appendBody(new br());
 		}
-		if (u.getLocale() != null) {
-			doc.appendBody("Locale: " + u.getLocale());
-			doc.appendBody(new br());
-		}
-		if (u.getTimezone() != null) {
-			doc.appendBody("Timezone offset: " + u.getTimezone());
-			doc.appendBody(new br());
-		}
 		if ((u.getEducation() != null) && (u.getEducation().size() > 0)) {
 			doc.appendBody("Education: ");
 			String[] edus = new String[u.getEducation().size()];
@@ -796,7 +781,8 @@ public class FacebookDatasource implements Datasource {
 			String[] works = new String[u.getWork().size()];
 			int i = 0;
 			for (Work work : u.getWork()) {
-				works[i] = work.getDescription()
+				works[i] = (work.getDescription() != null ? work
+						.getDescription() : "")
 						+ (work.getPosition() != null ? " as "
 								+ work.getPosition() : "")
 						+ (work.getEmployer() != null ? " for "
@@ -888,8 +874,8 @@ public class FacebookDatasource implements Datasource {
 
 	/**
 	 * This method is useing the Graph API (not the Old REST API (with restfb)).
-	 * It is used to download the public profile picture of a user. Supports
-	 * jpg only!
+	 * It is used to download the public profile picture of a user. Supports jpg
+	 * only!
 	 * 
 	 * @param id
 	 *            the id of the user (can also be "me")
@@ -955,6 +941,8 @@ public class FacebookDatasource implements Datasource {
 
 	private Document createDocument(String title, String header) {
 		Document doc = (Document) new Document();
+		doc.appendHead("<meta http-equiv='content-type' content='text/html; charset=UTF-8' />");
+
 		doc.appendTitle(title);
 		doc.appendBody(new Table().addElement(
 				new TD().addElement(new IMG(new FacebookDescriptor()
@@ -984,7 +972,7 @@ public class FacebookDatasource implements Datasource {
 			throws DatasourceException, StorageException {
 		if (id != null) {
 			String path = getUserFilename(name + id);
-			if (type.equals("photo"))
+			if (type.equals("photo") || type.equals("comment"))
 				path = new String("../" + path);
 			if (allUsers.contains(id)) {
 				doc.appendBody(new A("../" + path, name));
@@ -1007,13 +995,13 @@ public class FacebookDatasource implements Datasource {
 	 */
 	private String checkName(String str) {
 		String[] illegal = { "\\", "|", "/", ":", "*", "?", "\"", "<", ">", "." };
-		
-		if(str.equals(".") || str.equals("..")){
+
+		if (str.equals(".") || str.equals("..")) {
 			str = "facebook";
 		}
 		for (int i = 0; i < str.length(); i++) {
 			if ((str.charAt(i) < ' ' || str.charAt(i) > '~')) {
-				//umlauts are allowed
+				// umlauts are allowed
 				if (str.charAt(i) != 228 && str.charAt(i) != 196
 						&& str.charAt(i) != 246 && str.charAt(i) != 214
 						&& str.charAt(i) != 252 && str.charAt(i) != 220
@@ -1027,19 +1015,19 @@ public class FacebookDatasource implements Datasource {
 				str = str.replace(illegal[i], " ");
 			}
 		}
-		
+
 		return str;
 	}
 
-  @Override
-  public List<String> getAvailableOptions(Properties accessData) {
-    List<String> facebookBackupOptions = new ArrayList<String>();
-    facebookBackupOptions.add("Profile");
-    facebookBackupOptions.add("Friends");
-    facebookBackupOptions.add("Friendslists");
-    facebookBackupOptions.add("Groups");
-    facebookBackupOptions.add("Photos");
-    facebookBackupOptions.add("Albums");
-    return facebookBackupOptions;
-  }
+	@Override
+	public List<String> getAvailableOptions(Properties accessData) {
+		List<String> facebookBackupOptions = new ArrayList<String>();
+		facebookBackupOptions.add("Profile");
+		facebookBackupOptions.add("Friends");
+		facebookBackupOptions.add("Friendslists");
+		facebookBackupOptions.add("Groups");
+		facebookBackupOptions.add("Photos");
+		facebookBackupOptions.add("Albums");
+		return facebookBackupOptions;
+	}
 }

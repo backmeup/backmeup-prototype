@@ -215,7 +215,7 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
         HttpPost post;
         request = post = new HttpPost(registerUri);
         if (jsonParams != null) {
-          StringEntity entity = new StringEntity(jsonParams);
+          StringEntity entity = new StringEntity(jsonParams, "UTF-8");
           BasicHeader header = new BasicHeader(HTTP.CONTENT_TYPE,
               "application/json");
           entity.setContentType(header);

@@ -86,8 +86,11 @@ public class EncryptionAction implements Action
 		{
 			try
 			{
+				System.out.println ("Write container start");
 				container.writeContainer ();
+				System.out.println ("Write container finished");
 				
+				System.out.println ("Delete files start");
 				for (DataObject daob : container.getData ())
 				{
 					String[] parts = daob.getPath ().split ("/");
@@ -99,8 +102,11 @@ public class EncryptionAction implements Action
 					
 					storage.removeFile (path);
 				}
+				System.out.println ("Delete files finished");
 				
+				System.out.println ("Move containers to FS start");
 				storage.addFile (container.getContainer (), "enc_" + container.getContainername (), new MetainfoContainer ());
+				System.out.println ("Move containers to FS finished");
 				container.deleteContainer ();
 			}
 			catch (Exception e)

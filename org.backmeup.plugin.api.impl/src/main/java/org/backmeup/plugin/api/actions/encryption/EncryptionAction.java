@@ -100,8 +100,7 @@ public class EncryptionAction implements Action
 					storage.removeFile (path);
 				}
 				
-				storage.removeFile (container.getContainername ());
-				storage.addFile (container.getContainer (), container.getContainername (), new MetainfoContainer ());
+				storage.addFile (container.getContainer (), "enc_" + container.getContainername (), new MetainfoContainer ());
 				container.deleteContainer ();
 			}
 			catch (Exception e)

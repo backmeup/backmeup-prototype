@@ -87,8 +87,6 @@ public class EncryptionAction implements Action
 			try
 			{
 				container.writeContainer ();
-				storage.addFile (container.getContainer (), container.getContainername (), new MetainfoContainer ());
-				container.deleteContainer ();
 				
 				for (DataObject daob : container.getData ())
 				{
@@ -101,6 +99,9 @@ public class EncryptionAction implements Action
 					
 					storage.removeFile (daob.getPath ());
 				}
+				
+				storage.addFile (container.getContainer (), container.getContainername (), new MetainfoContainer ());
+				container.deleteContainer ();
 			}
 			catch (Exception e)
 			{

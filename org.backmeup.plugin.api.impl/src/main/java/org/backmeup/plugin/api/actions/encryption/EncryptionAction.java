@@ -41,7 +41,7 @@ public class EncryptionAction implements Action
 			{
 				containersize[i] = new Long (parameters.getProperty ("org.backmeup.filesplitting.container." + i + ".size"));
 				// add 10% to size for filesystem
-				containersize[i] += ((containersize[i] / 100) * 20);
+				containersize[i] += ((containersize[i] / 100) * 50);
 			}
 			else
 			{

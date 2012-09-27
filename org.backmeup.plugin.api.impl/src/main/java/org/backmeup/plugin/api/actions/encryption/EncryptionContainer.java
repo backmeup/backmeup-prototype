@@ -35,7 +35,16 @@ public class EncryptionContainer
 	{
 		for (DataObject daob : data)
 		{
-			FileOutputStream fo = new FileOutputStream (mountpoint + "/" + daob.getPath ());
+			String[] parts = daob.getPath ().split ("/");
+			String fspath = mountpoint;
+			for (int i = 2; i < parts.length; i++)
+			{
+				fspath += "/" + parts[i];
+			}
+			
+			System.out.println ("Write file to container: " + fspath);
+			
+			FileOutputStream fo = new FileOutputStream (fspath);
 			fo.write (daob.getBytes ());
 			fo.flush ();
 			fo.close ();

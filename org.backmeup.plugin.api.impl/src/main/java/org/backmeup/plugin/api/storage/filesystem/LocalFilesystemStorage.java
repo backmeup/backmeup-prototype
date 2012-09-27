@@ -136,10 +136,10 @@ public class LocalFilesystemStorage extends Storage {
 			File from = new File(rootDir, fromPath);
 			File to = new File(rootDir, toPath);
 			
-			System.out.println ("Move File from: " + from.getPath ());
-			System.out.println ("Move File from absolute path: " + from.getAbsolutePath ());
-			System.out.println ("Move File to: " + to.getPath ());
-			System.out.println ("Move File to absolute path: " + to.getAbsolutePath ());
+//			System.out.println ("Move File from: " + from.getPath ());
+//			System.out.println ("Move File from absolute path: " + from.getAbsolutePath ());
+//			System.out.println ("Move File to: " + to.getPath ());
+//			System.out.println ("Move File to absolute path: " + to.getAbsolutePath ());
 			
 			
 			if (!from.exists())

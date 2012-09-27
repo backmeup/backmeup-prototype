@@ -17,6 +17,7 @@ import org.backmeup.model.Token;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
+import org.backmeup.plugin.api.actions.encryption.EncryptionAction;
 import org.backmeup.plugin.api.actions.filesplitting.FilesplittAction;
 import org.backmeup.plugin.api.connectors.Datasink;
 import org.backmeup.plugin.api.connectors.Datasource;
@@ -188,7 +189,20 @@ public class BackupJobRunner {
 		Storage storage = new LocalFilesystemStorage ();
 		
 		storage.open (tmpDir);
+		
+		System.out.println ("######################################################");
+		System.out.println ("Filesplitter");
+		System.out.println ("######################################################");
 		filesplitter.doAction (parameters, storage, job, progressor);
+		
+		System.out.println ("######################################################");
+		System.out.println ("Encryption");
+		System.out.println ("######################################################");
+		Action encryption = new EncryptionAction ();
+		
+		parameters.setProperty ("org.backmeup.encryption.password", "Test1234!");
+		encryption.doAction (parameters, storage, job, progressor);
+		
 		storage.close ();
 	}
 

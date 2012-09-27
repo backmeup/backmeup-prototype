@@ -92,6 +92,13 @@ public class EncryptionAction implements Action
 				
 				for (DataObject daob : container.getData ())
 				{
+					String[] parts = daob.getPath ().split ("/");
+					String path = "";
+					for (int i = 2; i < parts.length; i++)
+					{
+						path += "/" + parts[i];
+					}
+					
 					storage.removeFile (daob.getPath ());
 				}
 			}

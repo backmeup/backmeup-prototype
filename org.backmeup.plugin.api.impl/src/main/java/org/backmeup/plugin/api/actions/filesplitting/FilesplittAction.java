@@ -119,7 +119,7 @@ public class FilesplittAction implements Action
 				sorted.add (daob);
 			}
 			
-			FileContainers fcs = new FileContainers (CONTAINER_SIZE, false);
+			FileContainers fcs = new FileContainers (CONTAINER_SIZE, true);
 
 			progressor.progress (FILESPLITT_SPLITT);
 			

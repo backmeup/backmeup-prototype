@@ -133,8 +133,6 @@ public class FilesplittAction implements Action
 
 			parameters.setProperty ("org.backmeup.filesplitting.containercount", fcs.getContainers ().size () + "");
 			
-			System.out.println ("Containercount: " + fcs.getContainers ().size ());
-			
 			int container = 0;
 			for (FileContainer fc : fcs.getContainers ())
 			{
@@ -156,7 +154,7 @@ public class FilesplittAction implements Action
 					System.out.println ("New File Path: " + newpath);
 					
 					// TODO remove the tmp folder with new storage interface (existFolder)
-					//storage.move (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
+					storage.move (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
 				}
 			}
 		}

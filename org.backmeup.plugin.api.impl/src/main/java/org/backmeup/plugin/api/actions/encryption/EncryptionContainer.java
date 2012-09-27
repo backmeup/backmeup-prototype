@@ -37,7 +37,7 @@ public class EncryptionContainer
 		{
 			String[] parts = daob.getPath ().split ("/");
 			String fspath = mountpoint;
-			for (int i = 2; i < parts.length; i++)
+			for (int i = 3; i < parts.length; i++)
 			{
 				fspath += "/" + parts[i];
 			}

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URLEncoder;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -21,7 +22,7 @@ public class DiscmailingAuthenticatorTest {
 	/**
 	 * @param args
 	 */
-	/*public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException {
 		DiscmailingAuthenticator auth = new DiscmailingAuthenticator();
 		Properties props = new Properties();
 		do {
@@ -36,7 +37,7 @@ public class DiscmailingAuthenticatorTest {
 						Integer.parseInt(entered); break;  		  
 					default: break;
 				}
-				props.setProperty(input, entered);
+				props.setProperty(URLEncoder.encode(input, "UTF-8"), URLEncoder.encode(entered, "UTF-8"));
 			}	
 		}
 		while (!auth.isValid(props));
@@ -55,6 +56,6 @@ public class DiscmailingAuthenticatorTest {
 	    	e.printStackTrace();
 	    }
 	    return "";
-	}*/
+	}
 
 }

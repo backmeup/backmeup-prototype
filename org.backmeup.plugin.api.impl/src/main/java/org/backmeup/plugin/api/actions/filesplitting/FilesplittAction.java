@@ -100,7 +100,7 @@ public class FilesplittAction implements Action
 				String newpath = PATH_SEPARATOR + tmp_dir;
 				for (int i = 2; i < folders.length; i++)
 				{
-					oldpath += PATH_SEPARATOR +folders[i];
+					oldpath += PATH_SEPARATOR + folders[i];
 					newpath += PATH_SEPARATOR + folders[i];
 				}
 				
@@ -147,18 +147,22 @@ public class FilesplittAction implements Action
 				
 				for (int i = 0; i < fc.getContainerElementCount (); i++)
 				{
-					String oldpath = fc.getContainerElementOldPath (i);
 					String newpath = fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, "");
+					
+					String[] folders = fc.getContainerElementOldPath (i).split (PATH_SEPARATOR);
+					String oldpath = "";
+					for (String folder : folders)
+					{
+						System.out.println (folder);
+					}
+					for (int j = 2; j < folders.length; j++)
+					{
+						oldpath += PATH_SEPARATOR + folders[i];
+					}
 					
 					System.out.println ("Old File Path: " + oldpath);
 					System.out.println ("New File Path: " + newpath);
 					
-					String[] parts = oldpath.split (PATH_SEPARATOR);
-					oldpath = "";
-					for (int j = 2; j < parts.length; j++)
-					{
-						oldpath += PATH_SEPARATOR + parts[i];
-					}
 					
 					// TODO remove the tmp folder with new storage interface (existFolder)
 					storage.move (oldpath, fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));

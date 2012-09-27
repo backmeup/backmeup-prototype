@@ -97,7 +97,7 @@ public class EncryptionAction implements Action
 						path += "/" + parts[i];
 					}
 					
-					storage.removeFile (daob.getPath ());
+					storage.removeFile (path);
 				}
 				
 				storage.addFile (container.getContainer (), container.getContainername (), new MetainfoContainer ());

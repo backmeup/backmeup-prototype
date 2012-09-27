@@ -161,7 +161,7 @@ public class FilesplittAction implements Action
 					}
 					
 					// TODO remove the tmp folder with new storage interface (existFolder)
-					storage.move (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
+					storage.move (oldpath, fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
 				}
 			}
 		}

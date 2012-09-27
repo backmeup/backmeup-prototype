@@ -153,6 +153,13 @@ public class FilesplittAction implements Action
 					System.out.println ("Old File Path: " + oldpath);
 					System.out.println ("New File Path: " + newpath);
 					
+					String[] parts = oldpath.split (PATH_SEPARATOR);
+					oldpath = "";
+					for (int j = 2; j < parts.length; j++)
+					{
+						oldpath += PATH_SEPARATOR + parts[i];
+					}
+					
 					// TODO remove the tmp folder with new storage interface (existFolder)
 					storage.move (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
 				}

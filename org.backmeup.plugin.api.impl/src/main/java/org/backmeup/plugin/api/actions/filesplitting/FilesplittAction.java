@@ -92,19 +92,18 @@ public class FilesplittAction implements Action
 				
 				String[] folders = daob.getPath ().split (PATH_SEPARATOR);
 				
-				String oldpath = folders[1] + PATH_SEPARATOR;
-				String newpath = folders[1] + PATH_SEPARATOR + tmp_dir + PATH_SEPARATOR;
+				folders[1] = "";
+				
+				String oldpath = "";
+				String newpath = "";
 				for (int i = 2; i < folders.length; i++)
 				{
-					oldpath += folders[i] + PATH_SEPARATOR;
-					newpath += folders[i] + PATH_SEPARATOR;
+					oldpath += PATH_SEPARATOR +folders[i];
+					newpath += PATH_SEPARATOR + folders[i];
 				}
-				oldpath = oldpath.substring (0, oldpath.length () - 1);
-				newpath = newpath.substring (0, newpath.length () - 1);
 				
 				System.out.println ("Old File Path: " + oldpath);
 				System.out.println ("New File Path: " + newpath);
-				System.out.println ("Test for rebuild!");
 				
 				storage.move (oldpath, newpath);
 			}

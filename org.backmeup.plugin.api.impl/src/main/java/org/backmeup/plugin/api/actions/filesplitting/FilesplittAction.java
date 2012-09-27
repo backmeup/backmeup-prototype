@@ -129,8 +129,11 @@ public class FilesplittAction implements Action
 				fcs.addData (daob);
 				daob = sorted.poll ();
 			}
+			fcs.finish ();
 
 			parameters.setProperty ("org.backmeup.filesplitting.containercount", fcs.getContainers ().size () + "");
+			
+			System.out.println ("Containercount: " + fcs.getContainers ().size ());
 			
 			int container = 0;
 			for (FileContainer fc : fcs.getContainers ())

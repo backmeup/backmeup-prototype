@@ -42,7 +42,16 @@ public class EncryptionContainer
 				fspath += "/" + parts[i];
 			}
 			
+			String dirpath = mountpoint;
+			for (int i = 3; i < parts.length - 1; i++)
+			{
+				dirpath += "/" + parts[i];
+			}
+			
 			System.out.println ("Write file to container: " + fspath);
+			
+			File dirs = new File (dirpath);
+			dirs.mkdirs ();
 			
 			FileOutputStream fo = new FileOutputStream (fspath);
 			fo.write (daob.getBytes ());

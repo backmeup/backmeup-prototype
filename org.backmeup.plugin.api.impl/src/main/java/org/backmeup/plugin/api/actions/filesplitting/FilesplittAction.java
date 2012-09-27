@@ -86,6 +86,8 @@ public class FilesplittAction implements Action
 				tmp_dir = RandomStringUtils.randomAlphanumeric (16);
 			}
 			
+			
+			// TODO remove the path handling workarround (fix the move command)
 			while (dataobjects.hasNext () == true)
 			{
 				DataObject daob = dataobjects.next ();
@@ -95,7 +97,7 @@ public class FilesplittAction implements Action
 				folders[1] = "";
 				
 				String oldpath = "";
-				String newpath = "";
+				String newpath = PATH_SEPARATOR + tmp_dir;
 				for (int i = 2; i < folders.length; i++)
 				{
 					oldpath += PATH_SEPARATOR +folders[i];
@@ -108,11 +110,6 @@ public class FilesplittAction implements Action
 				storage.move (oldpath, newpath);
 			}
 			dataobjects = null;
-			
-			if (true)
-			{
-				return;
-			}
 			
 			progressor.progress (FILESPLITT_SORT);
 			dataobjects = storage.getDataObjects ();
@@ -149,8 +146,14 @@ public class FilesplittAction implements Action
 				
 				for (int i = 0; i < fc.getContainerElementCount (); i++)
 				{
+					String oldpath = fc.getContainerElementOldPath (i);
+					String newpath = fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, "");
+					
+					System.out.println ("Old File Path: " + oldpath);
+					System.out.println ("New File Path: " + newpath);
+					
 					// TODO remove the tmp folder with new storage interface (existFolder)
-					storage.move (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
+					//storage.move (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
 				}
 			}
 		}

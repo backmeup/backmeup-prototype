@@ -104,6 +104,7 @@ public class FilesplittAction implements Action
 				
 				System.out.println ("Old File Path: " + oldpath);
 				System.out.println ("New File Path: " + newpath);
+				System.out.println ("Test for rebuild!");
 				
 				storage.move (oldpath, newpath);
 			}

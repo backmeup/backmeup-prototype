@@ -15,13 +15,18 @@ import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Status;
 import org.backmeup.model.Token;
 import org.backmeup.plugin.Plugin;
+import org.backmeup.plugin.api.actions.Action;
+import org.backmeup.plugin.api.actions.ActionException;
+import org.backmeup.plugin.api.actions.filesplitting.FilesplittAction;
 import org.backmeup.plugin.api.connectors.Datasink;
 import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.api.connectors.DatasourceException;
 import org.backmeup.plugin.api.connectors.Progressable;
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
 import org.backmeup.plugin.api.storage.StorageReader;
 import org.backmeup.plugin.api.storage.StorageWriter;
+import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorage;
 
 /**
  * Implements the actual BackupJob execution.
@@ -106,11 +111,32 @@ public class BackupJobRunner {
           job = dal.createBackupJobDao().findById(job.getId());
           for (ActionProfile actionProfile : job.getRequiredActions()) {
             // TODO get actions from plugins & execute
+        	  
           }
         }
         finally {
          conn.rollback(); 
         }
+        
+         
+        // TODO remove this. Created by ft only for actionPlugin tests
+        System.out.println ("######################################################");
+        System.out.println ("Test action Plugins");
+        System.out.println ("######################################################");
+        try
+        {
+        	executeActions (job, tempDir);
+        }
+        catch (ActionException e)
+        {
+        	System.out.println("ERROR: " + e.getMessage());
+        }
+        catch (StorageException e)
+		{
+			// TODO error handling
+			System.out.println ("ERROR: " + e.getMessage ());
+		}
+        System.out.println ("######################################################");
 
         // Upload to Sink
         System.out.println("Uploading to Datasink");
@@ -137,5 +163,33 @@ public class BackupJobRunner {
       conn.rollback();
     }
   }
+  
+	// TODO remove this. Created by ft only for actionPlugin tests
+	private void executeActions (BackupJob job, String tmpDir) throws ActionException, StorageException
+	{
+		if (job.getUser ().getUsername ().equals ("ft@x-net.at") == false)
+		{
+			return;
+		}
+		
+		Action filesplitter = new FilesplittAction ();
+
+		Progressable progressor = new Progressable ()
+		{
+			@Override
+			public void progress (String message)
+			{
+				System.out.println (message);
+			}
+		};
+		
+		Properties parameters = new Properties ();
+		
+		Storage storage = new LocalFilesystemStorage ();
+		
+		storage.open (tmpDir);
+		filesplitter.doAction (parameters, storage, job, progressor);
+		storage.close ();
+	}
 
 }

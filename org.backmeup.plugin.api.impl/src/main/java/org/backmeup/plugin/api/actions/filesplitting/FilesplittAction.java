@@ -151,13 +151,9 @@ public class FilesplittAction implements Action
 					
 					String[] folders = fc.getContainerElementOldPath (i).split (PATH_SEPARATOR);
 					String oldpath = "";
-					for (String folder : folders)
-					{
-						System.out.println (folder);
-					}
 					for (int j = 2; j < folders.length; j++)
 					{
-						oldpath += PATH_SEPARATOR + folders[i];
+						oldpath += PATH_SEPARATOR + folders[j];
 					}
 					
 					System.out.println ("Old File Path: " + oldpath);

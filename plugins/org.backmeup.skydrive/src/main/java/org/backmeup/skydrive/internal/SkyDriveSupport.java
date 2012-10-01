@@ -350,6 +350,8 @@ public class SkyDriveSupport {
 			// The response contains a redirect location, looking like that:
 			// http://storage.live.com/VERY_LONG_UNIQUE_ID/My%20Textfile.txt:Binary
 			String location = response.getHeader("Location");
+			if (location == null)
+			  location = response.getHeader("Content-Location");
 			request = new OAuthRequest(Verb.GET, location);
 			response = request.send();
 			if (response.isSuccessful()) {

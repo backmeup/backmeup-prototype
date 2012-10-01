@@ -41,7 +41,7 @@ public class EncryptionAction implements Action
 			{
 				containersize[i] = new Long (parameters.getProperty ("org.backmeup.filesplitting.container." + i + ".size"));
 				// add 10% to size for filesystem
-				containersize[i] += ((containersize[i] / 100) * 10);
+				containersize[i] += ((containersize[i] / 100) * 200);
 			}
 			else
 			{
@@ -86,14 +86,28 @@ public class EncryptionAction implements Action
 		{
 			try
 			{
+				System.out.println ("Write container start");
 				container.writeContainer ();
-				storage.addFile (container.getContainer (), container.getContainername (), new MetainfoContainer ());
-				container.deleteContainer ();
+				System.out.println ("Write container finished");
 				
+				System.out.println ("Delete files start");
 				for (DataObject daob : container.getData ())
 				{
-					storage.removeFile (daob.getPath ());
+					String[] parts = daob.getPath ().split ("/");
+					String path = "";
+					for (int i = 2; i < parts.length; i++)
+					{
+						path += "/" + parts[i];
+					}
+					
+					storage.removeFile (path);
 				}
+				System.out.println ("Delete files finished");
+				
+				System.out.println ("Move containers to FS start");
+				storage.addFile (container.getContainer (), "enc_" + container.getContainername (), new MetainfoContainer ());
+				System.out.println ("Move containers to FS finished");
+				container.deleteContainer ();
 			}
 			catch (Exception e)
 			{

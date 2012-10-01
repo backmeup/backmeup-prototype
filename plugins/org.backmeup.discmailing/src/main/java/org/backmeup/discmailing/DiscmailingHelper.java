@@ -105,8 +105,8 @@ public class DiscmailingHelper {
 			
 			Element el = (Element) doc.getElementsByTagName("values").item(0);
 
-			el.appendChild(addValue(doc, "firstname", "Test"));
-			el.appendChild(addValue(doc, "surname", "User"));
+			el.appendChild(addValue(doc, "firstname", items.getProperty("Firstname")));
+			el.appendChild(addValue(doc, "surname", items.getProperty("Surname")));
 			el.appendChild(addValue(doc, "street", items.getProperty("Street")));
 			el.appendChild(addValue(doc, "city", items.getProperty("City")));
 			el.appendChild(addValue(doc, "postcode", items.getProperty("Postcode")));

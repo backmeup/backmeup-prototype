@@ -93,6 +93,11 @@ public class FileContainers
 		}
 	}
 	
+	public void finish ()
+	{
+		filecontainers.add (currcontainer);
+	}
+	
 	public List<FileContainer> getContainers ()
 	{
 		// Remove the _part001 extension if only one part exists

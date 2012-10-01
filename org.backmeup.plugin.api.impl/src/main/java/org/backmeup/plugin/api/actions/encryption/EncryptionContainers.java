@@ -33,7 +33,8 @@ public class EncryptionContainers
 	
 	public void addFile (DataObject daob)
 	{
-		String containername = daob.getPath ().split (System.getProperty ("file.separator"))[0];
+		// TODO fix index
+		String containername = daob.getPath ().split (FS_PATH_SEPARATOR)[2];
 		
 		containers.get (containername).addData (daob);
 	}

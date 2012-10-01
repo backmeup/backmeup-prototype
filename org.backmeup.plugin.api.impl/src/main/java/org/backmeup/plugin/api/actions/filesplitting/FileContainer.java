@@ -71,10 +71,17 @@ public class FileContainer
 	
 	public String getContainerElementNewPath (int index)
 	{
-//		String[] parts = dataobjects.get (index).getPath ().split (PATH_SEPARATOR);
-//		parts[0] = containerpath;
+		String[] parts = dataobjects.get (index).getPath ().split (PATH_SEPARATOR);
+		//parts[0] = containerpath;
 		
-		return containerpath + PATH_SEPARATOR + dataobjects.get (index).getPath ();
+		String newpath = PATH_SEPARATOR + containerpath;
+		
+		for (int i = 2; i < parts.length; i++)
+		{
+			newpath += PATH_SEPARATOR + parts[i];
+		}
+		
+		return newpath;
 		
 //		String new_path = "";
 //		for (String part : parts)

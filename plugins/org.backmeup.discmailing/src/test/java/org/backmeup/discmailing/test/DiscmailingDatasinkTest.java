@@ -23,7 +23,7 @@ public class DiscmailingDatasinkTest {
 	/**
 	 * @param args
 	 */
-	/*public static void main(String args[]) throws FileNotFoundException, IOException, StorageException {
+	public static void main(String args[]) throws FileNotFoundException, IOException, StorageException {
 		System.out.println("DiscDatasinkTest");
 		Properties props = new Properties();
 	    props.load(new FileInputStream(new File("/tmp/auth.props")));    
@@ -36,5 +36,5 @@ public class DiscmailingDatasinkTest {
 			@Override
 			public void progress(String message) {}
 		});	
-	}*/	
+	}	
 }

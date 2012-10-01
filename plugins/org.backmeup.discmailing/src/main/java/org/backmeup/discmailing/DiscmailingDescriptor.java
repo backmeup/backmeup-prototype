@@ -15,7 +15,7 @@ public class DiscmailingDescriptor implements SourceSinkDescribable {
 
 	@Override
 	public String getTitle() {
-		return "discmailing";
+		return "Discmailing";
 	}
 
 	@Override

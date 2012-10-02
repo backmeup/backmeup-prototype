@@ -64,7 +64,9 @@ abstract public class AkkaJobManager implements JobManager {
 	    		sinkProfile,
 	            requiredActions, 
 	            start, delayInMs);
+	    
 	    Long firstExecutionDate = start.getTime() + delayInMs;
+	    
 	    // reusable=true means, that we can get the data for the token + a new token for the next backup
 	    Token t = keyserver.getToken(job, keyRing, firstExecutionDate, true);
 	    job.setToken(t);

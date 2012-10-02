@@ -104,8 +104,13 @@ abstract public class AkkaJobManager implements JobManager {
 	
 	private void queueJob(BackupJob job) {
 		try {		    
-			// maybe we want to start immediately for the first time, and then add the delay
-			long executeIn = job.getDelay();  
+			// Compute next job execution time
+			long executeIn = job.getStart().getTime() - new Date().getTime();
+			if (executeIn < 0) {
+				executeIn += Math.ceil((double) Math.abs(executeIn) / (double) job.getDelay()) * job.getDelay();
+
+				// TODO we need to update these jobs' tokens - but where do we get keyRing password from? 
+			}
 	    
 			system.scheduler().scheduleOnce(
 				Duration.create(executeIn, TimeUnit.MILLISECONDS), 

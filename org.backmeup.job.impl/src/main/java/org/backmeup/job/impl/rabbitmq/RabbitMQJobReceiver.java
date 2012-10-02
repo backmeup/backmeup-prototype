@@ -16,10 +16,8 @@ import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.plugin.Plugin;
-import org.backmeup.plugin.api.storage.StorageReader;
-import org.backmeup.plugin.api.storage.StorageWriter;
-import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorageReader;
-import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorageWriter;
+import org.backmeup.plugin.api.storage.Storage;
+import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorage;
 import org.backmeup.plugin.osgi.PluginImpl;
 
 import com.rabbitmq.client.Channel;
@@ -138,11 +136,9 @@ public class RabbitMQJobReceiver {
   					    	
   					    	BackupJob job = JsonSerializer.deserialize(message, BackupJob.class);
   					    	
-  			                StorageReader reader = new LocalFilesystemStorageReader();
-  			                StorageWriter writer = new LocalFilesystemStorageWriter();
-  			                
+  			                Storage storage = new LocalFilesystemStorage();
   			        		BackupJobRunner runner = new BackupJobRunner(plugins, keyserver, conn, dal);
-  			        		runner.executeBackup(job, reader, writer);
+  			        		runner.executeBackup(job, storage);
 					      } catch (Exception ex) {
 					        //TODO Log exception
 					        ex.printStackTrace();

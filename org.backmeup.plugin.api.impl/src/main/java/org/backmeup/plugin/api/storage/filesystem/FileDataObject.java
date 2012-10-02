@@ -2,7 +2,6 @@ package org.backmeup.plugin.api.storage.filesystem;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;

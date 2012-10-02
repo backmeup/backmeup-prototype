@@ -15,10 +15,8 @@ import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.plugin.Plugin;
-import org.backmeup.plugin.api.storage.StorageReader;
-import org.backmeup.plugin.api.storage.StorageWriter;
-import org.backmeup.plugin.api.storage.hdfs.HdfsStorageReader;
-import org.backmeup.plugin.api.storage.hdfs.HdfsStorageWriter;
+import org.backmeup.plugin.api.storage.Storage;
+import org.backmeup.plugin.api.storage.hdfs.HdfsStorage;
 import org.backmeup.plugin.osgi.PluginImpl;
 
 /**
@@ -86,12 +84,11 @@ public class HadoopJobRunner implements MapRunnable<Text, BytesWritable, Text, T
 
 		FileSystem hdfs = FileSystem.get(conf);
 		
-		StorageWriter storageWriter = new HdfsStorageWriter(hdfs);
-		StorageReader storageReader = new HdfsStorageReader(hdfs);
+		Storage storage= new HdfsStorage(hdfs);
 
 		//TODO: Add parameters like in the rabbitmqjobreceiver
 		BackupJobRunner runner = new BackupJobRunner(plugins, keyserver, null, null);
-		runner.executeBackup(job, storageReader, storageWriter);
+		runner.executeBackup(job, storage);
 			
 		plugins.shutdown();
 		System.out.println("Backupjob complete.");

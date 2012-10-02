@@ -8,8 +8,8 @@ import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.plugin.api.connectors.Datasink;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DataObject;
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
-import org.backmeup.plugin.api.storage.StorageReader;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.session.WebAuthSession;
@@ -24,7 +24,7 @@ import com.dropbox.client2.session.WebAuthSession;
 public class DropboxDatasink implements Datasink {
 
 	@Override
-	public String upload(Properties items, StorageReader storage,
+	public String upload(Properties items, Storage storage,
 			Progressable progressor) throws StorageException {
 		DropboxAPI<WebAuthSession> api = DropboxHelper.getApi(items);
 		Iterator<DataObject> it = storage.getDataObjects();

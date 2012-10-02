@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.backmeup.plugin.api.connectors.Progressable;
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
-import org.backmeup.plugin.api.storage.StorageReader;
-import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorageReader;
+import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorage;
 import org.backmeup.skydrive.SkyDriveDatasink;
 
 public class SkyDriveDatasinkTest {
@@ -19,7 +19,7 @@ public class SkyDriveDatasinkTest {
     props.load(new FileInputStream(new File("auth.props")));    
 		
 		SkyDriveDatasink sink = new SkyDriveDatasink();
-		StorageReader sr = new LocalFilesystemStorageReader();
+		Storage sr = new LocalFilesystemStorage();
 		sr.open("C:/TEMP/TEST/");
 		
 		sink.upload(props, sr, new Progressable(){

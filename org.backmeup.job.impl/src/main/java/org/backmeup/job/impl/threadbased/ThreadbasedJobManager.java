@@ -37,11 +37,9 @@ import org.backmeup.plugin.api.connectors.Datasink;
 import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.api.connectors.DatasourceException;
 import org.backmeup.plugin.api.connectors.Progressable;
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
-import org.backmeup.plugin.api.storage.StorageReader;
-import org.backmeup.plugin.api.storage.StorageWriter;
-import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorageReader;
-import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorageWriter;
+import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorage;
 import org.backmeup.utilities.mail.Mailer;
 
 /**
@@ -187,18 +185,16 @@ public class ThreadbasedJobManager /* implements JobManager  */{
                   .getDescription());
               Properties sourceProperties = authData.get(po.getProfile().getProfileId()).getAiData();
               try {
-                StorageWriter writer = new LocalFilesystemStorageWriter();
-                StorageReader reader = new LocalFilesystemStorageReader();
+                Storage storage = new LocalFilesystemStorage();
                 try {
                   String folderName = df.format(new Date()).replace("%SOURCE%", po.getProfile().getProfileName());
                   File f = new File(temporaryDirectory + "/" + folderName);
                   f.mkdirs();
-                  writer.open(f.getPath());
-                  reader.open(f.getPath());
+                  storage.open(f.getPath());
                 } catch (StorageException e1) {
                   e1.printStackTrace();
                 }
-                source.downloadAll(sourceProperties, writer,
+                source.downloadAll(sourceProperties, storage,
                     new ConsoleProgressor());
                 s = new Status(job, String.format(
                     textBundle.getString(DOWNLOAD_COMPLETED_MSG), job.getId(),
@@ -206,7 +202,7 @@ public class ThreadbasedJobManager /* implements JobManager  */{
                 conn.begin();
                 getStatusDao().save(s);
                 conn.commit();
-                sink.upload(sinkProps, reader, new ConsoleProgressor());
+                sink.upload(sinkProps, storage, new ConsoleProgressor());
                 s = new Status(job, String.format(
                     textBundle.getString(UPLOAD_COMPLETED_MSG), job.getId(),
                     job.getSinkProfile().getProfileName()), "WORKING",
@@ -214,8 +210,7 @@ public class ThreadbasedJobManager /* implements JobManager  */{
                 conn.begin();
                 getStatusDao().save(s);
                 conn.commit();
-                writer.close();
-                reader.close();
+                storage.close();
               } catch (DatasourceException e) {
                 e.printStackTrace();
                 logErrorMessage(job, e);

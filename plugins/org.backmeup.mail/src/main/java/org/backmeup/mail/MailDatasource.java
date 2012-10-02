@@ -25,11 +25,12 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeUtility;
 
+import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.api.connectors.DatasourceException;
 import org.backmeup.plugin.api.connectors.Progressable;
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
-import org.backmeup.plugin.api.storage.StorageWriter;
 
 /**
  * The DropboxDatasource is capable of listing all directories and files of a
@@ -153,7 +154,7 @@ public class MailDatasource implements Datasource {
     return nested;
   }   
   
-  private void handlePart(Part m, String folderName, StorageWriter storage, Set<String> alreadyInspected) throws StorageException, MessagingException, IOException {
+  private void handlePart(Part m, String folderName, Storage storage, Set<String> alreadyInspected) throws StorageException, MessagingException, IOException {
     if (alreadyInspected.contains(folderName + "content.html"))
       return;
     
@@ -202,7 +203,7 @@ public class MailDatasource implements Datasource {
     StringBuilder attachmentLinks = new StringBuilder(
         "<div class=\"bmu-attachments\">");
     for (Attachment a : attachments) {
-      storage.addFile(a.stream, folderName + "attachments/" + a.filename);
+      storage.addFile(a.stream, folderName + "attachments/" + a.filename, new MetainfoContainer());
       attachmentLinks
           .append("<a class=\"bmu-attachment\" href=\"./attachments/"
               + a.filename + "\">" + a.filename + "</a>");
@@ -219,7 +220,7 @@ public class MailDatasource implements Datasource {
     storage
         .addFile(
             new ByteArrayInputStream(htmlText.toString().getBytes(
-                text.charset)), folderName + "content.html");
+                text.charset)), folderName + "content.html", new MetainfoContainer());
     
     List<Part> nested = getNestedMessages(m);
     for (int i=0; i < nested.size(); i++) {
@@ -227,7 +228,7 @@ public class MailDatasource implements Datasource {
     }
   }
 
-  private void handleFolder(Folder folder, StorageWriter storage, Set<String> alreadyInspected)
+  private void handleFolder(Folder folder, Storage storage, Set<String> alreadyInspected)
       throws IOException, MessagingException, StorageException {
     try {
       folder.open(Folder.READ_ONLY);
@@ -254,7 +255,7 @@ public class MailDatasource implements Datasource {
   }
 
   public void handleDownloadAll(Folder current, Properties accessData,
-      StorageWriter storage, Set<String> alreadyInspected) throws IOException, MessagingException,
+      Storage storage, Set<String> alreadyInspected) throws IOException, MessagingException,
       StorageException {
     if (alreadyInspected.contains(current.getFullName()))
       return;
@@ -269,7 +270,7 @@ public class MailDatasource implements Datasource {
   }
 
   @Override
-  public void downloadAll(Properties accessData, StorageWriter storage,
+  public void downloadAll(Properties accessData, Storage storage,
       Progressable progressor) throws DatasourceException, StorageException {
     try {
       Session session = Session.getInstance(accessData);

@@ -43,7 +43,9 @@ class TestUsers(TestCase):
     self.assertEquals(res.code, httplib.BAD_REQUEST)
     res = register_user("TestUser", "password2000", "password2000", "TestUser@trash-mail.com")
     res = verify_email(res.data["verificationKey"])
-    self.assertEquals(res.code, httplib.NO_CONTENT)
+    self.assertEquals(res.code, httplib.OK)
+    self.assertIn("username", res.data)
+    self.assertEquals(res.data["username"], "TestUser")
     res = get_user("TestUser")
     self.assertEquals(res.code, httplib.OK)
     res = new_verification_email("TestUser")
@@ -53,7 +55,9 @@ class TestUsers(TestCase):
     self.assertEquals(res.code, httplib.OK)
     self.assertIn("verificationKey", res.data)
     res = verify_email(res.data["verificationKey"])
-    self.assertEquals(res.code, httplib.NO_CONTENT)
+    self.assertEquals(res.code, httplib.OK)
+    self.assertIn("username", res.data)
+    self.assertEquals(res.data["username"], "TestUser2")
 
 
   def test_delete_user(self):    

@@ -14,6 +14,7 @@ import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.exceptions.UnknownUserPropertyException;
 import org.backmeup.rest.data.UserContainer;
 import org.backmeup.rest.data.VerificationContainer;
+import org.backmeup.rest.data.VerifyEmailContainer;
 
 /**
  * All user specific operations will be handled within this class.
@@ -73,8 +74,8 @@ public class Users extends Base {
 	@GET
 	@Path("{verificationKey}/verifyEmail")
 	@Produces("application/json")
-	public void verifyEmailAddress(@PathParam("verificationKey") String verificationKey) {
-	  getLogic().verifyEmailAddress(verificationKey);
+	public VerifyEmailContainer verifyEmailAddress(@PathParam("verificationKey") String verificationKey) {
+	  return new VerifyEmailContainer(getLogic().verifyEmailAddress(verificationKey));
 	}
 	
 	@GET

@@ -40,7 +40,7 @@ public class BackupJob {
   private Set<ProfileOptions> sourceProfiles = new HashSet<ProfileOptions>();
   @ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER)
   private Profile sinkProfile;
-  @OneToMany(cascade=CascadeType.ALL)
+  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
   private List<ActionProfile> requiredActions = new ArrayList<ActionProfile>();
   @Temporal(TemporalType.TIMESTAMP)
   private Date start;

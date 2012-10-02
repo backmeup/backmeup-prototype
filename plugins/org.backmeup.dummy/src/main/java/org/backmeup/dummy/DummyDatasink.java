@@ -8,13 +8,13 @@ import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.connectors.Datasink;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DataObject;
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
-import org.backmeup.plugin.api.storage.StorageReader;
 
 public class DummyDatasink implements Datasink {
 
   @Override
-  public String upload(Properties accessData, StorageReader storage,
+  public String upload(Properties accessData, Storage storage,
       Progressable progressor) throws StorageException {
 	
 	System.out.println("Uploading to StorageReader");

@@ -43,7 +43,8 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 		
 		try {
 			path = path.replace("%20", " "); // Dropbox cannot handle %20 encoded spaces, but URI needs it
-			Entry entry = api.metadata(path, 100, null, true, null);				
+			// adjusted to maximum file_limit of 25k (https://www.dropbox.com/developers/reference/api#metadata)
+			Entry entry = api.metadata(path, 25000, null, true, null);				
 			for (Entry e : entry.contents) {
 				String encodedURI = e.path.replace(" ", "%20");
 				FilesystemURI furi = new FilesystemURI(new URI(encodedURI), e.isDir);
@@ -96,7 +97,7 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
     List<String> results = new ArrayList<String>();
     DropboxAPI<WebAuthSession> api = DropboxHelper.getApi(accessData);
     try {
-      Entry entry = api.metadata("/", 100, null, true, null);
+      Entry entry = api.metadata("/", 25000, null, true, null);
       for (Entry e : entry.contents) {
         String encodedURI = e.path.replace(" ", "%20");
         results.add(encodedURI);

@@ -9,8 +9,8 @@ import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.plugin.api.connectors.Datasink;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DataObject;
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
-import org.backmeup.plugin.api.storage.StorageReader;
 import org.backmeup.skydrive.internal.SkyDriveSupport;
 import org.backmeup.skydrive.internal.SkyDriveSupport.Service;
 /**
@@ -24,7 +24,7 @@ import org.backmeup.skydrive.internal.SkyDriveSupport.Service;
  */
 public class SkyDriveDatasink implements Datasink {
 	@Override
-	public String upload(Properties accessData, StorageReader storage, Progressable progressor) throws StorageException {
+	public String upload(Properties accessData, Storage storage, Progressable progressor) throws StorageException {
 		Service s = SkyDriveSupport.getService(accessData);
 		Iterator<DataObject> it = storage.getDataObjects();		
 		int i = 1;

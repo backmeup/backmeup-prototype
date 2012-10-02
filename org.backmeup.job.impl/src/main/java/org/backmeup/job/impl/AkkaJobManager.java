@@ -12,6 +12,7 @@ import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.job.JobManager;
+import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.BackupJob;
@@ -64,7 +65,9 @@ abstract public class AkkaJobManager implements JobManager {
 	    		sinkProfile,
 	            requiredActions, 
 	            start, delayInMs);
+	    
 	    Long firstExecutionDate = start.getTime() + delayInMs;
+	    
 	    // reusable=true means, that we can get the data for the token + a new token for the next backup
 	    Token t = keyserver.getToken(job, keyRing, firstExecutionDate, true);
 	    job.setToken(t);
@@ -102,8 +105,21 @@ abstract public class AkkaJobManager implements JobManager {
 	
 	private void queueJob(BackupJob job) {
 		try {		    
-			// maybe we want to start immediately for the first time, and then add the delay
-			long executeIn = job.getDelay();  
+			// Compute next job execution time
+			long executeIn = job.getStart().getTime() - new Date().getTime();
+			if (executeIn < 0) {
+				executeIn += Math.ceil((double) Math.abs(executeIn) / (double) job.getDelay()) * job.getDelay();
+
+				// TODO we need to update these jobs' tokens - but where do we get keyRing password from?
+			    job.getToken().setBackupdate(executeIn);
+			      
+			    // get access data + new token for next access
+			    AuthDataResult authenticationData = keyserver.getData(job.getToken());
+			      
+			    // the token for the next getData call
+			    Token newToken = authenticationData.getNewToken();
+			    job.setToken(newToken);
+			}
 	    
 			system.scheduler().scheduleOnce(
 				Duration.create(executeIn, TimeUnit.MILLISECONDS), 

@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.backmeup.plugin.api.connectors.Progressable;
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
-import org.backmeup.plugin.api.storage.StorageWriter;
-import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorageWriter;
+import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorage;
 import org.backmeup.skydrive.SkyDriveDatasource;
 
 
@@ -18,7 +18,7 @@ public class SkyDriveDatasourceTest {
     props.load(new FileInputStream(new File("auth.props")));    
 		
 		SkyDriveDatasource source = new SkyDriveDatasource();
-		StorageWriter sw = new LocalFilesystemStorageWriter();
+		Storage sw = new LocalFilesystemStorage();
 		sw.open("C:/TEMP/TEST/");
 		source.downloadAll(props, sw, new Progressable() {
 			@Override

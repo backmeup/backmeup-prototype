@@ -70,7 +70,7 @@ public class BackupJobRunner {
       BackupJobDao bjd = dal.createBackupJobDao();
       
       // use the job which is stored within the database      
-      BackupJob persistentJob = bjd.findById(job.getId()); 
+      BackupJob persistentJob = bjd.merge(job);             
       
       // when will the next access to the access data occur? current time +
       // delay

@@ -20,6 +20,7 @@ import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
 import org.backmeup.model.BackMeUpUser;
+import org.backmeup.model.exceptions.BackMeUpException;
 
 import akka.actor.ActorSystem;
 import akka.util.Duration;
@@ -106,12 +107,13 @@ abstract public class AkkaJobManager implements JobManager {
 	private void queueJob(BackupJob job) {
 		try {		    
 			// Compute next job execution time
-			long executeIn = job.getStart().getTime() - new Date().getTime();
+		  long currentTime = new Date().getTime();
+			long executeIn = job.getStart().getTime() - currentTime;
 			if (executeIn < 0) {
 				executeIn += Math.ceil((double) Math.abs(executeIn) / (double) job.getDelay()) * job.getDelay();
 
 				// TODO we need to update these jobs' tokens - but where do we get keyRing password from?
-			    job.getToken().setBackupdate(executeIn);
+			    job.getToken().setBackupdate(currentTime + executeIn);
 			      
 			    // get access data + new token for next access
 			    AuthDataResult authenticationData = keyserver.getData(job.getToken());
@@ -125,8 +127,9 @@ abstract public class AkkaJobManager implements JobManager {
 				Duration.create(executeIn, TimeUnit.MILLISECONDS), 
 				newJobRunner(job));
 		} catch (Exception e) {
-			// TODO there must be error handling defined in the JobManager!
-			throw new RuntimeException(e);
+			// TODO there must be error handling defined in the JobManager!^
+		  Logger.getLogger(AkkaJobManager.class).error("Error during startup", e);
+			//throw new BackMeUpException(e);
 		}		
 	}
 

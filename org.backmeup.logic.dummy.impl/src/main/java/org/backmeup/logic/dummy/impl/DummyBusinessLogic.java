@@ -305,9 +305,15 @@ public class DummyBusinessLogic implements BusinessLogic {
     return u;
   }
 
-  public BackMeUpUser changeUser(String username, String oldPassword,
-      String newPassword, String newKeyRing, String newEmail) {
-    BackMeUpUser u = findUser(username);
+  public BackMeUpUser changeUser(String oldUsername, String newUsername, String oldPassword,
+      String newPassword,  String newEmail) {
+    BackMeUpUser u = findUser(oldUsername);
+    if (findUser(newUsername) != null) {
+      throw new AlreadyRegisteredException(newUsername);
+    }
+    if (newUsername != null) {
+      u.setUsername(newUsername);
+    }
     /*
      * if (!u.getPassword().equals(oldPassword)) throw new
      * InvalidCredentialsException(); if (newPassword != null)

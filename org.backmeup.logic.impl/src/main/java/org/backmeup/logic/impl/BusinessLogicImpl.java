@@ -222,12 +222,16 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
 
-  public BackMeUpUser changeUser(String username, String oldPassword,
-      String newPassword, String newKeyRing, String newEmail) {
+  public BackMeUpUser changeUser(String oldUsername, String newUsername, String oldPassword,
+      String newPassword, String newEmail) {
     try {
       conn.begin();
-      BackMeUpUser u = getUser(username);
+      BackMeUpUser u = getUser(oldUsername);
       UserDao udao = getUserDao();
+      if (!oldUsername.equals(newUsername) && udao.findByName(newUsername) != null) {
+        throw new AlreadyRegisteredException(newUsername);
+      }
+      
       if (!keyserverClient.validateUser(u.getUserId(), oldPassword)) {      
         conn.rollback();
         throw new InvalidCredentialsException();
@@ -237,14 +241,14 @@ public class BusinessLogicImpl implements BusinessLogic {
         throwIfPasswordInvalid(newPassword);
         keyserverClient.changeUserPassword(u.getUserId(), oldPassword, newPassword);      
       }
-
-      if (newKeyRing != null) {
-        throwIfPasswordInvalid(newKeyRing);
-      }
-
+      
       if (newEmail != null) {
         throwIfEmailInvalid(newEmail);
         u.setEmail(newEmail);
+      }
+      
+      if (newUsername != null && !oldUsername.equals(newUsername)) {
+        u.setUsername(newUsername);
       }
 
       // TODO: Remove keyring from change user options

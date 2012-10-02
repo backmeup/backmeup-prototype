@@ -40,14 +40,14 @@ public class Users extends Base {
 	}
 
 	@PUT
-	@Path("{username}")
+	@Path("{oldUsername}")
 	@Produces("application/json")
-	public void changeUser(@PathParam("username") String username,
+	public void changeUser(@PathParam("oldUsername") String oldUsername,
+	    @FormParam("username") String username,
 			@FormParam("oldPassword") String oldPassword,
-			@FormParam("password") String newPassword,
-			@FormParam("keyRing") String newKeyRing,
+			@FormParam("password") String newPassword,			
 			@FormParam("email") String newEmail) {
-		getLogic().changeUser(username, oldPassword, newPassword, newKeyRing, newEmail);
+		getLogic().changeUser(oldUsername, username, oldPassword, newPassword, newEmail);
 	}
 
 	@POST

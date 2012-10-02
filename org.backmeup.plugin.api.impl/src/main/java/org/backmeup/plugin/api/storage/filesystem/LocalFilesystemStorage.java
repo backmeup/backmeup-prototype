@@ -176,5 +176,42 @@ public class LocalFilesystemStorage extends Storage {
 		if (meta.exists())
 			meta.delete();
 	}
+	
+	@Override
+	public void removeDir (String path) throws StorageException
+	{
+		File folder = new File(rootDir, path);
+		if (folder.exists() == false)
+		{
+			throw new StorageException("Cannot remove " + path + " - does not exist");
+		}
+		
+		if (folder.isDirectory () == false)
+		{
+			throw new StorageException("Cannot remove " + path + " - is not an directory");
+		}
+		
+		// delete everything recursive
+		for (File file : folder.listFiles ())
+		{
+			// ignore meta files (removeFile deletes them)
+			if (file.getName ().endsWith (".meta.json") == true)
+			{
+				continue;
+			}
+			
+			if (file.isFile () == true)
+			{
+				removeFile (file.getPath ().replaceAll (rootDir.getPath (), ""));
+			}
+			else
+			{
+				removeDir (file.getPath ().replaceAll (rootDir.getPath (), ""));
+			}
+		}
+		
+		// delete the folder
+		folder.delete ();
+	}
 
 }

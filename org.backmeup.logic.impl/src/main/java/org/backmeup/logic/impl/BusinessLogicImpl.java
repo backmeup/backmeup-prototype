@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -107,6 +108,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   private static final String UNKNOWN_ACTION = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_ACTION";
   private static final String VERIFICATION_EMAIL_SUBJECT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_SUBJECT";
   private static final String VERIFICATION_EMAIL_CONTENT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_CONTENT";
+  private static final String VERIFICATION_EMAIL_MIME_TYPE = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_MIME_TYPE";
   
   private static final String INDEX_HOST = "index.host";
   private static final String INDEX_PORT = "index.port";
@@ -323,8 +325,8 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   private void sendVerificationEmail(BackMeUpUser u) {
-    String verifierUrl = String.format(verificationUrl, u.getVerificationKey()); 
-    Mailer.send(u.getEmail(), textBundle.getString(VERIFICATION_EMAIL_SUBJECT), String.format(textBundle.getString(VERIFICATION_EMAIL_CONTENT), verifierUrl));
+    String verifierUrl = String.format(verificationUrl, u.getVerificationKey());     
+    Mailer.send(u.getEmail(), textBundle.getString(VERIFICATION_EMAIL_SUBJECT), MessageFormat.format(textBundle.getString(VERIFICATION_EMAIL_CONTENT), verifierUrl, u.getVerificationKey()), textBundle.getString(VERIFICATION_EMAIL_MIME_TYPE));
   }
   
   private void generateNewVerificationKey(BackMeUpUser u, String additionalPart) {

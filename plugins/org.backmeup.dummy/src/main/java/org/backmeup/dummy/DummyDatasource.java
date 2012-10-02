@@ -13,8 +13,8 @@ import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.api.connectors.DatasourceException;
 import org.backmeup.plugin.api.connectors.Progressable;
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
-import org.backmeup.plugin.api.storage.StorageWriter;
 
 public class DummyDatasource implements Datasource {
   private InputStream stringToStream(String input) {
@@ -39,7 +39,7 @@ public class DummyDatasource implements Datasource {
   }
 
   @Override
-  public void downloadAll(Properties accessData, StorageWriter storage,
+  public void downloadAll(Properties accessData, Storage storage,
       Progressable progressor) throws DatasourceException, StorageException {
     MetainfoContainer cont = new MetainfoContainer();
     cont.addMetainfo(create("1", "text/plain", "/plain.txt"));

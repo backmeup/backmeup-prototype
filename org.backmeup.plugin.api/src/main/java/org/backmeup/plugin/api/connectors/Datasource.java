@@ -3,8 +3,8 @@ package org.backmeup.plugin.api.connectors;
 import java.util.List;
 import java.util.Properties;
 
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
-import org.backmeup.plugin.api.storage.StorageWriter;
 
 /**
  * An abstract base class for all datasource implementations
@@ -18,7 +18,7 @@ public interface Datasource {
 	 * @param storage the datastorage
 	 * @return a DataObject handle to access the download in the store (e.g. a root directory etc.)
 	 */
-	public abstract void downloadAll(Properties accessData, StorageWriter storage, Progressable progressor) throws DatasourceException, StorageException;
+	public abstract void downloadAll(Properties accessData, Storage storage, Progressable progressor) throws DatasourceException, StorageException;
 	
 	/**
 	 * Returns any type of overview information/statistics that can be

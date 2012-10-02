@@ -8,9 +8,9 @@ import java.util.Properties;
 
 import org.backmeup.discmailing.DiscmailingDatasink;
 import org.backmeup.plugin.api.connectors.Progressable;
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
-import org.backmeup.plugin.api.storage.StorageReader;
-import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorageReader;
+import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorage;
 import org.junit.Test;
 
 public class DiscmailingDatasinkTest {
@@ -29,7 +29,7 @@ public class DiscmailingDatasinkTest {
 	    props.load(new FileInputStream(new File("/tmp/auth.props")));    
 
 	    DiscmailingDatasink sink = new DiscmailingDatasink();
-		StorageReader sr = new LocalFilesystemStorageReader();
+		Storage sr = new LocalFilesystemStorage();
 		sr.open("/data/backmeup/users/1/");
 
 		sink.upload(props, sr, new Progressable(){

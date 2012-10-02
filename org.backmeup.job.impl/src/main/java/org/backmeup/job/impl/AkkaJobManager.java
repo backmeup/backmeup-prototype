@@ -12,6 +12,7 @@ import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.job.JobManager;
+import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.BackupJob;
@@ -109,7 +110,15 @@ abstract public class AkkaJobManager implements JobManager {
 			if (executeIn < 0) {
 				executeIn += Math.ceil((double) Math.abs(executeIn) / (double) job.getDelay()) * job.getDelay();
 
-				// TODO we need to update these jobs' tokens - but where do we get keyRing password from? 
+				// TODO we need to update these jobs' tokens - but where do we get keyRing password from?
+			    job.getToken().setBackupdate(executeIn);
+			      
+			    // get access data + new token for next access
+			    AuthDataResult authenticationData = keyserver.getData(job.getToken());
+			      
+			    // the token for the next getData call
+			    Token newToken = authenticationData.getNewToken();
+			    job.setToken(newToken);
 			}
 	    
 			system.scheduler().scheduleOnce(

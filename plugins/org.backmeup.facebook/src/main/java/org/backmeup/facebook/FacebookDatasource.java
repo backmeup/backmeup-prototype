@@ -1,10 +1,14 @@
 package org.backmeup.facebook;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -13,12 +17,12 @@ import java.util.Properties;
 
 import org.apache.ecs.Document;
 import org.apache.ecs.html.A;
+import org.apache.ecs.html.BR;
 import org.apache.ecs.html.H1;
 import org.apache.ecs.html.H2;
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
-import org.apache.ecs.xhtml.br;
 import org.apache.ecs.xhtml.ul;
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.MetainfoContainer;
@@ -27,6 +31,8 @@ import org.backmeup.plugin.api.connectors.DatasourceException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.StorageException;
 import org.backmeup.plugin.api.storage.StorageWriter;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.restfb.Connection;
 import com.restfb.DefaultFacebookClient;
@@ -53,50 +59,62 @@ public class FacebookDatasource implements Datasource {
 	private static final boolean DOWNLOAD_NON_FRIEND_USERS = true;
 
 	private List<String> allUsers = new LinkedList<String>();
+	private String accessToken = "";
 
 	@Override
 	public void downloadAll(Properties props, StorageWriter storage,
 			Progressable progr) throws DatasourceException, StorageException {
 
-		String accessToken = props.getProperty(FacebookHelper.PROPERTY_TOKEN);
+		accessToken = props.getProperty(FacebookHelper.PROPERTY_TOKEN);
 		FacebookClient client = new DefaultFacebookClient(accessToken);
 
 		Document doc = createDocument("Index", "Facebook");
-
-		progr.progress("Downloading User Profile...");
+		
+		Date d = new Date();
+		doc.appendBody(d.toString());
+		
+		doc.appendBody(new BR());
+		
+		progr.progress("Download User-Profil...");
 		doc.appendBody(new A(downloadUser("me", client, storage, progr),
-				"My Profile"));
-		doc.appendBody(new br());
+				"Mein Profil"));
+		doc.appendBody(new BR());
 
-		progr.progress("Downloading Friends...");
-		downloadFriends(client, storage, progr);
-		doc.appendBody(new A("friends.html", "Friends"));
-		doc.appendBody(new br());
-
-		progr.progress("Downloading Friendslists...");
-		downloadFriendlists(client, storage, progr);
-		doc.appendBody(new A("friendlists.html", "Friendlists"));
-		doc.appendBody(new br());
-
-		progr.progress("Downloading Groups...");
-		downloadGroups(client, storage, progr);
-		doc.appendBody(new A("groups.html", "Groups"));
-		doc.appendBody(new br());
-
-		progr.progress("Downloading Posts...");
-		downloadPosts(client, storage, progr);
-		doc.appendBody(new A("posts.html", "Posts"));
-		doc.appendBody(new br());
-
-		progr.progress("Downloading Photos...");
-		downloadPhotos(client, storage, progr);
-		doc.appendBody(new A("photos.html", "Photos"));
-		doc.appendBody(new br());
-
-		progr.progress("Downloading Albums...");
-		downloadAlbums(client, storage, progr);
-		doc.appendBody(new A("albums.html", "Albums"));
-		doc.appendBody(new br());
+		
+		progr.progress("Download Freunde..."); 
+		downloadFriends(client,storage, progr); 
+		doc.appendBody(new A("friends.html", "Freunde"));
+		doc.appendBody(new BR());
+		  
+		progr.progress("Download Freundesliste...");
+		downloadFriendlists(client, storage, progr); 
+		doc.appendBody(new A("friendlists.html", "Freundesliste")); 
+		doc.appendBody(new BR());
+		  
+		progr.progress("Download Gruppen..."); 
+		downloadGroups(client, storage, progr); 
+		doc.appendBody(new A("groups.html", "Gruppen"));
+		doc.appendBody(new BR());
+		  
+	    progr.progress("Download Posts..."); 
+	    downloadPosts("me", client, storage, progr); 
+	    doc.appendBody(new A("posts-me.html", "Posts"));
+		doc.appendBody(new BR());
+		  
+	    progr.progress("Download Fotos..."); 
+	    downloadPhotos(client, storage, progr); 
+	    doc.appendBody(new A("photos.html", "Fotos"));
+		doc.appendBody(new BR());
+		  
+		progr.progress("Download Alben..."); 
+		downloadAlbums(client, storage, progr); 
+		doc.appendBody(new A("albums.html", "Alben"));
+		doc.appendBody(new BR());
+		
+		progr.progress("Download Seiten...");
+		downloadAccounts(client, storage, progr);
+		doc.appendBody(new A("accounts.html", "Seiten"));
+		doc.appendBody(new BR());
 
 		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
 		storage.addFile(is, "index.html");
@@ -110,7 +128,7 @@ public class FacebookDatasource implements Datasource {
 	private void downloadAlbums(FacebookClient client, StorageWriter storage,
 			Progressable progr) throws DatasourceException, StorageException {
 
-		Document doc = createDocument("Albums", "Facebook - Albums");
+		Document doc = createDocument("Alben", "Facebook - Alben");
 
 		Connection<Album> albums = client.fetchConnection("me/albums",
 				Album.class);
@@ -118,7 +136,7 @@ public class FacebookDatasource implements Datasource {
 			for (Album album : albums.getData()) {
 				doc.appendBody(new A(downloadAlbum(album, client, storage,
 						progr), checkName(album.getName())));
-				doc.appendBody(new br());
+				doc.appendBody(new BR());
 			}
 		} while (albums.hasNext()
 				&& (albums = client.fetchConnectionPage(
@@ -131,7 +149,7 @@ public class FacebookDatasource implements Datasource {
 	private void downloadPhotos(FacebookClient client, StorageWriter storage,
 			Progressable progr) throws DatasourceException, StorageException {
 
-		Document doc = createDocument("Photos", "Facebook - Photos");
+		Document doc = createDocument("Fotos", "Facebook - Fotos");
 
 		downloadPhotos("me", doc, client, storage, progr);
 
@@ -160,10 +178,10 @@ public class FacebookDatasource implements Datasource {
 				String piclink = downloadPhoto(photo, parent, client, storage,
 						progr);
 				if (!id.equals("me"))
-					piclink = piclink.substring(7);
+					piclink = piclink.substring(6);
 				doc.appendBody(new A(piclink, photo.getName() != null ? photo
-						.getName().split("\n")[0] : "Photo"));
-				doc.appendBody(new br());
+						.getName().split("\n")[0] : "Foto"));
+				doc.appendBody(new BR());
 			}
 		} while (photos.hasNext()
 				&& (photos = client.fetchConnectionPage(
@@ -188,7 +206,7 @@ public class FacebookDatasource implements Datasource {
 			return metainfo;
 		if (comments.getData().size() == 0)
 			return metainfo;
-		doc.appendBody(new H2("Comments"));
+		doc.appendBody(new H2("Kommentare"));
 		do {
 			for (Post comment : comments.getData()) {
 
@@ -208,13 +226,13 @@ public class FacebookDatasource implements Datasource {
 				linkUser(comment.getFrom().getId(), checkName(comment.getFrom()
 						.getName()), type, doc, client, storage, progr);
 				doc.appendBody(": " + comment.getMessage());
-				doc.appendBody(new br());
+				doc.appendBody(new BR());
 
 				String likes = downloadLikes(comment.getId(), "comment", doc,
 						client, storage, progr);
 
-				doc.appendBody(new br());
-				
+				doc.appendBody(new BR());
+
 				if (likes != null)
 					commentinfo.setAttribute("likes", likes);
 
@@ -246,7 +264,7 @@ public class FacebookDatasource implements Datasource {
 
 		if (type == "comment") {
 			doc.appendBody("Likes: ");
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 		} else
 			doc.appendBody(new H2("Likes"));
 
@@ -254,7 +272,7 @@ public class FacebookDatasource implements Datasource {
 			for (User like : likes.getData()) {
 				linkUser(like.getId(), checkName(like.getName()), type, doc,
 						client, storage, progr);
-				doc.appendBody(new br());
+				doc.appendBody(new BR());
 				likers += checkName(like.getName()) + " ";
 			}
 		} while (likes.hasNext()
@@ -267,14 +285,14 @@ public class FacebookDatasource implements Datasource {
 	private void downloadGroups(FacebookClient client, StorageWriter storage,
 			Progressable progr) throws DatasourceException, StorageException {
 
-		Document doc = createDocument("Groups", "Facebook - Groups");
+		Document doc = createDocument("Gruppen", "Facebook - Gruppen");
 		Connection<Group> groups = client.fetchConnection("me/groups",
 				Group.class);
 		do {
 			for (Group group : groups.getData()) {
 				doc.appendBody(new A(downloadGroup(group.getId(), client,
 						storage, progr), checkName(group.getName())));
-				doc.appendBody(new br());
+				doc.appendBody(new BR());
 			}
 		} while (groups.hasNext()
 				&& (groups = client.fetchConnectionPage(
@@ -284,11 +302,13 @@ public class FacebookDatasource implements Datasource {
 		storage.addFile(is, "groups.html");
 	}
 
-	private void downloadPosts(FacebookClient client, StorageWriter storage,
-			Progressable progr) throws DatasourceException, StorageException {
+	private void downloadPosts(String id, FacebookClient client,
+			StorageWriter storage, Progressable progr)
+			throws DatasourceException, StorageException {
 
-		Document doc = createDocument("Wall", "Facebook - Wall");
-		Connection<Post> posts = client.fetchConnection("me/feed", Post.class);
+		Document doc = createDocument("Pinwand", "Facebook - Pinwand");
+		Connection<Post> posts = client.fetchConnection(id + "/feed",
+				Post.class);
 		do {
 			for (Post post : posts.getData()) {
 				if (post.getMessage() == null
@@ -307,20 +327,20 @@ public class FacebookDatasource implements Datasource {
 						downloadPost(post, client, storage, progr), post
 								.getMessage().split("\n")[0]));
 
-				doc.appendBody(new br());
+				doc.appendBody(new BR());
 			}
 		} while (posts.hasNext()
 				&& (posts = client.fetchConnectionPage(posts.getNextPageUrl(),
 						Post.class)) != null);
 
 		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
-		storage.addFile(is, "posts.html");
+		storage.addFile(is, "posts-" + id + ".html");
 	}
 
 	private void downloadFriends(FacebookClient client, StorageWriter storage,
 			Progressable progr) throws DatasourceException, StorageException {
 
-		Document doc = createDocument("Friends", "Facebook - Friends");
+		Document doc = createDocument("Freunde", "Facebook - Freunde");
 
 		Connection<User> friends = client.fetchConnection("me/friends",
 				User.class);
@@ -329,7 +349,7 @@ public class FacebookDatasource implements Datasource {
 			for (User friend : friends.getData()) {
 				doc.appendBody(new A(downloadUser(friend.getId(), client,
 						storage, progr), checkName(friend.getName())));
-				doc.appendBody(new br());
+				doc.appendBody(new BR());
 			}
 		} while (friends.hasNext()
 				&& (friends = client.fetchConnectionPage(
@@ -343,7 +363,7 @@ public class FacebookDatasource implements Datasource {
 			StorageWriter storage, Progressable progr)
 			throws DatasourceException, StorageException {
 
-		Document doc = createDocument("Friendlists", "Facebook - Friendlists");
+		Document doc = createDocument("Freundesliste", "Facebook - Freundesliste");
 
 		Connection<CategorizedFacebookType> lists = client.fetchConnection(
 				"me/friendlists", CategorizedFacebookType.class);
@@ -351,12 +371,12 @@ public class FacebookDatasource implements Datasource {
 			for (CategorizedFacebookType friendlist : lists.getData()) {
 				Connection<User> members = client.fetchConnection(
 						friendlist.getId() + "/members", User.class);
-				
+
 				if (members.getData().size() > 0) {
 					doc.appendBody(new A(downloadFriendlist(friendlist.getId(),
 							checkName(friendlist.getName()), client, storage,
 							progr), checkName(friendlist.getName())));
-					doc.appendBody(new br());
+					doc.appendBody(new BR());
 				}
 			}
 		} while (lists.hasNext()
@@ -384,10 +404,10 @@ public class FacebookDatasource implements Datasource {
 		String listmembers = "";
 
 		// create HTML
-		Document doc = createDocument(name, "Facebook - Friendlist");
+		Document doc = createDocument(name, "Facebook - Freundesliste");
 
 		doc.appendBody("Name: " + name);
-		doc.appendBody(new H2("Members"));
+		doc.appendBody(new H2("Mitglieder"));
 
 		// download members
 		Connection<User> members = client.fetchConnection(id + "/members",
@@ -397,7 +417,7 @@ public class FacebookDatasource implements Datasource {
 				doc.appendBody(new A("../"
 						+ getUserFilename(checkName(member.getName())
 								+ member.getId()), checkName(member.getName())));
-				doc.appendBody(new br());
+				doc.appendBody(new BR());
 
 				listmembers += checkName(member.getName()) + " ";
 			}
@@ -431,9 +451,9 @@ public class FacebookDatasource implements Datasource {
 
 		Document doc = createDocument("Post", "Facebook - Post");
 
-		doc.appendBody("Type: " + post.getType());
-		doc.appendBody(new br());
-		doc.appendBody("From: ");
+		doc.appendBody("Typ: " + post.getType());
+		doc.appendBody(new BR());
+		doc.appendBody("Sender: ");
 		linkUser(post.getFrom().getId(), checkName(post.getFrom().getName()),
 				"post", doc, client, storage, progr);
 
@@ -444,32 +464,33 @@ public class FacebookDatasource implements Datasource {
 				int index = toArray[3].lastIndexOf(" ");
 				String toName = checkName(toArray[3].substring(0, index));
 				postinfo.setAttribute("receiver", toName);
-				doc.appendBody(new br());
-				doc.appendBody("To: " + toName);
+				doc.appendBody(new BR());
+				doc.appendBody("Empfänger: " + toName);
 			}
 		}
 
-		doc.appendBody(new br());
-		doc.appendBody("Time: " + post.getCreatedTime());
-		doc.appendBody(new br());
-		doc.appendBody("Message: " + post.getMessage());
-		doc.appendBody(new br());
+		doc.appendBody(new BR());
+		doc.appendBody("Zeit: " + post.getCreatedTime());
+		doc.appendBody(new BR());
+		doc.appendBody("Nachricht: " + post.getMessage());
+		doc.appendBody(new BR());
 		if (post.getName() != null) {
 			doc.appendBody("Name: " + post.getName());
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 		}
 		if (post.getDescription() != null) {
-			doc.appendBody("Description: " + post.getDescription());
-			doc.appendBody(new br());
+			doc.appendBody("Beschreibung: " + post.getDescription());
+			doc.appendBody(new BR());
 		}
 		if (post.getLink() != null) {
-			doc.appendBody("Link: ").appendBody("<a href="+post.getLink()+" target='_blank'>" +
-					post.getLink()+"</a>");
-			doc.appendBody(new br());
+			doc.appendBody("Link: ").appendBody(
+					"<a href=" + post.getLink() + " target='_blank'>"
+							+ post.getLink() + "</a>");
+			doc.appendBody(new BR());
 		}
 		if (post.getSource() != null) {
-			doc.appendBody("Source: " + post.getSource());
-			doc.appendBody(new br());
+			doc.appendBody("Quelle: " + post.getSource());
+			doc.appendBody(new BR());
 		}
 
 		MetainfoContainer metainfo = downloadComments(post.getId(),
@@ -507,28 +528,29 @@ public class FacebookDatasource implements Datasource {
 		Document doc = createDocument(name, "Facebook - Album");
 
 		doc.appendBody("Name: " + name);
-		doc.appendBody(new br());
+		doc.appendBody(new BR());
 		if (album.getDescription() != null) {
-			doc.appendBody("Description: " + album.getDescription());
-			doc.appendBody(new br());
+			doc.appendBody("Beschreibung: " + album.getDescription());
+			doc.appendBody(new BR());
 
 			albuminfo.setAttribute("description", album.getDescription());
 		}
 		if (album.getLocation() != null) {
-			doc.appendBody("Location: " + album.getLocation());
-			doc.appendBody(new br());
+			doc.appendBody("Ort: " + album.getLocation());
+			doc.appendBody(new BR());
 		}
 		if (album.getCreatedTime() != null) {
-			doc.appendBody("Created on " + album.getCreatedTime());
-			doc.appendBody(new br());
+			doc.appendBody("Erstellt am " + album.getCreatedTime());
+			doc.appendBody(new BR());
 		}
 		if (album.getLink() != null) {
-			doc.appendBody("Link: ").appendBody("<a href="+album.getLink()+" target='_blank'>" +
-					album.getLink()+"</a>");
-			doc.appendBody(new br());
+			doc.appendBody("Link: ").appendBody(
+					"<a href=" + album.getLink() + " target='_blank'>"
+							+ album.getLink() + "</a>");
+			doc.appendBody(new BR());
 		}
 
-		doc.appendBody(new H2("Photos"));
+		doc.appendBody(new H2("Fotos"));
 		downloadPhotos(album.getId(), doc, client, storage, progr);
 
 		MetainfoContainer metainfo = downloadComments(album.getId(),
@@ -563,56 +585,61 @@ public class FacebookDatasource implements Datasource {
 		if (!parent.equals(""))
 			photoinfo.setParent(parent);
 
-		Document doc = createDocument("Photo", "Facebook - Photo");
+		Document doc = createDocument("Foto", "Facebook - Foto");
 
 		if (photo.getName() != null) {
-			doc.appendBody("Caption: " + photo.getName());
-			doc.appendBody(new br());
+			doc.appendBody("Bildunterschrift: " + photo.getName());
+			doc.appendBody(new BR());
 
 			photoinfo.setAttribute("name", photo.getName());
 		}
 		if (photo.getFrom() != null) {
-			doc.appendBody("From: ");
+			doc.appendBody("Von: ");
 			linkUser(photo.getFrom().getId(), checkName(photo.getFrom()
 					.getName()), "photo", doc, client, storage, progr);
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 		}
 		if (photo.getCreatedTime() != null) {
-			doc.appendBody("Created on " + photo.getCreatedTime());
-			doc.appendBody(new br());
+			doc.appendBody("Erstellt am " + photo.getCreatedTime());
+			doc.appendBody(new BR());
 		}
 		if (photo.getLink() != null) {
-			doc.appendBody("Link: ").appendBody("<a href="+photo.getLink()+" target='_blank'>" +
-					photo.getLink()+"</a>");
-			doc.appendBody(new br());
+			doc.appendBody("Link: ").appendBody(
+					"<a href=" + photo.getLink() + " target='_blank'>"
+							+ photo.getLink() + "</a>");
+			doc.appendBody(new BR());
 		}
 		if (photo.getSource() == null) {
 			throw new DatasourceException("error while downloading photos");
 		}
-		doc.appendBody("Source: ").appendBody("<a href="+photo.getSource()+" target='_blank'>" +
-				photo.getSource()+"</a>");
-		doc.appendBody(new br());
+		doc.appendBody("Quelle: ").appendBody(
+				"<a href=" + photo.getSource() + " target='_blank'>"
+						+ photo.getSource() + "</a>");
+		doc.appendBody(new BR());
 
 		String ending = ".jpg";// only jpg supported
-		String sourceFileName = "Albums/Photos/" + photo.getId() + ending;
+		String sourceFileName = "Alben/Fotos/" + photo.getId() + ending;
 		downloadPicture(photo.getSource(), sourceFileName, storage, progr,
 				photoinfo);
 
-		photoinfo.setDestination("Albums/Photos/" + photo.getId() + ".html");
+		photoinfo.setDestination("Alben/Fotos/" + photo.getId() + ".html");
 
-		sourceFileName = sourceFileName.substring(14);
+		sourceFileName = sourceFileName.substring(12);
 
+		
 		doc.appendBody(new IMG(sourceFileName));
 		String tags = "";
 
 		if ((photo.getTags() != null) && (photo.getTags().size() > 0)) {
-			doc.appendBody(new H2("Tags"));
+			doc.appendBody(new H2("Markierungen"));
 			for (Tag tag : photo.getTags()) {
-				linkUser(tag.getId(), checkName(tag.getName()), "photo", doc,
-						client, storage, progr);
-				doc.appendBody(new br());
+				if (tag.getName() != null && tag.getId() != null) {
+					linkUser(tag.getId(), checkName(tag.getName()), "photo",
+							doc, client, storage, progr);
+					doc.appendBody(new BR());
 
-				tags += checkName(tag.getName()) + " ";
+					tags += checkName(tag.getName()) + " ";
+				}
 			}
 		}
 
@@ -656,33 +683,33 @@ public class FacebookDatasource implements Datasource {
 		groupinfo.setType("group");
 		metainfo.addMetainfo(groupinfo);
 
-		Document doc = createDocument(name, "Facebook - Group");
+		Document doc = createDocument(name, "Facebook - Gruppe");
 
-		doc.appendBody("Groupname: " + name);
-		doc.appendBody(new br());
+		doc.appendBody("Gruppenname: " + name);
+		doc.appendBody(new BR());
 		if (g.getDescription() != null) {
-			doc.appendBody("Description: " + g.getDescription());
-			doc.appendBody(new br());
+			doc.appendBody("Beschreibung: " + g.getDescription());
+			doc.appendBody(new BR());
 
 			groupinfo.setAttribute("description", g.getDescription());
 		}
 		if (g.getPrivacy() != null) {
-			doc.appendBody("Privacy: " + g.getPrivacy());
-			doc.appendBody(new br());
+			doc.appendBody("Privatsphäre: " + g.getPrivacy());
+			doc.appendBody(new BR());
 		}
 		if (g.getOwner() != null) {
-			doc.appendBody("Owner: ");
+			doc.appendBody("Inhaber: ");
 			linkUser(g.getOwner().getId(), checkName(g.getOwner().getName()),
 					"group", doc, client, storage, progr);
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 
 			groupinfo.setAttribute("owner", checkName(g.getOwner().getName()));
 		}
 		if (g.getLink() != null) {
-			doc.appendBody("Link: ")
-					.appendBody("<a href="+g.getLink()+" target='_blank'>" +
-							g.getLink()+"</a>");
-			doc.appendBody(new br());
+			doc.appendBody("Link: ").appendBody(
+					"<a href=" + g.getLink() + " target='_blank'>"
+							+ g.getLink() + "</a>");
+			doc.appendBody(new BR());
 		}
 
 		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
@@ -714,52 +741,52 @@ public class FacebookDatasource implements Datasource {
 		String pic = downloadProfilePicture(name + u.getId(), u.getId(),
 				storage, progr);
 
-		userinfo.setAttribute("profilePicture", "Friends/"+pic);
+		userinfo.setAttribute("profilePicture", "Freunde/" + pic);
 		metainfo.addMetainfo(userinfo);
 
 		// create HTML
-		Document doc = createDocument(name, "Facebook - User");
+		Document doc = createDocument(name, "Facebook - Benutzer");
 
 		doc.appendBody("Name: " + name);
-		doc.appendBody(new br());
+		doc.appendBody(new BR());
 
 		if (u.getUsername() != null) {
-			doc.appendBody("Username: " + u.getUsername());
-			doc.appendBody(new br());
+			doc.appendBody("Benutzername: " + u.getUsername());
+			doc.appendBody(new BR());
 		}
 		if (u.getEmail() != null) {
-			doc.appendBody("Email: " + u.getEmail());
-			doc.appendBody(new br());
+			doc.appendBody("E-Mail: " + u.getEmail());
+			doc.appendBody(new BR());
 		}
 		doc.appendBody(new IMG(pic));
-		doc.appendBody(new br());
+		doc.appendBody(new BR());
 
 		if (u.getAbout() != null) {
-			doc.appendBody("About: " + u.getAbout());
-			doc.appendBody(new br());
+			doc.appendBody("Über: " + u.getAbout());
+			doc.appendBody(new BR());
 		}
 		if (u.getBio() != null) {
 			doc.appendBody("Bio: " + u.getBio());
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 		}
 		if (u.getGender() != null) {
-			doc.appendBody("Gender: " + u.getGender());
-			doc.appendBody(new br());
+			doc.appendBody("Geschlecht: " + u.getGender());
+			doc.appendBody(new BR());
 		}
 		if (u.getBirthday() != null) {
-			doc.appendBody("Birthday: " + u.getBirthday());
-			doc.appendBody(new br());
+			doc.appendBody("Geburtstag: " + u.getBirthday());
+			doc.appendBody(new BR());
 		}
 		if (u.getHometownName() != null) {
-			doc.appendBody("Hometown: " + u.getHometownName());
-			doc.appendBody(new br());
+			doc.appendBody("Heimatstadt: " + u.getHometownName());
+			doc.appendBody(new BR());
 		}
 		if (u.getLocation() != null) {
-			doc.appendBody("Location: " + u.getLocation().getName());
-			doc.appendBody(new br());
+			doc.appendBody("Derzeitiger Wohnort: " + u.getLocation().getName());
+			doc.appendBody(new BR());
 		}
 		if ((u.getLanguages() != null) && (u.getLanguages().size() > 0)) {
-			doc.appendBody("Languages: ");
+			doc.appendBody("Sprachen: ");
 			String[] languages = new String[u.getLanguages().size()];
 			int i = 0;
 			for (NamedFacebookType language : u.getLanguages()) {
@@ -767,10 +794,10 @@ public class FacebookDatasource implements Datasource {
 				i++;
 			}
 			doc.appendBody(new ul(languages));
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 		}
 		if ((u.getEducation() != null) && (u.getEducation().size() > 0)) {
-			doc.appendBody("Education: ");
+			doc.appendBody("Ausbildung: ");
 			String[] edus = new String[u.getEducation().size()];
 			int i = 0;
 			for (Education educ : u.getEducation()) {
@@ -782,71 +809,66 @@ public class FacebookDatasource implements Datasource {
 				i++;
 			}
 			doc.appendBody(new ul(edus));
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 		}
 		if ((u.getWork() != null) && (u.getWork().size() > 0)) {
-			doc.appendBody("Work: ");
+			doc.appendBody("Arbeit: ");
 			String[] works = new String[u.getWork().size()];
 			int i = 0;
 			for (Work work : u.getWork()) {
 				works[i] = (work.getDescription() != null ? work
 						.getDescription() : "")
-						+ (work.getPosition() != null ? " as "
+						+ (work.getPosition() != null ? " als "
 								+ work.getPosition() : "")
-						+ (work.getEmployer() != null ? " for "
+						+ (work.getEmployer() != null ? " für "
 								+ work.getEmployer().getName() : "")
-						+ (work.getLocation() != null ? " at "
+						+ (work.getLocation() != null ? " bei "
 								+ work.getLocation().getName() : "");
 				i++;
 			}
 			doc.appendBody(new ul(works));
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 		}
 		if ((u.getInterestedIn() != null) && (u.getInterestedIn().size() > 0)) {
-			doc.appendBody("Interested in: ");
+			doc.appendBody("Interressiert an: ");
 			doc.appendBody(new ul(u.getInterestedIn().toArray(new String[0])));
-			doc.appendBody(new br());
-		}
-		if ((u.getMeetingFor() != null) && (u.getMeetingFor().size() > 0)) {
-			doc.appendBody("Meeting for: ");
-			doc.appendBody(new ul(u.getMeetingFor().toArray(new String[0])));
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 		}
 		if (u.getRelationshipStatus() != null) {
-			doc.appendBody("Relationship status: " + u.getRelationshipStatus());
-			doc.appendBody(new br());
+			doc.appendBody("Beziehungsstatus: " + u.getRelationshipStatus());
+			doc.appendBody(new BR());
 		}
 		if (u.getSignificantOther() != null) {
-			doc.appendBody("Significant other: ");
+			doc.appendBody("Bedeutende Personen: ");
 			doc.appendBody(new A("../"
 					+ getUserFilename(checkName(u.getSignificantOther()
 							.getName()) + u.getSignificantOther().getId()),
 					checkName(u.getSignificantOther().getName())));
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 		}
 		if (u.getQuotes() != null) {
-			doc.appendBody("Quotes: " + u.getQuotes());
-			doc.appendBody(new br());
+			doc.appendBody("Zitate: " + u.getQuotes());
+			doc.appendBody(new BR());
 		}
 		if (u.getReligion() != null) {
-			doc.appendBody("Religion: " + u.getReligion());
-			doc.appendBody(new br());
+			doc.appendBody("Religiöse Einstellung: " + u.getReligion());
+			doc.appendBody(new BR());
 		}
 		if (u.getPolitical() != null) {
-			doc.appendBody("Political: " + u.getPolitical());
-			doc.appendBody(new br());
+			doc.appendBody("Politische Einstellung: " + u.getPolitical());
+			doc.appendBody(new BR());
 		}
 		if (u.getWebsite() != null) {
-			doc.appendBody("Website: ").appendBody(
+			doc.appendBody("Webseite: ").appendBody(
 					new A(u.getWebsite(), u.getWebsite()));
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 		}
 		if (u.getLink() != null) {
-			doc.appendBody("Link: ")
-					.appendBody("<a href="+u.getLink()+" target='_blank'>" +
-							u.getLink()+"</a>");
+			doc.appendBody("Link: ").appendBody(
+					"<a href=" + u.getLink() + " target='_blank'>"
+							+ u.getLink() + "</a>");
 			;
-			doc.appendBody(new br());
+			doc.appendBody(new BR());
 		}
 
 		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
@@ -858,7 +880,7 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private String getUserFilename(String id) {
-		return "Friends/" + id + ".html";
+		return "Freunde/" + id + ".html";
 	}
 
 	private String getPostFilename(String id) {
@@ -866,19 +888,19 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private String getGroupFilename(String id) {
-		return "Groups/" + id + ".html";
+		return "Gruppen/" + id + ".html";
 	}
 
 	private String getAlbumFilename(String id) {
-		return "Albums/" + id + ".html";
+		return "Alben/" + id + ".html";
 	}
 
 	private String getPhotoFilename(String id) {
-		return "Albums/Photos/" + id + ".html";
+		return "Alben/Fotos/" + id + ".html";
 	}
 
 	private String getFriendlistFilename(String id) {
-		return "Friendlists/" + id + ".html";
+		return "Freundeslisten/" + id + ".html";
 	}
 
 	/**
@@ -897,7 +919,7 @@ public class FacebookDatasource implements Datasource {
 			StorageWriter storage, Progressable progr) throws StorageException {
 		String fileName = "";
 		if (name != "me")
-			fileName = "Friends/Photos/" + name + ".jpg";
+			fileName = "Freunde/Fotos/" + name + ".jpg";
 		else
 			fileName = name + ".jpg";
 
@@ -930,7 +952,7 @@ public class FacebookDatasource implements Datasource {
 		metainfo.addMetainfo(photoinfo);
 
 		HttpURLConnection c = null;
-		progr.progress("Downloading " + path + " to " + destination);
+		progr.progress("Download " + path + " nach " + destination);
 		try {
 			URL url = new URL(path);
 			c = (HttpURLConnection) url.openConnection();
@@ -947,6 +969,113 @@ public class FacebookDatasource implements Datasource {
 				c.disconnect();
 		}
 		return false;
+	}
+	/**
+	 * download pages, the user is admin of
+	 * 
+	 */
+	private void downloadAccounts(FacebookClient client, StorageWriter storage,
+			Progressable progr) throws DatasourceException, StorageException {
+
+		Document doc = createDocument("Seiten", "Facebook - Seiten");
+
+		HttpURLConnection c = null;
+		URL url;
+		try {
+			url = new URL(
+					"https://graph.facebook.com/me/accounts?access_token="
+							+ accessToken);
+			c = (HttpURLConnection) url.openConnection();
+			c.connect();
+
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					c.getInputStream(), Charset.forName("UTF-8")));
+			StringBuilder content = new StringBuilder();
+
+			int temp;
+
+			while ((temp = reader.read()) != -1) {
+				content.append((char) temp);
+			}
+
+			JSONObject json = new JSONObject(content.toString());
+			JSONArray jsonArray = json.getJSONArray("data");
+
+			ArrayList<JSONObject> jsonList = new ArrayList<JSONObject>();
+			for (int i = 0; i < jsonArray.length(); i++) {
+				jsonList.add(jsonArray.getJSONObject(i));
+			}
+
+			for (JSONObject obj : jsonList) {
+				if (!obj.getString("category").equals("Application")) {
+					doc.appendBody(new A(downloadAccount(obj.getString("id"),
+							checkName(obj.getString("name")), client, storage,
+							progr), checkName(obj.getString("name"))));
+					doc.appendBody(new BR());
+				}
+			}
+
+		} catch (Exception e) {
+			if(c!=null){
+				c.disconnect();
+			}
+		}
+
+		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		storage.addFile(is, "accounts.html");
+
+	}
+
+	private String downloadAccount(String id, String name,
+			FacebookClient client, StorageWriter storage, Progressable progr)
+			throws DatasourceException, StorageException {
+
+		Document doc = createDocument(name, "Facebook - Seite");
+
+		HttpURLConnection c = null;
+		URL url;
+		try {
+
+			url = new URL("https://graph.facebook.com/" + id);
+			c = (HttpURLConnection) url.openConnection();
+			c.connect();
+
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					c.getInputStream(), Charset.forName("UTF-8")));
+			StringBuilder content = new StringBuilder();
+
+			int temp;
+
+			while ((temp = reader.read()) != -1) {
+				content.append((char) temp);
+			}
+			JSONObject json = new JSONObject(content.toString());
+
+			doc.appendBody("Name: " + name);
+			doc.appendBody(new BR());
+			doc.appendBody("Link: " + json.getString("link"));
+			doc.appendBody(new BR());
+			doc.appendBody(new BR());
+
+			String pic = downloadProfilePicture(name + id, id, storage, progr);
+			pic = "../Freunde/" + pic;
+			doc.appendBody(new IMG(pic));
+			doc.appendBody(new BR());
+			doc.appendBody(new BR());
+			downloadPosts(id, client, storage, progr);
+			doc.appendBody(new A("../" + "posts-" + id + ".html", "Posts"));
+			doc.appendBody(new BR());
+
+		} catch (Exception e) {
+			if(c!=null){
+				c.disconnect();
+			}
+		}
+
+		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		storage.addFile(is, "Seiten/" + name + id + ".html");
+
+		return "Seiten/" + name + id + ".html";
 	}
 
 	private Document createDocument(String title, String header) {

@@ -75,21 +75,21 @@ public class TwitterDatasource implements Datasource {
 		TwitterFactory tf = new TwitterFactory(cb.build());
 		Twitter twitter = tf.getInstance();
 
-		arg2.progress("Downloading User-Information...");
+		arg2.progress("Download Benutzer-Information...");
 		String document = downloadUser(twitter, arg1);
-		arg2.progress("Downloading Retweets of me...");
+		arg2.progress("Download Retweets von meinen Tweets...");
 		downloadSimpleTable(twitter, "RetweetsOfMe", arg1);
-		arg2.progress("Downloading Retweets to me...");
+		arg2.progress("Download Retweets an mich...");
 		downloadSimpleTable(twitter, "RetweetsToMe", arg1);
-		arg2.progress("Downloading Retweets by me...");
+		arg2.progress("Download Retweets von mir...");
 		downloadSimpleTable(twitter, "RetweetsByMe", arg1);
 
 		// to create Timeline-Metadata retweets are needed
 		createUser(document, arg1);
 
-		arg2.progress("Downloading Favourites...");
+		arg2.progress("Download Favouriten...");
 		downloadSimpleTable(twitter, "Favorites", arg1);
-		arg2.progress("Downloading User-Lists...");
+		arg2.progress("Download Benutzer-Listen...");
 		downloadLists(twitter, arg1);
 
 		/*try {
@@ -262,9 +262,9 @@ public class TwitterDatasource implements Datasource {
 			List<Status> timeline = twitter.getHomeTimeline(paging);
 
 			// create HTML timeline+userID.html
-			Document doc = createDocument("Index", "Twitter - User");
+			Document doc = createDocument("Index", "Twitter - Benutzer");
 
-			doc.appendBody("Username: " + user.getName());
+			doc.appendBody("Benutzername: " + user.getName());
 			doc.appendBody(new BR());
 			doc.appendBody(new BR());
 
@@ -300,18 +300,18 @@ public class TwitterDatasource implements Datasource {
 			doc.appendBody(new BR());
 
 			AccountTotals acct = twitter.getAccountTotals();
-			doc.appendBody("Friend(s): " + acct.getFriends() + " Follower(s): "
+			doc.appendBody("Freund(e): " + acct.getFriends() + " Follower(s): "
 					+ acct.getFollowers());
 			doc.appendBody(new BR());
-			doc.appendBody(new A("Favorites.html", "Favorite(s)"));
+			doc.appendBody(new A("Favorites.html", "Favourite(n)"));
 			doc.appendBody(acct.getFavorites() + " Update(s): "
 					+ acct.getUpdates());
 			doc.appendBody(new BR());
-			doc.appendBody(new A("RetweetsToMe.html", "Retweets to me   "));
-			doc.appendBody(new A("RetweetsOfMe.html", "   Retweets of me   "));
-			doc.appendBody(new A("RetweetsByMe.html", "   Retweets by me"));
+			doc.appendBody(new A("RetweetsToMe.html", "Retweets an mich   "));
+			doc.appendBody(new A("RetweetsOfMe.html", "   Retweets von meinen Tweets   "));
+			doc.appendBody(new A("RetweetsByMe.html", "   Retweets von mir"));
 
-			doc.appendBody(new H2("User-Listen"));
+			doc.appendBody(new H2("Benutzer-Listen"));
 
 			long cursor = -1;
 			PagableResponseList lists;
@@ -354,7 +354,7 @@ public class TwitterDatasource implements Datasource {
 					if (state.getMediaEntities() != null) {
 						String media = extractMedia(state, "index", storage);
 						if (media != null) {
-							td = new TD("<a href = "+media+" target='_blank' > media </a>");
+							td = new TD("<a href = "+media+" target='_blank' > bild </a>");
 							tr.addElement(td);
 						}
 					}
@@ -390,11 +390,16 @@ public class TwitterDatasource implements Datasource {
 
 			List<Status> download = getTypeStates(twitter, type, paging);
 
+			String typeText = "";
+			if(type.equals("RetweetsOfMe")) typeText = "Retweets von meinen Tweets";
+			if(type.equals("RetweetsToMe")) typeText = "Retweets an mich";
+			if(type.equals("RetweetsByMe")) typeText = "Retweets von mir";
+			if(type.equals("Favorites")) typeText = "Favouriten";
 			// create HTML type.html
-			Document doc = createDocument(type, "Twitter - " + type);
+			Document doc = createDocument(type, "Twitter - " + typeText);
 
-			doc.appendBody(new H2("<a name = '#test'>Your last </a> " + type
-					+ "(maximum of 3200)"));
+			doc.appendBody(new H2("<a name = '#test'>Die letzten </a> " + typeText
+					+ "(maximal 3200)"));
 
 			TR tr = null;
 			TD td = null;
@@ -424,14 +429,14 @@ public class TwitterDatasource implements Datasource {
 
 						if (states.contains(source)) {
 							td.addElement(new A("index.html#" + source.getId(),
-									"go to Source-Tweet"));
+									"zum Quell-Tweet"));
 						}
 					} else {
 						if(type.equals("RetweetsOfMe")) metainfo.setType("retweet");
 						else metainfo.setType("favourit");
 						if (states.contains(state)) {
 							td.addElement(new A("index.html#" + state.getId(),
-									"go to Source-Tweet"));
+									"zum Quell-Tweet"));
 						}
 					}
 
@@ -450,7 +455,7 @@ public class TwitterDatasource implements Datasource {
 					if (state.getMediaEntities() != null) {
 						String media = extractMedia(state, type, storage);
 						if (!media.equals("")) {
-							td = new TD("<a href = "+media+" target='_blank' > media </a>");
+							td = new TD("<a href = "+media+" target='_blank' > bild </a>");
 							tr.addElement(td);
 						}
 					}
@@ -519,15 +524,15 @@ public class TwitterDatasource implements Datasource {
 			metadata.addMetainfo(listInfo);
 
 			// create HTML list+listID.html
-			Document doc = createDocument("List" + listId, "Twitter - List");
+			Document doc = createDocument("Liste" + listId, "Twitter - Liste");
 
-			doc.appendBody("Listname: " + list.getFullName());
+			doc.appendBody("Listenname: " + list.getFullName());
 			doc.appendBody(new BR());
-			doc.appendBody("Description: " + list.getDescription());
+			doc.appendBody("Beschreibung: " + list.getDescription());
 			doc.appendBody(new BR());
-			doc.appendBody("Member(s): " + list.getMemberCount());
+			doc.appendBody("Mitglied(er): " + list.getMemberCount());
 			doc.appendBody(new BR());
-			doc.appendBody("Subscriber(s): " + list.getSubscriberCount());
+			doc.appendBody("Teilnehmer: " + list.getSubscriberCount());
 
 			doc.appendBody(new BR());
 			doc.appendBody(new BR());
@@ -538,7 +543,7 @@ public class TwitterDatasource implements Datasource {
 			TD td = null;
 
 			if (list.getMemberCount() > 0) {
-				doc.appendBody(new H2("Members: "));
+				doc.appendBody(new H2("Miglieder: "));
 				Table memberTable = new Table();
 				memberTable.setBorder(3);
 
@@ -558,7 +563,7 @@ public class TwitterDatasource implements Datasource {
 			}
 
 			if (list.getSubscriberCount() > 0) {
-				doc.appendBody(new H2("Subscribers: "));
+				doc.appendBody(new H2("Teilnehmer: "));
 
 				cursor = -1;
 				Table subscriberTable = new Table();
@@ -620,7 +625,7 @@ public class TwitterDatasource implements Datasource {
 						String media = extractMedia(state,
 								"list" + list.getId(), storage);
 						if (!media.equals("")) {
-							td = new TD("<a href = "+media+" target='_blank' > media </a>");
+							td = new TD("<a href = "+media+" target='_blank' > bild </a>");
 							tr.addElement(td);
 						}
 					}

@@ -1,6 +1,9 @@
 package org.backmeup.job.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.backmeup.configuration.Configuration;
@@ -63,8 +66,6 @@ public class BackupJobRunner {
   }
 
   public void executeBackup(BackupJob job, Storage storage) {
-    String tempDir = "job-" + System.currentTimeMillis();
-    
     try {
       conn.beginOrJoin();
       BackupJobDao bjd = dal.createBackupJobDao();
@@ -88,8 +89,6 @@ public class BackupJobRunner {
       
       // Open temporary storage
       try {
-	      storage.open(tempDir);
-	      
 	      Datasink sink = plugins.getDatasink(persistentJob.getSinkProfile().getDescription());
 	      Properties sinkProperties = 
 	    		  authenticationData.getByProfileId(persistentJob.getSinkProfile().getProfileId());
@@ -97,6 +96,8 @@ public class BackupJobRunner {
 	      addStatusToDb(new Status(persistentJob, "BackupJob Started", "info", new Date()));
 	      
 	      for (ProfileOptions po : persistentJob.getSourceProfiles()) {
+	    	storage.open(generateTmpDirName (job, po));
+	    	  
 	        Datasource source = plugins.getDatasource(po.getProfile()
 	            .getDescription());
 	        
@@ -158,9 +159,10 @@ public class BackupJobRunner {
 	        }
 	        
 	        addStatusToDb(new Status(persistentJob, "BackupJob Completed", "info", new Date()));
+	      
+	        storage.close();
 	      }
 	      
-	      storage.close();
 	    } catch (StorageException e) {
 	    	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
 	    }
@@ -168,6 +170,28 @@ public class BackupJobRunner {
       conn.rollback();
     }
   }
+  
+	private String generateTmpDirName (BackupJob job, ProfileOptions po)
+	{
+		String conftempdir = Configuration.getConfig ().getProperty ("job.temporaryDirectory");
+		String formatstring = Configuration.getConfig ().getProperty ("job.backupname");
+		SimpleDateFormat formatter = null;
+		Date date = new Date ();
+
+		Long profileid = po.getProfile ().getProfileId ();
+		Long jobid = job.getId ();
+		String profilename = po.getProfile ().getDescription ();
+
+		formatter = new SimpleDateFormat (formatstring.replaceAll ("%PROFILEID%", profileid.toString ()).replaceAll ("%SOURCE%", profilename));
+		
+		String tempDir = "job-" + System.currentTimeMillis();
+		
+		System.out.println ("#########################################################");
+		System.out.println (conftempdir + "/" + jobid + "/" + formatter.format (date));
+		System.out.println ("#########################################################");
+		
+		return tempDir;
+	}
   
   private void testActions(BackupJob job, String tmpDir) {
       // TODO remove this. Created by ft only for actionPlugin tests

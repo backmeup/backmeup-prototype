@@ -17,7 +17,7 @@ import org.backmeup.dal.BaseDao;
  */
 public abstract class BaseDaoImpl<T> implements BaseDao<T> {
 	protected EntityManager em;
-	protected Class<T> entityClass;
+	protected Class<T> entityClass;	
 	
 	@SuppressWarnings("unchecked")
 	public BaseDaoImpl(EntityManager em) {
@@ -25,6 +25,10 @@ public abstract class BaseDaoImpl<T> implements BaseDao<T> {
 		ParameterizedType superType = (ParameterizedType) this.getClass().getGenericSuperclass();
 		entityClass = (Class<T>) superType.getActualTypeArguments()[0];
 	} 
+	
+	public T merge(T entity) {
+	  return em.merge(entity);
+	}
  
 	public T findById(long id) {
 		T item = em.find(entityClass, id);

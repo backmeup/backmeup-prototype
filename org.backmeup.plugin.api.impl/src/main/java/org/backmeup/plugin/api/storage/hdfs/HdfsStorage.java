@@ -78,11 +78,4 @@ public class HdfsStorage extends Storage {
 		// TODO Auto-generated method stub
 		
 	}
-
-  @Override
-  public void removeDir(String path) throws StorageException {
-    // TODO Auto-generated method stub
-    
-  }
-
 }

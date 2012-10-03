@@ -96,7 +96,8 @@ public class BackupJobRunner {
 	      addStatusToDb(new Status(persistentJob, "BackupJob Started", "info", new Date()));
 	      
 	      for (ProfileOptions po : persistentJob.getSourceProfiles()) {
-	    	storage.open(generateTmpDirName (job, po));
+	    	String tmpDir = generateTmpDirName (job, po);
+	    	storage.open(tmpDir);
 	    	  
 	        Datasource source = plugins.getDatasource(po.getProfile()
 	            .getDescription());
@@ -153,6 +154,8 @@ public class BackupJobRunner {
 	        	addStatusToDb(new Status(persistentJob, "Uploading to " + 
 	        		persistentJob.getSinkProfile().getProfileName(), "info", new Date()));
 	
+	        	String[] parts = tmpDir.split ("/");
+	        	sinkProperties.setProperty ("org.backmeup.tmpdir", parts[parts.length - 1]);
 	        	sink.upload(sinkProperties, storage, new JobStatusProgressor(persistentJob));
 	        } catch (StorageException e) {
 	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
@@ -180,15 +183,11 @@ public class BackupJobRunner {
 
 		Long profileid = po.getProfile ().getProfileId ();
 		Long jobid = job.getId ();
-		String profilename = po.getProfile ().getDescription ();
+		// Take only last part of "org.backmeup.xxxx" (xxxx)
+		String[] parts = po.getProfile ().getDescription ().split (".");
+		String profilename = parts[parts.length - 1];
 
 		formatter = new SimpleDateFormat (formatstring.replaceAll ("%PROFILEID%", profileid.toString ()).replaceAll ("%SOURCE%", profilename));
-		
-		// TODO remove this
-		String tempDir = "job-" + System.currentTimeMillis();
-		System.out.println ("#########################################################");
-		System.out.println (conftempdir + "/" + jobid + "/" + formatter.format (date));
-		System.out.println ("#########################################################");
 		
 		return conftempdir + "/" + jobid + "/" + formatter.format (date);
 	}

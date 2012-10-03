@@ -24,7 +24,14 @@ public class FileDataObject extends DataObject {
 	public FileDataObject(File file, String path) {
 		this.file = file;
 		this.metaFile = new File(file.getAbsolutePath() + ".meta.json");
-		this.path = path;
+		
+		String[] parts = path.split ("/");
+		this.path = "";
+		// Ignore the first folder. parts[0] = "", parts[1] = "job-xxxxx"
+		for (int i = 2; i < parts.length; i++)
+		{
+			this.path += "/" + parts[i];
+		}
 	}
 
 	@Override

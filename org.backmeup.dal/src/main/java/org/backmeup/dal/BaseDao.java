@@ -12,6 +12,8 @@ public interface BaseDao<T> {
 	
 	T findById(long id);
 	
+	T merge(T entity);
+	
 	boolean delete(T entity);
 	
 	T save(T entity);

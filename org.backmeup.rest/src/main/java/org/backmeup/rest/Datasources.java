@@ -90,8 +90,8 @@ public class Datasources extends Base {
 	public DatasourceOptionContainer getDatasourceOptions(
 			@PathParam("username") String username,
 			@PathParam("profileId") Long profileId,
-			@FormParam("keyRing") String keyRingPassword) {
-		return new DatasourceOptionContainer(getLogic().getDatasourceOptions(username, profileId, keyRingPassword));
+			@FormParam("keyRing") String keyRing) {
+		return new DatasourceOptionContainer(getLogic().getDatasourceOptions(username, profileId, keyRing));
 	}
 	
 	/*

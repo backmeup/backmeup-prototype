@@ -12,6 +12,7 @@ import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.job.JobManager;
+import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.BackupJob;
@@ -19,6 +20,7 @@ import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
 import org.backmeup.model.BackMeUpUser;
+import org.backmeup.model.exceptions.BackMeUpException;
 
 import akka.actor.ActorSystem;
 import akka.util.Duration;
@@ -104,15 +106,30 @@ abstract public class AkkaJobManager implements JobManager {
 	
 	private void queueJob(BackupJob job) {
 		try {		    
-			// maybe we want to start immediately for the first time, and then add the delay
-			long executeIn = job.getDelay();  
+			// Compute next job execution time
+		  long currentTime = new Date().getTime();
+			long executeIn = job.getStart().getTime() - currentTime;
+			if (executeIn < 0) {
+				executeIn += Math.ceil((double) Math.abs(executeIn) / (double) job.getDelay()) * job.getDelay();
+
+				// TODO we need to update these jobs' tokens - but where do we get keyRing password from?
+			    job.getToken().setBackupdate(currentTime + executeIn);
+			      
+			    // get access data + new token for next access
+			    AuthDataResult authenticationData = keyserver.getData(job.getToken());
+			      
+			    // the token for the next getData call
+			    Token newToken = authenticationData.getNewToken();
+			    job.setToken(newToken);
+			}
 	    
 			system.scheduler().scheduleOnce(
 				Duration.create(executeIn, TimeUnit.MILLISECONDS), 
 				newJobRunner(job));
 		} catch (Exception e) {
-			// TODO there must be error handling defined in the JobManager!
-			throw new RuntimeException(e);
+			// TODO there must be error handling defined in the JobManager!^
+		  Logger.getLogger(AkkaJobManager.class).error("Error during startup", e);
+			//throw new BackMeUpException(e);
 		}		
 	}
 

@@ -184,12 +184,6 @@ public class BackupJobRunner {
 
 		formatter = new SimpleDateFormat (formatstring.replaceAll ("%PROFILEID%", profileid.toString ()).replaceAll ("%SOURCE%", profilename));
 		
-		// TODO remove this
-		String tempDir = "job-" + System.currentTimeMillis();
-		System.out.println ("#########################################################");
-		System.out.println (conftempdir + "/" + jobid + "/" + formatter.format (date));
-		System.out.println ("#########################################################");
-		
 		return conftempdir + "/" + jobid + "/" + formatter.format (date);
 	}
   

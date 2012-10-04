@@ -149,6 +149,8 @@ public class BackupJobRunner {
 	        	}
 	        }    
 	
+	        testActions (persistentJob, storage);
+	        
 	        try {
 	        	// Upload to Sink
 	        	addStatusToDb(new Status(persistentJob, "Uploading to " + 
@@ -204,14 +206,14 @@ public class BackupJobRunner {
 		}
 	}
   
-  private void testActions(BackupJob job, String tmpDir) {
+  private void testActions(BackupJob job, Storage storage) {
       // TODO remove this. Created by ft only for actionPlugin tests
       System.out.println ("######################################################");
       System.out.println ("Test action Plugins");
       System.out.println ("######################################################");
       try
       {
-      	executeActions (job, tmpDir);
+      	executeActions (job, storage);
       }
       catch (ActionException e)
       {
@@ -226,9 +228,9 @@ public class BackupJobRunner {
   }
   
 	// TODO remove this. Created by ft only for actionPlugin tests
-	private void executeActions (BackupJob job, String tmpDir) throws ActionException, StorageException
+	private void executeActions (BackupJob job, Storage storage) throws ActionException, StorageException
 	{
-		if (job.getUser ().getUsername ().equals ("ft@x-net.at") == false)
+		if (job.getUser ().getUsername ().equals ("irgend@x-net.at") == false)
 		{
 			return;
 		}
@@ -245,10 +247,6 @@ public class BackupJobRunner {
 		};
 		
 		Properties parameters = new Properties ();
-		
-		Storage storage = new LocalFilesystemStorage ();
-		
-		storage.open (tmpDir);
 		
 		System.out.println ("######################################################");
 		System.out.println ("Filesplitter");

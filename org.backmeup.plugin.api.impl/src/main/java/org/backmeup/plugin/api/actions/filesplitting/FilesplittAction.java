@@ -86,28 +86,14 @@ public class FilesplittAction implements Action
 				tmp_dir = RandomStringUtils.randomAlphanumeric (16);
 			}
 			
-			
-			// TODO remove the path handling workarround (fix the move command)
 			while (dataobjects.hasNext () == true)
 			{
 				DataObject daob = dataobjects.next ();
 				
-				String[] folders = daob.getPath ().split (PATH_SEPARATOR);
+				System.out.println ("Old File Path: " + daob.getPath ());
+				System.out.println ("New File Path: " + PATH_SEPARATOR + tmp_dir + daob.getPath ());
 				
-				folders[1] = "";
-				
-				String oldpath = "";
-				String newpath = PATH_SEPARATOR + tmp_dir;
-				for (int i = 2; i < folders.length; i++)
-				{
-					oldpath += PATH_SEPARATOR + folders[i];
-					newpath += PATH_SEPARATOR + folders[i];
-				}
-				
-				System.out.println ("Old File Path: " + oldpath);
-				System.out.println ("New File Path: " + newpath);
-				
-				storage.move (oldpath, newpath);
+				storage.move (daob.getPath (), PATH_SEPARATOR + tmp_dir + daob.getPath ());
 			}
 			dataobjects = null;
 			
@@ -147,21 +133,11 @@ public class FilesplittAction implements Action
 				
 				for (int i = 0; i < fc.getContainerElementCount (); i++)
 				{
-					String newpath = fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, "");
-					
-					String[] folders = fc.getContainerElementOldPath (i).split (PATH_SEPARATOR);
-					String oldpath = "";
-					for (int j = 2; j < folders.length; j++)
-					{
-						oldpath += PATH_SEPARATOR + folders[j];
-					}
-					
-					System.out.println ("Old File Path: " + oldpath);
-					System.out.println ("New File Path: " + newpath);
-					
+					System.out.println ("Old File Path: " + fc.getContainerElementOldPath (i));
+					System.out.println ("New File Path: " + fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
 					
 					// TODO remove the tmp folder with new storage interface (existFolder)
-					storage.move (oldpath, fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
+					storage.move (fc.getContainerElementOldPath (i), fc.getContainerElementNewPath (i).replaceAll (tmp_dir + PATH_SEPARATOR, ""));
 				}
 			}
 		}

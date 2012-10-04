@@ -202,6 +202,8 @@ public class LocalFilesystemStorage extends Storage {
 			
 			if (file.isFile () == true)
 			{
+				// TODO remove debug
+				System.out.println ("Remove file: " + file.getPath ());
 				removeFile (file.getPath ().replaceAll (rootDir.getPath (), ""));
 			}
 			else
@@ -210,8 +212,15 @@ public class LocalFilesystemStorage extends Storage {
 			}
 		}
 		
-		// delete the folder
-		folder.delete ();
+		// make sure the root dir gets not deleted
+		if (folder.getPath ().matches (rootDir.getPath ()) == false)
+		{
+			// TODO remove debug
+			System.out.println ("Remove dir: " + folder.getPath ());
+			
+			// delete the folder
+			folder.delete ();
+		}
 	}
 
 }

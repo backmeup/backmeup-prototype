@@ -71,28 +71,7 @@ public class FileContainer
 	
 	public String getContainerElementNewPath (int index)
 	{
-		String[] parts = dataobjects.get (index).getPath ().split (PATH_SEPARATOR);
-		//parts[0] = containerpath;
-		
-		String newpath = PATH_SEPARATOR + containerpath;
-		
-		for (int i = 2; i < parts.length; i++)
-		{
-			newpath += PATH_SEPARATOR + parts[i];
-		}
-		
-		return newpath;
-		
-//		String new_path = "";
-//		for (String part : parts)
-//		{
-//			new_path += part + PATH_SEPARATOR;
-//		}
-//		// Remove the last PATH_SEPARATOR ("/") 
-//		new_path = new_path.substring (0, new_path.length () - 1);
-//		
-//		
-//		return new_path;
+		return PATH_SEPARATOR + containerpath + dataobjects.get (index).getPath ();
 	}
 	
 	public String getContainerElementOldPath (int index)

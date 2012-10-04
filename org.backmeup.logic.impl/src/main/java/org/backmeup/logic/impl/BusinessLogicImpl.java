@@ -40,6 +40,7 @@ import org.backmeup.model.ActionProfile;
 import org.backmeup.model.AuthRequest;
 import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.ProtocolDetails;
@@ -1097,5 +1098,10 @@ public class BusinessLogicImpl implements BusinessLogic {
     } finally {
       conn.rollback();
     }
+  }
+  
+  public List<KeyserverLog> getKeysrvLogs (BackMeUpUser user)
+  {
+	  return keyserverClient.getLogs (user);
   }
 }

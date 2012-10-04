@@ -42,10 +42,12 @@ import org.apache.http.protocol.HTTP;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.AuthUsrPwd;
 import org.backmeup.keyserver.client.TokenRequest;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
+import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.exceptions.BackMeUpException;
 
 import com.google.gson.Gson;
@@ -55,6 +57,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.reflect.TypeToken;
 
 @ApplicationScoped
 public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
@@ -428,6 +431,24 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     return t;
   }
 
+	@Override
+	public List<KeyserverLog> getLogs (BackMeUpUser user)
+	{
+		Result response = execute (path + "/logs/" + user.getUserId (), ReqType.GET);
 
+		if (response.response.getStatusLine ().getStatusCode () == 200)
+		{
+			Gson g = new Gson ();
+			Type listType = new TypeToken<ArrayList<KeyserverLog>> ()
+			{
+			}.getType ();
+			
+			List<KeyserverLog> klogs = g.fromJson (response.content, listType);
+			
+			return klogs;
+		}
+
+		throw new BackMeUpException ("Failed to retrieve logs: " + response.content);
+	}
 
 }

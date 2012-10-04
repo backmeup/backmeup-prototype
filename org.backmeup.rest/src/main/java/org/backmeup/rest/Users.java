@@ -1,5 +1,7 @@
 package org.backmeup.rest;
 
+import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -11,6 +13,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import org.backmeup.model.BackMeUpUser;
+import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.exceptions.UnknownUserPropertyException;
 import org.backmeup.rest.data.UserContainer;
 import org.backmeup.rest.data.VerificationContainer;
@@ -113,5 +116,14 @@ public class Users extends Base {
 	@Produces("application/json")
 	public void deleteUserProperty(@PathParam("username") String username, @PathParam("property") String property) {
 	  getLogic().deleteUserProperty(username, property);
+	}
+	
+	@GET
+	@Path("{username}/keysrvlogs")
+	@Produces("application/json")
+	public List<KeyserverLog> getUserKeysrvlogs(@PathParam("username") String username)
+	{
+	  BackMeUpUser user = getLogic().getUser (username);
+	  return getLogic ().getKeysrvLogs (user);
 	}
 }

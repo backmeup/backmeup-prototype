@@ -22,6 +22,7 @@ import org.backmeup.model.ActionProfile;
 import org.backmeup.model.AuthRequest;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.FileItem;
+import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.ProtocolDetails;
@@ -902,5 +903,12 @@ public class DummyBusinessLogic implements BusinessLogic {
   public BackMeUpUser requestNewVerificationEmail(String username) {
     // TODO Auto-generated method stub
     return null;
+  }
+  
+  @Override
+  public List<KeyserverLog> getKeysrvLogs (BackMeUpUser user)
+  {
+	  // TODO Auto-generated method stub
+	  return null;
   }
 }

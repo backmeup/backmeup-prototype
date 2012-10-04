@@ -247,18 +247,14 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   @Override
   public void registerUser(Long userId, String password) {
     
-    try {
-      Result response = execute(path + "/users/" + userId + "/" + URLEncoder.encode(password, "UTF-8")
+      Result response = execute(path + "/users/" + userId + "/" + password
           + "/register", ReqType.POST);
       if (response.response.getStatusLine().getStatusCode() != 204) {
         throw new BackMeUpException("Error during user creation: error code was "
             + response.response.getStatusLine().getStatusCode() + "; message: "
             + response.response.getStatusLine().getReasonPhrase() + "; Data: "
             + response.content);
-      }
-    } catch (UnsupportedEncodingException e) {
-      throw new BackMeUpException(e);
-    }    
+      }   
   }
 
   @Override
@@ -280,28 +276,20 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   @Override
   public boolean validateUser(Long userId, String password) {
     Result response;
-    try {
       response = execute(
           path + "/users/" + userId + "/"
-              + URLEncoder.encode(password, "UTF-8") + "/validate", ReqType.GET);
+              + password + "/validate", ReqType.GET);
       return response.response.getStatusLine().getStatusCode() == 204;
-    } catch (UnsupportedEncodingException e) {
-      throw new BackMeUpException(e);
-    }
   }
   
   @Override
   public void changeUserPassword(Long userId, String oldPassword,
       String newPassword) {        
-    try {
       Result response = execute(
             path + "/users/" + userId + "/"
-                + URLEncoder.encode(oldPassword, "UTF-8") + "/" + URLEncoder.encode(newPassword, "UTF-8") + "/changeuserpwd", ReqType.GET);
+                + oldPassword + "/" + newPassword + "/changeuserpwd", ReqType.GET);
       if (response.response.getStatusLine().getStatusCode() != 204)    
         throw new BackMeUpException(response.content);
-    } catch (UnsupportedEncodingException e) {
-      throw new BackMeUpException(e);
-    }
   }
 
   // Service Operations
@@ -350,11 +338,6 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     GsonBuilder gb = new GsonBuilder();
     gb.registerTypeAdapter(Properties.class, new PropertiesSerializer());
     Gson g = gb.create();
-    try {
-      userPwd = URLEncoder.encode(userPwd, "UTF-8");
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
     String json = g.toJson(new AuthUsrPwd(userId, userPwd, serviceId,
         authInfoId, keyValuePairs));
     Result response = execute(path + "/authinfos/add", ReqType.POST, json);
@@ -369,13 +352,9 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
       Long serviceId, String userPwd) {
     // TODO: Determine if query parameters will be encrypted with SSL
     
-    try {
       Result r = execute(path + "/authinfos/" + authInfoId + "/" + userId + "/"
-          + serviceId + "/" + URLEncoder.encode(userPwd, "UTF-8"), ReqType.GET);
+          + serviceId + "/" + userPwd, ReqType.GET);
       return r.response.getStatusLine().getStatusCode() == 200;
-    } catch (UnsupportedEncodingException e) {
-      throw new BackMeUpException(e);
-    }
   }
 
   @Override
@@ -390,11 +369,6 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   public Token getToken(Long userId, String userPwd, Long[] services,
       Long[] authinfos, Long backupdate, boolean reusable) {
     Gson g = new Gson();
-    try {
-      userPwd = URLEncoder.encode(userPwd, "UTF-8");
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
     String json = g.toJson(new TokenRequest(userId, userPwd, services,
         authinfos, backupdate, reusable));
     System.out.println("REQUESTING: " + json);

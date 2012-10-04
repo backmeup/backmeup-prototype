@@ -118,12 +118,13 @@ public class BackupJobRunner {
 	        
 	        addStatusToDb(new Status(persistentJob, "Download completed", "info", new Date()));
 	        
+	        // make properties global for the action loop. So the plugins can communicate (filesplitt + encryption)
+	        Properties params = new Properties();
 	        // Execute Actions in sequence
 	        for (ActionProfile actionProfile : persistentJob.getRequiredActions()) {
 	        	String actionId = actionProfile.getActionId();
 	        	try {
 		        	Action action = null;
-		        	Properties params = new Properties();
 		        	
 		        	if ("org.backmeup.filesplitting".equals(actionId)) {
 		        		action = new FilesplittAction();
@@ -147,9 +148,7 @@ public class BackupJobRunner {
 	        	} catch (ActionException e) {
 	        		addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
 	        	}
-	        }    
-	
-	        testActions (persistentJob, storage);
+	        }
 	        
 	        try {
 	        	// Upload to Sink

@@ -91,7 +91,7 @@ public class EncryptionAction implements Action
 				System.out.println ("Write container finished");
 				
 				System.out.println ("Delete files start");
-				// remove everything in the storage
+				// remove the partxxx folder in the storage
 				storage.removeDir (container.getContainername ());
 				System.out.println ("Delete files finished");
 				

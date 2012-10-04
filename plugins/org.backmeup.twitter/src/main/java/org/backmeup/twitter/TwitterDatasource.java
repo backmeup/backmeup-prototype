@@ -27,8 +27,8 @@ import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.connectors.DatasourceException;
 import org.backmeup.plugin.api.connectors.Progressable;
-import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
+import org.backmeup.plugin.api.storage.StorageWriter;
 
 import twitter4j.AccountTotals;
 import twitter4j.MediaEntity;
@@ -57,7 +57,7 @@ public class TwitterDatasource implements Datasource {
 	private User user = null;
 
 	@Override
-	public void downloadAll(Properties arg0, Storage arg1,
+	public void downloadAll(Properties arg0, StorageWriter arg1,
 			Progressable arg2) throws DatasourceException, StorageException {
 
 		// create new access token
@@ -155,7 +155,7 @@ public class TwitterDatasource implements Datasource {
 	}
 
 	private String extractMedia(Status state, String parent,
-			Storage storage) {
+			StorageWriter storage) {
 		try {
 			MediaEntity[] media = state.getMediaEntities();
 			for (MediaEntity m : media) {
@@ -202,7 +202,7 @@ public class TwitterDatasource implements Datasource {
 	 * 
 	 * @param storage
 	 */
-	private void createUser(String document, Storage storage) {
+	private void createUser(String document, StorageWriter storage) {
 		try {
 			MetainfoContainer metadata = new MetainfoContainer();
 
@@ -250,7 +250,7 @@ public class TwitterDatasource implements Datasource {
 		}
 	}
 
-	private String downloadUser(Twitter twitter, Storage storage) {
+	private String downloadUser(Twitter twitter, StorageWriter storage) {
 		TwitterDescriptor desc = new TwitterDescriptor();
 		try {
 			user = twitter.showUser(twitter.getId());
@@ -263,6 +263,10 @@ public class TwitterDatasource implements Datasource {
 
 			// create HTML timeline+userID.html
 			Document doc = createDocument("Index", "Twitter - Benutzer");
+			
+			Date d = new Date();
+			doc.appendBody(d.toString());
+			doc.appendBody(new BR());
 
 			doc.appendBody("Benutzername: " + user.getName());
 			doc.appendBody(new BR());
@@ -379,7 +383,7 @@ public class TwitterDatasource implements Datasource {
 	}
 
 	private void downloadSimpleTable(Twitter twitter, String type,
-			Storage storage) {
+			StorageWriter storage) {
 		TwitterDescriptor desc = new TwitterDescriptor();
 		try {
 			MetainfoContainer metadata = new MetainfoContainer();
@@ -500,7 +504,7 @@ public class TwitterDatasource implements Datasource {
 		}
 	}
 
-	private void downloadList(Twitter twitter, int listId, Storage storage) {
+	private void downloadList(Twitter twitter, int listId, StorageWriter storage) {
 		TwitterDescriptor desc = new TwitterDescriptor();
 		try {
 			MetainfoContainer metadata = new MetainfoContainer();
@@ -645,7 +649,7 @@ public class TwitterDatasource implements Datasource {
 		}
 	}
 
-	private void downloadLists(Twitter twitter, Storage storage) {
+	private void downloadLists(Twitter twitter, StorageWriter storage) {
 		try {
 			List<UserList> lists = twitter.getAllUserLists(user.getId());
 			for (UserList l : lists) {

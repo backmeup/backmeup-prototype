@@ -92,7 +92,7 @@ public class EncryptionAction implements Action
 				
 				System.out.println ("Delete files start");
 				// remove everything in the storage
-				storage.removeDir ("");
+				storage.removeDir (container.getContainername ());
 				System.out.println ("Delete files finished");
 				
 				System.out.println ("Move containers to FS start");

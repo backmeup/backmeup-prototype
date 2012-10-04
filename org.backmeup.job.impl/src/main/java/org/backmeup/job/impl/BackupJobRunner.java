@@ -154,8 +154,7 @@ public class BackupJobRunner {
 	        	addStatusToDb(new Status(persistentJob, "Uploading to " + 
 	        		persistentJob.getSinkProfile().getProfileName(), "info", new Date()));
 	
-	        	String[] parts = tmpDir.split ("/");
-	        	sinkProperties.setProperty ("org.backmeup.tmpdir", parts[parts.length - 1]);
+	        	sinkProperties.setProperty ("org.backmeup.tmpdir", getLastSplitElement (tmpDir, "/"));
 	        	sink.upload(sinkProperties, storage, new JobStatusProgressor(persistentJob));
 	        } catch (StorageException e) {
 	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
@@ -184,12 +183,25 @@ public class BackupJobRunner {
 		Long profileid = po.getProfile ().getProfileId ();
 		Long jobid = job.getId ();
 		// Take only last part of "org.backmeup.xxxx" (xxxx)
-		String[] parts = po.getProfile ().getDescription ().split (".");
-		String profilename = parts[parts.length - 1];
-
+		String profilename = getLastSplitElement (po.getProfile ().getDescription (), "\\.");
+		
 		formatter = new SimpleDateFormat (formatstring.replaceAll ("%PROFILEID%", profileid.toString ()).replaceAll ("%SOURCE%", profilename));
 		
 		return conftempdir + "/" + jobid + "/" + formatter.format (date);
+	}
+	
+	private String getLastSplitElement (String text, String regex)
+	{
+		String[] parts = text.split (regex);
+		
+		if (parts.length > 0)
+		{
+			return parts[parts.length - 1];
+		}
+		else
+		{
+			return text;
+		}
 	}
   
   private void testActions(BackupJob job, String tmpDir) {

@@ -14,7 +14,7 @@ import org.backmeup.plugin.api.Metadata;
  * @author 
  */
 public class TwitterDescriptor implements SourceSinkDescribable {
-	public static final String TWITTER_ID = "org.backmeup.twitterx";
+	public static final String TWITTER_ID = "org.backmeup.twitter";
 
 	@Override
 	public String getId() {

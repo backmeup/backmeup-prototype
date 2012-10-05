@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import org.backmeup.model.AuthRequest;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProtocolDetails;
 import org.backmeup.model.ProtocolOverview;
@@ -99,4 +100,7 @@ public interface BusinessLogic {
 	
 	//misc operations
 	public void shutdown();
+	
+	// logs
+	public List<KeyserverLog> getKeysrvLogs (BackMeUpUser user);
 }

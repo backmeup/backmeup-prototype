@@ -38,6 +38,8 @@ public class SearchResponse {
 	@Transient
 	private List<CountedEntry> byType;
 	
+	public SearchResponse() { }
+	
 	public SearchResponse(String query) {
 		this.query = query;
 	}	

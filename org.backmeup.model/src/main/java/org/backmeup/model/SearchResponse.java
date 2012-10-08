@@ -26,7 +26,9 @@ public class SearchResponse {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(nullable = false)
 	private long id;
+	
 	private int progress;
+	
 	private String query;
 	
 	@Transient
@@ -62,6 +64,10 @@ public class SearchResponse {
 	
 	public String getQuery() {
 		return query;
+	}
+	
+	public void setQuery(String query) {
+		this.query = query;
 	}
 	
 	public List<CountedEntry> getBySource() {

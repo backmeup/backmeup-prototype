@@ -136,19 +136,19 @@ public class BackupJobRunner {
 		        	} else if ("org.backmeup.indexer".equals(actionId)) {
 		        	*/
 		        	    System.out.println("Building transport connection to ES");
-		        	    Node node = NodeBuilder.nodeBuilder().node();
-		        		// Configuration config = Configuration.getConfig();
-		        		// String host = config.getProperty(INDEX_HOST);
-		        		// int port = Integer.parseInt(config.getProperty(INDEX_PORT));
+		        	    // Node node = NodeBuilder.nodeBuilder().node();
+		        		Configuration config = Configuration.getConfig();
+		        		String host = config.getProperty(INDEX_HOST);
+		        		int port = Integer.parseInt(config.getProperty(INDEX_PORT));
 		        		
-		        		Client client = node.client(); 
-		        				// new TransportClient().addTransportAddress(new InetSocketTransportAddress(host, port));
+		        		Client client = // node.client(); 
+		        				new TransportClient().addTransportAddress(new InetSocketTransportAddress(host, port));
 		        		
 		        		System.out.println("Starting action.");
 		        		action = new IndexAction(client);
 		        		action.doAction(params, storage, persistentJob, new JobStatusProgressor(persistentJob));
+		        		client.close();
 		        		System.out.println("Done.");
-		        		node.close();
 		        	/*
 		          	} else if ("org.backmeup.encryption".equals(actionId)) {
 		        		action = new EncryptionAction();

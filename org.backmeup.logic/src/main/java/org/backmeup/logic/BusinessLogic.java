@@ -83,7 +83,7 @@ public interface BusinessLogic {
 	
 	//job & validation operations
 	public ValidationNotes validateBackupJob(String username, Long jobId, String keyRing);	
-	public BackupJob createBackupJob(String username, List<Long> sourceProfiles, Long sinkProfileId, Map<Long, String[]> sourceOptions, String[] requiredActions, String timeExpression, String keyRing);
+	public BackupJob createBackupJob(String username, List<Long> sourceProfiles, Long sinkProfileId, Map<Long, String[]> sourceOptions, String[] requiredActions, String timeExpression, String keyRing, String jobTitle);
 	public List<BackupJob> getJobs(String username);
 	public void deleteJob(String username, Long jobId);
 	public List<Status> getStatus(String username, Long jobId, Date fromDate, Date toDate);

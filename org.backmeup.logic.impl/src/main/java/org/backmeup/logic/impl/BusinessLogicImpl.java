@@ -536,7 +536,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   public BackupJob createBackupJob(String username, List<Long> sourceProfiles,
       Long sinkProfileId, Map<Long, String[]> sourceOptions,
-      String[] requiredActions, String timeExpression, String keyRing) {
+      String[] requiredActions, String timeExpression, String keyRing, String jobTitle) {
     try {
       conn.begin();
       BackMeUpUser user = getUser(username);     
@@ -612,7 +612,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       }
       
       BackupJob job = jobManager.createBackupJob(user, profiles, sink, actions,
-          start, delay, keyRing);
+          start, delay, keyRing, jobTitle);
       conn.commit();
       return job;
     } finally {

@@ -19,7 +19,7 @@ public class JobContainer {
 	public JobContainer(List<BackupJob> backupJobs) {
 		this.backupJobs = new ArrayList<Job>();
 		for (BackupJob j : backupJobs) {
-			this.backupJobs.add(new Job(j.getId(), j.getSourceProfiles(), j.getSinkProfile().getProfileId()));
+			this.backupJobs.add(new Job(j.getId(), j.getSourceProfiles(), j.getSinkProfile().getProfileId(), j.getStart ().getTime (), j.getCreated ().getTime (), j.getModified ().getTime (), j.getJobTitle ()));
 		}
 	}
 
@@ -35,17 +35,26 @@ public class JobContainer {
 		private long backupJobId;
 		private List<Long> datasourceIds;
 		private long datasinkId;
+		private long startDate;
+		private long createDate;
+		private long modifyDate;
+		private String jobTitle;
+		
 		
 		public Job() {
 		}
 		 
-		public Job(long backupJobId, Set<ProfileOptions> datasourceIds, long datasinkId) {
+		public Job(long backupJobId, Set<ProfileOptions> datasourceIds, long datasinkId, long startDate, long createDate, long modifyDate, String jobTitle) {
 			this.backupJobId = backupJobId;
 			this.datasourceIds = new ArrayList<Long>();
 			for (ProfileOptions po : datasourceIds) {
 				this.datasourceIds.add(po.getProfile().getProfileId());
 			}
 			this.datasinkId = datasinkId;
+			this.startDate = startDate;
+			this.createDate = createDate;
+			this.modifyDate = modifyDate;
+			this.jobTitle = jobTitle;
 		} 
 
 		public long getBackupJobId() {
@@ -67,6 +76,45 @@ public class JobContainer {
 		}
 		public void setDatasinkId(long datasinkId) {
 			this.datasinkId = datasinkId;
+		}
+
+		public long getStartDate ()
+		{
+			return startDate;
+		}
+		public void setStartDate (long startDate)
+		{
+			this.startDate = startDate;
+		}
+
+		public long getCreateDate ()
+		{
+			return createDate;
+		}
+
+		public void setCreateDate (long createDate)
+		{
+			this.createDate = createDate;
+		}
+
+		public long getModifyDate ()
+		{
+			return modifyDate;
+		}
+
+		public void setModifyDate (long modifyDate)
+		{
+			this.modifyDate = modifyDate;
+		}
+
+		public String getJobTitle ()
+		{
+			return jobTitle;
+		}
+
+		public void setJobTitle (String jobTitle)
+		{
+			this.jobTitle = jobTitle;
 		}
 	}
 }

@@ -105,10 +105,10 @@ public class ThreadbasedJobManager /* implements JobManager  */{
 
   public BackupJob createBackupJob(BackMeUpUser user,
       Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
-      List<ActionProfile> requiredActions, Date start, long delay, String keyRing) {
+      List<ActionProfile> requiredActions, Date start, long delay, String keyRing, String jobTitle) {
     
     BackupJob bj = new BackupJob(user, sourceProfiles, sinkProfile,
-        requiredActions, start, delay);
+        requiredActions, start, delay, new Date (), new Date (), jobTitle);
    
     Long executionTime = start.getTime() + delay;
     Token t = keyserver.getToken(bj, keyRing, executionTime, true);    

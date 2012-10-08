@@ -823,6 +823,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 	      SearchResponse search = new SearchResponse(query);
 	      SearchResponseDao searchDao = getSearchResponseDao();
 	      searchDao.save(search);
+	      conn.commit();
 	      
 	      return search.getId();
 	  } finally {

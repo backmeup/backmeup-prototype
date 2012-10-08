@@ -35,7 +35,13 @@ public class DropboxDatasink implements Datasink {
 			// change to slashes instead of backslashes.
 			fileName = fileName.replace("\\", "/").replace("//", "/");
 			if (!fileName.startsWith("/"))
-				fileName = "/" + fileName;
+			{
+				fileName = "/" +  items.getProperty ("org.backmeup.tmpdir") + "/" + fileName;
+			}
+			else
+			{
+				fileName = "/" +  items.getProperty ("org.backmeup.tmpdir") + fileName;
+			}
 
 			try {
 				byte[] data = dataObj.getBytes();

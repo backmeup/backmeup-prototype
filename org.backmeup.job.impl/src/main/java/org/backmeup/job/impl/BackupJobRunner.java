@@ -58,6 +58,7 @@ public class BackupJobRunner {
   }
 
   private void addStatusToDb(Status status) {
+	System.out.println("STATUS: " + status.getMessage());
     conn.beginOrJoin();    
     StatusDao sd = dal.createStatusDao();
     sd.save(status); // store job within database

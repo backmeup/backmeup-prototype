@@ -822,9 +822,13 @@ public class BusinessLogicImpl implements BusinessLogic {
 	      
 	      SearchResponse search = new SearchResponse(query);
 	      SearchResponseDao searchDao = getSearchResponseDao();
-	      searchDao.save(search);
+	      search = searchDao.save(search);
+	      conn.commit();
 	      
 	      return search.getId();
+	  } catch (Throwable t) {
+		  t.printStackTrace();
+		  return -1;
 	  } finally {
 		  conn.rollback();
 	  }
@@ -839,17 +843,21 @@ public class BusinessLogicImpl implements BusinessLogic {
 	    // TODO shouldn't we verify the user?
 	    
 	    SearchResponse search = getSearchResponseDao().findById(searchId);
-	    String query = search.getQuery();
-	    
-	    Configuration config = Configuration.getConfig();
-	    String host = config.getProperty(INDEX_HOST);
-	    int port = Integer.parseInt(config.getProperty(INDEX_PORT));
-	    
-	    ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);
-	    org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(username, query);
-	    search.setFiles(IndexUtils.convertSearchEntries(esResponse));
-	    search.setBySource(IndexUtils.getBySource(esResponse));
-	    search.setByType(IndexUtils.getByType(esResponse));
+	    try {
+		    String query = search.getQuery();
+		    
+		    Configuration config = Configuration.getConfig();
+		    String host = config.getProperty(INDEX_HOST);
+		    int port = Integer.parseInt(config.getProperty(INDEX_PORT));
+		    
+		    ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);
+		    org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(username, query);
+		    search.setFiles(IndexUtils.convertSearchEntries(esResponse));
+		    search.setBySource(IndexUtils.getBySource(esResponse));
+		    search.setByType(IndexUtils.getByType(esResponse));
+	    } catch (Throwable t) {
+	    	t.printStackTrace();
+	    }
 	    return search;
 	  } finally {
 		conn.rollback();

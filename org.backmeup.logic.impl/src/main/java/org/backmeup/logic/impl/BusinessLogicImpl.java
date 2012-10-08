@@ -822,10 +822,13 @@ public class BusinessLogicImpl implements BusinessLogic {
 	      
 	      SearchResponse search = new SearchResponse(query);
 	      SearchResponseDao searchDao = getSearchResponseDao();
-	      searchDao.save(search);
+	      search = searchDao.save(search);
 	      conn.commit();
 	      
 	      return search.getId();
+	  } catch (Throwable t) {
+		  t.printStackTrace();
+		  return -1;
 	  } finally {
 		  conn.rollback();
 	  }

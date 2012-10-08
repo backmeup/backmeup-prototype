@@ -25,8 +25,9 @@ public class ElasticSearchIndexClient {
 	}
 	
 	public SearchResponse queryBackup(String username, String query) {
+		System.out.println("username: " + username);
 		QueryBuilder qBuilder = QueryBuilders.boolQuery()
-				.must(QueryBuilders.matchQuery(FIELD_OWNER_NAME, username))
+				// .must(QueryBuilders.matchQuery(FIELD_OWNER_NAME, username))
 				.must(QueryBuilders.queryString(query));
 		
 		return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).execute().actionGet();

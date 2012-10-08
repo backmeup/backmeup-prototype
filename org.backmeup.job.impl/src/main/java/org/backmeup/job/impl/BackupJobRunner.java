@@ -2,8 +2,6 @@ package org.backmeup.job.impl;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.backmeup.configuration.Configuration;
@@ -30,7 +28,6 @@ import org.backmeup.plugin.api.connectors.DatasourceException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
-import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorage;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -120,15 +117,21 @@ public class BackupJobRunner {
 	        
 	        // make properties global for the action loop. So the plugins can communicate (filesplitt + encryption)
 	        Properties params = new Properties();
+	        
 	        // Execute Actions in sequence
+	        /*
 	        for (ActionProfile actionProfile : persistentJob.getRequiredActions()) {
 	        	String actionId = actionProfile.getActionId();
-	        	try {
+	        	*/
+	        	
+	        	try {   
 		        	Action action = null;
 		        	
+		        	/*
 		        	if ("org.backmeup.filesplitting".equals(actionId)) {
 		        		action = new FilesplittAction();
 		        	} else if ("org.backmeup.indexer".equals(actionId)) {
+		        	*/
 		        		Configuration config = Configuration.getConfig();
 		        		String host = config.getProperty(INDEX_HOST);
 		        		int port = Integer.parseInt(config.getProperty(INDEX_PORT));
@@ -137,18 +140,20 @@ public class BackupJobRunner {
 		    				.addTransportAddress(new InetSocketTransportAddress(host, port));
 		        		
 		        		action = new IndexAction(client);
-		        	} else if ("org.backmeup.encryption".equals(actionId)) {
+		        	/*
+		          	} else if ("org.backmeup.encryption".equals(actionId)) {
 		        		action = new EncryptionAction();
 		        	} else {
 		        		addStatusToDb(new Status(persistentJob, "Unsupported Action: " + actionId, "error", new Date()));
 		        	}
+		        	*/
 	        	
 		        	if (action != null)
 		        		action.doAction(params, storage, job, new JobStatusProgressor(persistentJob));
 	        	} catch (ActionException e) {
 	        		addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
 	        	}
-	        }
+	        //}    
 	        
 	        try {
 	        	// Upload to Sink

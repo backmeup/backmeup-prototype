@@ -134,6 +134,7 @@ public class BackupJobRunner {
 		        		action = new FilesplittAction();
 		        	} else if ("org.backmeup.indexer".equals(actionId)) {
 		        	*/
+		        	    System.out.println("Building transport connection to ES");
 		        	    Node node = NodeBuilder.nodeBuilder().node();
 		        		// Configuration config = Configuration.getConfig();
 		        		// String host = config.getProperty(INDEX_HOST);
@@ -142,9 +143,10 @@ public class BackupJobRunner {
 		        		Client client = node.client(); 
 		        				// new TransportClient().addTransportAddress(new InetSocketTransportAddress(host, port));
 		        		
+		        		System.out.println("Starting action.");
 		        		action = new IndexAction(client);
 		        		action.doAction(params, storage, persistentJob, new JobStatusProgressor(persistentJob));
-		        		
+		        		System.out.println("Done.");
 		        		node.close();
 		        	/*
 		          	} else if ("org.backmeup.encryption".equals(actionId)) {

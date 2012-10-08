@@ -57,7 +57,7 @@ abstract public class AkkaJobManager implements JobManager {
 	public BackupJob createBackupJob(BackMeUpUser user,
 			Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
 			List<ActionProfile> requiredActions, Date start, long delayInMs,
-			String keyRing) {
+			String keyRing, String jobTitle) {
 		
 		// Create BackupJob entity in DB...
 	    BackupJob job = new BackupJob(
@@ -65,7 +65,7 @@ abstract public class AkkaJobManager implements JobManager {
 	    		sourceProfiles,
 	    		sinkProfile,
 	            requiredActions, 
-	            start, delayInMs);
+	            start, delayInMs, new Date (), new Date (), jobTitle);
 	    
 	    Long firstExecutionDate = start.getTime() + delayInMs;
 	    

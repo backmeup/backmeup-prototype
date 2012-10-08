@@ -31,6 +31,8 @@ import org.backmeup.plugin.api.storage.StorageException;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeBuilder;
 
 /**
  * Implements the actual BackupJob execution.
@@ -132,14 +134,18 @@ public class BackupJobRunner {
 		        		action = new FilesplittAction();
 		        	} else if ("org.backmeup.indexer".equals(actionId)) {
 		        	*/
-		        		Configuration config = Configuration.getConfig();
-		        		String host = config.getProperty(INDEX_HOST);
-		        		int port = Integer.parseInt(config.getProperty(INDEX_PORT));
+		        	    Node node = NodeBuilder.nodeBuilder().node();
+		        		// Configuration config = Configuration.getConfig();
+		        		// String host = config.getProperty(INDEX_HOST);
+		        		// int port = Integer.parseInt(config.getProperty(INDEX_PORT));
 		        		
-		        		Client client = new TransportClient()
-		    				.addTransportAddress(new InetSocketTransportAddress(host, port));
+		        		Client client = node.client(); 
+		        				// new TransportClient().addTransportAddress(new InetSocketTransportAddress(host, port));
 		        		
 		        		action = new IndexAction(client);
+		        		action.doAction(params, storage, persistentJob, new JobStatusProgressor(persistentJob));
+		        		
+		        		node.close();
 		        	/*
 		          	} else if ("org.backmeup.encryption".equals(actionId)) {
 		        		action = new EncryptionAction();
@@ -148,8 +154,8 @@ public class BackupJobRunner {
 		        	}
 		        	*/
 	        	
-		        	if (action != null)
-		        		action.doAction(params, storage, job, new JobStatusProgressor(persistentJob));
+		        	// if (action != null)
+		        		// action.doAction(params, storage, job, new JobStatusProgressor(persistentJob));
 	        	} catch (ActionException e) {
 	        		addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
 	        	}

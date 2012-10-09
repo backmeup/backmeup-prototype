@@ -1081,7 +1081,14 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (u == null)
         throw new EmailVerificationException(verificationKey);      
       
-      u.setVerificationKey(null); 
+      // Don't delete the key. If the user tries an second verification it should work.
+      //u.setVerificationKey(null);
+      
+      if (u.isActivated () == true)
+      {
+    	  throw new UserAlreadyActivatedException (u.getUsername ());
+      }
+      
       u.setActivated(true);
           
       conn.commit();

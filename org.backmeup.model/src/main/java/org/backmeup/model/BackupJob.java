@@ -60,7 +60,7 @@ public class BackupJob {
 
   public BackupJob(BackMeUpUser user, Set<ProfileOptions> sourceProfile,
       Profile sinkProfile, List<ActionProfile> requiredActions,
-      Date start, long delay, Date created, Date modified, String jobTitle) {
+      Date start, long delay, String jobTitle) {
     this.user = user;
     this.sourceProfiles = sourceProfile;
     this.sinkProfile = sinkProfile;
@@ -68,8 +68,8 @@ public class BackupJob {
     this.start = start;
     this.delay = delay;
     
-    this.created = created;
-    this.modified = modified;
+    this.created = new Date ();
+    this.modified = this.created;
     this.jobTitle = jobTitle;
   }
 
@@ -78,6 +78,7 @@ public class BackupJob {
   }
 
   public void setId(Long id) {
+	this.modified = new Date ();
     this.id = id;
   }
 
@@ -86,6 +87,7 @@ public class BackupJob {
   }
 
   public void setUser(BackMeUpUser user) {
+	this.modified = new Date ();
     this.user = user;
   }
 
@@ -94,6 +96,7 @@ public class BackupJob {
   }
 
   public void setSourceProfiles(Set<ProfileOptions> sourceProfiles) {
+	this.modified = new Date ();
     this.sourceProfiles = sourceProfiles;
   }
 
@@ -102,6 +105,7 @@ public class BackupJob {
   }
 
   public void setSinkProfile(Profile sinkProfile) {
+	this.modified = new Date ();
     this.sinkProfile = sinkProfile;
   }
 
@@ -110,6 +114,7 @@ public class BackupJob {
   }
 
   public void setRequiredActions(List<ActionProfile> requiredActions) {
+	this.modified = new Date ();
     this.requiredActions = requiredActions;
   }
 
@@ -118,6 +123,7 @@ public class BackupJob {
   }
 
   public void setStart(Date start) {
+	this.modified = new Date ();
     this.start = start;
   }
 
@@ -126,6 +132,7 @@ public class BackupJob {
   }
 
   public void setDelay(long delay) {
+	this.modified = new Date ();
     this.delay = delay;
   }
 
@@ -134,6 +141,7 @@ public class BackupJob {
   }
 
   public void setToken(Token token) {
+	this.modified = new Date ();
     this.token = token;
   }
 
@@ -142,19 +150,9 @@ public class BackupJob {
 		return created;
 	}
 	
-	public void setCreated (Date created)
-	{
-		this.created = created;
-	}
-	
 	public Date getModified ()
 	{
 		return modified;
-	}
-	
-	public void setModified (Date modified)
-	{
-		this.modified = modified;
 	}
 	
 	public String getJobTitle ()
@@ -164,6 +162,7 @@ public class BackupJob {
 	
 	public void setJobTitle (String jobTitle)
 	{
+		this.modified = new Date ();
 		this.jobTitle = jobTitle;
 	}
 }

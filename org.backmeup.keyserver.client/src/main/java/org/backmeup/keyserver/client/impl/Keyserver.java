@@ -397,7 +397,7 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     }
     String json = g.toJson(new TokenRequest(userId, userPwd, services,
         authinfos, backupdate, reusable));
-    System.out.println("REQUESTING: " + json);
+    //System.out.println("REQUESTING: " + json);
     Result r = execute(path + "/tokens/token", ReqType.POST, json);
     if (r.response.getStatusLine().getStatusCode() == 200) {
       return g.fromJson(r.content, Token.class);
@@ -410,7 +410,7 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     Gson g = new Gson();
     String json = g.toJson(token);
     Result r = execute(path + "/tokens/data", ReqType.POST, json);
-    System.out.println("REQUESTING: " + json);
+    //System.out.println("REQUESTING: " + json);
     if (r.response.getStatusLine().getStatusCode() == 200) {
       return g.fromJson(r.content, AuthDataResult.class);
     }

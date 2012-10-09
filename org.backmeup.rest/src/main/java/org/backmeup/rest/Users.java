@@ -16,6 +16,7 @@ import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.exceptions.UnknownUserPropertyException;
 import org.backmeup.rest.data.UserContainer;
+import org.backmeup.rest.data.UserLoginContainer;
 import org.backmeup.rest.data.VerificationContainer;
 import org.backmeup.rest.data.VerifyEmailContainer;
 
@@ -56,9 +57,9 @@ public class Users extends Base {
 	@POST
 	@Path("{username}/login")
 	@Produces("application/json")
-	public void login(@PathParam("username") String username,
+	public UserLoginContainer login(@PathParam("username") String username,
 			@FormParam("password") String password) {
-		getLogic().login(username, password);
+		return new UserLoginContainer (getLogic().login(username, password));
 	}
 	
 	@POST

@@ -210,8 +210,12 @@ public class LocalFilesystemStorage extends Storage {
 			}
 		}
 		
-		// delete the folder
-		folder.delete ();
+		// make sure the root dir gets not deleted
+		if (folder.getPath ().matches (rootDir.getPath ()) == false)
+		{
+			// delete the folder
+			folder.delete ();
+		}
 	}
 
 }

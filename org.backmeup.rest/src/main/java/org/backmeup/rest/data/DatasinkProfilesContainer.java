@@ -18,7 +18,7 @@ public class DatasinkProfilesContainer {
 	public DatasinkProfilesContainer(List<Profile> profiles) {
 		setSinkProfiles(new ArrayList<InternalProfile>());
 		for (Profile p : profiles) {
-			getSinkProfiles().add(new InternalProfile(p.getProfileName(), p.getProfileId()));
+			getSinkProfiles().add(new InternalProfile(p.getProfileName(), p.getProfileId(), p.getDescription ()));
 		}
 	}
 	
@@ -33,14 +33,16 @@ public class DatasinkProfilesContainer {
 	public static class InternalProfile {
 		
 		private String title;
+		private String pluginName;
 		private long datasinkProfileId;
 		
 		public InternalProfile() {
 		}
 		
-		public InternalProfile(String title, long datasinkProfileId) {
+		public InternalProfile(String title, long datasinkProfileId, String pluginName) {
 			this.title = title;
 			this.datasinkProfileId = datasinkProfileId;
+			this.pluginName = pluginName;
 		}
 		public String getTitle() {
 			return title;
@@ -54,7 +56,14 @@ public class DatasinkProfilesContainer {
 		public void setDatasinkProfileId(long datasinkProfileId) {
 			this.datasinkProfileId = datasinkProfileId;
 		}
-		
-		
+
+		public String getPluginName ()
+		{
+			return pluginName;
+		}
+		public void setPluginName (String pluginName)
+		{
+			this.pluginName = pluginName;
+		}
 	}
 }

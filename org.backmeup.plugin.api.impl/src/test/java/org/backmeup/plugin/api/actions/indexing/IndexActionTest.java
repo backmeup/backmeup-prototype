@@ -34,15 +34,15 @@ public class IndexActionTest {
 	private static final String ELASTICSEARCH_CLUSTERNAME = "testcluster";
 	
 	private static final String BACKUP_JOB =
-			"{\"user\":{\"userId\":1,\"username\":\"Sepp\",\"password\":\"pw\"," + 
+			"{\"user\":{\"userId\":1,\"username\":\"TestUser\",\"password\":\"pw\"," + 
 	        "\"keyRing\":\"k3yr1nG\",\"email\":\"e@ma.il\",\"isActivated\":false,\"properties\":[]}," +
 			"\"sourceProfiles\":" +
-			"[{\"profile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"Sepp\"," +
+			"[{\"profile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"TestUser\"," +
 			"\"password\":\"pw\",\"keyRing\":\"k3yr1nG\",\"email\":\"e@ma.il\",\"isActivated\":" +
 			"false,\"properties\":[]},\"profileName\":\"TestProfile\",\"desc\":" +
 			"\"org.backmeup.dummy\",\"sourceAndOrSink\":\"Source\"},\"options\":" + 
 			"[\"folder1\",\"folder2\"]}]," +
-			"\"sinkProfile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"Sepp\"" +
+			"\"sinkProfile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"TestUser\"" +
 			",\"password\":\"pw\",\"keyRing\":\"pw\",\"email\":\"e@ma.il\",\"isActivated\":" +
 			"false,\"properties\":[]},\"profileName\":\"TestProfile2\",\"desc\":" +
 			"\"org.backmeup.dummy\",\"sourceAndOrSink\":\"Sink\"},\"requiredActions\":[]," + 
@@ -95,7 +95,7 @@ public class IndexActionTest {
 				System.out.println(key + ": " + source.get(key));
 				
 				if (key.equals("owner_name"))
-					Assert.assertEquals("Sepp", source.get(key));
+					Assert.assertEquals("TestUser", source.get(key));
 				
 				if (key.equals("owner_id"))
 					Assert.assertEquals(1, source.get(key));
@@ -106,8 +106,8 @@ public class IndexActionTest {
 				if (key.equals("backup_sink"))
 					Assert.assertEquals("TestProfile2", source.get(key));
 				
-				if (key.equals("path"))
-					Assert.assertTrue(source.get(key).toString().startsWith("src"));
+				// if (key.equals("path"))
+					// Assert.assertTrue(source.get(key).toString().startsWith("src"));
 			}
 		}
 		
@@ -120,7 +120,7 @@ public class IndexActionTest {
 		Client client = node.client();
 		
 		ElasticSearchIndexClient idx = new ElasticSearchIndexClient(client);
-		SearchResponse response = idx.queryBackup("Sepp", "creative-commons");
+		SearchResponse response = idx.queryBackup("TestUser", "creative-commons");
 		
 		for (SearchHit hit : response.getHits()) {
 			System.out.println(hit.getSourceAsString());

@@ -22,6 +22,7 @@ import org.backmeup.model.ActionProfile;
 import org.backmeup.model.AuthRequest;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.FileItem;
+import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.ProtocolDetails;
@@ -269,7 +270,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     Set<ProfileOptions> popts = new HashSet<ProfileOptions>();
     popts.add(new ProfileOptions(findProfile(500), null));
     BackupJob aJob = new BackupJob(u1, popts, findProfile(501), reqActions,
-        new Date(), 5000);
+        new Date(), 5000, new Date (), new Date (), "TestJob");
     aJob.setId(maxId++);
     jobs.add(aJob);
     status = new ArrayList<Status>();
@@ -283,7 +284,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     Set<ProfileOptions> popts2 = new HashSet<ProfileOptions>();
     popts2.add(new ProfileOptions(findProfile(502), null));
     BackupJob bJob = new BackupJob(u3, popts2, findProfile(502), reqActions,
-        new Date(), 5000);
+        new Date(), 5000, new Date (), new Date (), "TestJob");
     bJob.setId(maxId++);
     jobs.add(bJob);
     status.add(new Status(bJob, "Ein Status", "INFO", new Date(100)));
@@ -556,7 +557,7 @@ public class DummyBusinessLogic implements BusinessLogic {
 
   public BackupJob createBackupJob(String username, List<Long> sourceProfiles,
       Long sinkProfileId, Map<Long, String[]> sourceOptions,
-      String[] requiredActions, String timeExpression, String keyRing) {
+      String[] requiredActions, String timeExpression, String keyRing, String jobTitle) {
 
     BackMeUpUser user = findUser(username);
     if (user == null)
@@ -599,7 +600,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     }
 
     BackupJob job = new BackupJob(user, sources, sinkProfile,
-        findActions(requiredActions), start, delay);
+        findActions(requiredActions), start, delay, new Date (), new Date (), "TestJob");
     job.setId(maxId++);
     jobs.add(job);
     return job;
@@ -902,5 +903,12 @@ public class DummyBusinessLogic implements BusinessLogic {
   public BackMeUpUser requestNewVerificationEmail(String username) {
     // TODO Auto-generated method stub
     return null;
+  }
+  
+  @Override
+  public List<KeyserverLog> getKeysrvLogs (BackMeUpUser user)
+  {
+	  // TODO Auto-generated method stub
+	  return null;
   }
 }

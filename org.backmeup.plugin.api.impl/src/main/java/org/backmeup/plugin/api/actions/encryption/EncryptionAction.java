@@ -91,21 +91,12 @@ public class EncryptionAction implements Action
 				System.out.println ("Write container finished");
 				
 				System.out.println ("Delete files start");
-				for (DataObject daob : container.getData ())
-				{
-					String[] parts = daob.getPath ().split ("/");
-					String path = "";
-					for (int i = 2; i < parts.length; i++)
-					{
-						path += "/" + parts[i];
-					}
-					
-					storage.removeFile (path);
-				}
+				// remove the partxxx folder in the storage
+				storage.removeDir (container.getContainername ());
 				System.out.println ("Delete files finished");
 				
 				System.out.println ("Move containers to FS start");
-				storage.addFile (container.getContainer (), "enc_" + container.getContainername (), new MetainfoContainer ());
+				storage.addFile (container.getContainer (), container.getContainername (), new MetainfoContainer ());
 				System.out.println ("Move containers to FS finished");
 				container.deleteContainer ();
 			}

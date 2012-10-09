@@ -6,19 +6,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+
 /**
  * Contains the result of a search when calling BusinessLogic#queryBackup
  * 
  * @author fschoeppl
  *
  */
+@Entity
 public class SearchResponse {
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(nullable = false)
 	private long id;
+	
 	private int progress;
+	
 	private String query;
+	
+	@Transient
 	private List<SearchEntry> files;
+	
+	@Transient
 	private List<CountedEntry> bySource;
+	
+	@Transient
 	private List<CountedEntry> byType;
+	
+	public SearchResponse() { }
 	
 	public SearchResponse(String query) {
 		this.query = query;
@@ -42,6 +64,10 @@ public class SearchResponse {
 	
 	public String getQuery() {
 		return query;
+	}
+	
+	public void setQuery(String query) {
+		this.query = query;
 	}
 	
 	public List<CountedEntry> getBySource() {

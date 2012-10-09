@@ -90,9 +90,13 @@ public class ElasticSearchIndexer {
 		
 		contentBuilder = contentBuilder.endObject();
 		
+		System.out.print("Pusing to ES index...");
+		
 		// Push to ES index
 		client.prepareIndex(INDEX_NAME, DOCUMENT_TYPE_BACKUP).setSource(contentBuilder)
-			.setRefresh(true).execute().actionGet();	
+			.setRefresh(true).execute().actionGet();
+		
+		System.out.println(" done.");
 	}
 	
 	private String getFilename(String path) {

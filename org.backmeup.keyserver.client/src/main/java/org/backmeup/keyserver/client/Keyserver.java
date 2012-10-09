@@ -1,8 +1,11 @@
 package org.backmeup.keyserver.client;
 
+import java.util.List;
 import java.util.Properties;
 
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.Profile;
 import org.backmeup.model.Token;
 
@@ -31,4 +34,7 @@ public interface Keyserver {
   public Token getToken(Profile profile, String userPwd, Long backupdate, boolean reusable);
   public Token getToken(BackupJob job, String userPwd, Long backupdate, boolean reusable);
   public AuthDataResult getData(Token token);
+  
+  // Logs
+  public List<KeyserverLog> getLogs (BackMeUpUser user);
 }

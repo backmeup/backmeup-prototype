@@ -42,7 +42,7 @@ import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 public class Main {
 	private static final int PORT = 8080;
 	
-	private static Node indexNode = NodeBuilder.nodeBuilder().local(true).node();		
+	private static Node indexNode = NodeBuilder.nodeBuilder().node();		
 
 	private static URI getBaseURI() {
 		return UriBuilder.fromUri("http://localhost/").port(PORT).build();

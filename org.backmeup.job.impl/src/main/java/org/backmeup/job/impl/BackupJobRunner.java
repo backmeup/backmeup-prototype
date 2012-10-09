@@ -1,5 +1,6 @@
 package org.backmeup.job.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
@@ -27,10 +28,11 @@ import org.backmeup.plugin.api.connectors.DatasourceException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
-import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorage;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeBuilder;
 
 /**
  * Implements the actual BackupJob execution.
@@ -56,6 +58,7 @@ public class BackupJobRunner {
   }
 
   private void addStatusToDb(Status status) {
+	System.out.println("STATUS: " + status.getMessage());
     conn.beginOrJoin();    
     StatusDao sd = dal.createStatusDao();
     sd.save(status); // store job within database
@@ -63,8 +66,6 @@ public class BackupJobRunner {
   }
 
   public void executeBackup(BackupJob job, Storage storage) {
-    String tempDir = "job-" + System.currentTimeMillis();
-    
     try {
       conn.beginOrJoin();
       BackupJobDao bjd = dal.createBackupJobDao();
@@ -88,8 +89,6 @@ public class BackupJobRunner {
       
       // Open temporary storage
       try {
-	      storage.open(tempDir);
-	      
 	      Datasink sink = plugins.getDatasink(persistentJob.getSinkProfile().getDescription());
 	      Properties sinkProperties = 
 	    		  authenticationData.getByProfileId(persistentJob.getSinkProfile().getProfileId());
@@ -97,6 +96,9 @@ public class BackupJobRunner {
 	      addStatusToDb(new Status(persistentJob, "BackupJob Started", "info", new Date()));
 	      
 	      for (ProfileOptions po : persistentJob.getSourceProfiles()) {
+	    	String tmpDir = generateTmpDirName (job, po);
+	    	storage.open(tmpDir);
+	    	  
 	        Datasource source = plugins.getDatasource(po.getProfile()
 	            .getDescription());
 	        
@@ -116,51 +118,58 @@ public class BackupJobRunner {
 	        
 	        addStatusToDb(new Status(persistentJob, "Download completed", "info", new Date()));
 	        
+	        // make properties global for the action loop. So the plugins can communicate (filesplitt + encryption)
+	        Properties params = new Properties();
+	        
 	        // Execute Actions in sequence
 	        for (ActionProfile actionProfile : persistentJob.getRequiredActions()) {
 	        	String actionId = actionProfile.getActionId();
-	        	try {
+	        	
+	        	try {   
 		        	Action action = null;
-		        	Properties params = new Properties();
 		        	
 		        	if ("org.backmeup.filesplitting".equals(actionId)) {
 		        		action = new FilesplittAction();
+		        		action.doAction(params, storage, job, new JobStatusProgressor(persistentJob));
 		        	} else if ("org.backmeup.indexer".equals(actionId)) {
 		        		Configuration config = Configuration.getConfig();
 		        		String host = config.getProperty(INDEX_HOST);
 		        		int port = Integer.parseInt(config.getProperty(INDEX_PORT));
 		        		
 		        		Client client = new TransportClient()
-		    				.addTransportAddress(new InetSocketTransportAddress(host, port));
+		        			.addTransportAddress(new InetSocketTransportAddress(host, port));
 		        		
 		        		action = new IndexAction(client);
-		        	} else if ("org.backmeup.encryption".equals(actionId)) {
+		        		action.doAction(params, storage, persistentJob, new JobStatusProgressor(persistentJob));
+		        		
+		        		client.close();
+		          	} else if ("org.backmeup.encryption".equals(actionId)) {
 		        		action = new EncryptionAction();
+		        		action.doAction(params, storage, job, new JobStatusProgressor(persistentJob));
 		        	} else {
 		        		addStatusToDb(new Status(persistentJob, "Unsupported Action: " + actionId, "error", new Date()));
 		        	}
-	        	
-		        	if (action != null)
-		        		action.doAction(params, storage, job, new JobStatusProgressor(persistentJob));
 	        	} catch (ActionException e) {
 	        		addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
 	        	}
 	        }    
-	
+	        
 	        try {
 	        	// Upload to Sink
 	        	addStatusToDb(new Status(persistentJob, "Uploading to " + 
 	        		persistentJob.getSinkProfile().getProfileName(), "info", new Date()));
 	
+	        	sinkProperties.setProperty ("org.backmeup.tmpdir", getLastSplitElement (tmpDir, "/"));
 	        	sink.upload(sinkProperties, storage, new JobStatusProgressor(persistentJob));
 	        } catch (StorageException e) {
 	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
 	        }
 	        
 	        addStatusToDb(new Status(persistentJob, "BackupJob Completed", "info", new Date()));
+	      
+	        storage.close();
 	      }
 	      
-	      storage.close();
 	    } catch (StorageException e) {
 	    	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
 	    }
@@ -169,14 +178,45 @@ public class BackupJobRunner {
     }
   }
   
-  private void testActions(BackupJob job, String tmpDir) {
+	private String generateTmpDirName (BackupJob job, ProfileOptions po)
+	{
+		String conftempdir = Configuration.getConfig ().getProperty ("job.temporaryDirectory");
+		String formatstring = Configuration.getConfig ().getProperty ("job.backupname");
+		SimpleDateFormat formatter = null;
+		Date date = new Date ();
+
+		Long profileid = po.getProfile ().getProfileId ();
+		Long jobid = job.getId ();
+		// Take only last part of "org.backmeup.xxxx" (xxxx)
+		String profilename = getLastSplitElement (po.getProfile ().getDescription (), "\\.");
+		
+		formatter = new SimpleDateFormat (formatstring.replaceAll ("%PROFILEID%", profileid.toString ()).replaceAll ("%SOURCE%", profilename));
+		
+		return conftempdir + "/" + jobid + "/" + formatter.format (date);
+	}
+	
+	private String getLastSplitElement (String text, String regex)
+	{
+		String[] parts = text.split (regex);
+		
+		if (parts.length > 0)
+		{
+			return parts[parts.length - 1];
+		}
+		else
+		{
+			return text;
+		}
+	}
+  
+  private void testActions(BackupJob job, Storage storage) {
       // TODO remove this. Created by ft only for actionPlugin tests
       System.out.println ("######################################################");
       System.out.println ("Test action Plugins");
       System.out.println ("######################################################");
       try
       {
-      	executeActions (job, tmpDir);
+      	executeActions (job, storage);
       }
       catch (ActionException e)
       {
@@ -191,9 +231,9 @@ public class BackupJobRunner {
   }
   
 	// TODO remove this. Created by ft only for actionPlugin tests
-	private void executeActions (BackupJob job, String tmpDir) throws ActionException, StorageException
+	private void executeActions (BackupJob job, Storage storage) throws ActionException, StorageException
 	{
-		if (job.getUser ().getUsername ().equals ("ft@x-net.at") == false)
+		if (job.getUser ().getUsername ().equals ("irgend@x-net.at") == false)
 		{
 			return;
 		}
@@ -210,10 +250,6 @@ public class BackupJobRunner {
 		};
 		
 		Properties parameters = new Properties ();
-		
-		Storage storage = new LocalFilesystemStorage ();
-		
-		storage.open (tmpDir);
 		
 		System.out.println ("######################################################");
 		System.out.println ("Filesplitter");

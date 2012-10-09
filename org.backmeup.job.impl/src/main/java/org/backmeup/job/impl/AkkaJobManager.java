@@ -65,7 +65,7 @@ abstract public class AkkaJobManager implements JobManager {
 	    		sourceProfiles,
 	    		sinkProfile,
 	            requiredActions, 
-	            start, delayInMs, new Date (), new Date (), jobTitle);
+	            start, delayInMs, jobTitle);
 	    
 	    Long firstExecutionDate = start.getTime() + delayInMs;
 	    

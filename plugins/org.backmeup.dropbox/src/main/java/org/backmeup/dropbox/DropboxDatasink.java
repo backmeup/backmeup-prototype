@@ -42,8 +42,6 @@ public class DropboxDatasink implements Datasink {
 			{
 				fileName = "/" +  items.getProperty ("org.backmeup.tmpdir") + fileName;
 			}
-			
-			System.out.println ("Filename: " + fileName);
 
 			try {
 				byte[] data = dataObj.getBytes();

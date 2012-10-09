@@ -47,6 +47,12 @@ public class BackupJob {
   private long delay;
   @OneToOne(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
   private Token token;
+  
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date created;
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date modified;
+  private String jobTitle;
 
   public BackupJob() {
     super();
@@ -54,13 +60,17 @@ public class BackupJob {
 
   public BackupJob(BackMeUpUser user, Set<ProfileOptions> sourceProfile,
       Profile sinkProfile, List<ActionProfile> requiredActions,
-      Date start, long delay) {
+      Date start, long delay, Date created, Date modified, String jobTitle) {
     this.user = user;
     this.sourceProfiles = sourceProfile;
     this.sinkProfile = sinkProfile;
     this.requiredActions = requiredActions;
     this.start = start;
     this.delay = delay;
+    
+    this.created = created;
+    this.modified = modified;
+    this.jobTitle = jobTitle;
   }
 
   public Long getId() {
@@ -126,4 +136,34 @@ public class BackupJob {
   public void setToken(Token token) {
     this.token = token;
   }
+
+	public Date getCreated ()
+	{
+		return created;
+	}
+	
+	public void setCreated (Date created)
+	{
+		this.created = created;
+	}
+	
+	public Date getModified ()
+	{
+		return modified;
+	}
+	
+	public void setModified (Date modified)
+	{
+		this.modified = modified;
+	}
+	
+	public String getJobTitle ()
+	{
+		return jobTitle;
+	}
+	
+	public void setJobTitle (String jobTitle)
+	{
+		this.jobTitle = jobTitle;
+	}
 }

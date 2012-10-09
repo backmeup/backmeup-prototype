@@ -21,6 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.mail.Folder;
+import javax.mail.FolderClosedException;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -30,7 +31,6 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeUtility;
 
-import org.apache.commons.lang.StringUtils;
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.connectors.Datasource;
@@ -231,11 +231,25 @@ public class MailDatasource implements Datasource {
       nested.add(p);
     }
     return nested;
-  }   
+  }  
+  
+  private String join(Object[] arr, String pattern) {
+    if (arr == null)
+      return "";
+    
+    StringBuilder sb = new StringBuilder();
+    for (int i=0; i < arr.length; i++) {
+      sb.append(arr[i]).append(pattern);      
+    }
+    
+    if (arr.length > 0) {
+      sb.delete(sb.length() - pattern.length(), sb.length());
+    }
+    return sb.toString();
+  }
     
   private void handlePart(Part m, String folderName, Storage storage, Set<String> alreadyInspected, List<MessageInfo> indexDetails) throws StorageException, MessagingException, IOException {
-    if (alreadyInspected.contains(folderName + "content.html"))
-      return;
+    
     
     String from="N/A";
     String to="N/A";
@@ -247,15 +261,20 @@ public class MailDatasource implements Datasource {
     if (m instanceof Message) {
       Message mesg = (Message)m;
       if (mesg.getFrom() != null) 
-        from = StringUtils.join(mesg.getFrom(), ", ");        
+        from = join(mesg.getFrom(), ", ");        
       
       if (mesg.getRecipients(Message.RecipientType.TO) != null)
-        to = StringUtils.join(mesg.getAllRecipients(), ", ");
+        to = join(mesg.getAllRecipients(), ", ");
       msgNmbr = mesg.getMessageNumber();  
       subject = mesg.getSubject();
       sentAt = mesg.getSentDate().toString();
       receivedAt = mesg.getReceivedDate().toString();           
     }
+    
+    String destinationFileName = folderName + "content" + msgNmbr + ".html";
+    
+    if (alreadyInspected.contains(destinationFileName))
+      return;
     
     TextContent text = getText(m);
     // nothing to do; message is empty
@@ -291,9 +310,12 @@ public class MailDatasource implements Datasource {
     String attachmentFolder = folderName + "attachments" + msgNmbr + "/";
     List<Attachment> attachments = getAttachments(m);
     StringBuilder attachmentLinks = new StringBuilder();
+    
     for (Attachment a : attachments) {
       attachmentLinks.append(MessageFormat.format(textBundle.getString(MESSAGE_HTML_ATTACHMENT_ENTRY), "attachments" + msgNmbr + "/" + a.filename, a.filename));
+      logger.fine("Downloading attachment " + a.filename);
       storage.addFile(a.stream, attachmentFolder + a.filename, new MetainfoContainer());
+      logger.fine("Done.");
     }    
     String attachmentString = attachmentLinks.length() == 0 ? "" : MessageFormat.format(textBundle.getString(MESSAGE_HTML_ATTACHMENT_WRAP), attachmentLinks.toString());
     
@@ -308,7 +330,7 @@ public class MailDatasource implements Datasource {
         attachmentString,
         text.charset
     );
-    String destinationFileName = folderName + "content" + msgNmbr + ".html";
+    
     alreadyInspected.add(destinationFileName);
     indexDetails.add(new MessageInfo(destinationFileName, subject, from, to, sentAt, receivedAt));
     MetainfoContainer infos = new MetainfoContainer();
@@ -348,14 +370,17 @@ public class MailDatasource implements Datasource {
         handlePart(messages[i], folderName, storage, alreadyInspected, indexDetails);
         double percent = i * 100 / (double)messages.length;
         if (percent - 10 > prev) {         
-          logger.info(String.format("%3.2f%%", percent));          
+          logger.fine(String.format("%3.2f%%", percent));          
           prev = percent;
         }
       }
       folder.close(false);
+    } catch (FolderClosedException fce) {
+      logger.log(Level.WARNING, "Retrying folder " + folder, fce);
+      handleFolder(folder, storage, alreadyInspected, indexDetails);
     } catch (MessagingException me) {
       logger.log(Level.FINE, me.getMessage(), me);    
-    }
+    } 
   }
 
   public void handleDownloadAll(Folder current, Properties accessData,

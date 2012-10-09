@@ -82,7 +82,7 @@ public class MailAuthenticator implements InputBased {
   public boolean isValid(Properties inputs) {
     try {
       Properties authProperties = convertInputPropertiesToAuthProperties(inputs);    
-      Session session = Session.getDefaultInstance(authProperties);
+      Session session = Session.getInstance(authProperties);
       Store store = session.getStore();
       store.connect(authProperties.getProperty("mail.host"),
           authProperties.getProperty("mail.user"),

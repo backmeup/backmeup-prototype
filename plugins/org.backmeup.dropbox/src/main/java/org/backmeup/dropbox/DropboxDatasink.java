@@ -34,13 +34,24 @@ public class DropboxDatasink implements Datasink {
 			// just in case the fileName is not formatted as expected
 			// change to slashes instead of backslashes.
 			fileName = fileName.replace("\\", "/").replace("//", "/");
-			if (!fileName.startsWith("/"))
+			
+			String tmpDir;
+			if (items.containsKey ("org.backmeup.tmpdir") == true)
 			{
-				fileName = "/" +  items.getProperty ("org.backmeup.tmpdir") + "/" + fileName;
+				tmpDir = items.getProperty ("org.backmeup.tmpdir");
 			}
 			else
 			{
-				fileName = "/" +  items.getProperty ("org.backmeup.tmpdir") + fileName;
+				throw new PluginException (DropboxDescriptor.DROPBOX_ID, "Property \"org.backmeup.tmpdir\" is not set");
+			}
+			
+			if (!fileName.startsWith("/"))
+			{
+				fileName = "/" +  tmpDir + "/" + fileName;
+			}
+			else
+			{
+				fileName = "/" +  tmpDir + fileName;
 			}
 
 			try {

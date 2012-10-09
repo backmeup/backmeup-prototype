@@ -3,19 +3,25 @@ package org.backmeup.mail;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.mail.Address;
 import javax.mail.Folder;
+import javax.mail.FolderClosedException;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -25,6 +31,7 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeUtility;
 
+import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.api.connectors.DatasourceException;
@@ -39,12 +46,84 @@ import org.backmeup.plugin.api.storage.StorageException;
  * @author fschoeppl
  */
 public class MailDatasource implements Datasource {
-  private static final String MAIL = "mail";
-  private static final SimpleDateFormat sdf = new SimpleDateFormat(
-      "yyyy/MM/dd/HH_mm");
-  private static final String DEFAULT_CONTENT_TYPE = "TEXT/PLAIN";
-  private static final String DEFAULT_ENCODING = "UTF-8";
+  private static class MessageInfo {
+    private String fileName;
+    private String subject;
+    private String from;
+    private String to;
+    private String sentAt;
+    private String receivedAt;
+    
+    
+    public MessageInfo(String fileName, String subject, String from, String to,
+        String sentAt, String receivedAt) {
+      this.fileName = fileName;
+      this.subject = subject;
+      this.from = from;
+      this.to = to;
+      this.sentAt = sentAt;
+      this.receivedAt = receivedAt;
+    }
+    
+    public String getFileName() {
+      return fileName;
+    }
+    public void setFileName(String fileName) {
+      this.fileName = fileName;
+    }
+    public String getSubject() {
+      return subject;
+    }
+    public void setSubject(String subject) {
+      this.subject = subject;
+    }
+    public String getFrom() {
+      return from;
+    }
+    public void setFrom(String from) {
+      this.from = from;
+    }
+    public String getTo() {
+      return to;
+    }
+    public void setTo(String to) {
+      this.to = to;
+    }
+    public String getSentAt() {
+      return sentAt;
+    }
+    public void setSentAt(String sentAt) {
+      this.sentAt = sentAt;
+    }
+    public String getReceivedAt() {
+      return receivedAt;
+    }
+    public void setReceivedAt(String receivedAt) {
+      this.receivedAt = receivedAt;
+    }       
+  }
 
+  private SimpleDateFormat folderFormat;  
+  
+  private static final String MESSAGE_FOLDER_FORMAT = "org.backmeup.mail.MailDatasource.MESSAGE_FOLDER_FORMAT";
+  private static final String MESSAGE_HTML_WRAP = "org.backmeup.mail.MailDatasource.MESSAGE_HTML_WRAP";
+  private static final String MESSAGE_HTML_ATTACHMENT_ENTRY = "org.backmeup.mail.MailDatasource.MESSAGE_HTML_ATTACHMENT_ENTRY";
+  private static final String MESSAGE_HTML_ATTACHMENT_WRAP = "org.backmeup.mail.MailDatasource.MESSAGE_HTML_ATTACHMENT_WRAP";
+  private static final String INDEX_HTML_WRAP = "org.backmeup.mail.MailDatasource.INDEX_HTML_WRAP";
+  private static final String INDEX_HTML_ENTRY = "org.backmeup.mail.MailDatasource.INDEX_HTML_ENTRY";
+  
+  private ResourceBundle textBundle = ResourceBundle
+      .getBundle(MailDatasource.class.getSimpleName());
+  
+  private Pattern bodyRegex = Pattern.compile("<body.*?>(.*?)</body>", Pattern.DOTALL);
+  private Pattern headRegex = Pattern.compile("<head.*?>(.*?)</head>", Pattern.DOTALL);
+  private Pattern htmlRegex = Pattern.compile("<html.*?>(.*?)</html>", Pattern.DOTALL);
+  private Logger logger = Logger.getLogger(MailDatasource.class.getName());
+  
+  public MailDatasource() {
+    this.folderFormat = new SimpleDateFormat(textBundle.getString(MESSAGE_FOLDER_FORMAT));
+  }
+  
   @Override
   public String getStatistics(Properties items) {
     return null;
@@ -152,121 +231,181 @@ public class MailDatasource implements Datasource {
       nested.add(p);
     }
     return nested;
-  }   
+  }  
   
-  private void handlePart(Part m, String folderName, Storage storage, Set<String> alreadyInspected) throws StorageException, MessagingException, IOException {
-    if (alreadyInspected.contains(folderName + "content.html"))
-      return;
+  private String join(Object[] arr, String pattern) {
+    if (arr == null)
+      return "";
     
-    StringBuilder messageDetails = new StringBuilder("<div class=\"bmu-message-details\">");
+    StringBuilder sb = new StringBuilder();
+    for (int i=0; i < arr.length; i++) {
+      sb.append(arr[i]).append(pattern);      
+    }
+    
+    if (arr.length > 0) {
+      sb.delete(sb.length() - pattern.length(), sb.length());
+    }
+    return sb.toString();
+  }
+    
+  private void handlePart(Part m, String folderName, Storage storage, Set<String> alreadyInspected, List<MessageInfo> indexDetails) throws StorageException, MessagingException, IOException {
+    
+    
+    String from="N/A";
+    String to="N/A";
+    String subject="N/A";
+    String sentAt="N/A";
+    String receivedAt="N/A";
+    int msgNmbr = 0;
+    
     if (m instanceof Message) {
       Message mesg = (Message)m;
-      if (mesg.getFrom() != null)
-        for (Address a : mesg.getFrom()) 
-          messageDetails.append("<p>From: ").append(a.toString()).append("</p>");
+      if (mesg.getFrom() != null) 
+        from = join(mesg.getFrom(), ", ");        
+      
       if (mesg.getRecipients(Message.RecipientType.TO) != null)
-        for (Address a : mesg.getRecipients(Message.RecipientType.TO)) 
-          messageDetails.append("<p>To: ").append(a.toString()).append("</p>");
-      messageDetails.append("<p>Subject: ").append(mesg.getSubject()).append("</p>");
-      if (mesg.getSentDate() != null)
-        messageDetails.append("<p>Sent at: ").append(mesg.getSentDate()).append("</p>");
-      if (mesg.getReceivedDate() != null)
-        messageDetails.append("<p>Received at: ").append(mesg.getReceivedDate()).append("</p>");
+        to = join(mesg.getAllRecipients(), ", ");
+      msgNmbr = mesg.getMessageNumber();  
+      subject = mesg.getSubject();
+      sentAt = mesg.getSentDate().toString();
+      receivedAt = mesg.getReceivedDate().toString();           
     }
-    messageDetails.append("</div>");
+    
+    String destinationFileName = folderName + "content" + msgNmbr + ".html";
+    
+    if (alreadyInspected.contains(destinationFileName))
+      return;
     
     TextContent text = getText(m);
     // nothing to do; message is empty
     if (text == null)
       return;
     
+    String appendToHead = "";
+    String appendToBody = "";
+    
+    if (text.isHtml) {
+      Matcher matcher = headRegex.matcher(text.text);
+      if (matcher.find()) {
+        appendToHead = matcher.group(1);
+      } 
+      matcher = bodyRegex.matcher(text.text);
+      if (matcher.find()) {
+        appendToBody = matcher.group(1);
+      } else {        
+        matcher = htmlRegex.matcher(text.text);
+        if (matcher.find()) {
+          appendToBody = matcher.group(1);
+        } else {
+          logger.warning("Couldn't find html element / falling back to content of string");
+          appendToBody = text.text;
+        }
+      }
+    }
+    
     if (!text.isHtml) {
-      text.text = "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n"
-          + "  \"http://www.w3.org/TR/html4/strict.dtd\">"
-          + "<html>"
-          + "  <head>"
-          + "    <meta http-equiv=\"content-type\" content=\"text/html; charset="
-          + text.charset + "\"</meta>" + "  </head>" + "  <body>"          
-          + "    <p>" + text.text.replace("\r\n", "<br/>").replace("\n", "<br/>").replace("\r", "<br/>") + "    <p>"
-          + "  </body>" + "</html>";
+      appendToBody = text.text;    
     }
-
-    StringBuilder htmlText = new StringBuilder(text.text);
-    int ind = htmlText.indexOf("<body>");
-    if (ind != -1) {
-      htmlText.insert(ind, messageDetails.toString());
-    } else {
-      htmlText.insert(0, messageDetails.toString());
-    }
-
+    
+    String attachmentFolder = folderName + "attachments" + msgNmbr + "/";
     List<Attachment> attachments = getAttachments(m);
-    StringBuilder attachmentLinks = new StringBuilder(
-        "<div class=\"bmu-attachments\">");
+    StringBuilder attachmentLinks = new StringBuilder();
+    
     for (Attachment a : attachments) {
-      storage.addFile(a.stream, folderName + "attachments/" + a.filename, new MetainfoContainer());
-      attachmentLinks
-          .append("<a class=\"bmu-attachment\" href=\"./attachments/"
-              + a.filename + "\">" + a.filename + "</a>");
-    }
-    attachmentLinks.append("</div>");
-    if (attachments.size() > 0) {
-      ind = htmlText.indexOf("</body>");
-      if (ind == -1)
-        htmlText.append(attachmentLinks);
-      else
-        htmlText.insert(ind, attachmentLinks);
-    }
-    alreadyInspected.add(folderName + "content.html");
+      attachmentLinks.append(MessageFormat.format(textBundle.getString(MESSAGE_HTML_ATTACHMENT_ENTRY), "attachments" + msgNmbr + "/" + a.filename, a.filename));
+      logger.fine("Downloading attachment " + a.filename);
+      storage.addFile(a.stream, attachmentFolder + a.filename, new MetainfoContainer());
+      logger.fine("Done.");
+    }    
+    String attachmentString = attachmentLinks.length() == 0 ? "" : MessageFormat.format(textBundle.getString(MESSAGE_HTML_ATTACHMENT_WRAP), attachmentLinks.toString());
+    
+    String htmlText = MessageFormat.format(textBundle.getString(MESSAGE_HTML_WRAP), 
+        appendToHead,
+        appendToBody,
+        subject,
+        from,
+        sentAt,
+        receivedAt,
+        to,
+        attachmentString,
+        text.charset
+    );
+    
+    alreadyInspected.add(destinationFileName);
+    indexDetails.add(new MessageInfo(destinationFileName, subject, from, to, sentAt, receivedAt));
+    MetainfoContainer infos = new MetainfoContainer();
+    Metainfo metaData = new Metainfo();
+    metaData.setBackupDate(new Date());    
+    metaData.setDestination(destinationFileName);
+    metaData.setAttribute("from", from);
+    metaData.setAttribute("to", to);
+    metaData.setAttribute("receivedAt", receivedAt);
+    metaData.setAttribute("sentAt", sentAt);
+    metaData.setAttribute("subject", subject);
+    infos.addMetainfo(metaData);
     storage
         .addFile(
             new ByteArrayInputStream(htmlText.toString().getBytes(
-                text.charset)), folderName + "content.html", new MetainfoContainer());
+                text.charset)), destinationFileName, infos);
     
+    // handle nested messages
     List<Part> nested = getNestedMessages(m);
     for (int i=0; i < nested.size(); i++) {
-      handlePart(nested.get(i), folderName + "/nested/" + i + "/", storage, alreadyInspected);
+      handlePart(nested.get(i), folderName + "/nested/", storage, alreadyInspected, indexDetails);
     }
   }
 
-  private void handleFolder(Folder folder, Storage storage, Set<String> alreadyInspected)
+  private void handleFolder(Folder folder, Storage storage, Set<String> alreadyInspected, List<MessageInfo> indexDetails)
       throws IOException, MessagingException, StorageException {
     try {
       folder.open(Folder.READ_ONLY);
       
       Message[] messages = folder.getMessages();
-      System.out.println("Folder: " + folder.getFullName());
+      logger.fine("Folder: " + folder.getFullName());      
       double prev = 0;
       for (int i=0; i < messages.length; i++) {      
         String folderName = folder.getFullName() + "/"
-            + sdf.format(messages[i].getReceivedDate()) + "/" + messages[i].getMessageNumber()
-            + "/";
+            + folderFormat.format(messages[i].getReceivedDate()) + "/";
         
-        handlePart(messages[i], folderName, storage, alreadyInspected);
+        handlePart(messages[i], folderName, storage, alreadyInspected, indexDetails);
         double percent = i * 100 / (double)messages.length;
-        if (percent - 10 > prev) {          
-          System.out.format("%3.2f%%\n", percent);
+        if (percent - 10 > prev) {         
+          logger.fine(String.format("%3.2f%%", percent));          
           prev = percent;
         }
       }
       folder.close(false);
+    } catch (FolderClosedException fce) {
+      logger.log(Level.WARNING, "Retrying folder " + folder, fce);
+      handleFolder(folder, storage, alreadyInspected, indexDetails);
     } catch (MessagingException me) {
-      me.printStackTrace();
-    }
+      logger.log(Level.FINE, me.getMessage(), me);    
+    } 
   }
 
   public void handleDownloadAll(Folder current, Properties accessData,
-      Storage storage, Set<String> alreadyInspected) throws IOException, MessagingException,
+      Storage storage, Set<String> alreadyInspected, List<MessageInfo> indexDetails) throws IOException, MessagingException,
       StorageException {
     if (alreadyInspected.contains(current.getFullName()))
       return;
           
-    handleFolder(current, storage, alreadyInspected);
+    handleFolder(current, storage, alreadyInspected, indexDetails);
     alreadyInspected.add(current.getFullName());
 
     Folder[] subFolders = current.list("*");
     for (Folder sub : subFolders) {
-      handleDownloadAll(sub, accessData, storage, alreadyInspected);
+      handleDownloadAll(sub, accessData, storage, alreadyInspected, indexDetails);
     }
+  }
+  
+  private void generateIndex(Storage storage, List<MessageInfo> indexDetails) throws UnsupportedEncodingException, StorageException {
+    StringBuilder sb = new StringBuilder();
+    for (MessageInfo mi : indexDetails) {
+      sb.append(MessageFormat.format(textBundle.getString(INDEX_HTML_ENTRY), mi.getSubject(), mi.getFrom(), mi.getSentAt(), mi.getReceivedAt(), mi.getTo(), mi.getFileName()));
+    }
+    String indexHtml = MessageFormat.format(textBundle.getString(INDEX_HTML_WRAP), sb.toString());
+    
+    storage.addFile(new ByteArrayInputStream(indexHtml.getBytes("UTF-8")), "index.html", new MetainfoContainer());
   }
 
   @Override
@@ -280,19 +419,19 @@ public class MailDatasource implements Datasource {
           accessData.getProperty("mail.password"));
       Set<String> alreadyInspected = new HashSet<String>();
       Folder[] folders = store.getDefaultFolder().list("*");
+      List<MessageInfo> indexDetails = new ArrayList<MessageInfo>();
       for (Folder folder : folders) {
-        handleDownloadAll(folder, accessData, storage, alreadyInspected);
+        handleDownloadAll(folder, accessData, storage, alreadyInspected, indexDetails);
       }
+      // generate index based on message info structs
+      generateIndex(storage, indexDetails);
       store.close();
     } catch (NoSuchProviderException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      logger.log(Level.SEVERE, e.getMessage(), e);
     } catch (MessagingException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      logger.log(Level.SEVERE, e.getMessage(), e);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      logger.log(Level.SEVERE, e.getMessage(), e);      
     }
   }
 

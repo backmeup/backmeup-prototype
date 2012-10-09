@@ -18,7 +18,7 @@ public class DatasourceProfilesContainer {
 	public DatasourceProfilesContainer(List<Profile> profiles) {
 		setSourceProfiles(new ArrayList<InternalProfile>());
 		for (Profile p : profiles) {
-			getSourceProfiles().add(new InternalProfile(p.getProfileName(), p.getProfileId(), p.getDescription ()));
+			getSourceProfiles().add(new InternalProfile(p.getProfileName(), p.getProfileId(), p.getDescription (), p.getCreated ().getTime (), p.getModified ().getTime ()));
 		}
 	}
 	
@@ -35,14 +35,18 @@ public class DatasourceProfilesContainer {
 		private String title;
 		private String pluginName;
 		private long datasourceProfileId;
+		private long createDate;
+		private long modifyDate;
 		
 		public InternalProfile() {
 		}
 		
-		public InternalProfile(String title, long datasourceProfileId, String pluginName) {
+		public InternalProfile(String title, long datasourceProfileId, String pluginName, long createDate, long modifyDate) {
 			this.title = title;
 			this.datasourceProfileId = datasourceProfileId;
 			this.pluginName = pluginName;
+			this.createDate = createDate;
+			this.modifyDate = modifyDate;
 		}
 		public String getTitle() {
 			return title;
@@ -64,6 +68,26 @@ public class DatasourceProfilesContainer {
 		public void setPluginName (String pluginName)
 		{
 			this.pluginName = pluginName;
+		}
+		
+		public long getCreateDate ()
+		{
+			return createDate;
+		}
+
+		public void setCreateDate (long createDate)
+		{
+			this.createDate = createDate;
+		}
+
+		public long getModifyDate ()
+		{
+			return modifyDate;
+		}
+
+		public void setModifyDate (long modifyDate)
+		{
+			this.modifyDate = modifyDate;
 		}
 	}
 }

@@ -49,7 +49,7 @@ public class Datasinks extends Base {
   @Path("/{username}/profiles")
   @Produces("application/json")
   public DatasinkProfilesContainer getDatasinkProfiles(
-      @PathParam("username") String username) {    
+      @PathParam("username") String username) {
     List<Profile> profiles = getLogic().getDatasinkProfiles(username);    
     return new DatasinkProfilesContainer(profiles);
   }

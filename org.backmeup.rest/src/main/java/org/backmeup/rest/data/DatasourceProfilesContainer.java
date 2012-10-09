@@ -18,7 +18,7 @@ public class DatasourceProfilesContainer {
 	public DatasourceProfilesContainer(List<Profile> profiles) {
 		setSourceProfiles(new ArrayList<InternalProfile>());
 		for (Profile p : profiles) {
-			getSourceProfiles().add(new InternalProfile(p.getProfileName(), p.getProfileId()));
+			getSourceProfiles().add(new InternalProfile(p.getProfileName(), p.getProfileId(), p.getDescription ()));
 		}
 	}
 	
@@ -33,14 +33,16 @@ public class DatasourceProfilesContainer {
 	public static class InternalProfile {
 		
 		private String title;
+		private String pluginName;
 		private long datasourceProfileId;
 		
 		public InternalProfile() {
 		}
 		
-		public InternalProfile(String title, long datasourceProfileId) {
+		public InternalProfile(String title, long datasourceProfileId, String pluginName) {
 			this.title = title;
 			this.datasourceProfileId = datasourceProfileId;
+			this.pluginName = pluginName;
 		}
 		public String getTitle() {
 			return title;
@@ -54,7 +56,14 @@ public class DatasourceProfilesContainer {
 		public void setDatasourceProfileId(long datasourceProfileId) {
 			this.datasourceProfileId = datasourceProfileId;
 		}
-		
-		
+
+		public String getPluginName ()
+		{
+			return pluginName;
+		}
+		public void setPluginName (String pluginName)
+		{
+			this.pluginName = pluginName;
+		}
 	}
 }

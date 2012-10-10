@@ -34,7 +34,7 @@ public class IndexActionTest {
 	private static final String ELASTICSEARCH_CLUSTERNAME = "testcluster";
 	
 	private static final String BACKUP_JOB =
-			"{\"user\":{\"userId\":1,\"username\":\"TestUser\",\"password\":\"pw\"," + 
+			"{\"id\":1, \"user\":{\"userId\":1,\"username\":\"TestUser\",\"password\":\"pw\"," + 
 	        "\"keyRing\":\"k3yr1nG\",\"email\":\"e@ma.il\",\"isActivated\":false,\"properties\":[]}," +
 			"\"sourceProfiles\":" +
 			"[{\"profile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"TestUser\"," +
@@ -144,6 +144,11 @@ public class IndexActionTest {
 		}
 		
 		Assert.assertEquals(3, response.getHits().totalHits());
+		
+		System.out.println("Getting results for Job 1:");
+		for (SearchHit hit : idx.searchByJobId(1).getHits()) {
+			System.out.println(hit.getSourceAsString());
+		}
 	}
 
 }

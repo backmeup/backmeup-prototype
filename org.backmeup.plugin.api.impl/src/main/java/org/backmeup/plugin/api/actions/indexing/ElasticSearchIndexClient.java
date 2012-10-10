@@ -31,5 +31,10 @@ public class ElasticSearchIndexClient {
 		
 		return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).execute().actionGet();
 	}
+	
+	public SearchResponse searchByJobId(long jobId) {
+		QueryBuilder qBuilder = QueryBuilders.matchQuery(IndexUtils.FIELD_JOB_ID, jobId);
+		return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).execute().actionGet();
+	}
 
 }

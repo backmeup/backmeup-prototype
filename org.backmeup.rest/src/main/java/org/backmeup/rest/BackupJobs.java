@@ -113,7 +113,7 @@ public class BackupJobs extends Base {
   @Path("/{username}/{fileId}/details")
   @Produces("application/json")
   public ProtocolDetailsContainer getProtocolDetails(
-      @PathParam("username") String username, @PathParam("fileId") Long fileId) {
+      @PathParam("username") String username, @PathParam("fileId") String fileId) {
     return new ProtocolDetailsContainer(getLogic().getProtocolDetails(username,
         fileId));
   }

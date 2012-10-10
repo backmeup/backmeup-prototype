@@ -29,7 +29,13 @@ public class LocalFilesystemStorage extends Storage {
 
 	@Override
 	public void close() throws StorageException {
-		// Do nothing
+		// remove everything in the dir
+		removeDir ("");
+		
+		//delte root dir and the parrent (/..../jobId/BMU_xxxxx)
+		File parrent = new File (rootDir.getParent ());
+		rootDir.delete ();
+		parrent.delete ();
 	}
 	
 	@Override

@@ -117,8 +117,9 @@ public class BackupJobRunner {
 	      Properties sinkProperties = 
 	    		  authenticationData.getByProfileId(persistentJob.getSinkProfile().getProfileId());
 	      
-	      addStatusToDb(new Status(persistentJob, "BackupJob Started", "info", new Date()));
+	      addStatusToDb(new Status(persistentJob, "BackupJob Started", "info", "backupjob", new Date()));
 	      long previousSize = 0;
+
 	      for (ProfileOptions po : persistentJob.getSourceProfiles()) {
 	    	String tmpDir = generateTmpDirName (job, po);
 	    	storage.open(tmpDir);
@@ -129,18 +130,18 @@ public class BackupJobRunner {
 	        Properties sourceProperties = authenticationData.getByProfileId(po
 	            .getProfile().getProfileId());
 	        
-	    	addStatusToDb(new Status(persistentJob, "Downloading from " + po.getProfile().getProfileName(), "info", new Date()));
+	    	addStatusToDb(new Status(persistentJob, "Downloading from " + po.getProfile().getProfileName(), "info", "datasource", new Date()));
 	    	
 	    	// Download from source
 	        try {
-	          source.downloadAll(sourceProperties, storage, new JobStatusProgressor(persistentJob));
+	          source.downloadAll(sourceProperties, storage, new JobStatusProgressor(persistentJob, "datasource"));
 	        } catch (StorageException e) {
-	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
+	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", "datasource", new Date()));
 	        } catch (DatasourceException e) {
-	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
+	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", "datasource", new Date()));
 	        }
 	        
-	        addStatusToDb(new Status(persistentJob, "Download completed", "info", new Date()));
+	        addStatusToDb(new Status(persistentJob, "Download completed", "info", "datasource", new Date()));
 	        
 	        // for each datasource add an entry with bytes it consumed 
 	        long currentSize = storage.getDataObjectSize() - previousSize;
@@ -159,7 +160,7 @@ public class BackupJobRunner {
 		        	
 		        	if ("org.backmeup.filesplitting".equals(actionId)) {
 		        		action = new FilesplittAction();
-		        		action.doAction(params, storage, job, new JobStatusProgressor(persistentJob));
+		        		action.doAction(params, storage, job, new JobStatusProgressor(persistentJob, "filesplittaction"));
 		        	} else if ("org.backmeup.indexer".equals(actionId)) {
 		        		Configuration config = Configuration.getConfig();
 		        		String host = config.getProperty(INDEX_HOST);
@@ -169,32 +170,32 @@ public class BackupJobRunner {
 		        			.addTransportAddress(new InetSocketTransportAddress(host, port));
 		        		
 		        		action = new IndexAction(client);
-		        		action.doAction(params, storage, persistentJob, new JobStatusProgressor(persistentJob));
+		        		action.doAction(params, storage, persistentJob, new JobStatusProgressor(persistentJob, "indexaction"));
 		        		
 		        		client.close();
 		          	} else if ("org.backmeup.encryption".equals(actionId)) {
 		        		action = new EncryptionAction();
-		        		action.doAction(params, storage, job, new JobStatusProgressor(persistentJob));
+		        		action.doAction(params, storage, job, new JobStatusProgressor(persistentJob, "encryptionaction"));
 		        	} else {
-		        		addStatusToDb(new Status(persistentJob, "Unsupported Action: " + actionId, "error", new Date()));
+		        		addStatusToDb(new Status(persistentJob, "Unsupported Action: " + actionId, "error", "backupjob", new Date()));
 		        	}
 	        	} catch (ActionException e) {
-	        		addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
+	        		addStatusToDb(new Status(persistentJob, e.getMessage(), "error", "backupjob", new Date()));
 	        	}
 	        }    
 	        
 	        try {
 	        	// Upload to Sink
 	        	addStatusToDb(new Status(persistentJob, "Uploading to " + 
-	        		persistentJob.getSinkProfile().getProfileName(), "info", new Date()));
+	        		persistentJob.getSinkProfile().getProfileName(), "info", "datasink", new Date()));
 	
 	        	sinkProperties.setProperty ("org.backmeup.tmpdir", getLastSplitElement (tmpDir, "/"));
-	        	sink.upload(sinkProperties, storage, new JobStatusProgressor(persistentJob));
+	        	sink.upload(sinkProperties, storage, new JobStatusProgressor(persistentJob, "datasink"));
 	        } catch (StorageException e) {
-	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
+	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", "datasink", new Date()));
 	        }
 	        
-	        addStatusToDb(new Status(persistentJob, "BackupJob Completed", "info", new Date()));
+	        addStatusToDb(new Status(persistentJob, "BackupJob Completed", "info", "backupjob", new Date()));
 	        
 	        // store job protocol within database
 	        storeJobProtocol(persistentJob, protocol, storage.getDataObjectCount(), true);
@@ -204,7 +205,7 @@ public class BackupJobRunner {
 	    } catch (StorageException e) {
 	      // job failed, store job protocol within database
         storeJobProtocol(persistentJob, protocol, 0, false);
-	    	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
+	    	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", "storage", new Date()));
 	    }
     } finally {
       conn.rollback();
@@ -303,14 +304,16 @@ public class BackupJobRunner {
 	private class JobStatusProgressor implements Progressable {
 		
 		private BackupJob job;
+		private String category;
 		
-		public JobStatusProgressor(BackupJob job) {
+		public JobStatusProgressor(BackupJob job, String category) {
 			this.job = job;
+			this.category = category;
 		}
 
 		@Override
 		public void progress(String message) {
-			addStatusToDb(new Status(job, message, "info", new Date()));
+			addStatusToDb(new Status(job, message, "info", category, new Date()));
 		}
 		
 	}

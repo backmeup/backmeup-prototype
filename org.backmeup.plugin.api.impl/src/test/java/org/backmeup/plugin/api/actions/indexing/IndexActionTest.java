@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.FileItem;
 import org.backmeup.model.SearchResponse.CountedEntry;
 import org.backmeup.model.SearchResponse.SearchEntry;
 import org.backmeup.model.serializer.JsonSerializer;
@@ -34,7 +36,7 @@ public class IndexActionTest {
 	private static final String ELASTICSEARCH_CLUSTERNAME = "testcluster";
 	
 	private static final String BACKUP_JOB =
-			"{\"user\":{\"userId\":1,\"username\":\"TestUser\",\"password\":\"pw\"," + 
+			"{\"id\":1, \"user\":{\"userId\":1,\"username\":\"TestUser\",\"password\":\"pw\"," + 
 	        "\"keyRing\":\"k3yr1nG\",\"email\":\"e@ma.il\",\"isActivated\":false,\"properties\":[]}," +
 			"\"sourceProfiles\":" +
 			"[{\"profile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"TestUser\"," +
@@ -144,6 +146,17 @@ public class IndexActionTest {
 		}
 		
 		Assert.assertEquals(3, response.getHits().totalHits());
+		
+		System.out.println("Getting results for Job 1:");
+		SearchResponse resultsForJob = idx.searchByJobId(1);
+		for (SearchHit hit : resultsForJob.getHits()) {
+			System.out.println(hit.getSourceAsString());
+		}
+		
+		Set<FileItem> fileItems = IndexUtils.convertToFileItems(resultsForJob);
+		for (FileItem f: fileItems) {
+			System.out.println("item " + f.getFileId() + " - " + f.getTitle());
+		}
 	}
 
 }

@@ -31,5 +31,28 @@ public class ElasticSearchIndexClient {
 		
 		return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).execute().actionGet();
 	}
+	
+	public SearchResponse searchByJobId(long jobId) {
+		QueryBuilder qBuilder = QueryBuilders.matchQuery(IndexUtils.FIELD_JOB_ID, jobId);
+		return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).execute().actionGet();
+	}
+	
+	public SearchResponse getFileById(String fileId) {
+		// IDs in backmeup are "owner:hash:timestamp"
+		String[] bmuId = fileId.split(":");
+		if (bmuId.length != 3)
+			throw new IllegalArgumentException("Invalid file ID: " + fileId);
+		
+		Long owner = Long.parseLong(bmuId[0]);
+		String hash = bmuId[1];
+		Long timestamp = Long.parseLong(bmuId[2]);
+		
+		QueryBuilder qBuilder = QueryBuilders.boolQuery()
+				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, owner))
+				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_FILE_HASH, hash))
+				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_BACKUP_AT, timestamp));
+		
+		return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).execute().actionGet();
+	}
 
 }

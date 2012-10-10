@@ -2,23 +2,9 @@ package org.backmeup.model;
 
 import java.util.Date;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-
-@Entity
 public class FileItem {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(nullable = false)
-  private Long fileId;
+  private String fileId;
 
-  @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
   private Status status;
 
   private String thumbnailURL;
@@ -58,11 +44,11 @@ public class FileItem {
     this.timeStamp = timeStamp;
   }
 
-  public Long getFileId() {
+  public String getFileId() {
     return fileId;
   }
 
-  public void setFileId(Long fileId) {
+  public void setFileId(String fileId) {
     this.fileId = fileId;
   }
 

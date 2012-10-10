@@ -661,15 +661,11 @@ public class DummyBusinessLogic implements BusinessLogic {
     ProtocolOverview po = new ProtocolOverview();
     po.setTotalCount("23456345");
     po.setTotalStored("2.2GB");
-    List<Entry> storedAmount = new ArrayList<Entry>();
-    storedAmount.add(new Entry("Facebook", 30));
-    storedAmount.add(new Entry("Twitter", 10));
-    storedAmount.add(new Entry("Moodle", 60));
-    po.setStoredAmount(storedAmount);
-    List<Entry> sinks = new ArrayList<Entry>();
-    sinks.add(new Entry("Dropbox", 26));
-    sinks.add(new Entry("DVD per Post", 96));
-    po.setDatasinks(sinks);
+    Set<Entry> storedAmount = new HashSet<Entry>();
+    storedAmount.add(new Entry("Facebook", 30, 400));
+    storedAmount.add(new Entry("Twitter", 10, 1500));
+    storedAmount.add(new Entry("Moodle", 60, 300));
+    po.setStoredAmount(storedAmount);   
     return po;
   }
 

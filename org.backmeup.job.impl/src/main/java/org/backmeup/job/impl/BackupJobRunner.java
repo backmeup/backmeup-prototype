@@ -1,18 +1,24 @@
 package org.backmeup.job.impl;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import org.backmeup.configuration.Configuration;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
+import org.backmeup.dal.JobProtocolDao;
 import org.backmeup.dal.StatusDao;
+import org.backmeup.dal.UserDao;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.JobProtocol;
+import org.backmeup.model.JobProtocol.JobProtocolMember;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Status;
 import org.backmeup.model.Token;
@@ -31,8 +37,6 @@ import org.backmeup.plugin.api.storage.StorageException;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
 
 /**
  * Implements the actual BackupJob execution.
@@ -63,6 +67,18 @@ public class BackupJobRunner {
     StatusDao sd = dal.createStatusDao();
     sd.save(status); // store job within database
     conn.commit(); // commit to the database and to the core
+  }    
+  
+  private void storeJobProtocol(BackupJob job, JobProtocol protocol, int storedEntriesCount, boolean success) {
+    conn.beginOrJoin();
+    BackupJobDao jobDao = dal.createBackupJobDao();
+    job = jobDao.merge(job);
+    JobProtocolDao jpd = dal.createJobProtocolDao();
+    protocol.setUser(job.getUser());
+    protocol.setSuccessful(success);
+    protocol.setTotalStoredEntries(storedEntriesCount);
+    jpd.save(protocol);
+    conn.commit();
   }
 
   public void executeBackup(BackupJob job, Storage storage) {
@@ -87,6 +103,14 @@ public class BackupJobRunner {
       // TODO: store newToken for the next backup schedule
       conn.commit(); // stores the new token within database
       
+      // Protocol Overview requires information about executed jobs      
+      JobProtocol protocol = new JobProtocol();      
+      List<JobProtocolMember> protocolEntries = new ArrayList<JobProtocolMember>();
+      protocol.setMembers(protocolEntries);
+      protocol.setSinkTitle(persistentJob.getSinkProfile().getProfileName());
+      protocol.setExecutionTime(new Date());
+      protocol.setJobTitle(persistentJob.getJobTitle());
+      
       // Open temporary storage
       try {
 	      Datasink sink = plugins.getDatasink(persistentJob.getSinkProfile().getDescription());
@@ -94,7 +118,7 @@ public class BackupJobRunner {
 	    		  authenticationData.getByProfileId(persistentJob.getSinkProfile().getProfileId());
 	      
 	      addStatusToDb(new Status(persistentJob, "BackupJob Started", "info", new Date()));
-	      
+	      long previousSize = 0;
 	      for (ProfileOptions po : persistentJob.getSourceProfiles()) {
 	    	String tmpDir = generateTmpDirName (job, po);
 	    	storage.open(tmpDir);
@@ -117,6 +141,11 @@ public class BackupJobRunner {
 	        }
 	        
 	        addStatusToDb(new Status(persistentJob, "Download completed", "info", new Date()));
+	        
+	        // for each datasource add an entry with bytes it consumed 
+	        long currentSize = storage.getDataObjectSize() - previousSize;
+	        protocolEntries.add(new JobProtocolMember(protocol, po.getProfile().getProfileName(), currentSize));
+	        previousSize = storage.getDataObjectSize();
 	        
 	        // make properties global for the action loop. So the plugins can communicate (filesplitt + encryption)
 	        Properties params = new Properties();
@@ -166,11 +195,15 @@ public class BackupJobRunner {
 	        }
 	        
 	        addStatusToDb(new Status(persistentJob, "BackupJob Completed", "info", new Date()));
-	      
+	        
+	        // store job protocol within database
+	        storeJobProtocol(persistentJob, protocol, storage.getDataObjectCount(), true);
+	        
 	        storage.close();
-	      }
-	      
+	      }	      
 	    } catch (StorageException e) {
+	      // job failed, store job protocol within database
+        storeJobProtocol(persistentJob, protocol, 0, false);
 	    	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", new Date()));
 	    }
     } finally {

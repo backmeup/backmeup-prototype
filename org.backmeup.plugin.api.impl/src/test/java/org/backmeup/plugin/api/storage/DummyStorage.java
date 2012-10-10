@@ -75,4 +75,10 @@ public class DummyStorage extends Storage {
 		
 	}
 
+  @Override
+  public long getDataObjectSize() throws StorageException {
+    // TODO Auto-generated method stub
+    return 500l;
+  }
+
 }

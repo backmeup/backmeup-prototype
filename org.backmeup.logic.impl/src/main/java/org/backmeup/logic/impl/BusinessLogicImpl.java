@@ -29,6 +29,7 @@ import org.backmeup.configuration.Configuration;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
+import org.backmeup.dal.JobProtocolDao;
 import org.backmeup.dal.ProfileDao;
 import org.backmeup.dal.SearchResponseDao;
 import org.backmeup.dal.StatusDao;
@@ -42,11 +43,15 @@ import org.backmeup.model.AuthRequest;
 import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.FileItem;
+import org.backmeup.model.JobProtocol;
+import org.backmeup.model.JobProtocol.JobProtocolMember;
 import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.ProtocolDetails;
 import org.backmeup.model.ProtocolOverview;
+import org.backmeup.model.ProtocolOverview.Activity;
+import org.backmeup.model.ProtocolOverview.Entry;
 import org.backmeup.model.SearchResponse;
 import org.backmeup.model.Status;
 import org.backmeup.model.Token;
@@ -749,8 +754,45 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public ProtocolOverview getProtocolOverview(String username, String duration) {
-    // TODO Auto-generated method stub
-    return null;
+    try {
+      conn.begin();
+      JobProtocolDao jpd = dal.createJobProtocolDao();
+      BackMeUpUser user = getUser(username);
+      Date to = new Date();
+      Date from = duration.equals("month") ? new Date(to.getTime() - DELAY_MONTHLY) :
+                                        new Date(to.getTime() - DELAY_WEEKLY);            
+      List<JobProtocol> protocols = jpd.findByUsernameAndDuration(username, from, to);
+      ProtocolOverview po = new ProtocolOverview();
+      Map<String, Entry> entries = new HashMap<String, Entry>();
+      double totalSize = 0;
+      long totalCount = 0;
+      for (JobProtocol prot : protocols) {        
+        totalCount += prot.getTotalStoredEntries();
+        for (JobProtocolMember member : prot.getMembers()) {
+          Entry entry = entries.get(member.getTitle());
+          if (entry == null) {
+            entry = new Entry(member.getTitle(), 0, member.getSpace());
+            entries.put(member.getTitle(), entry);           
+          } else {            
+            entry.setAbsolute(entry.getAbsolute() + member.getSpace());
+          }                    
+          totalSize += member.getSpace();         
+        }
+        po.getActivities().add(new Activity(prot.getJobTitle(), prot.getExecutionTime()));
+      }
+      
+      for (Entry entry : entries.values()) {
+        entry.setPercent(100 * entry.getAbsolute() / totalSize);
+        po.getStoredAmount().add(entry);
+      }
+      po.setTotalCount(totalCount+"");
+      // TODO: Determine format of bytes (currently MB)
+      po.setTotalStored(totalSize / 1024 / 1024 +" MB");      
+      po.setUser(user.getUserId());
+      return po;
+    } finally {
+      conn.rollback();
+    }    
   }
 
   public AuthRequest preAuth(String username, String uniqueDescIdentifier,

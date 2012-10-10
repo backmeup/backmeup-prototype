@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 /**
  * The status class contains status information
@@ -37,7 +38,8 @@ public class Status {
 	@Temporal(TemporalType.TIMESTAMP)	
 	private Date timeStamp;
 	private String progress;
-	@OneToMany(orphanRemoval=true, cascade=CascadeType.ALL, fetch=FetchType.EAGER, mappedBy="status")
+	
+	@Transient
 	private Set<FileItem> files;	
 	
 	public Status() {

@@ -5,12 +5,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Map;
 import java.util.Properties;
 
 import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.plugin.spi.OAuthBased;
-import org.json.JSONObject;
 
 
 /**
@@ -56,7 +54,7 @@ public class FacebookAuthenticator implements OAuthBased {
 		try {
 			url = new URL("https://graph.facebook.com/oauth/access_token?" +
 					"client_id="+FacebookHelper.getInstance().getAppKey()+
-					"&redirect_uri=http://www.backmeup.at/"+
+					"&redirect_uri=http://www.backmeup.at/oauth_callback"+
 					"&client_secret="+FacebookHelper.getInstance().getAppSecret()+"&code="+code);
 		
 			c = (HttpURLConnection) url.openConnection();

@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
 import org.backmeup.configuration.Configuration;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
@@ -110,6 +111,8 @@ public class BusinessLogicImpl implements BusinessLogic {
   private static final String VERIFICATION_EMAIL_SUBJECT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_SUBJECT";
   private static final String VERIFICATION_EMAIL_CONTENT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_CONTENT";
   private static final String VERIFICATION_EMAIL_MIME_TYPE = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_MIME_TYPE";
+  private static final String ERROR_OCCURED = "org.backmeup.logic.impl.BusinessLogicImpl.ERROR_OCCURED";
+  private static final String UNKNOWN_SEARCH_ID = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_SEARCH_ID";  
   
   private static final String INDEX_HOST = "index.host";
   private static final String INDEX_PORT = "index.port";
@@ -148,6 +151,8 @@ public class BusinessLogicImpl implements BusinessLogic {
   @Inject
   @Named("emailVerificationUrl")
   private String verificationUrl;
+  
+  private Logger logger = Logger.getLogger(BusinessLogicImpl.class);
   
 
   private ResourceBundle textBundle = ResourceBundle
@@ -416,7 +421,10 @@ public class BusinessLogicImpl implements BusinessLogic {
       Token t = keyserverClient.getToken(p, keyRingPassword, new Date().getTime(), false);
       AuthDataResult authData = keyserverClient.getData(t);
       Properties accessData = authData.getByProfileId(profileId);
-      return source.getAvailableOptions(accessData);      
+      return source.getAvailableOptions(accessData); 
+    } catch (PluginException pe) {
+      logger.error("Error during getAvailableOptions", pe);
+      throw pe;
     } finally {
       conn.rollback();
     }
@@ -695,9 +703,27 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
 
-  public ProtocolDetails getProtocolDetails(String username, Long fileId) {
-    // TODO Auto-generated method stub
-    return null;
+  public ProtocolDetails getProtocolDetails(String username, String fileId) {
+    try {
+      conn.begin();
+      
+      try {
+        String query = "*:*";
+        
+        Configuration config = Configuration.getConfig();
+        String host = config.getProperty(INDEX_HOST);
+        int port = Integer.parseInt(config.getProperty(INDEX_PORT));
+        
+        ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);
+        org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(username, query);
+        
+      } catch (Throwable t) {
+        t.printStackTrace();
+      }
+      return new ProtocolDetails();
+    } finally {
+    conn.rollback();
+    }
   }
 
   public ProtocolOverview getProtocolOverview(String username, String duration) {
@@ -833,8 +859,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 	      
 	      return search.getId();
 	  } catch (Throwable t) {
-		  t.printStackTrace();
-		  return -1;
+		  throw new BackMeUpException(textBundle.getString(ERROR_OCCURED), t);		  		  
 	  } finally {
 		  conn.rollback();
 	  }
@@ -846,9 +871,12 @@ public class BusinessLogicImpl implements BusinessLogic {
 	  try {
 	    conn.begin();
 	    
-	    // TODO shouldn't we verify the user?
+	    // at least we make sure, that the user exists
+	    getUser(username);
 	    
 	    SearchResponse search = getSearchResponseDao().findById(searchId);
+	    if (search == null)
+	      throw new BackMeUpException(textBundle.getString(UNKNOWN_SEARCH_ID));
 	    try {
 		    String query = search.getQuery();
 		    

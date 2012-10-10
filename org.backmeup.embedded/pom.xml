@@ -11,7 +11,7 @@
 	<properties>
 		<org.glassfish.grizzly.version>2.2.5</org.glassfish.grizzly.version>
 	</properties>
-	
+
 	<repositories>
 		<repository>
 			<id>Sonatype</id>
@@ -20,7 +20,7 @@
 			<url>http://oss.sonatype.org/content/repositories/releases/</url>
 		</repository>
 	</repositories>
-	
+
 	<dependencies>
 		<!-- <dependency> <groupId>org.glassfish.grizzly</groupId> <artifactId>grizzly-framework</artifactId> 
 			<version>${org.glassfish.grizzly.version}</version> </dependency> <dependency> 
@@ -30,6 +30,11 @@
 			<version>${org.glassfish.grizzly.version}</version> </dependency> <dependency> 
 			<groupId>com.sun.jersey</groupId> <artifactId>jersey-grizzly2</artifactId> 
 			<version>${jersey.version}</version> </dependency> -->
+		<dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>9.1-901.jdbc4</version>
+		</dependency>
 		<dependency>
 			<groupId>org.backmeup</groupId>
 			<artifactId>rest</artifactId>
@@ -82,9 +87,9 @@
 				</executions>
 				<configuration>
 					<executable>java</executable>
-                                        <arguments>
-                                                <argument>-Xmx1024m</argument>
-                                                <argument>-XX:MaxPermSize=256m</argument>
+					<arguments>
+						<argument>-Xmx1024m</argument>
+						<argument>-XX:MaxPermSize=256m</argument>
 						<argument>-cp</argument>
 						<classpath />
 						<argument>org.backmeup.embedded.Main</argument>
@@ -118,8 +123,8 @@
 							<executable>java</executable>
 							<arguments>
 								<!-- start the VM in debug mode -->
-                                                                <argument>-Xmx1024m</argument>
-                                                                <argument>-XX:MaxPermSize=256m</argument>
+								<argument>-Xmx1024m</argument>
+								<argument>-XX:MaxPermSize=256m</argument>
 								<argument>-Xdebug</argument>
 								<argument>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044</argument>
 								<argument>-cp</argument>
@@ -202,6 +207,47 @@
 					<version>${project.version}</version>
 				</dependency>
 			</dependencies>
+		</profile>
+		<profile>
+			<id>create-db</id>
+			<activation>
+				<property>
+					<name>create-db</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<!-- other plugins ... -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>hibernate3-maven-plugin</artifactId>
+						<version>2.2</version>
+						<configuration>
+							<components>
+								<component>
+									<name>hbm2ddl</name>
+									<implementation>jpaconfiguration</implementation>
+								</component>
+							</components>
+							<componentProperties>
+								<persistenceunit>org.backmeup.jpa</persistenceunit>
+								<!-- outputfilename>schema.ddl</outputfilename> -->
+								<drop>true</drop>
+								<create>true</create>
+								<export>true</export>
+								<format>true</format>
+							</componentProperties>
+						</configuration>
+						<dependencies>
+							<dependency>
+								<groupId>postgresql</groupId>
+								<artifactId>postgresql</artifactId>
+								<version>9.1-901.jdbc4</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
 </project>

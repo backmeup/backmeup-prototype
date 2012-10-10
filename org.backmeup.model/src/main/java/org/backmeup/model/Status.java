@@ -37,6 +37,7 @@ public class Status {
 	@Temporal(TemporalType.TIMESTAMP)	
 	private Date timeStamp;
 	private String progress;
+	private String category;
 	
 	@Transient
 	private Set<FileItem> files;	
@@ -44,17 +45,18 @@ public class Status {
 	public Status() {
 	}
 	
-	public Status(BackupJob job, String message, String type, Date timeStamp) {
-		this(job, message, type, timeStamp, null, null);
+	public Status(BackupJob job, String message, String type, String category, Date timeStamp) {
+		this(job, message, type, category, timeStamp, null, null);
 	}
 	
-	public Status(BackupJob job, String message, String type, Date timeStamp, String progress, Set<FileItem> files) {
+	public Status(BackupJob job, String message, String type, String category, Date timeStamp, String progress, Set<FileItem> files) {
 		this.job = job;
 		this.message = message;
 		this.type = type;
 		this.timeStamp = timeStamp;
 		this.progress = progress;
 		this.files = files;
+		this.category = category;
 	}
 	
 	public String getProgress() {

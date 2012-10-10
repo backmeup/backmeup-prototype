@@ -24,6 +24,8 @@ public interface DataAccessLayer {
 	
 	public ServiceDao createServiceDao();
 	
+	public JobProtocolDao createJobProtocolDao();
+	
 	public SearchResponseDao createSearchResponseDao();
 	
 	public void setConnection(Object connection);

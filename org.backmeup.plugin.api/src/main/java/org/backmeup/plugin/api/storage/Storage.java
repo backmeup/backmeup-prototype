@@ -17,6 +17,9 @@ public abstract class Storage {
 	
 	public abstract int getDataObjectCount() throws StorageException;
 	
+	// The total size of all objects within this storage in bytes
+	public abstract long getDataObjectSize() throws StorageException;
+	
 	public abstract Iterator<DataObject> getDataObjects() throws StorageException;
 	
 	public abstract boolean existsPath(String path) throws StorageException;

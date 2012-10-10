@@ -18,19 +18,24 @@ import org.backmeup.plugin.api.storage.StorageException;
 public class LocalFilesystemStorage extends Storage {
 	
 	private File rootDir;
+	private long totalStorageSize = 0;
 
 	@Override
 	public void open(String rootPath) throws StorageException {
 		this.rootDir = new File(rootPath);
 		if (!this.rootDir.exists()) 
-			this.rootDir.mkdirs();
+			this.rootDir.mkdirs();				
 	}
 
 	@Override
 	public void close() throws StorageException {
 		// remove everything in the dir
 		removeDir ("");
+		
+		//delte root dir and the parrent (/..../jobId/BMU_xxxxx)
+		File parrent = new File (rootDir.getParent ());
 		rootDir.delete ();
+		parrent.delete ();
 	}
 	
 	@Override
@@ -112,11 +117,13 @@ public class LocalFilesystemStorage extends Storage {
 			out.getParentFile().mkdirs();
 				
 			OutputStream os = new FileOutputStream(out);
-							
+			long totalSize = 0;
 			byte buf[] = new byte[1024 * 1024];
 			int len;
-			while((len = is.read(buf)) > 0)
+			while((len = is.read(buf)) > 0) {
 				os.write(buf, 0, len);
+				totalSize += len;
+			}
 				
 			os.close();
 			is.close();
@@ -127,6 +134,7 @@ public class LocalFilesystemStorage extends Storage {
 			  os.write(json, 0, json.length);
 			  os.close();
 			}
+			totalStorageSize += totalSize;
 		} catch (IOException e) {
 			throw new StorageException(e);
 		}
@@ -171,6 +179,9 @@ public class LocalFilesystemStorage extends Storage {
 		File file = new File(rootDir, path);
 		if (!file.exists())
 			throw new StorageException("Cannot remove " + path + " - does not exist");
+		
+		if (file.isFile())
+		  totalStorageSize -= file.length();
 		
 		file.delete();
 		
@@ -219,5 +230,10 @@ public class LocalFilesystemStorage extends Storage {
 			folder.delete ();
 		}
 	}
+
+  @Override
+  public long getDataObjectSize() throws StorageException {
+    return totalStorageSize;
+  }
 
 }

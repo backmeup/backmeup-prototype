@@ -639,7 +639,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     return status;
   }
 
-  public ProtocolDetails getProtocolDetails(String username, Long fileId) {
+  public ProtocolDetails getProtocolDetails(String username, String fileId) {
     ProtocolDetails pd = new ProtocolDetails();
     FileInfo fi = new FileInfo(1231L, "Facebook", new Date(13304123),
         "sennenhund.jpg", "image", "http://thumbnails.at?id=1231");

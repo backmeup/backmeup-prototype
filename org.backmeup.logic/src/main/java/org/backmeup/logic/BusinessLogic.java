@@ -87,7 +87,7 @@ public interface BusinessLogic {
 	public List<BackupJob> getJobs(String username);
 	public void deleteJob(String username, Long jobId);
 	public List<Status> getStatus(String username, Long jobId, Date fromDate, Date toDate);
-	public ProtocolDetails getProtocolDetails(String username, Long fileId);
+	public ProtocolDetails getProtocolDetails(String username, String fileId);
 	public ProtocolOverview getProtocolOverview(String username, String duration);
 	
 	//datasink/-source auth operations

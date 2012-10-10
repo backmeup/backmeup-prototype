@@ -171,3 +171,15 @@ def send_html_mail(to, subject, msg):
       "subject" : subject,
       "message" : msg
     })
+######### Search Operations #########
+def request_search_index(username, keyRing, query):
+  return com.request("POST", "/backups/" + username + "/search", {
+      "query" : query,
+      "keyRing" : keyRing
+    })
+
+def query_index(username, searchId):
+  return com.request("GET" , "/backups/" + username + "/" + str(searchId) + "/query")
+
+    
+

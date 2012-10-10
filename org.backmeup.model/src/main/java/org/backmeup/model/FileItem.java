@@ -3,7 +3,7 @@ package org.backmeup.model;
 import java.util.Date;
 
 public class FileItem {
-  private Long fileId;
+  private String fileId;
 
   private Status status;
 
@@ -44,11 +44,11 @@ public class FileItem {
     this.timeStamp = timeStamp;
   }
 
-  public Long getFileId() {
+  public String getFileId() {
     return fileId;
   }
 
-  public void setFileId(Long fileId) {
+  public void setFileId(String fileId) {
     this.fileId = fileId;
   }
 

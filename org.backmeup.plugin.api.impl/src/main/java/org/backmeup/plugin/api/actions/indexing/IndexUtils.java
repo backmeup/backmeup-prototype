@@ -3,10 +3,13 @@ package org.backmeup.plugin.api.actions.indexing;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
+import org.backmeup.model.FileItem;
 import org.backmeup.model.SearchResponse;
 import org.backmeup.model.SearchResponse.CountedEntry;
 import org.backmeup.model.SearchResponse.SearchEntry;
@@ -33,6 +36,27 @@ public class IndexUtils {
 	public static final String FIELD_CONTENT_TYPE = "Content-Type";
 	
 	public static final String FIELD_JOB_ID = "job_id";
+	
+	public static Set<FileItem> convertToFileItems(org.elasticsearch.action.search.SearchResponse esResponse) {
+		Set<FileItem> fItems = new HashSet<FileItem>();
+		
+		for (SearchHit hit : esResponse.getHits()) {
+			FileItem fileItem = new FileItem();
+			Map<String, Object> source = hit.getSource();
+			
+	    	String hash = source.get(FIELD_FILE_HASH).toString();
+	    	Integer owner = (Integer) source.get(FIELD_OWNER_ID);
+	    	Long timestamp = (Long) source.get(FIELD_BACKUP_AT);
+			
+			fileItem.setFileId(owner + ":" + hash + ":" + timestamp);
+			fileItem.setTitle(source.get(FIELD_FILENAME).toString());
+			fileItem.setTimeStamp(new Date(timestamp));
+			
+			fItems.add(fileItem);
+		}
+		
+		return fItems;
+	}
 	
 	public static List<SearchEntry> convertSearchEntries(org.elasticsearch.action.search.SearchResponse esResponse) {	    
 	    List<SearchEntry> entries = new ArrayList<SearchResponse.SearchEntry>();

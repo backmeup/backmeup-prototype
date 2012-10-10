@@ -41,6 +41,7 @@ import org.backmeup.model.ActionProfile;
 import org.backmeup.model.AuthRequest;
 import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.FileItem;
 import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
@@ -669,6 +670,27 @@ public class BusinessLogicImpl implements BusinessLogic {
       conn.beginOrJoin();            
       StatusDao sd = dal.createStatusDao();
       List<Status> stats = sd.findByJob(job.getUser().getUsername(), job.getId(), fromDate, toDate);
+    
+      // Getting all files for job.getId()
+      try {	
+    	  // <TODO> redundant code - move this (from here) to a private method
+    	  Configuration config = Configuration.getConfig();
+    	  String host = config.getProperty(INDEX_HOST);
+    	  int port = Integer.parseInt(config.getProperty(INDEX_PORT));
+		    
+    	  ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);
+    	  org.elasticsearch.action.search.SearchResponse esResponse = client.searchByJobId(job.getId());
+		  // </TODO>
+
+    	  Set<FileItem> fileItems = IndexUtils.convertToFileItems(esResponse);
+    	  // TODO for the time being, we'll just add the same list to each Status
+    	  for (Status s : stats) {
+    		  s.setFiles(fileItems);
+    	  }
+	    } catch (Throwable t) {
+	    	t.printStackTrace();
+	    }     
+      
       return stats;
     } finally {
       conn.rollback();

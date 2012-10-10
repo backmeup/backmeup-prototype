@@ -14,23 +14,21 @@ import java.util.regex.Pattern;
 
 import org.apache.ecs.Document;
 import org.apache.ecs.html.A;
+import org.apache.ecs.html.BR;
 import org.apache.ecs.html.H1;
 import org.apache.ecs.html.H2;
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
-import org.apache.ecs.html.BR;
-//import org.apache.ecs.xhtml.br;
-
 import org.backmeup.model.exceptions.PluginException;
-import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.MetainfoContainer;
+import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.api.connectors.DatasourceException;
 import org.backmeup.plugin.api.connectors.Progressable;
+import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
-import org.backmeup.plugin.api.storage.StorageWriter;
 
 import twitter4j.AccountTotals;
 import twitter4j.MediaEntity;
@@ -44,6 +42,7 @@ import twitter4j.User;
 import twitter4j.UserList;
 import twitter4j.auth.AccessToken;
 import twitter4j.conf.ConfigurationBuilder;
+//import org.apache.ecs.xhtml.br;
 
 /**
  * class TwitterDatasource to download the whole user profile including
@@ -59,7 +58,7 @@ public class TwitterDatasource implements Datasource {
 	private User user = null;
 
 	@Override
-	public void downloadAll(Properties arg0, StorageWriter arg1,
+	public void downloadAll(Properties arg0, Storage arg1,
 			Progressable arg2) throws DatasourceException, StorageException {
 
 		// create new access token
@@ -173,7 +172,7 @@ public class TwitterDatasource implements Datasource {
 	}
 
 	private String extractMedia(Status state, String parent,
-			StorageWriter storage) {
+			Storage storage) {
 		try {
 			MediaEntity[] media = state.getMediaEntities();
 			for (MediaEntity m : media) {
@@ -220,7 +219,7 @@ public class TwitterDatasource implements Datasource {
 	 * 
 	 * @param storage
 	 */
-	private void createUser(String document, StorageWriter storage) {
+	private void createUser(String document, Storage storage) {
 		try {
 			MetainfoContainer metadata = new MetainfoContainer();
 
@@ -268,7 +267,7 @@ public class TwitterDatasource implements Datasource {
 		}
 	}
 
-	private String downloadUser(Twitter twitter, StorageWriter storage) {
+	private String downloadUser(Twitter twitter, Storage storage) {
 		TwitterDescriptor desc = new TwitterDescriptor();
 		try {
 			user = twitter.showUser(twitter.getId());
@@ -405,7 +404,7 @@ public class TwitterDatasource implements Datasource {
 	}
 
 	private void downloadSimpleTable(Twitter twitter, String type,
-			StorageWriter storage) {
+			Storage storage) {
 		TwitterDescriptor desc = new TwitterDescriptor();
 		try {
 			MetainfoContainer metadata = new MetainfoContainer();
@@ -526,7 +525,7 @@ public class TwitterDatasource implements Datasource {
 		}
 	}
 
-	private void downloadList(Twitter twitter, int listId, StorageWriter storage) {
+	private void downloadList(Twitter twitter, int listId, Storage storage) {
 		TwitterDescriptor desc = new TwitterDescriptor();
 		try {
 			MetainfoContainer metadata = new MetainfoContainer();
@@ -671,7 +670,7 @@ public class TwitterDatasource implements Datasource {
 		}
 	}
 
-	private void downloadLists(Twitter twitter, StorageWriter storage) {
+	private void downloadLists(Twitter twitter, Storage storage) {
 		try {
 			List<UserList> lists = twitter.getAllUserLists(user.getId());
 			for (UserList l : lists) {

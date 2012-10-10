@@ -112,6 +112,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   private static final String VERIFICATION_EMAIL_CONTENT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_CONTENT";
   private static final String VERIFICATION_EMAIL_MIME_TYPE = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_MIME_TYPE";
   private static final String ERROR_OCCURED = "org.backmeup.logic.impl.BusinessLogicImpl.ERROR_OCCURED";
+  private static final String UNKNOWN_SEARCH_ID = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_SEARCH_ID";  
   
   private static final String INDEX_HOST = "index.host";
   private static final String INDEX_PORT = "index.port";
@@ -873,7 +874,9 @@ public class BusinessLogicImpl implements BusinessLogic {
 	    // at least we make sure, that the user exists
 	    getUser(username);
 	    
-	    SearchResponse search = getSearchResponseDao().findById(searchId);	    
+	    SearchResponse search = getSearchResponseDao().findById(searchId);
+	    if (search == null)
+	      throw new BackMeUpException(textBundle.getString(UNKNOWN_SEARCH_ID));
 	    try {
 		    String query = search.getQuery();
 		    

@@ -118,12 +118,12 @@ class TestUsers(TestCase):
     res = register_user("LoginUser", "abcdefgh", "abcdefgh", "LoginUser@trash-mail.com")    
     verify_email(res.data["verificationKey"])
     result = login_user("LoginUser", "abcdefgh")
-    self.assertEquals(result.code, httplib.NO_CONTENT)
+    self.assertEquals(result.code, httplib.OK)
     result = login_user("LoginUser", "ab23")
     self.assertEquals(result.code, httplib.UNAUTHORIZED)
     res = register_user("LoginUser2", "abcdefgh", "abcdefgh", "LoginUser2@trash-mail.com")    
     result = login_user("LoginUser2", "abcdefgh")
-    self.assertEquals(result.code, httplib.NO_CONTENT)
+    self.assertEquals(result.code, httplib.OK)
 
   def test_get_user_property(self):
     logging.debug("================== get_user_property ========================")

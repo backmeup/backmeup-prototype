@@ -108,5 +108,13 @@ public class Status {
     this.statusId = statusId;
   }
 
-  
+	public String getCategory ()
+	{
+		return category;
+	}
+	
+	public void setCategory (String category)
+	{
+		this.category = category;
+	}
 }

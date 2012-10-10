@@ -22,7 +22,7 @@ public class StatusContainer {
 	public StatusContainer(List<Status> backupStatus) {
 		this.backupStatus = new ArrayList<JobStatus>();
 		for (Status s : backupStatus) {			
-			this.backupStatus.add(new JobStatus(s.getMessage(), s.getType(), s.getTimeStamp().getTime()+"", s.getProgress(), s.getFiles(), s.getJob ().getId ()));
+			this.backupStatus.add(new JobStatus(s.getMessage(), s.getType(), s.getCategory (), s.getTimeStamp().getTime()+"", s.getProgress(), s.getFiles(), s.getJob ().getId ()));
 		}
 	}
 
@@ -38,6 +38,7 @@ public class StatusContainer {
 	public static class JobStatus {
 		private String message;
 		private String type;
+		private String category;
 		private String timeStamp;
 		private String progress;
 		private Set<FileItem> files;
@@ -46,9 +47,10 @@ public class StatusContainer {
 		public JobStatus() {
 		}
 		
-		public JobStatus(String message, String type, String timeStamp, String progress, Set<FileItem> files, Long jobId) {
+		public JobStatus(String message, String type, String category, String timeStamp, String progress, Set<FileItem> files, Long jobId) {
 			this.message = message;
 			this.type = type;
+			this.category = category;
 			this.timeStamp = timeStamp;
 			this.progress = progress;
 			this.files = files;
@@ -97,6 +99,16 @@ public class StatusContainer {
 		public void setJobId (Long jobId)
 		{
 			this.jobId = jobId;
+		}
+
+		public String getCategory ()
+		{
+			return category;
+		}
+
+		public void setCategory (String category)
+		{
+			this.category = category;
 		}
 	}
 }

@@ -649,6 +649,12 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (!job.getUser().getUsername().equals(username))
         throw new IllegalArgumentException(String.format(JOB_USER_MISSMATCH,
             jobId, username));
+      
+      // Delete Job status records first
+      StatusDao statusDao = getStatusDao();
+      for (Status status : statusDao.findByJobId(job.getId())) {
+    	  statusDao.delete(status);
+      }
 
       jobDao.delete(job);
       conn.commit();

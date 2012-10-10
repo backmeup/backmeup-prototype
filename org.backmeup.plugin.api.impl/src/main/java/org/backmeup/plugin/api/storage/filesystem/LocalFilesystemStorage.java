@@ -29,6 +29,10 @@ public class LocalFilesystemStorage extends Storage {
 	@Override
 	public void close() throws StorageException {
 		// Do nothing
+		
+		// remove everything in the dir
+		removeDir ("");
+		rootDir.delete ();
 	}
 	
 	@Override

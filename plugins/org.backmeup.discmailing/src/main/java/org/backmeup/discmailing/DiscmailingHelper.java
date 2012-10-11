@@ -94,7 +94,7 @@ public class DiscmailingHelper {
         }
 	}
 	
-	public InputStream generateTicket(Properties items) {
+	public InputStream generateTicket(Properties items, String path) {
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder;
 		Document doc;
@@ -104,12 +104,16 @@ public class DiscmailingHelper {
 			doc = docBuilder.parse(is);
 			
 			Element el = (Element) doc.getElementsByTagName("values").item(0);
-
+			el.appendChild(addValue(doc, "ticket_name", items.getProperty("Firstname") + " " + items.getProperty("Surname")));
 			el.appendChild(addValue(doc, "firstname", items.getProperty("Firstname")));
 			el.appendChild(addValue(doc, "surname", items.getProperty("Surname")));
 			el.appendChild(addValue(doc, "street", items.getProperty("Street")));
 			el.appendChild(addValue(doc, "city", items.getProperty("City")));
 			el.appendChild(addValue(doc, "postcode", items.getProperty("Postcode")));
+			
+			el = (Element) doc.getElementsByTagName("mapping").item(0);
+			el.appendChild(addElement(doc, "path", path));
+			el.appendChild(addElement(doc, "destination", "/"));
 			
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			Source source = new DOMSource(doc);
@@ -131,9 +135,19 @@ public class DiscmailingHelper {
 	
 	private Element addValue(Document doc, String value, String text) {
 		Element e = doc.createElement("value");
+		if (text == null) {
+			text = "";
+		}
 		Text t = doc.createTextNode(text);
 		e.appendChild(t);
 		e.setAttribute("name", value);
+		return e;
+	}
+	
+	private Element addElement(Document doc, String tag, String text) {
+		Element e = doc.createElement(tag);
+		Text t = doc.createTextNode(text);
+		e.appendChild(t);
 		return e;
 	}
 	

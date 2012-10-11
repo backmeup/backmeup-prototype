@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Properties;
 
 import org.backmeup.discmailing.DiscmailingDatasink;
@@ -26,7 +30,10 @@ public class DiscmailingDatasinkTest {
 	public static void main(String args[]) throws FileNotFoundException, IOException, StorageException {
 		System.out.println("DiscDatasinkTest");
 		Properties props = new Properties();
-	    props.load(new FileInputStream(new File("/tmp/auth.props")));    
+	    props.load(new FileInputStream(new File("/tmp/auth.props")));
+	    Date date = new Date();
+	    DateFormat df = new SimpleDateFormat("dd_MM_yy_hh_mm_ss");
+	    props.setProperty ("org.backmeup.tmpdir", "BMU_plugin_" +  df.format(date));
 
 	    DiscmailingDatasink sink = new DiscmailingDatasink();
 		Storage sr = new LocalFilesystemStorage();

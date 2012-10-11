@@ -37,7 +37,7 @@ public class DiscmailingAuthenticatorTest {
 						Integer.parseInt(entered); break;  		  
 					default: break;
 				}
-				props.setProperty(URLEncoder.encode(input, "UTF-8"), URLEncoder.encode(entered, "UTF-8"));
+				props.setProperty(input, URLEncoder.encode(entered, "UTF-8"));
 			}	
 		}
 		while (!auth.isValid(props));

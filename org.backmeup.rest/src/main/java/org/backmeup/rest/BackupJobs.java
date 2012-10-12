@@ -16,6 +16,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
 import org.backmeup.rest.data.JobContainer;
 import org.backmeup.rest.data.JobCreationContainer;
@@ -37,7 +38,8 @@ public class BackupJobs extends Base {
   @Path("/{username}")
   @Produces("application/json")
   public JobContainer getJobs(@PathParam("username") String username) {
-    return new JobContainer(getLogic().getJobs(username));
+	BackMeUpUser user = getLogic().getUser(username);
+    return new JobContainer(getLogic().getJobs(username), user);
   }
 
   @POST

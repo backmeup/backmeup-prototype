@@ -6,21 +6,34 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.ProfileOptions;
 
 @XmlRootElement
 public class JobContainer {
+	
+	private UserContainer user;
+	
 	private List<Job> backupJobs;
 	
 	public JobContainer() {
 	}
 
-	public JobContainer(List<BackupJob> backupJobs) {
+	public JobContainer(List<BackupJob> backupJobs, BackMeUpUser user) {
 		this.backupJobs = new ArrayList<Job>();
 		for (BackupJob j : backupJobs) {
 			this.backupJobs.add(new Job(j.getId(), j.getSourceProfiles(), j.getSinkProfile().getProfileId(), j.getStart ().getTime (), j.getCreated ().getTime (), j.getModified ().getTime (), j.getJobTitle ()));
 		}
+		this.user = new UserContainer(user.getUsername(), user.getEmail());
+	}
+	
+	public UserContainer getUser() {
+		return user;
+	}
+	
+	public void setUser(UserContainer user) {
+		this.user = user;
 	}
 
 	public List<Job> getBackupJobs() {

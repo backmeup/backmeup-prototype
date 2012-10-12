@@ -5,21 +5,39 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.Profile;
 
 @XmlRootElement
 public class DatasinkProfilesContainer {
 	
+	private UserContainer user;
+	
 	private List<InternalProfile> sinkProfiles;
 	
 	public DatasinkProfilesContainer() {
 	}
-
+	
+	/*
 	public DatasinkProfilesContainer(List<Profile> profiles) {
+		this(profiles, null);
+	}
+	*/
+
+	public DatasinkProfilesContainer(List<Profile> profiles, BackMeUpUser user) {
 		setSinkProfiles(new ArrayList<InternalProfile>());
 		for (Profile p : profiles) {
 			getSinkProfiles().add(new InternalProfile(p.getProfileName(), p.getProfileId(), p.getDescription (), p.getCreated ().getTime (), p.getModified ().getTime ()));
 		}
+		this.user = new UserContainer(user.getUsername(), user.getEmail());
+	}
+	
+	public UserContainer getUser() {
+		return user;
+	}
+	
+	public void setUser(UserContainer user) {
+		this.user = user;
 	}
 	
 	public List<InternalProfile> getSinkProfiles() {

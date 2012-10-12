@@ -16,6 +16,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.backmeup.model.AuthRequest;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.Profile;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.backmeup.rest.data.DatasourceContainer;
@@ -61,8 +62,9 @@ public class Datasources extends Base {
 	@Produces("application/json")
 	public DatasourceProfilesContainer getDatasourceProfiles(
 			@PathParam("username") String username) {
+		BackMeUpUser user = getLogic().getUser(username);
 		List<Profile> profiles = getLogic().getDatasourceProfiles(username);
-		return new DatasourceProfilesContainer(profiles);
+		return new DatasourceProfilesContainer(profiles, user);
 	}
 
 	@DELETE

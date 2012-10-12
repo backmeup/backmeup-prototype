@@ -259,6 +259,11 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (newEmail != null) {
         throwIfEmailInvalid(newEmail);
         u.setEmail(newEmail);
+        
+        // Decativate user. Send new activation Mail
+        u.setActivated(false);
+        generateNewVerificationKey(u, Long.toString(new Date().getTime()));
+        sendVerificationEmail(u);
       }
       
       if (newUsername != null && !oldUsername.equals(newUsername)) {

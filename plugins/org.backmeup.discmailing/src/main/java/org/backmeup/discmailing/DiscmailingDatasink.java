@@ -26,8 +26,14 @@ public class DiscmailingDatasink implements Datasink {
 	
 		DiscmailingHelper helper = DiscmailingHelper.getInstance();
 		
-		String target = helper.getTarget();
-         
+		String jobid = items.getProperty ("org.backmeup.tmpdir");
+		
+		if (jobid == null) {
+			throw new PluginException(DiscmailingDescriptor.DISC_ID, "Error: Wrong source folder");
+		}
+
+		String target = helper.getTarget() + "/" + jobid;
+		
         Session session = helper.getSshSession();       
         ChannelSftp sftpChannel =  helper.getSftpChannel(session);
         
@@ -35,42 +41,33 @@ public class DiscmailingDatasink implements Datasink {
         	throw new PluginException(DiscmailingDescriptor.DISC_ID, "Error during connecting to Server " + session.getHost());
         }
         
-        System.out.println("Connected v0.84");
-        
-		Iterator<DataObject> it = storage.getDataObjects();
+        //generate XML Ticket	
+		try {
+        	String ticketPath = helper.getTicketpath() + "/ticket-" + jobid + ".xml";
+      		String dataPath = target + "/";
+      		InputStream in = helper.generateTicket(items, dataPath);
+      		sftpChannel.put(in, ticketPath);
+      	} catch (Exception e) {
+      		throw new PluginException(DiscmailingDescriptor.DISC_ID, "Error during upload of file %s", e);
+      	}
 		
 		int i = 1;
-		boolean first = true;
+		Iterator<DataObject> it = storage.getDataObjects();
 		while(it.hasNext()) {
 			DataObject dataObj = it.next();
 			try {
 				byte[] data = dataObj.getBytes();
 				InputStream bis = new ByteArrayInputStream(data);
-				
-				if(first) {
-					first = false;
-					System.out.println("PATH: " +dataObj.getPath().split("/")[1]);
-					//generate XML Ticket
-			        try {
-			        	InputStream in = helper.generateTicket(items);
-			        	String jobid = dataObj.getPath().split("/")[1];
-			      		String path = helper.getTicketpath() + "/ticket-" + jobid + ".xml";
-			      		sftpChannel.put(in, path);
-			      	} catch (Exception e) {
-			      		throw new PluginException(DiscmailingDescriptor.DISC_ID, "Error during upload of file %s", e);
-			      	}
-				}
-				
-				String path = target + dataObj.getPath();
-				String log = String.format("Uploading file %s (Number: %d)...", path, i++);
+				String dataPath = target + dataObj.getPath();
+				String log = String.format("Uploading file %s (Number: %d)...", dataPath, i++);
 				System.out.println(log);
 				progressor.progress(log);
 				try {
 					File f = new File(dataObj.getPath());
 					if (!directoryExists(target + f.getParent(), sftpChannel)) {
-						mkdirRec(path, sftpChannel);
+						mkdirRec(dataPath, sftpChannel);
 					}
-					sftpChannel.put(bis, escapeChars(path));
+					sftpChannel.put(bis, escapeChars(dataPath));
 				}
 				catch (SftpException e) {
                         e.printStackTrace();
@@ -82,7 +79,6 @@ public class DiscmailingDatasink implements Datasink {
 		}
 		sftpChannel.exit();
         session.disconnect();
-        System.out.println("upload ok");
 		return null;
 	}
 	
@@ -97,8 +93,10 @@ public class DiscmailingDatasink implements Datasink {
 				curPath = curPath.substring(0, nextSeparatorIndex);
 				this.mkdirRec(curPath, sftpChannel);
 				try {
-					System.out.println("mkdir " + curPath);
-					sftpChannel.mkdir(curPath);
+					if (!directoryExists(curPath, sftpChannel)) {
+						System.out.println("mkdir " + curPath);
+						sftpChannel.mkdir(curPath);
+					}
 				}
 				catch (Exception e) {
 					System.out.println("Error: Folder exists.");					

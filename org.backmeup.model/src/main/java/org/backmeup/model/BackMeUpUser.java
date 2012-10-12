@@ -1,6 +1,8 @@
 package org.backmeup.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -11,7 +13,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 
 /**
  * The User class represents a user of backmeup.
@@ -32,7 +33,10 @@ public class BackMeUpUser {
 	private String email;
 	private boolean isActivated;
 	private String verificationKey;
-	
+		
+	@OneToMany(cascade=CascadeType.ALL, orphanRemoval=true, fetch=FetchType.LAZY, mappedBy="user")
+	private List<JobProtocol> protocols = new ArrayList<JobProtocol>();
+		
 	@OneToMany(cascade=CascadeType.ALL, orphanRemoval=true, fetch=FetchType.EAGER )
 	//@Fetch(value = FetchMode.SUBSELECT)
 	private Set<UserProperty> properties = new HashSet<UserProperty>();
@@ -67,7 +71,7 @@ public class BackMeUpUser {
 	}
 	
 	private UserProperty findProperty(String key) {
-	  for (UserProperty up : properties) {
+	  for (UserProperty up : getUserProperties()) {
 	    if (up.getKey().equals(key))
 	      return up;
 	  }
@@ -78,7 +82,7 @@ public class BackMeUpUser {
 	  UserProperty up = findProperty(key);
 	  if (up == null) {
 	    up = new UserProperty(key, value);
-	    this.properties.add(up);
+	    this.getUserProperties().add(up);
 	  } else {
 	    up.setValue(value);
 	  }
@@ -93,7 +97,7 @@ public class BackMeUpUser {
 	
 	public void deleteUserProperty(String key) {
 	  UserProperty up = new UserProperty(key, null);
-    this.properties.remove(up);
+    this.getUserProperties().remove(up);
 	}
 
 	public Long getUserId() {
@@ -120,9 +124,13 @@ public class BackMeUpUser {
     this.isActivated = isActivated;
   }
   
+  public Set<UserProperty> getUserProperties() {
+    return properties;
+  }
+  
   @Override
   public String toString() {
 	  // For debug purposes
 	  return username;
-  }
+  }  
 }

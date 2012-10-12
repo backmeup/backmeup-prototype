@@ -165,7 +165,7 @@ public class ThreadbasedJobManager /* implements JobManager  */{
             //TODO: Keep "keepCnt" backups and start to overwrite the very first one if you hit "keepCnt".
             job = getBackupJobDao().findById(job.getId());
             Status s = new Status(job, String.format(
-                textBundle.getString(BEGIN_JOB_MSG), job.getId()), "START",
+                textBundle.getString(BEGIN_JOB_MSG), job.getId()), "START", "backupjob",
                 new Date());
 
             getStatusDao().save(s);
@@ -198,14 +198,14 @@ public class ThreadbasedJobManager /* implements JobManager  */{
                     new ConsoleProgressor());
                 s = new Status(job, String.format(
                     textBundle.getString(DOWNLOAD_COMPLETED_MSG), job.getId(),
-                    po.getProfile().getProfileName()), "WORKING", new Date());
+                    po.getProfile().getProfileName()), "WORKING", "backupjob", new Date());
                 conn.begin();
                 getStatusDao().save(s);
                 conn.commit();
                 sink.upload(sinkProps, storage, new ConsoleProgressor());
                 s = new Status(job, String.format(
                     textBundle.getString(UPLOAD_COMPLETED_MSG), job.getId(),
-                    job.getSinkProfile().getProfileName()), "WORKING",
+                    job.getSinkProfile().getProfileName()), "WORKING", "backupjob",
                     new Date());
                 conn.begin();
                 getStatusDao().save(s);
@@ -231,7 +231,7 @@ public class ThreadbasedJobManager /* implements JobManager  */{
               if (!hasErrors) {
                 s = new Status(job, String.format(
                     textBundle.getString(FINISH_JOB_MSG), job.getId()),
-                    "FINISHED", new Date());
+                    "FINISHED", "backupjob", new Date());
                 conn.begin();
                 getStatusDao().save(s);
                 conn.commit();
@@ -240,7 +240,7 @@ public class ThreadbasedJobManager /* implements JobManager  */{
               } else {
                 s = new Status(job, String.format(
                     textBundle.getString(FINISH_JOB_WITH_ERRORS_MSG),
-                    job.getId()), "ERROR", new Date());
+                    job.getId()), "ERROR", "backupjob", new Date());
                 conn.begin();
                 getStatusDao().save(s);
                 conn.commit();
@@ -261,7 +261,7 @@ public class ThreadbasedJobManager /* implements JobManager  */{
     private void logErrorMessage(BackupJob job, Exception ex) {
       Status s = new Status(job, String.format(
           textBundle.getString(ERROR_JOB_MSG), job.getId(), ex.getMessage()),
-          "ERROR", new Date());
+          "ERROR", "backupjob", new Date());
       conn.begin();
       getStatusDao().save(s);
       conn.commit();

@@ -147,8 +147,8 @@ def get_all_backup_job_status(user):
 def get_file_details(user, fileId):
   return com.request("GET", "/jobs/" + user + "/" + fileId + "/details")
 
-def get_overview(user):
-  return com.request("GET", "/jobs/" + user + "/status/overview")
+def get_overview(user, duration):
+  return com.request("GET", "/jobs/" + user + "/status/overview?duration=" + duration)
 
 #def validate_profile(user, profileId):
 #  return request("GET", "/datasources

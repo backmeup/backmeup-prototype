@@ -78,4 +78,10 @@ public class HdfsStorage extends Storage {
 		// TODO Auto-generated method stub
 		
 	}
+
+  @Override
+  public long getDataObjectSize() throws StorageException {
+    // TODO Auto-generated method stub
+    return 0;
+  }
 }

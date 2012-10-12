@@ -11,9 +11,7 @@
 
         <job>
                 <type>burn</type>
-                <values>
-                        <value name="ticket_name">backmeup burn ticket</value>
-                </values>
+                <values></values>
                 <settings>
                         <value name="store">yes</value>
                         <value name="autostart">yes</value>
@@ -26,10 +24,7 @@
                         <type>create</type>
                         <data>
                                 <sourcename>main</sourcename>
-                                <mapping>
-                                        <path>/data/backmeup/users/(userid)/(jobid)/</path>
-                                        <destination>/</destination>
-                                </mapping>
+                                <mapping></mapping>
                         </data>
                 </image>
                 <label>

@@ -274,11 +274,11 @@ public class DummyBusinessLogic implements BusinessLogic {
     aJob.setId(maxId++);
     jobs.add(aJob);
     status = new ArrayList<Status>();
-    status.add(new Status(aJob, "Der Backup-Job wurde gestartet", "INFO",
+    status.add(new Status(aJob, "Der Backup-Job wurde gestartet", "INFO", "backupjob",
         new Date(100)));
-    status.add(new Status(aJob, "Der Backup-Job wurde unterbrochen", "WARN",
+    status.add(new Status(aJob, "Der Backup-Job wurde unterbrochen", "WARN", "backupjob",
         new Date(500)));
-    status.add(new Status(aJob, "Der Backup-Job wurde erfolgreich beendet",
+    status.add(new Status(aJob, "Der Backup-Job wurde erfolgreich beendet", "backupjob",
         "INFO", new Date(1000)));
 
     Set<ProfileOptions> popts2 = new HashSet<ProfileOptions>();
@@ -287,12 +287,12 @@ public class DummyBusinessLogic implements BusinessLogic {
         new Date(), 5000, "TestJob");
     bJob.setId(maxId++);
     jobs.add(bJob);
-    status.add(new Status(bJob, "Ein Status", "INFO", new Date(100)));
-    status.add(new Status(bJob, "Noch ein Status", "INFO", new Date(100)));
+    status.add(new Status(bJob, "Ein Status", "INFO", "backupjob", new Date(100)));
+    status.add(new Status(bJob, "Noch ein Status", "INFO", "backupjob", new Date(100)));
     Set<FileItem> files = new HashSet<FileItem>();
     files.add(new FileItem("http://thumbnails.at?url=1234", "sennenhund.jpg",
         new Date(100)));
-    status.add(new Status(bJob, "Busy status", "STORE", new Date(100), "BUSY",
+    status.add(new Status(bJob, "Busy status", "STORE", "backupjob", new Date(100), "BUSY",
         files));
     searches = new HashMap<Long, SearchResponse>();
   }
@@ -661,15 +661,11 @@ public class DummyBusinessLogic implements BusinessLogic {
     ProtocolOverview po = new ProtocolOverview();
     po.setTotalCount("23456345");
     po.setTotalStored("2.2GB");
-    List<Entry> storedAmount = new ArrayList<Entry>();
-    storedAmount.add(new Entry("Facebook", 30));
-    storedAmount.add(new Entry("Twitter", 10));
-    storedAmount.add(new Entry("Moodle", 60));
-    po.setStoredAmount(storedAmount);
-    List<Entry> sinks = new ArrayList<Entry>();
-    sinks.add(new Entry("Dropbox", 26));
-    sinks.add(new Entry("DVD per Post", 96));
-    po.setDatasinks(sinks);
+    Set<Entry> storedAmount = new HashSet<Entry>();
+    storedAmount.add(new Entry("Facebook", 30, 400));
+    storedAmount.add(new Entry("Twitter", 10, 1500));
+    storedAmount.add(new Entry("Moodle", 60, 300));
+    po.setStoredAmount(storedAmount);   
     return po;
   }
 

@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -440,6 +441,33 @@ public class BusinessLogicImpl implements BusinessLogic {
       conn.rollback();
     }
   }
+  
+  @Override
+  public List<String> getStoredDatasourceOptions(String username,
+      Long profileId, Long jobId) {
+    try {
+      conn.beginOrJoin();
+      getUser(username);
+      BackupJobDao jobDao = getBackupJobDao();
+      BackupJob job = jobDao.findById(jobId);
+      if (job == null)
+        throw new IllegalArgumentException(String.format(textBundle.getString(NO_SUCH_JOB), jobId));
+      if (!job.getUser().getUsername().equals(username))
+        throw new IllegalArgumentException(String.format(textBundle.getString(JOB_USER_MISSMATCH),
+            jobId, username));
+      for (ProfileOptions po : job.getSourceProfiles()) {
+        if (po.getProfile().getProfileId().equals(profileId)) {
+          String[] options = po.getOptions();
+          if (options == null)
+            return new ArrayList<String>();
+          return Arrays.asList(options);
+        }
+      }
+      throw new IllegalArgumentException(String.format(textBundle.getString(UNKNOWN_PROFILE), profileId));
+    } finally {
+      conn.rollback();
+    }
+  }
 
   public void changeProfile(Long profileId, Long jobId, List<String> sourceOptions)
   {
@@ -459,7 +487,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 		  Set<ProfileOptions> profileoptions = backupjob.getSourceProfiles ();
 		  for (ProfileOptions option : profileoptions)
 		  {
-			  if (option.getProfile ().getProfileId () == p.getProfileId ())
+			  if (option.getProfile ().getProfileId ().equals(p.getProfileId ()))
 			  {
 				  String[] new_options = sourceOptions.toArray (new String[sourceOptions.size ()]);
 				  option.setOptions (new_options);
@@ -648,7 +676,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     } finally {
       conn.rollback();
     }
-  }
+  }   
 
   public void deleteJob(String username, Long jobId) {
     try {
@@ -657,10 +685,10 @@ public class BusinessLogicImpl implements BusinessLogic {
       BackupJobDao jobDao = getBackupJobDao();
       BackupJob job = jobDao.findById(jobId);
       if (job == null)
-        throw new IllegalArgumentException(textBundle.getString(String.format(NO_SUCH_JOB, jobId)));
+        throw new IllegalArgumentException(String.format(textBundle.getString(NO_SUCH_JOB), jobId));
       if (!job.getUser().getUsername().equals(username))
-        throw new IllegalArgumentException(textBundle.getString(String.format(JOB_USER_MISSMATCH,
-            jobId, username)));
+        throw new IllegalArgumentException(String.format(textBundle.getString(JOB_USER_MISSMATCH),
+            jobId, username));
       
       // Delete Job status records first
       StatusDao statusDao = getStatusDao();

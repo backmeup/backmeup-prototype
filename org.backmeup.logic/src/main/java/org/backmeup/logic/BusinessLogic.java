@@ -56,6 +56,7 @@ public interface BusinessLogic {
 	public List<Profile> getDatasourceProfiles(String username);
 	public Profile deleteProfile(String username, Long profile);
 	public List<String> getDatasourceOptions(String username, Long profileId, String keyRingPassword);
+	public List<String> getStoredDatasourceOptions(String username, Long profileId, Long jobId);
 	public void changeProfile(Long profileId, Long jobId, List<String> sourceOptions);
 	public void uploadDatasourcePlugin(String filename, InputStream data);
 	public void deleteDatasourcePlugin(String name);

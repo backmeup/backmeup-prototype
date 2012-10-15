@@ -59,8 +59,11 @@ def delete_datasource_profile(user, profileId):
 def generate_datasource_options(user, profileId, keyRing):
   return com.request("POST", "/datasources/" + user + "/profiles/" + str(profileId) + "/options", {"keyRing" : keyRing})
 
-def change_datasource_profile(user, profileId, options):
-  return com.request("PUT", "/datasources/" + user + "/profiles/" + str(profileId), {sourceOptions : options})
+def get_stored_datasource_options(user, profileId, jobId):
+  return com.request("GET", "/datasources/" + user + "/profiles/" + str(profileId) + "/" + str(jobId) + "/storedOptions")
+
+def change_datasource_profile(user, jobId, profileId, options):
+  return com.request("PUT", "/datasources/" + user + "/profiles/" + str(profileId) +"/" + str(jobId), {"sourceOptions" : options})
 
 def auth_datasource(user, datasourceId, profileName, keyRing):
   return com.request("POST", "/datasources/" + user + "/" + str(datasourceId) + "/auth", {"profileName" : profileName, "keyRing" : keyRing})
@@ -114,7 +117,7 @@ def get_backup_jobs(user):
 def validate_backup_job(user, jobId, keyRing):
   return com.request("POST", "/jobs/" + user + "/validate/" + str(jobId), {"keyRing" : keyRing})
 
-def create_backup_job(user, keyRing, sourceProfileIds, requiredActions, sinkProfileId, when):
+def create_backup_job(user, keyRing, sourceProfileIds, requiredActions, sinkProfileId, when, sourceOptions=None):
   params = {"sourceProfileIds" : sourceProfileIds,
             "requiredActionIds" : requiredActions,
             "keyRing" : keyRing,

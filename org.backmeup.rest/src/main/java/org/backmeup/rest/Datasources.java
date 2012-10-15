@@ -1,7 +1,9 @@
 package org.backmeup.rest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -82,7 +84,17 @@ public class Datasources extends Base {
 			@PathParam("profileId") Long profileId,
 			@PathParam("jobId") Long jobId,
 			@FormParam("sourceOptions") List<String> sourceOptions) {
-		getLogic().changeProfile(profileId, jobId, sourceOptions);		
+		getLogic().changeProfile(profileId, jobId, sourceOptions);	  
+	}
+	
+	@GET
+	@Path("/{username}/profiles/{profileId}/{jobId}/storedOptions")
+	@Produces("application/json")
+	public DatasourceOptionContainer getStoredDatasourceProfileOptions(
+	    @PathParam("username") String username,
+	    @PathParam("profileId") Long profileId,
+	    @PathParam("jobId") Long jobId) {
+	  return new DatasourceOptionContainer(getLogic().getStoredDatasourceOptions(username, profileId, jobId));	    
 	}
 
 	@POST

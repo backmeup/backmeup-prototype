@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.backmeup.model.FileItem;
+import org.backmeup.model.ProtocolDetails.FileInfo;
 import org.backmeup.model.SearchResponse;
 import org.backmeup.model.SearchResponse.CountedEntry;
 import org.backmeup.model.SearchResponse.SearchEntry;
@@ -56,6 +57,26 @@ public class IndexUtils {
 		}
 		
 		return fItems;
+	}
+	
+	public static FileInfo convertToFileInfo(org.elasticsearch.action.search.SearchResponse esResponse) {
+	  if (esResponse.getHits().totalHits() == 0)
+	    return null;
+	  
+	  SearchHit hit = esResponse.getHits().getHits()[0];
+	  Map<String, Object> source = hit.getSource();
+	  String hash = source.get(FIELD_FILE_HASH).toString();
+    Integer owner = (Integer) source.get(FIELD_OWNER_ID);
+    Long timestamp = (Long) source.get(FIELD_BACKUP_AT);
+	  FileInfo fi = new FileInfo();
+	  fi.setFileId(owner + ":" + hash + ":" + timestamp);
+	  fi.setSource(source.get(FIELD_BACKUP_SOURCES).toString());
+	  fi.setTimeStamp(source.get(FIELD_BACKUP_AT).toString());
+	  fi.setTitle(source.get(FIELD_FILENAME).toString());
+	  fi.setPath(source.get(FIELD_PATH).toString());
+	  fi.setSink(source.get(FIELD_BACKUP_SINK).toString());
+	  fi.setType(source.get(FIELD_CONTENT_TYPE).toString());	  
+	  return fi;
 	}
 	
 	public static List<SearchEntry> convertSearchEntries(org.elasticsearch.action.search.SearchResponse esResponse) {	    

@@ -741,15 +741,15 @@ public class BusinessLogicImpl implements BusinessLogic {
       conn.begin();
       
       try {
-        String query = "*:*";
-        
         Configuration config = Configuration.getConfig();
         String host = config.getProperty(INDEX_HOST);
         int port = Integer.parseInt(config.getProperty(INDEX_PORT));
         
         ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);
-        org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(username, query);
-        
+        org.elasticsearch.action.search.SearchResponse esResponse = client.getFileById(username, fileId);        
+        ProtocolDetails pd = new ProtocolDetails();
+        pd.setFileInfo(IndexUtils.convertToFileInfo(esResponse));
+        return pd;
       } catch (Throwable t) {
         t.printStackTrace();
       }

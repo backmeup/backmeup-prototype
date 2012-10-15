@@ -1,6 +1,5 @@
 package org.backmeup.model;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -52,12 +51,12 @@ public class ProtocolDetails {
 
 	public static class Sink {
 		private String title;
-		private Date timeStamp;
+		private String timeStamp;
 		private String path;
 		
 		public Sink() {
 		}
-		public Sink(String title, Date timeStamp, String path) {
+		public Sink(String title, String timeStamp, String path) {
 			this.title = title;
 			this.timeStamp = timeStamp;
 			this.path = path;
@@ -68,10 +67,10 @@ public class ProtocolDetails {
 		public void setTitle(String title) {
 			this.title = title;
 		}
-		public Date getTimeStamp() {
+		public String getTimeStamp() {
 			return timeStamp;
 		}
-		public void setTimeStamp(Date timeStamp) {
+		public void setTimeStamp(String timeStamp) {
 			this.timeStamp = timeStamp;
 		}
 		public String getPath() {
@@ -84,17 +83,19 @@ public class ProtocolDetails {
 	
 //	@JsonSerialize(include = Inclusion.NON_NULL)
 	public static class FileInfo {
-		private Long fileId;
+		private String fileId;
 		private String source;
-		private Date timeStamp;
+		private String timeStamp;
 		private String title;
 		private String type;
 		private String thumbnailURL;
+		private String path;
+    private String sink;
 		
 		public FileInfo() {
 		}
 		
-		public FileInfo(Long fileId, String source, Date timeStamp,
+		public FileInfo(String fileId, String source, String timeStamp,
 				String title, String type, String thumbnailURL) {
 			this.fileId = fileId;
 			this.source = source;
@@ -103,10 +104,10 @@ public class ProtocolDetails {
 			this.type = type;
 			this.thumbnailURL = thumbnailURL;
 		}
-		public Long getFileId() {
+		public String getFileId() {
 			return fileId;
 		}
-		public void setFileId(Long fileId) {
+		public void setFileId(String fileId) {
 			this.fileId = fileId;
 		}
 		public String getSource() {
@@ -115,10 +116,10 @@ public class ProtocolDetails {
 		public void setSource(String source) {
 			this.source = source;
 		}
-		public Date getTimeStamp() {
+		public String getTimeStamp() {
 			return timeStamp;
 		}
-		public void setTimeStamp(Date timeStamp) {
+		public void setTimeStamp(String timeStamp) {
 			this.timeStamp = timeStamp;
 		}
 		public String getTitle() {
@@ -139,5 +140,21 @@ public class ProtocolDetails {
 		public void setThumbnailURL(String thumbnailURL) {
 			this.thumbnailURL = thumbnailURL;
 		}
+
+    public String getPath() {
+      return path;
+    }
+
+    public void setPath(String path) {
+      this.path = path;
+    }
+
+    public void setSink(String sink) {
+      this.sink = sink;
+    }
+    
+    public String getSink() {
+      return this.sink;
+    }
 	}
 }

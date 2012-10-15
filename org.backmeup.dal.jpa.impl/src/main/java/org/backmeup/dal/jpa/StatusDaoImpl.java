@@ -14,8 +14,21 @@ public class StatusDaoImpl extends BaseDaoImpl<Status> implements StatusDao {
   public StatusDaoImpl(EntityManager em) {
     super(em);
   }
-
-  @Override
+  
+  public Status findLastByJob(String username, Long jobId) {
+    String query = "SELECT s FROM " + entityClass.getName()
+        + " s WHERE s.job.id=:jobId AND s.job.user.username=:username ORDER BY s.timeStamp DESC";
+    
+    TypedQuery<Status> q = em.createQuery(query, Status.class);
+    q.setParameter("username", username);
+    q.setParameter("jobId", jobId);
+    q.setMaxResults(1);
+    List<Status> status = q.getResultList();
+    if (status.size() > 0)
+      return status.get(0);
+    return null;
+  }
+  
   public List<Status> findByJob(String username, Long jobId, Date from, Date to) {
     String query = "SELECT s FROM " + entityClass.getName()
         + " s WHERE s.job.id=:jobId AND s.job.user.username=:username";

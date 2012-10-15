@@ -619,22 +619,12 @@ public class DummyBusinessLogic implements BusinessLogic {
     }
   }
 
-  public List<Status> getStatus(String username, Long jobId, Date fromDate,
-      Date toDate) {
+  public List<Status> getStatus(String username, Long jobId) {
     List<Status> status = new ArrayList<Status>();
     for (Status s : this.status) {
       if (s.getJob().getUser().getUsername().equals(username)) {
-        if (jobId == null || jobId == s.getJob().getId()) {
-          boolean add = fromDate != null ? s.getTimeStamp().compareTo(fromDate) >= 0
-              : true;
-          add = add
-              && (toDate != null ? s.getTimeStamp().compareTo(toDate) <= 0
-                  : true);
-          if (add) {
             status.add(s);
-          }
-        }
-      }
+      }       
     }
     return status;
   }

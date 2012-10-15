@@ -657,10 +657,10 @@ public class BusinessLogicImpl implements BusinessLogic {
       BackupJobDao jobDao = getBackupJobDao();
       BackupJob job = jobDao.findById(jobId);
       if (job == null)
-        throw new IllegalArgumentException(String.format(NO_SUCH_JOB, jobId));
+        throw new IllegalArgumentException(textBundle.getString(String.format(NO_SUCH_JOB, jobId)));
       if (!job.getUser().getUsername().equals(username))
-        throw new IllegalArgumentException(String.format(JOB_USER_MISSMATCH,
-            jobId, username));
+        throw new IllegalArgumentException(textBundle.getString(String.format(JOB_USER_MISSMATCH,
+            jobId, username)));
       
       // Delete Job status records first
       StatusDao statusDao = getStatusDao();
@@ -675,11 +675,11 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
   
-  private List<Status> getStatusForJob(BackupJob job, Date fromDate, Date toDate) {
+  private Status getStatusForJob(BackupJob job) {
     try {
       conn.beginOrJoin();            
       StatusDao sd = dal.createStatusDao();
-      List<Status> stats = sd.findByJob(job.getUser().getUsername(), job.getId(), fromDate, toDate);
+      Status stat = sd.findLastByJob(job.getUser().getUsername(), job.getId());
     
       // Getting all files for job.getId()
       try {	
@@ -692,23 +692,19 @@ public class BusinessLogicImpl implements BusinessLogic {
     	  org.elasticsearch.action.search.SearchResponse esResponse = client.searchByJobId(job.getId());
 		  // </TODO>
 
-    	  Set<FileItem> fileItems = IndexUtils.convertToFileItems(esResponse);
-    	  // TODO for the time being, we'll just add the same list to each Status
-    	  for (Status s : stats) {
-    		  s.setFiles(fileItems);
-    	  }
+    	  Set<FileItem> fileItems = IndexUtils.convertToFileItems(esResponse);    	  
+    		stat.setFiles(fileItems);
+    		return stat;
 	    } catch (Throwable t) {
 	    	t.printStackTrace();
-	    }     
-      
-      return stats;
+	    }           
+      return null;
     } finally {
       conn.rollback();
     }
   }
 
-  public List<Status> getStatus(String username, Long jobId, Date fromDate,
-      Date toDate) {
+  public List<Status> getStatus(String username, Long jobId) {
     try {
       conn.begin();
       getUser(username);
@@ -716,20 +712,25 @@ public class BusinessLogicImpl implements BusinessLogic {
       
       if (jobId == null) {
         List<Status> status = new ArrayList<Status>();
-        List<BackupJob> jobs = jobDao.findByUsername(username);
-        for (BackupJob job : jobs) {
-          status.addAll(getStatusForJob(job, fromDate, toDate));
-        }
+        BackupJob job = jobDao.findLastBackupJob(username);
+        if (job != null) {
+          status.add(getStatusForJob(job));
+        }        
+        /*for (BackupJob job : jobs) {
+          status.add(getStatusForJob(job));
+        }*/
         return status;
       }
       
       BackupJob job = jobDao.findById(jobId);
       if (job == null)
-        throw new IllegalArgumentException(String.format(NO_SUCH_JOB, jobId));
+        throw new IllegalArgumentException(textBundle.getString(String.format(NO_SUCH_JOB, jobId)));
       if (!job.getUser().getUsername().equals(username))
-        throw new IllegalArgumentException(String.format(JOB_USER_MISSMATCH,
-            jobId, username));
-      return getStatusForJob(job, fromDate, toDate);
+        throw new IllegalArgumentException(textBundle.getString(String.format(JOB_USER_MISSMATCH,
+            jobId, username)));
+      List<Status> status = new ArrayList<Status>();
+      status.add(getStatusForJob(job));
+      return status;
     } finally {
       conn.rollback();
     }

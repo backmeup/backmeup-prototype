@@ -117,7 +117,7 @@ public class BackupJobRunner {
 	      Properties sinkProperties = 
 	    		  authenticationData.getByProfileId(persistentJob.getSinkProfile().getProfileId());
 	      
-	      addStatusToDb(new Status(persistentJob, "BackupJob Started", "info", "backupjob", new Date()));
+	      addStatusToDb(new Status(persistentJob, "BackupJob Started", "BUSY", "STORE", new Date()));
 	      long previousSize = 0;
 
 	      for (ProfileOptions po : persistentJob.getSourceProfiles()) {
@@ -130,18 +130,18 @@ public class BackupJobRunner {
 	        Properties sourceProperties = authenticationData.getByProfileId(po
 	            .getProfile().getProfileId());
 	        
-	    	addStatusToDb(new Status(persistentJob, "Downloading from " + po.getProfile().getProfileName(), "info", "datasource", new Date()));
+	    	addStatusToDb(new Status(persistentJob, "Downloading from " + po.getProfile().getProfileName(), "BUSY", "STORE", new Date()));
 	    	
 	    	// Download from source
 	        try {
 	          source.downloadAll(sourceProperties, storage, new JobStatusProgressor(persistentJob, "datasource"));
 	        } catch (StorageException e) {
-	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", "datasource", new Date()));
+	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "ERROR", "STORE", new Date()));
 	        } catch (DatasourceException e) {
-	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", "datasource", new Date()));
+	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "ERROR", "STORE", new Date()));
 	        }
 	        
-	        addStatusToDb(new Status(persistentJob, "Download completed", "info", "datasource", new Date()));
+	        addStatusToDb(new Status(persistentJob, "Download completed", "BUSY", "STORE", new Date()));
 	        
 	        // for each datasource add an entry with bytes it consumed 
 	        long currentSize = storage.getDataObjectSize() - previousSize;
@@ -177,25 +177,25 @@ public class BackupJobRunner {
 		        		action = new EncryptionAction();
 		        		action.doAction(params, storage, job, new JobStatusProgressor(persistentJob, "encryptionaction"));
 		        	} else {
-		        		addStatusToDb(new Status(persistentJob, "Unsupported Action: " + actionId, "error", "backupjob", new Date()));
+		        		addStatusToDb(new Status(persistentJob, "Unsupported Action: " + actionId, "ERROR", "STORE", new Date()));
 		        	}
 	        	} catch (ActionException e) {
-	        		addStatusToDb(new Status(persistentJob, e.getMessage(), "error", "backupjob", new Date()));
+	        		addStatusToDb(new Status(persistentJob, e.getMessage(), "ERROR", "STORE", new Date()));
 	        	}
 	        }    
 	        
 	        try {
 	        	// Upload to Sink
 	        	addStatusToDb(new Status(persistentJob, "Uploading to " + 
-	        		persistentJob.getSinkProfile().getProfileName(), "info", "datasink", new Date()));
+	        		persistentJob.getSinkProfile().getProfileName(), "BUSY", "STORE", new Date()));
 	
 	        	sinkProperties.setProperty ("org.backmeup.tmpdir", getLastSplitElement (tmpDir, "/"));
 	        	sink.upload(sinkProperties, storage, new JobStatusProgressor(persistentJob, "datasink"));
 	        } catch (StorageException e) {
-	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", "datasink", new Date()));
+	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "BUSY", "STORE", new Date()));
 	        }
 	        
-	        addStatusToDb(new Status(persistentJob, "BackupJob Completed", "info", "backupjob", new Date()));
+	        addStatusToDb(new Status(persistentJob, "BackupJob Completed", "FINISHED", "STORE", new Date()));
 	        
 	        // store job protocol within database
 	        storeJobProtocol(persistentJob, protocol, storage.getDataObjectCount(), true);
@@ -205,7 +205,7 @@ public class BackupJobRunner {
 	    } catch (StorageException e) {
 	      // job failed, store job protocol within database
         storeJobProtocol(persistentJob, protocol, 0, false);
-	    	addStatusToDb(new Status(persistentJob, e.getMessage(), "error", "storage", new Date()));
+	    	addStatusToDb(new Status(persistentJob, e.getMessage(), "ERROR", "STORE", new Date()));
 	    }
     } finally {
       conn.rollback();

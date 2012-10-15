@@ -29,6 +29,17 @@ public class BackupJobDaoImpl extends BaseDaoImpl<BackupJob> implements
     TypedQuery<BackupJob> q = em.createQuery("SELECT j FROM " + entityClass.getName() +" j", entityClass);    
     List<BackupJob> jobs = q.getResultList();   
     return jobs;
+  }
+
+  @Override
+  public BackupJob findLastBackupJob(String username) {
+    TypedQuery<BackupJob> q = em.createQuery("SELECT j FROM " + entityClass.getName() +" j WHERE j.user.username = :username ORDER BY j.created DESC", entityClass);
+    q.setParameter("username", username);
+    q.setMaxResults(1);
+    List<BackupJob> jobs = q.getResultList();
+    if (jobs.size() > 0)
+      return jobs.get(0);
+    return null;
   } 
 
 }

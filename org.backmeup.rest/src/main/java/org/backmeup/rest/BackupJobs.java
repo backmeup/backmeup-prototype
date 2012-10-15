@@ -97,18 +97,9 @@ public class BackupJobs extends Base {
   @Path("/{username}/{jobId}/status")
   @Produces("application/json")
   public StatusContainer getStatus(@PathParam("username") String username,
-      @PathParam("jobId") Long jobId, @QueryParam("fromDate") String fromDate,
-      @QueryParam("toDate") String toDate) {
-    Date fDate = null;
-    Date tDate = null;
-    if (fromDate != null) {
-      fDate = new Date(Long.parseLong(fromDate));
-    }
-    if (toDate != null) {
-      tDate = new Date(Long.parseLong(toDate));
-    }
-    return new StatusContainer(getLogic().getStatus(username, jobId, fDate,
-        tDate));
+      @PathParam("jobId") Long jobId) {
+    
+    return new StatusContainer(getLogic().getStatus(username, jobId));
   }
 
   @GET
@@ -147,14 +138,13 @@ public class BackupJobs extends Base {
     if (toDate != null) {
       tDate = new Date(Long.parseLong(toDate));
     }
-    return new StatusContainer(getLogic().getStatus(username, null, fDate,
-        tDate));
+    return new StatusContainer(getLogic().getStatus(username, null));
   }
   
   @GET
   @Path("/{username}/{jobId}")
   @Produces("application/json")
-  public StatusContainer getJopDetails(
+  public StatusContainer getJobDetails(
       @PathParam("username") String username,
       @QueryParam("fromDate") String fromDate,
       @QueryParam("toDate") String toDate) {
@@ -166,7 +156,6 @@ public class BackupJobs extends Base {
     if (toDate != null) {
       tDate = new Date(Long.parseLong(toDate));
     }
-    return new StatusContainer(getLogic().getStatus(username, null, fDate,
-        tDate));
+    return new StatusContainer(getLogic().getStatus(username, null));
   }
 }

@@ -37,7 +37,7 @@ public class ElasticSearchIndexClient {
 		return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).execute().actionGet();
 	}
 	
-	public SearchResponse getFileById(String fileId) {
+	public SearchResponse getFileById(String username, String fileId) {
 		// IDs in backmeup are "owner:hash:timestamp"
 		String[] bmuId = fileId.split(":");
 		if (bmuId.length != 3)
@@ -48,6 +48,7 @@ public class ElasticSearchIndexClient {
 		Long timestamp = Long.parseLong(bmuId[2]);
 		
 		QueryBuilder qBuilder = QueryBuilders.boolQuery()
+		    //.must(QueryBuilders.matchQuery(FIELD_OWNER_NAME, username))
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, owner))
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_FILE_HASH, hash))
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_BACKUP_AT, timestamp));

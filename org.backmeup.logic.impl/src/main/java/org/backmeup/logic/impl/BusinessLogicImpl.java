@@ -784,7 +784,7 @@ public class BusinessLogicImpl implements BusinessLogic {
           }                    
           totalSize += member.getSpace();         
         }
-        po.getActivities().add(new Activity(prot.getJobTitle(), prot.getExecutionTime()));
+        po.getActivities().add(new Activity(prot.getJob().getJobTitle(), prot.getExecutionTime()));
       }
       
       for (Entry entry : entries.values()) {

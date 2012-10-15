@@ -1,10 +1,10 @@
 package org.backmeup.job.impl;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import org.backmeup.configuration.Configuration;
 import org.backmeup.dal.BackupJobDao;
@@ -12,7 +12,6 @@ import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
 import org.backmeup.dal.JobProtocolDao;
 import org.backmeup.dal.StatusDao;
-import org.backmeup.dal.UserDao;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.ActionProfile;
@@ -75,6 +74,7 @@ public class BackupJobRunner {
     job = jobDao.merge(job);
     JobProtocolDao jpd = dal.createJobProtocolDao();
     protocol.setUser(job.getUser());
+    protocol.setJob(job);
     protocol.setSuccessful(success);
     protocol.setTotalStoredEntries(storedEntriesCount);
     jpd.save(protocol);
@@ -105,11 +105,10 @@ public class BackupJobRunner {
       
       // Protocol Overview requires information about executed jobs      
       JobProtocol protocol = new JobProtocol();      
-      List<JobProtocolMember> protocolEntries = new ArrayList<JobProtocolMember>();
+      Set<JobProtocolMember> protocolEntries = new HashSet<JobProtocolMember>();
       protocol.setMembers(protocolEntries);
       protocol.setSinkTitle(persistentJob.getSinkProfile().getProfileName());
-      protocol.setExecutionTime(new Date());
-      protocol.setJobTitle(persistentJob.getJobTitle());
+      protocol.setExecutionTime(new Date());      
       
       // Open temporary storage
       try {

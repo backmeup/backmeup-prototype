@@ -7,6 +7,7 @@ import javax.persistence.TypedQuery;
 
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.JobProtocol;
 
 public class BackupJobDaoImpl extends BaseDaoImpl<BackupJob> implements
     BackupJobDao {
@@ -33,7 +34,8 @@ public class BackupJobDaoImpl extends BaseDaoImpl<BackupJob> implements
 
   @Override
   public BackupJob findLastBackupJob(String username) {
-    TypedQuery<BackupJob> q = em.createQuery("SELECT j FROM " + entityClass.getName() +" j WHERE j.user.username = :username ORDER BY j.created DESC", entityClass);
+    TypedQuery<BackupJob> q = em.createQuery("SELECT jp.job FROM " + JobProtocol.class.getName() +" jp WHERE jp.user.username = :username ORDER BY jp.executionTime DESC", entityClass);
+    //TypedQuery<BackupJob> q = em.createQuery("SELECT j FROM " + entityClass.getName() +" j WHERE j.user.username = :username ORDER BY j.created DESC", entityClass);
     q.setParameter("username", username);
     q.setMaxResults(1);
     List<BackupJob> jobs = q.getResultList();

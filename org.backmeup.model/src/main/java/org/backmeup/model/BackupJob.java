@@ -38,6 +38,8 @@ public class BackupJob {
   private BackMeUpUser user;
   @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
   private Set<ProfileOptions> sourceProfiles = new HashSet<ProfileOptions>();
+  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true, mappedBy="job")
+  private Set<JobProtocol> jobProtocols = new HashSet<JobProtocol>();
   @ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER)
   private Profile sinkProfile;
   @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER)

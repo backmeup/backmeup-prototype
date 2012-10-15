@@ -126,18 +126,8 @@ def create_backup_job(user, keyRing, sourceProfileIds, requiredActions, sinkProf
 def delete_backup_job(user, jobId):
   return com.request("DELETE", "/jobs/" + user + "/" + str(jobId))
 
-def get_backup_job_status(user, jobId, fromDate=None, toDate=None):
+def get_backup_job_status(user, jobId):
   req = "/jobs/" + user + "/" + str(jobId) + "/status";
-  if fromDate != None:
-    req += "?fromDate=" + str(int(mktime(fromDate.timetuple()) * 1000))
-
-  if toDate != None:
-    if fromDate != None:
-      req += "&"
-    else:
-      req += "?"
-    req += "toDate=" + str(int(mktime(toDate.timetuple()) * 1000))
-    
   return com.request("GET", req)
 
 def get_all_backup_job_status(user):

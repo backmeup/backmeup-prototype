@@ -1,7 +1,7 @@
 package org.backmeup.model;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -25,17 +25,18 @@ public class JobProtocol {
   @ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER)
   private BackMeUpUser user;
   private boolean successful;
-  private long totalStoredEntries;
-  private String jobTitle;
+  private long totalStoredEntries;  
   private String sinkTitle;
+  @ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER)
+  private BackupJob job;
   @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
-  private List<JobProtocolMember> members;
+  private Set<JobProtocolMember> members;
   
   public JobProtocol() {
   }
 
   public JobProtocol(Date executionTime, BackMeUpUser user, boolean successful,
-      long totalStoredEntries, String sinkTitle, List<JobProtocolMember> members) {
+      long totalStoredEntries, String sinkTitle, Set<JobProtocolMember> members) {
     this.executionTime = executionTime;
     this.user = user;
     this.successful = successful;
@@ -84,11 +85,11 @@ public class JobProtocol {
     this.sinkTitle = sinkTitle;
   }
 
-  public List<JobProtocolMember> getMembers() {
+  public Set<JobProtocolMember> getMembers() {
     return members;
   }
 
-  public void setMembers(List<JobProtocolMember> members) {
+  public void setMembers(Set<JobProtocolMember> members) {
     this.members = members;
   }
 
@@ -96,12 +97,12 @@ public class JobProtocol {
     return id;
   }
 
-  public String getJobTitle() {
-    return jobTitle;
+  public BackupJob getJob() {
+    return job;
   }
 
-  public void setJobTitle(String jobTitle) {
-    this.jobTitle = jobTitle;
+  public void setJob(BackupJob job) {
+    this.job = job;
   }
 
   @Entity
@@ -151,6 +152,31 @@ public class JobProtocol {
 
     public Long getId() {
       return id;
-    }    
+    }
+    
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((id == null) ? 0 : id.hashCode());
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      JobProtocolMember other = (JobProtocolMember) obj;
+      if (id == null) {
+        if (other.id != null)
+          return false;
+      } else if (!id.equals(other.id))
+        return false;
+      return true;
+    }
   }
 }

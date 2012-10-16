@@ -1,12 +1,13 @@
 package org.backmeup.logic;
 
 import java.io.InputStream;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.backmeup.model.ActionProfile;
 import org.backmeup.model.AuthRequest;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.Profile;
@@ -14,7 +15,6 @@ import org.backmeup.model.ProtocolDetails;
 import org.backmeup.model.ProtocolOverview;
 import org.backmeup.model.SearchResponse;
 import org.backmeup.model.Status;
-import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.InvalidCredentialsException;
@@ -51,11 +51,16 @@ public interface BusinessLogic {
 	public void setUserProperty(String username, String key, String value);
 	public void deleteUserProperty(String username, String key);
 	
+	// action operations
+	public void changeActionOptions(String actionId, Long jobId, Map<String, String> actionOptions);
+	public ActionProfile getStoredActionOptions(String actionId, Long jobId);
+	
 	//datasource operations
 	public List<SourceSinkDescribable> getDatasources();
 	public List<Profile> getDatasourceProfiles(String username);
 	public Profile deleteProfile(String username, Long profile);
 	public List<String> getDatasourceOptions(String username, Long profileId, String keyRingPassword);
+	public List<String> getStoredDatasourceOptions(String username, Long profileId, Long jobId);
 	public void changeProfile(Long profileId, Long jobId, List<String> sourceOptions);
 	public void uploadDatasourcePlugin(String filename, InputStream data);
 	public void deleteDatasourcePlugin(String name);
@@ -102,5 +107,5 @@ public interface BusinessLogic {
 	public void shutdown();
 	
 	// logs
-	public List<KeyserverLog> getKeysrvLogs (BackMeUpUser user);
+	public List<KeyserverLog> getKeysrvLogs (BackMeUpUser user);  
 }

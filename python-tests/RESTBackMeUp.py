@@ -150,6 +150,15 @@ def get_overview(user, duration):
 def get_actions():
   return com.request("GET", "/actions")
 
+def get_action_options(actionId):
+  return com.request("GET", "/actions/" + actionId + "/options")
+
+def get_stored_action_options(actionId, jobId):
+  return com.request("GET", "/actions/" + actionId + "/storedOptions/" + str(jobId))
+
+def update_action_options(actionId, jobId, params):
+  return com.request("PUT", "/actions/" + actionId + "/options/" + str(jobId), params)
+
 ######### Mail Operations ###########
 def send_text_mail(to, subject, msg):
   return com.request("POST", "/mails/send/text", {

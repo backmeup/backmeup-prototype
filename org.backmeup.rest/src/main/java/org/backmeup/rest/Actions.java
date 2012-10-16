@@ -1,10 +1,17 @@
 package org.backmeup.rest;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.backmeup.rest.data.ActionContainer;
 import org.backmeup.rest.data.ActionOptionsContainer;
@@ -30,6 +37,28 @@ public class Actions extends Base {
 	public ActionOptionsContainer getActionOptions(@PathParam("actionId") String actionId) {
 		return new ActionOptionsContainer(getLogic().getActionOptions(actionId));
 	}
+	
+	@GET
+  @Produces("application/json")
+  @Path("/{actionId}/storedOptions/{jobId}")
+  public ActionOptionsContainer getStoredActionOptions(@PathParam("actionId") String actionId,
+      @PathParam("jobId") Long jobId) {
+    return new ActionOptionsContainer(getLogic().getStoredActionOptions(actionId, jobId));
+  }
+	
+	@PUT
+  @Path("/{actionId}/options/{jobId}")
+  @Produces("application/json")
+  public void updateActionOptions(      
+      @PathParam("actionId") String actionId,
+      @PathParam("jobId") Long jobId,
+      MultivaluedMap<String, String> formParams) {
+	  Map<String, String> actionOptions = new HashMap<String, String>();
+	  for (Entry<String, List<String>> entry : formParams.entrySet()) {
+	    actionOptions.put(entry.getKey(), entry.getValue().get(0));
+	  }
+	  getLogic().changeActionOptions(actionId, jobId, actionOptions);       
+  }
 	
 	/*@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)

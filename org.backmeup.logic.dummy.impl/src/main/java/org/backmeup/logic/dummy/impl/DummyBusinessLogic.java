@@ -904,4 +904,17 @@ public class DummyBusinessLogic implements BusinessLogic {
     // TODO Auto-generated method stub
     return null;
   }
+
+  @Override
+  public void changeActionOptions(String actionId, Long jobId,
+      Map<String, String> actionOptions) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public ActionProfile getStoredActionOptions(String actionId, Long jobId) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

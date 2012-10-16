@@ -989,6 +989,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     } catch (PluginException pe) {
       // TODO: Log exception
       pe.printStackTrace();
+      throw pe;
     } finally {
       conn.rollback();
     }

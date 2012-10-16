@@ -12,7 +12,7 @@ public class BackMeUpExceptionMapper implements
 
   public Response toResponse(BackMeUpException are) {    
     return Response.status(Status.BAD_REQUEST)
-        .entity(new ErrorEntity(are.getClass().getName(), are.getMessage())).build();
+        .entity(new ErrorEntity(are.getClass().getName(), are)).build();
   }
 
 }

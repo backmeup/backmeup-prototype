@@ -28,8 +28,8 @@ public class ContextListener implements ServletContextListener {
       }
     }
   }
-
-  @Override
+  
+    @Override
   public void contextDestroyed(ServletContextEvent sce) {
     // call shutdown on exit
     System.out.println("Shutting down business logic...");
@@ -37,6 +37,7 @@ public class ContextListener implements ServletContextListener {
       logic = (BusinessLogic) sce.getServletContext().getAttribute("org.backmeup.logic");
     }
     this.logic.shutdown();
+    this.logic = null;
     System.out.println("BL has been shut down!");
   }
 }

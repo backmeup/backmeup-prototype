@@ -17,7 +17,12 @@
 	<name>REST Webapp</name>
 	<url>http://maven.apache.org</url>
 	<dependencies>
-		<dependency>
+          <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+   	    <version>9.1-901.jdbc4</version>
+          </dependency>
+ 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>3.8.1</version>
@@ -213,9 +218,11 @@
 					<plugin>
 						<groupId>org.apache.tomcat.maven</groupId>
 						<artifactId>tomcat6-maven-plugin</artifactId>
-						<version>2.0-beta-1</version>
+						<version>2.0</version>
 						<configuration>						
-							<server>tomcat</server>
+                                                  <server>tomcat</server>
+                                                          <username>username</username>
+                                                          <password>password</password>
 						</configuration>
 					</plugin>					
 				</plugins>
@@ -236,10 +243,12 @@
 					<plugin>
 						<groupId>org.apache.tomcat.maven</groupId>
 						<artifactId>tomcat6-maven-plugin</artifactId>
-						<version>2.0-beta-1</version>
+						<version>2.0</version>
 						<configuration>		
 							<url>http://localhost:8080/manager/html</url>				
-							<server>tomcat</server>
+                                                        <server>tomcat</server>
+                                                        <username>username</username>
+                                                        <password>password</password>
 						</configuration>
 					</plugin> 
 				</plugins>

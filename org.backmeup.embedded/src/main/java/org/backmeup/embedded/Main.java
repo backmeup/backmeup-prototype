@@ -24,6 +24,7 @@ import org.backmeup.rest.exceptionmapper.AlreadyRegisteredExceptionMapper;
 import org.backmeup.rest.exceptionmapper.BackMeUpExceptionMapper;
 import org.backmeup.rest.exceptionmapper.IllegalArgumentExceptionMapper;
 import org.backmeup.rest.exceptionmapper.InvalidCredentialsMapper;
+import org.backmeup.rest.exceptionmapper.InvalidKeyExceptionMapper;
 import org.backmeup.rest.exceptionmapper.NullPointerExceptionMapper;
 import org.backmeup.rest.exceptionmapper.UnknownUserExceptionMapper;
 import org.backmeup.rest.provider.ObjectMapperContextResolver;
@@ -70,6 +71,8 @@ public class Main {
 				.add(IllegalArgumentExceptionMapper.class.getName());
 		tjws.getDeployment().getProviderClasses()
 				.add(InvalidCredentialsMapper.class.getName());
+		tjws.getDeployment().getProviderClasses()
+        .add(InvalidKeyExceptionMapper.class.getName());
 		tjws.getDeployment().getProviderClasses()
 				.add(NullPointerExceptionMapper.class.getName());
 		tjws.getDeployment().getProviderClasses()

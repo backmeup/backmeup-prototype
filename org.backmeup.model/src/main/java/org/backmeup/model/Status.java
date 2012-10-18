@@ -24,6 +24,7 @@ import javax.persistence.Transient;
  */
 @Entity
 public class Status {
+	
   @Id 
   @GeneratedValue(strategy=GenerationType.IDENTITY)
   @Column(nullable = false)

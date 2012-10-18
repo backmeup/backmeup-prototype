@@ -20,6 +20,8 @@ import org.backmeup.model.JobProtocol;
 import org.backmeup.model.JobProtocol.JobProtocolMember;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Status;
+import org.backmeup.model.StatusCategory;
+import org.backmeup.model.StatusType;
 import org.backmeup.model.Token;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.actions.Action;
@@ -116,7 +118,7 @@ public class BackupJobRunner {
 	      Properties sinkProperties = 
 	    		  authenticationData.getByProfileId(persistentJob.getSinkProfile().getProfileId());
 	      
-	      addStatusToDb(new Status(persistentJob, "BackupJob Started", "BUSY", "STORE", new Date()));
+	      addStatusToDb(new Status(persistentJob, "", StatusType.STARTED, StatusCategory.INFO, new Date()));
 	      long previousSize = 0;
 
 	      for (ProfileOptions po : persistentJob.getSourceProfiles()) {
@@ -129,19 +131,17 @@ public class BackupJobRunner {
 	        Properties sourceProperties = authenticationData.getByProfileId(po
 	            .getProfile().getProfileId());
 	        
-	    	addStatusToDb(new Status(persistentJob, "Downloading from " + po.getProfile().getProfileName(), "BUSY", "STORE", new Date()));
+	    	addStatusToDb(new Status(persistentJob, "", StatusType.DOWNLOADING, StatusCategory.INFO, new Date()));
 	    	
 	    	// Download from source
 	        try {
-	          source.downloadAll(sourceProperties, storage, new JobStatusProgressor(persistentJob, "datasource"));
+	            source.downloadAll(sourceProperties, storage, new JobStatusProgressor(persistentJob, "datasource"));
 	        } catch (StorageException e) {
-	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "ERROR", "STORE", new Date()));
+	        	addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.DOWNLOAD_FAILED, StatusCategory.WARNING, new Date()));
 	        } catch (DatasourceException e) {
-	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "ERROR", "STORE", new Date()));
+	        	addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.DOWNLOAD_FAILED, StatusCategory.WARNING, new Date()));
 	        }
-	        
-	        addStatusToDb(new Status(persistentJob, "Download completed", "BUSY", "STORE", new Date()));
-	        
+	        	        
 	        // for each datasource add an entry with bytes it consumed 
 	        long currentSize = storage.getDataObjectSize() - previousSize;
 	        protocolEntries.add(new JobProtocolMember(protocol, po.getProfile().getProfileName(), currentSize));
@@ -151,6 +151,7 @@ public class BackupJobRunner {
 	        Properties params = new Properties();
 	        
 	        // Execute Actions in sequence
+	        addStatusToDb(new Status(persistentJob, "", StatusType.PROCESSING, StatusCategory.INFO, new Date()));
 	        for (ActionProfile actionProfile : persistentJob.getRequiredActions()) {
 	        	String actionId = actionProfile.getActionId();
 	        	
@@ -176,25 +177,25 @@ public class BackupJobRunner {
 		        		action = new EncryptionAction();
 		        		action.doAction(params, storage, job, new JobStatusProgressor(persistentJob, "encryptionaction"));
 		        	} else {
-		        		addStatusToDb(new Status(persistentJob, "Unsupported Action: " + actionId, "ERROR", "STORE", new Date()));
+		        		// Only happens in case Job was corrupted in the core - we'll handle that as a fatal error
+		        		addStatusToDb(new Status(persistentJob, "Unsupported Action: " + actionId, StatusType.JOB_FAILED, StatusCategory.ERROR, new Date()));
 		        	}
 	        	} catch (ActionException e) {
-	        		addStatusToDb(new Status(persistentJob, e.getMessage(), "ERROR", "STORE", new Date()));
+	        		// Should only happen in case of problems in the core (file I/O, DB access, etc.) - we'll handle that as a fatal error
+	        		addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date()));
 	        	}
 	        }    
 	        
 	        try {
 	        	// Upload to Sink
-	        	addStatusToDb(new Status(persistentJob, "Uploading to " + 
-	        		persistentJob.getSinkProfile().getProfileName(), "BUSY", "STORE", new Date()));
+	        	addStatusToDb(new Status(persistentJob, "", StatusType.UPLOADING, StatusCategory.INFO, new Date()));
 	
 	        	sinkProperties.setProperty ("org.backmeup.tmpdir", getLastSplitElement (tmpDir, "/"));
 	        	sink.upload(sinkProperties, storage, new JobStatusProgressor(persistentJob, "datasink"));
+		        addStatusToDb(new Status(persistentJob, "", StatusType.SUCCESSFUL, StatusCategory.INFO, new Date()));
 	        } catch (StorageException e) {
-	        	addStatusToDb(new Status(persistentJob, e.getMessage(), "BUSY", "STORE", new Date()));
+	        	addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date()));
 	        }
-	        
-	        addStatusToDb(new Status(persistentJob, "BackupJob Completed", "FINISHED", "STORE", new Date()));
 	        
 	        // store job protocol within database
 	        storeJobProtocol(persistentJob, protocol, storage.getDataObjectCount(), true);

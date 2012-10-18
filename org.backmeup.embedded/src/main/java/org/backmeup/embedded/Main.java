@@ -24,6 +24,7 @@ import org.backmeup.rest.exceptionmapper.AlreadyRegisteredExceptionMapper;
 import org.backmeup.rest.exceptionmapper.BackMeUpExceptionMapper;
 import org.backmeup.rest.exceptionmapper.IllegalArgumentExceptionMapper;
 import org.backmeup.rest.exceptionmapper.InvalidCredentialsMapper;
+import org.backmeup.rest.exceptionmapper.InvalidKeyExceptionMapper;
 import org.backmeup.rest.exceptionmapper.NullPointerExceptionMapper;
 import org.backmeup.rest.exceptionmapper.UnknownUserExceptionMapper;
 import org.backmeup.rest.provider.ObjectMapperContextResolver;
@@ -71,6 +72,8 @@ public class Main {
 		tjws.getDeployment().getProviderClasses()
 				.add(InvalidCredentialsMapper.class.getName());
 		tjws.getDeployment().getProviderClasses()
+        .add(InvalidKeyExceptionMapper.class.getName());
+		tjws.getDeployment().getProviderClasses()
 				.add(NullPointerExceptionMapper.class.getName());
 		tjws.getDeployment().getProviderClasses()
 				.add(UnknownUserExceptionMapper.class.getName());
@@ -90,11 +93,25 @@ public class Main {
 		return indexNode.client();
 	}
 	
-	public static RabbitMQJobReceiver startRabbitMQWorker() throws IOException {
+	public static List<RabbitMQJobReceiver> startRabbitMQWorker() throws IOException {
 		File autodeploy = new File("autodeploy");
-		RabbitMQJobReceiver rec = new RabbitMQJobReceiver(Configuration.getConfig().getProperty("message.queue.host"), Configuration.getConfig().getProperty("message.queue.name"), autodeploy.getAbsolutePath());
-		rec.start();
-		return rec;
+		
+		int numberOfReceivers;
+		try {
+			numberOfReceivers = Integer.parseInt(Configuration.getConfig().getProperty("message.queue.receivers"));
+		} catch (Exception e) {
+			// Default to 4
+			numberOfReceivers = 4;
+		}
+		
+		List<RabbitMQJobReceiver> receivers = new ArrayList<RabbitMQJobReceiver>();
+		for (int i=0; i<numberOfReceivers; i++) {
+			RabbitMQJobReceiver rec = new RabbitMQJobReceiver(Configuration.getConfig().getProperty("message.queue.host"), Configuration.getConfig().getProperty("message.queue.name"), autodeploy.getAbsolutePath());
+			rec.start();
+			receivers.add(rec);
+		}		
+		
+		return receivers;
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -107,7 +124,7 @@ public class Main {
 
 		TJWSEmbeddedJaxrsServer tjws = startServer();	
 		System.out.println(String.format("BackMeUp REST Server started at %s", BASE_URI));
-		RabbitMQJobReceiver receiver = startRabbitMQWorker();
+		List<RabbitMQJobReceiver> receivers = startRabbitMQWorker();
 		System.out.println("RabbitMQWorker running");
 		Client indexClient = startIndexClient();
 		System.out.println("ElasticSearch index running at http://localhost:9200/");
@@ -116,7 +133,9 @@ public class Main {
 		System.in.read();
 		tjws.stop();
 		indexClient.close();
-		receiver.stop();
+		for (RabbitMQJobReceiver r : receivers) {
+			r.stop();
+		}
 		System.exit(0);
 	}
 

@@ -99,7 +99,9 @@ abstract public class AkkaJobManager implements JobManager {
 
 	@Override
 	public void shutdown() {
-		// Do nothing
+		// Shutdown system component
+	  system.shutdown();
+	  system.awaitTermination();	  
 	}
 	
 	abstract protected Runnable newJobRunner(final BackupJob job);

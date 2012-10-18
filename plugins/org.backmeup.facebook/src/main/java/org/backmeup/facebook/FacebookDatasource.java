@@ -36,6 +36,7 @@ import org.json.JSONObject;
 import com.restfb.Connection;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
+import com.restfb.exception.FacebookException;
 import com.restfb.types.Album;
 import com.restfb.types.CategorizedFacebookType;
 import com.restfb.types.Group;
@@ -725,7 +726,9 @@ public class FacebookDatasource implements Datasource {
 		Metainfo userinfo = new Metainfo();
 		userinfo.setBackupDate(new Date());
 
-		User u = client.fetchObject(id, User.class);
+		try {
+			User u = client.fetchObject(id, User.class);
+		
 		String name = checkName(u.getName());
 
 		userinfo.setAttribute("name", name);
@@ -876,6 +879,9 @@ public class FacebookDatasource implements Datasource {
 
 		allUsers.add(id);
 		return filename;
+		} catch(FacebookException e) {
+			return null;
+		}
 	}
 
 	private String getUserFilename(String id) {
@@ -1115,8 +1121,7 @@ public class FacebookDatasource implements Datasource {
 			if (allUsers.contains(id)) {
 				doc.appendBody(new A("../" + path, name));
 			} else {
-				if (DOWNLOAD_NON_FRIEND_USERS) {
-					downloadUser(id, client, storage, progr);
+				if (DOWNLOAD_NON_FRIEND_USERS && downloadUser(id, client, storage, progr)!=null) {
 					doc.appendBody(new A("../" + path, name));
 				} else {
 					doc.appendBody(name);

@@ -33,22 +33,26 @@ public class ThumbnailAction implements Action {
 	 * 
 	 * gm convert -size 120x120 original.jpg -resize 120x120 +profile "*" thumbnail.jpg
 	 * 
-	 * @return
+	 * @return the name of the thumbnail file
 	 * @throws IM4JavaException 
 	 * @throws InterruptedException 
 	 * @throws IOException 
 	 */
-	private void convert(String original, String thumbnail) throws IOException, 
+	private String convert(String original) throws IOException, 
 		InterruptedException, IM4JavaException {
+		
+		String thumbnail = original + "_thumb.jpg";
 		
 		IMOperation op = new IMOperation();
 		op.size(THUMBNAIL_DIMENSIONS, THUMBNAIL_DIMENSIONS);
-		op.quality(75.0);
+		op.quality(80.0);
 		op.resize(THUMBNAIL_DIMENSIONS, THUMBNAIL_DIMENSIONS);
 		op.p_profile("*");
-		op.addImage(original);
+		op.addImage(original + "[0]");
 		op.addImage(thumbnail);
 		new ConvertCmd(true).run(op);
+		
+		return thumbnail;
 	}
 
 	@Override
@@ -76,7 +80,7 @@ public class ThumbnailAction implements Action {
 				
 				try {
 					// Generate thumbnails using GraphicsMagick
-					convert(tempFile.getAbsolutePath(), tempFile.getAbsolutePath() + "_thumb.jpg");
+					convert(tempFile.getAbsolutePath());
 				} catch (Throwable t) {
 					System.out.println("Failed to render thumbnail for: " + dataobject.getPath());
 				}

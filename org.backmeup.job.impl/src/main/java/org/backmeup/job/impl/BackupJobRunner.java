@@ -191,6 +191,7 @@ public class BackupJobRunner {
 	        	addStatusToDb(new Status(persistentJob, "", StatusType.UPLOADING, StatusCategory.INFO, new Date()));
 	
 	        	sinkProperties.setProperty ("org.backmeup.tmpdir", getLastSplitElement (tmpDir, "/"));
+	        	sinkProperties.setProperty("org.backmeup.userid", persistentJob.getUser().getUserId() + "");
 	        	sink.upload(sinkProperties, storage, new JobStatusProgressor(persistentJob, "datasink"));
 		        addStatusToDb(new Status(persistentJob, "", StatusType.SUCCESSFUL, StatusCategory.INFO, new Date()));
 	        } catch (StorageException e) {

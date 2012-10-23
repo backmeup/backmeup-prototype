@@ -759,12 +759,12 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
   
-  private Status getStatusForJob(BackupJob job) {
+  private List<Status> getStatusForJob(BackupJob job) {
     try {
       conn.beginOrJoin();            
       StatusDao sd = dal.createStatusDao();
-      Status stat = sd.findLastByJob(job.getUser().getUsername(), job.getId());
-    
+      List<Status> status = sd.findLastByJob(job.getUser().getUsername(), job.getId());
+          
       // Getting all files for job.getId()
       try {	
     	  // <TODO> redundant code - move this (from here) to a private method
@@ -776,9 +776,10 @@ public class BusinessLogicImpl implements BusinessLogic {
     	  org.elasticsearch.action.search.SearchResponse esResponse = client.searchByJobId(job.getId());
 		  // </TODO>
 
-    	  Set<FileItem> fileItems = IndexUtils.convertToFileItems(esResponse);    	  
-    		stat.setFiles(fileItems);
-    		return stat;
+    	  Set<FileItem> fileItems = IndexUtils.convertToFileItems(esResponse);
+    	  for (Status stat : status)
+    	    stat.setFiles(fileItems);
+    		return status;
 	    } catch (Throwable t) {
 	    	t.printStackTrace();
 	    }           
@@ -798,7 +799,7 @@ public class BusinessLogicImpl implements BusinessLogic {
         List<Status> status = new ArrayList<Status>();
         BackupJob job = jobDao.findLastBackupJob(username);
         if (job != null) {
-          status.add(getStatusForJob(job));
+          status.addAll(getStatusForJob(job));
         }        
         /*for (BackupJob job : jobs) {
           status.add(getStatusForJob(job));
@@ -813,7 +814,7 @@ public class BusinessLogicImpl implements BusinessLogic {
         throw new IllegalArgumentException(textBundle.getString(String.format(JOB_USER_MISSMATCH,
             jobId, username)));
       List<Status> status = new ArrayList<Status>();
-      status.add(getStatusForJob(job));
+      status.addAll(getStatusForJob(job));
       return status;
     } finally {
       conn.rollback();

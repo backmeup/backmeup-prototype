@@ -9,8 +9,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 
 public class ElasticSearchIndexClient {
 	
-	private static final String FIELD_OWNER_NAME = "owner_name";
-	
 	private static final String INDEX_NAME = "backmeup";
 	
 	private Client client;
@@ -24,9 +22,9 @@ public class ElasticSearchIndexClient {
 		this.client = client;
 	}
 	
-	public SearchResponse queryBackup(String username, String query) {
+	public SearchResponse queryBackup(Long userId, String query) {
 		QueryBuilder qBuilder = QueryBuilders.boolQuery()
-				.must(QueryBuilders.matchQuery(FIELD_OWNER_NAME, username))
+				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, userId))
 				.must(QueryBuilders.queryString(query));
 		
 		return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).execute().actionGet();

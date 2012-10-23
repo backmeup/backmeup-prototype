@@ -1025,7 +1025,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 	    conn.begin();
 	    
 	    // at least we make sure, that the user exists
-	    getUser(username);
+	    BackMeUpUser user = getUser(username);
 	    
 	    SearchResponse search = getSearchResponseDao().findById(searchId);
 	    if (search == null)
@@ -1038,7 +1038,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 		    int port = Integer.parseInt(config.getProperty(INDEX_PORT));
 		    
 		    ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);
-		    org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(username, query);
+		    org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(user.getUserId(), query);
 		    search.setFiles(IndexUtils.convertSearchEntries(esResponse));
 		    search.setBySource(IndexUtils.getBySource(esResponse));
 		    search.setByType(IndexUtils.getByType(esResponse));

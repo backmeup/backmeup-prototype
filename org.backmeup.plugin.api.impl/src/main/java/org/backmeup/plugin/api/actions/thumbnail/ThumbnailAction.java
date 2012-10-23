@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
 
+import org.backmeup.configuration.Configuration;
 import org.backmeup.model.BackupJob;
+import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
@@ -18,13 +20,26 @@ import org.im4java.core.IMOperation;
 
 public class ThumbnailAction implements Action {
 	
-	// TODO configure via application properties
-	private static File tempDir = new File("test/temp"); 
-	private static Integer THUMBNAIL_DIMENSIONS = Integer.valueOf(120);
+	private static Configuration config = Configuration.getConfig();
+	private static File TEMP_DIR; 
+	private static Integer THUMBNAIL_DIMENSIONS;
 	
 	static {
-		if (!tempDir.exists())
-			tempDir.mkdirs();
+		try {
+			TEMP_DIR = new File(config.getProperty("thumbnail.temp.dir"));
+		} catch (Throwable t) {
+			TEMP_DIR = new File("tmp/thumbnails");
+			System.out.println("Thumbnail rendering temp dir not set - defaulting to 'tmp/thumbnails'");
+		}
+		
+		try {
+			THUMBNAIL_DIMENSIONS = Integer.valueOf(Integer.parseInt(config.getProperty("thumbnail.dimensions")));
+		} catch (Throwable t) {
+			System.out.println("Thumbnail dimensions not set - defaulting to 120px");
+		}
+		
+		if (!TEMP_DIR.exists())
+			TEMP_DIR.mkdirs();
 	}
 	
 	
@@ -38,21 +53,21 @@ public class ThumbnailAction implements Action {
 	 * @throws InterruptedException 
 	 * @throws IOException 
 	 */
-	private String convert(String original) throws IOException, 
+	private String convert(File original) throws IOException, 
 		InterruptedException, IM4JavaException {
 		
-		String thumbnail = original + "_thumb.jpg";
+		String thumbnailPath = original.getAbsolutePath() + "_thumb.jpg";
 		
 		IMOperation op = new IMOperation();
 		op.size(THUMBNAIL_DIMENSIONS, THUMBNAIL_DIMENSIONS);
 		op.quality(80.0);
 		op.resize(THUMBNAIL_DIMENSIONS, THUMBNAIL_DIMENSIONS);
 		op.p_profile("*");
-		op.addImage(original + "[0]");
-		op.addImage(thumbnail);
+		op.addImage(original.getAbsolutePath() + "[0]");
+		op.addImage(thumbnailPath);
 		new ConvertCmd(true).run(op);
 		
-		return thumbnail;
+		return thumbnailPath;
 	}
 
 	@Override
@@ -73,14 +88,17 @@ public class ThumbnailAction implements Action {
 					tempFilename = tempFilename.substring(1);
 				
 				tempFilename.replace("/", "$");
-				File tempFile = new File(tempDir, tempFilename);
+				File tempFile = new File(TEMP_DIR, tempFilename);
 				FileOutputStream fos = new FileOutputStream(tempFile);
 				fos.write(dataobject.getBytes());
 				fos.close();
 				
 				try {
 					// Generate thumbnails using GraphicsMagick
-					convert(tempFile.getAbsolutePath());
+					String thumbPath = convert(tempFile);
+					Metainfo meta = new Metainfo();
+					meta.setAttribute("thumbnail_path", thumbPath);
+					dataobject.getMetainfo().addMetainfo(meta);
 				} catch (Throwable t) {
 					System.out.println("Failed to render thumbnail for: " + dataobject.getPath());
 				}

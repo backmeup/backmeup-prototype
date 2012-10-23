@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"	
+	default-activation="lazy">
+	<service id="zipDescriptorService" ref="zipDescriptor" auto-export="interfaces">
+		<service-properties>
+			<entry key="name" value="org.backmeup.zip"/>
+		</service-properties>
+	</service>
+	<service id="zipAuthService" ref="zipAuthenticator" auto-export="interfaces">
+		<service-properties>
+			<entry key="name" value="org.backmeup.zip"/>
+		</service-properties>
+	</service>	
+	<service id="zipDatasinkService" ref="zipDatasink" auto-export="interfaces">
+		<service-properties>
+			<entry key="name" value="org.backmeup.zip"/>
+		</service-properties>
+	</service>	
+</blueprint>

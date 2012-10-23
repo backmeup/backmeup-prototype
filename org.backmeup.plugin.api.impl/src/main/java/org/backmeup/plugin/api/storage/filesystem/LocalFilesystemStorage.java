@@ -32,10 +32,10 @@ public class LocalFilesystemStorage extends Storage {
 		// remove everything in the dir
 		removeDir ("");
 		
-		//delte root dir and the parrent (/..../jobId/BMU_xxxxx)
-		File parrent = new File (rootDir.getParent ());
+		//delete root dir and the parrent (/..../jobId/BMU_xxxxx)
+		File parent = new File (rootDir.getParent());
 		rootDir.delete ();
-		parrent.delete ();
+		parent.delete ();
 	}
 	
 	@Override

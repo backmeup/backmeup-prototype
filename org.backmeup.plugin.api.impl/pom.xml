@@ -24,6 +24,11 @@
 			<artifactId>plugin.api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
+			<artifactId>utilities</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -76,5 +81,10 @@
 			<artifactId>junit</artifactId>
 			<version>4.10</version>
 		</dependency>
+		<dependency>
+			<groupId>org.im4java</groupId>
+			<artifactId>im4java</artifactId>
+			<version>1.2.0</version>
+		</dependency>    
 	</dependencies>	
 </project>

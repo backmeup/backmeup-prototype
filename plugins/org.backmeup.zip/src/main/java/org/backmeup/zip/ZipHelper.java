@@ -90,7 +90,9 @@ public class ZipHelper {
   public void sendToSftpDestination(InputStream zipStream, String fileName, String userId) {
     ChannelSftp sftpChannel = getSftpChannel();
     try {
-      sftpChannel.mkdir(MessageFormat.format(remoteDirectory, userId));
+      try {
+        sftpChannel.mkdir(MessageFormat.format(remoteDirectory, userId));
+      } catch (Exception ex) {}
       sftpChannel.put(zipStream, MessageFormat.format(target, userId, fileName));      
       sftpChannel.disconnect();      
     } catch (SftpException e) {

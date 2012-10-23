@@ -216,7 +216,11 @@ public class BusinessLogicImpl implements BusinessLogic {
       BackMeUpUser u = getUser(username, false);
       UserDao userDao = getUserDao();
       
-      keyserverClient.deleteUser(u.getUserId());
+      try {
+        keyserverClient.deleteUser(u.getUserId());
+      } catch (Exception ex) {        
+        logger.warn(MessageFormat.format("Couldn't delete user \"{0}\" from keyserver", username), ex);
+      }
 
       BackupJobDao jobDao = getBackupJobDao();
       StatusDao statusDao = getStatusDao();

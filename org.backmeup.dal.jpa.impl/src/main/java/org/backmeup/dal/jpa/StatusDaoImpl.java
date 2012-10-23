@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 
 import org.backmeup.dal.StatusDao;
@@ -15,18 +16,18 @@ public class StatusDaoImpl extends BaseDaoImpl<Status> implements StatusDao {
     super(em);
   }
   
-  public Status findLastByJob(String username, Long jobId) {
+  public List<Status> findLastByJob(String username, Long jobId) {
     String query = "SELECT s FROM " + entityClass.getName()
         + " s WHERE s.job.id=:jobId AND s.job.user.username=:username ORDER BY s.timeStamp DESC";
     
     TypedQuery<Status> q = em.createQuery(query, Status.class);
     q.setParameter("username", username);
     q.setParameter("jobId", jobId);
-    q.setMaxResults(1);
-    List<Status> status = q.getResultList();
-    if (status.size() > 0)
+    //q.setMaxResults(1);
+    return q.getResultList();
+    /*if (status.size() > 0)
       return status.get(0);
-    return null;
+    return null;*/
   }
   
   public List<Status> findByJob(String username, Long jobId, Date from, Date to) {
@@ -56,6 +57,23 @@ public class StatusDaoImpl extends BaseDaoImpl<Status> implements StatusDao {
     TypedQuery<Status> q = em.createQuery(query, Status.class);    
     q.setParameter("jobId", jobId);        
     return q.getResultList();
+  }
+
+  @Override
+  public void deleteBefore(Long jobId, Date timeStamp) {
+    // Following line generates invalid postgres sql code:
+    // https://hibernate.onjira.com/browse/HHH-7314
+    // Query q = em.createQuery("DELETE FROM " + entityClass.getName() +" s WHERE s.job.id = :jobId AND s.timeStamp <= :timeStamp");
+    // q.setParameter("username", username);
+    // q.setParameter("timeStamp", timeStamp);
+    // q.executeUpdate();
+    // workaround:
+    TypedQuery<Status> status = em.createQuery("SELECT s FROM " + entityClass.getName() + " s WHERE s.job.id = :jobId AND s.timeStamp <= :timeStamp", Status.class);
+    status.setParameter("jobId", jobId);
+    status.setParameter("timeStamp", timeStamp, TemporalType.TIMESTAMP);
+    for(Status s : status.getResultList()) {
+      em.remove(s);
+    }    
   }
 
 }

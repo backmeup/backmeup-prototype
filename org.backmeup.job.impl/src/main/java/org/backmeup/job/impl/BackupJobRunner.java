@@ -68,13 +68,22 @@ public class BackupJobRunner {
     StatusDao sd = dal.createStatusDao();
     sd.save(status); // store job within database
     conn.commit(); // commit to the database and to the core
-  }    
+  }
+  
+  private void deleteOldStatus(BackupJob persistentJob) {
+    conn.beginOrJoin();
+    StatusDao sd = dal.createStatusDao();
+    sd.deleteBefore(persistentJob.getId(), new Date());
+    conn.commit();    
+  }
   
   private void storeJobProtocol(BackupJob job, JobProtocol protocol, int storedEntriesCount, boolean success) {
     conn.beginOrJoin();
     BackupJobDao jobDao = dal.createBackupJobDao();
     job = jobDao.merge(job);
     JobProtocolDao jpd = dal.createJobProtocolDao();
+    // remove old entries, then store the new one 
+    jpd.deleteByUsername(job.getUser().getUsername());
     protocol.setUser(job.getUser());
     protocol.setJob(job);
     protocol.setSuccessful(success);
@@ -118,6 +127,8 @@ public class BackupJobRunner {
 	      Properties sinkProperties = 
 	    		  authenticationData.getByProfileId(persistentJob.getSinkProfile().getProfileId());
 	      
+	      // delete previously stored status, as we only need the latest
+	      deleteOldStatus(persistentJob);
 	      addStatusToDb(new Status(persistentJob, "", StatusType.STARTED, StatusCategory.INFO, new Date()));
 	      long previousSize = 0;
 
@@ -212,8 +223,8 @@ public class BackupJobRunner {
       conn.rollback();
     }
   }
-  
-	private String generateTmpDirName (BackupJob job, ProfileOptions po)
+
+  private String generateTmpDirName (BackupJob job, ProfileOptions po)
 	{
 		String conftempdir = Configuration.getConfig ().getProperty ("job.temporaryDirectory");
 		String formatstring = Configuration.getConfig ().getProperty ("job.backupname");

@@ -21,6 +21,7 @@ public class ZipHelper {
   private String host;
   private String user;
   private String target;
+  private String remoteDirectory;
   private int port;
   private String sshkey;    
 
@@ -39,6 +40,7 @@ public class ZipHelper {
       host = properties.getProperty("remote.host");
       user = properties.getProperty("remote.user");
       target = properties.getProperty("remote.target");
+      remoteDirectory = properties.getProperty("remote.directory");
       port = Integer.parseInt(properties.getProperty("remote.port"));
       sshkey = properties.getProperty("ssh.key");
       is.close();
@@ -88,6 +90,7 @@ public class ZipHelper {
   public void sendToSftpDestination(InputStream zipStream, String fileName, String userId) {
     ChannelSftp sftpChannel = getSftpChannel();
     try {
+      sftpChannel.mkdir(MessageFormat.format(remoteDirectory, userId));
       sftpChannel.put(zipStream, MessageFormat.format(target, userId, fileName));      
       sftpChannel.disconnect();      
     } catch (SftpException e) {

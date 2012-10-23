@@ -29,7 +29,7 @@ public class ZipDatasink implements Datasink {
     String userId = accessData.getProperty ("org.backmeup.userid");
     
     if (tmpDir == null) {
-      throw new PluginException(ZipDescriptor.ZIP_ID, "Error: tmpDir property has not been set!");
+      throw new PluginException(ZipDescriptor.ZIP_ID, "Error: org.backmeup.tmpDir property has not been set!");
     }
     
     if (userId == null) {

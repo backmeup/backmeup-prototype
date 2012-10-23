@@ -22,7 +22,7 @@ public class ZipHelper {
   private String user;
   private String target;
   private int port;
-  private String sshkey;
+  private String sshkey;    
 
   public ZipHelper() {
     InputStream is = getClass().getClassLoader().getResourceAsStream(
@@ -88,7 +88,8 @@ public class ZipHelper {
   public void sendToSftpDestination(InputStream zipStream, String fileName, String userId) {
     ChannelSftp sftpChannel = getSftpChannel();
     try {
-      sftpChannel.put(zipStream, MessageFormat.format(target, userId, fileName));
+      sftpChannel.put(zipStream, MessageFormat.format(target, userId, fileName));      
+      sftpChannel.disconnect();      
     } catch (SftpException e) {
       throw new PluginException(ZipDescriptor.ZIP_ID, "Failed to put file via sftp!", e);
     }

@@ -12,7 +12,7 @@ public class ZipAuthenticator implements InputBased {
 
   @Override
   public AuthorizationType getAuthType() {
-    return AuthorizationType.OAuth;
+    return AuthorizationType.InputBased;
   }
 
   @Override

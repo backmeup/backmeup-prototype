@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" default-activation="lazy">	
+	<bean id="zipDescriptor" class="org.backmeup.zip.ZipDescriptor"/>
+	<bean id="zipAuthenticator" class="org.backmeup.zip.ZipAuthenticator"/>	
+	<bean id="zipDatasink" class="org.backmeup.zip.ZipDatasink"/>	
+</blueprint>

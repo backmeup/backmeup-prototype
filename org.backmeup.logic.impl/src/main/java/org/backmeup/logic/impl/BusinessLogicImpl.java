@@ -924,10 +924,12 @@ public class BusinessLogicImpl implements BusinessLogic {
           typeMapping.put(key, ibType.toString());
         }
         ar.setTypeMapping(typeMapping);
+        p = new Properties();
+        p.setProperty("callback", callbackUrl);
         profile = getProfileDao().save(profile);
         if (!keyserverClient.isServiceRegistered(profile.getProfileId()))
           keyserverClient.addService(profile.getProfileId());
-        //keyserverClient.addAuthInfo(profile, keyRing, p);
+        keyserverClient.addAuthInfo(profile, keyRing, p);
         break;
       }       
       

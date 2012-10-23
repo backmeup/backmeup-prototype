@@ -19,6 +19,7 @@
                 <module>org.backmeup.skydrive</module>
                 <module>org.backmeup.moodle</module>
                 <module>org.backmeup.dummy</module>
+                <module>org.backmeup.zip</module>
 	</modules>
         <!-- use java 1.6 -->
 	<build>

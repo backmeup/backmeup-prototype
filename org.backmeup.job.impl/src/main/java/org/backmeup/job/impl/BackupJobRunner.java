@@ -167,7 +167,7 @@ public class BackupJobRunner {
 	        addStatusToDb(new Status(persistentJob, "", StatusType.PROCESSING, StatusCategory.INFO, new Date()));
 	        for (ActionProfile actionProfile : persistentJob.getRequiredActions()) {
 	        	String actionId = actionProfile.getActionId();
-	        	
+	        
 	        	try {   
 		        	Action action = null;
 		        	

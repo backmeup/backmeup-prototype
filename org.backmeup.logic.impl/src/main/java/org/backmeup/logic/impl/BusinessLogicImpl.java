@@ -215,6 +215,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     conn.begin();
     try {
       BackMeUpUser u = getUser(username, false);
+      Long uid = u.getUserId();
       UserDao userDao = getUserDao();
       
       try {
@@ -239,10 +240,15 @@ public class BusinessLogicImpl implements BusinessLogic {
 
       userDao.delete(u);      
       conn.commit();
+      
+      ElasticSearchIndexClient client = getIndexClient();
+      client.deleteRecordsForUser(uid);
       return u;
     } finally {
       conn.rollback();
     }
+    
+
   }
 
   public BackMeUpUser changeUser(String oldUsername, String newUsername, String oldPassword,
@@ -1039,11 +1045,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 	    try {
 		    String query = search.getQuery();
 		    
-		    Configuration config = Configuration.getConfig();
-		    String host = config.getProperty(INDEX_HOST);
-		    int port = Integer.parseInt(config.getProperty(INDEX_PORT));
-		    
-		    ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);
+		    ElasticSearchIndexClient client = getIndexClient();
 		    org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(user.getUserId(), query);
 		    search.setFiles(IndexUtils.convertSearchEntries(esResponse));
 		    search.setBySource(IndexUtils.getBySource(esResponse));
@@ -1060,17 +1062,21 @@ public class BusinessLogicImpl implements BusinessLogic {
   public File getThumbnail(String username, String fileId) {
 	  // TODO verify that the user is logged in!
 	  BackMeUpUser user = getUser(username);
-	  
-	  Configuration config = Configuration.getConfig();
-	  String host = config.getProperty(INDEX_HOST);
-	  int port = Integer.parseInt(config.getProperty(INDEX_PORT));
-	    
-	  ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);	  
+
+	  ElasticSearchIndexClient client = getIndexClient();	  
 	  String thumbnailPath = client.getThumbnailPathForFile(username, fileId);
 	  if (thumbnailPath != null)
 		  return new File(thumbnailPath);
 	  
 	  return null; // Too bad there's no optional return types in Java...
+  }
+  
+  private ElasticSearchIndexClient getIndexClient() {
+	  Configuration config = Configuration.getConfig();
+	  String host = config.getProperty(INDEX_HOST);
+	  int port = Integer.parseInt(config.getProperty(INDEX_PORT));
+	    
+	  return new ElasticSearchIndexClient(host, port);	  	  
   }
 
   public DataAccessLayer getDataAccessLayer() {

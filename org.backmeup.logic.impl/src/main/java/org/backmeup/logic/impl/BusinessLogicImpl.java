@@ -1,5 +1,6 @@
 package org.backmeup.logic.impl;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -1054,6 +1055,22 @@ public class BusinessLogicImpl implements BusinessLogic {
 	  } finally {
 		conn.rollback();
 	  }
+  }
+  
+  public File getThumbnail(String username, String fileId) {
+	  // TODO verify that the user is logged in!
+	  BackMeUpUser user = getUser(username);
+	  
+	  Configuration config = Configuration.getConfig();
+	  String host = config.getProperty(INDEX_HOST);
+	  int port = Integer.parseInt(config.getProperty(INDEX_PORT));
+	    
+	  ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);	  
+	  String thumbnailPath = client.getThumbnailPathForFile(username, fileId);
+	  if (thumbnailPath != null)
+		  return new File(thumbnailPath);
+	  
+	  return null; // Too bad there's no optional return types in Java...
   }
 
   public DataAccessLayer getDataAccessLayer() {

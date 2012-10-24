@@ -704,6 +704,10 @@ public class DummyBusinessLogic implements BusinessLogic {
     }
     return sr2;
   }
+  
+  public File getThumbnail(String username, String fileId) {
+	  return null;
+  }
 
   public void shutdown() {
   }

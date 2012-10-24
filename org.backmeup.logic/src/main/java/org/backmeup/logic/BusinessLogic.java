@@ -1,5 +1,6 @@
 package org.backmeup.logic;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -102,7 +103,8 @@ public interface BusinessLogic {
 	//search operations
 	public long searchBackup(String username, String keyRingPassword, String query);
 	public SearchResponse queryBackup(String username, long searchId, String filterType, String filterValue);
-	
+	public File getThumbnail(String username, String fileId);
+		
 	//misc operations
 	public void shutdown();
 	

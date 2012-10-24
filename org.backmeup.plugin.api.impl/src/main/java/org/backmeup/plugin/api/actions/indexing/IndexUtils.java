@@ -26,6 +26,8 @@ public class IndexUtils {
 	
 	public static final String FIELD_PATH = "path";
 	
+	public static final String FIELD_THUMBNAIL_PATH = "thumbnail_path";
+	
 	public static final String FIELD_BACKUP_SOURCES = "backup_sources";
 	
 	public static final String FIELD_BACKUP_SINK = "backup_sink";
@@ -49,9 +51,13 @@ public class IndexUtils {
 	    	Integer owner = (Integer) source.get(FIELD_OWNER_ID);
 	    	Long timestamp = (Long) source.get(FIELD_BACKUP_AT);
 			
-			fileItem.setFileId(owner + ":" + hash + ":" + timestamp);
+	    	String fileId = owner + ":" + hash + ":" + timestamp;
+			fileItem.setFileId(fileId);
 			fileItem.setTitle(source.get(FIELD_FILENAME).toString());
 			fileItem.setTimeStamp(new Date(timestamp));
+			
+			if (source.get(FIELD_THUMBNAIL_PATH) != null)
+				fileItem.setThumbnailURL("thumbnails/" + owner + "/" + fileId);
 			
 			fItems.add(fileItem);
 		}

@@ -1,11 +1,14 @@
 package org.backmeup.plugin.api.actions.indexing;
 
+import java.util.Map;
+
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 
 public class ElasticSearchIndexClient {
 	
@@ -53,5 +56,11 @@ public class ElasticSearchIndexClient {
 		
 		return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).execute().actionGet();
 	}
-
+	
+	public String getThumbnailPathForFile(String username, String fileId) {
+		SearchResponse response = getFileById(username, fileId);
+		SearchHit hit = response.getHits().getHits()[0];
+		Map<String, Object> source = hit.getSource();
+		return source.get(IndexUtils.FIELD_THUMBNAIL_PATH).toString();
+	}
 }

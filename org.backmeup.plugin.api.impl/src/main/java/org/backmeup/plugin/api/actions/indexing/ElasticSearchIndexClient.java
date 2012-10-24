@@ -63,4 +63,10 @@ public class ElasticSearchIndexClient {
 		Map<String, Object> source = hit.getSource();
 		return source.get(IndexUtils.FIELD_THUMBNAIL_PATH).toString();
 	}
+	
+	public void deleteRecordsForUser(Long userId) {
+		client.prepareDeleteByQuery(INDEX_NAME)
+				.setQuery(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, userId))
+				.execute().actionGet();
+	}
 }

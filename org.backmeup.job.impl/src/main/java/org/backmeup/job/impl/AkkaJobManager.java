@@ -23,6 +23,7 @@ import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.exceptions.BackMeUpException;
 
 import akka.actor.ActorSystem;
+import akka.actor.Cancellable;
 import akka.util.Duration;
 
 /**
@@ -125,8 +126,10 @@ abstract public class AkkaJobManager implements JobManager {
 			    job.setToken(newToken);
 			}
 	    
-			system.scheduler().scheduleOnce(
-				Duration.create(executeIn, TimeUnit.MILLISECONDS), 
+			// TODO we can use the 'cancellable' to terminate later on
+			Cancellable cancellable = system.scheduler().schedule(
+				Duration.create(executeIn, TimeUnit.MILLISECONDS), // Initial delay
+				Duration.create(job.getDelay(), TimeUnit.MILLISECONDS), // Interval
 				newJobRunner(job));
 		} catch (Exception e) {
 			// TODO there must be error handling defined in the JobManager!^

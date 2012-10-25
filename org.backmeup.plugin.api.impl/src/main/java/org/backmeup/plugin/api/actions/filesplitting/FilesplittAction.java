@@ -23,9 +23,11 @@ public class FilesplittAction implements Action
 	private static final String FILESPLITT_PROCESS_COMPLETE = "Filesplitting complete";
 	private static final String MOVE_FILES_TO_TMP = "Moving all files to tmp folder";
 	
+	private final String PROP_MAX_CONTAINER_SIZE = "org.backmeup.filesplitting.maxcontainersize";
+	
 	private static String PATH_SEPARATOR = "/";
 	
-	private static final long CONTAINER_SIZE = 10 * 1024 * 1024; // 10 MiB
+	private static final long CONTAINER_MAX_SIZE = 1024 * 1024 * 1024 * 1024; // 1 TiB
 
 	@Override
 	public void doAction (Properties parameters, Storage storage, BackupJob job, Progressable progressor) throws ActionException
@@ -105,7 +107,24 @@ public class FilesplittAction implements Action
 				sorted.add (daob);
 			}
 			
-			FileContainers fcs = new FileContainers (CONTAINER_SIZE, true);
+			
+			FileContainers fcs = null;
+			if (parameters.containsKey (PROP_MAX_CONTAINER_SIZE))
+			{
+				if (parameters.getProperty (PROP_MAX_CONTAINER_SIZE) == "-1")
+				{
+					fcs = new FileContainers (CONTAINER_MAX_SIZE, true);
+				}
+				else
+				{
+					Long maxsize = new Long (parameters.getProperty (PROP_MAX_CONTAINER_SIZE));
+					fcs = new FileContainers (maxsize, true);
+				}
+			}
+			else
+			{
+				throw new ActionException ("Property \"" + PROP_MAX_CONTAINER_SIZE + "\" is not set");
+			}
 
 			progressor.progress (FILESPLITT_SPLITT);
 			

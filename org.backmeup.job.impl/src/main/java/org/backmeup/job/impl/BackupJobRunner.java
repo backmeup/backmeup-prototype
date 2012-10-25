@@ -160,12 +160,14 @@ public class BackupJobRunner {
 	        
 	        // make properties global for the action loop. So the plugins can communicate (filesplitt + encryption)
 	        Properties params = new Properties();
+	        params.putAll(sinkProperties);
+	        params.putAll(sourceProperties);
 	        
 	        // Execute Actions in sequence
 	        addStatusToDb(new Status(persistentJob, "", StatusType.PROCESSING, StatusCategory.INFO, new Date()));
 	        for (ActionProfile actionProfile : persistentJob.getRequiredActions()) {
 	        	String actionId = actionProfile.getActionId();
-	        	
+	        
 	        	try {   
 		        	Action action = null;
 		        	

@@ -11,6 +11,7 @@ import org.backmeup.model.BackupJob;
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
+import org.backmeup.plugin.api.actions.indexing.IndexUtils;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.Storage;
@@ -97,7 +98,7 @@ public class ThumbnailAction implements Action {
 					// Generate thumbnails using GraphicsMagick
 					String thumbPath = convert(tempFile);
 					Metainfo meta = new Metainfo();
-					meta.setAttribute("thumbnail_path", thumbPath);
+					meta.setAttribute(IndexUtils.FIELD_THUMBNAIL_PATH, thumbPath);
 					dataobject.getMetainfo().addMetainfo(meta);
 				} catch (Throwable t) {
 					System.out.println("Failed to render thumbnail for: " + dataobject.getPath());

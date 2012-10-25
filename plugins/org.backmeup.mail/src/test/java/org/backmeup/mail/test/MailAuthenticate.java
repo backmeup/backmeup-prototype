@@ -30,21 +30,21 @@ public class MailAuthenticate {
 		Properties props = new Properties();
 		do {
   		props.clear();
-  		for (String input : auth.getRequiredInputFields()) {
-  		  System.out.print("Enter " + input + ": ");
-  		  String entered = readLine();
-  		  switch (auth.getTypeMapping().get(input)) {
-  		    case Bool:
-            Boolean.parseBoolean(entered);
-            break;
-    		  case Number:
-    		    Integer.parseInt(entered);
-    		    break;  		  
-    		  default:
-            break;
-  		  }
-  		  props.setProperty(input, entered);
-  		}	
+//  		for (String input : auth.getRequiredInputFields()) {
+//  		  System.out.print("Enter " + input + ": ");
+//  		  String entered = readLine();
+//  		  switch (auth.getTypeMapping().get(input)) {
+//  		    case Bool:
+//            Boolean.parseBoolean(entered);
+//            break;
+//    		  case Number:
+//    		    Integer.parseInt(entered);
+//    		    break;  		  
+//    		  default:
+//            break;
+//  		  }
+//  		  props.setProperty(input, entered);
+//  		}	
 		}
 		while (!auth.isValid(props));
 		auth.postAuthorize(props);

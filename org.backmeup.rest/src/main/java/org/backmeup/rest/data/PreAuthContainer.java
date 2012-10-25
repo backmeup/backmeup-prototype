@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.backmeup.model.spi.RequiredInputField;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
@@ -13,7 +14,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 public class PreAuthContainer {
 	private String profileId;
 	private String type;
-	private List<String> requiredInputs;
+	private List<RequiredInputField> requiredInputs;
 
 	private Map<String, String> typeMapping;
 	private String redirectURL;
@@ -24,7 +25,7 @@ public class PreAuthContainer {
 	}
 
 	public PreAuthContainer(String profileId, String type,
-			List<String> requiredInputs, Map<String, String> typeMapping,
+			List<RequiredInputField> requiredInputs, Map<String, String> typeMapping,
 			String redirectURL, boolean isSourceProfile) {
 		super();
 		this.profileId = profileId;
@@ -51,11 +52,11 @@ public class PreAuthContainer {
 		this.type = type;
 	}
 
-	public List<String> getRequiredInputs() {
+	public List<RequiredInputField> getRequiredInputs() {
 		return requiredInputs;
 	}
 
-	public void setRequiredInputs(List<String> requiredInputs) {
+	public void setRequiredInputs(List<RequiredInputField> requiredInputs) {
 		this.requiredInputs = requiredInputs;
 	}
 

@@ -4,16 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.backmeup.model.spi.RequiredInputField;
+import org.backmeup.model.spi.RequiredInputField.Type;
+
 public interface InputBased extends Authorizable {
 	
-	public enum Type {
-		String,
-		Number,
-		Password,
-		Bool
-	}
-	
-	public List<String> getRequiredInputFields();
+	public List<RequiredInputField> getRequiredInputFields();
 	
 	public Map<String, Type> getTypeMapping();
 	

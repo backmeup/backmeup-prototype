@@ -104,6 +104,8 @@ public class BackupJobRunner {
       conn.commit();
     } catch (Exception ex) { 
       logger.warn(ex.getMessage(), ex);
+    } finally {
+      conn.rollback();
     }
     conn.beginOrJoin();
     BackupJobDao jobDao = dal.createBackupJobDao();

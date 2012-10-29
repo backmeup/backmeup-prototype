@@ -147,7 +147,7 @@ public class BackupJobRunner {
       // Protocol Overview requires information about executed jobs      
       JobProtocol protocol = new JobProtocol();      
       Set<JobProtocolMember> protocolEntries = new HashSet<JobProtocolMember>();
-      protocol.setMembers(protocolEntries);
+      protocol.addMembers(protocolEntries);
       protocol.setSinkTitle(persistentJob.getSinkProfile().getProfileName());
       protocol.setExecutionTime(new Date());      
       

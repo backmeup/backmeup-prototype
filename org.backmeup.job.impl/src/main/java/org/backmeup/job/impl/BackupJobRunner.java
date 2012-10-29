@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.backmeup.configuration.Configuration;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
@@ -19,6 +20,7 @@ import org.backmeup.dal.StatusDao;
 import org.backmeup.job.impl.threadbased.ThreadbasedJobManager;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
+import org.backmeup.logic.impl.BusinessLogicImpl;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.JobProtocol;
@@ -64,6 +66,8 @@ public class BackupJobRunner {
   private Connection conn;
   private DataAccessLayer dal;
   
+  private Logger logger = Logger.getLogger(BackupJobRunner.class);
+  
   private ResourceBundle textBundle = ResourceBundle
       .getBundle(BackupJobRunner.class.getSimpleName());
 
@@ -92,12 +96,21 @@ public class BackupJobRunner {
   }
   
   private void storeJobProtocol(BackupJob job, JobProtocol protocol, int storedEntriesCount, boolean success) {
+    try {
+      conn.beginOrJoin();
+      BackupJobDao jobDao = dal.createBackupJobDao();
+      job = jobDao.merge(job);
+      JobProtocolDao jpd = dal.createJobProtocolDao();
+      // remove old entries, then store the new one 
+      jpd.deleteByUsername(job.getUser().getUsername());
+      conn.commit();
+    } catch (Exception ex) { 
+      logger.warn(ex.getMessage(), ex);
+    }
     conn.beginOrJoin();
     BackupJobDao jobDao = dal.createBackupJobDao();
     job = jobDao.merge(job);
     JobProtocolDao jpd = dal.createJobProtocolDao();
-    // remove old entries, then store the new one 
-    jpd.deleteByUsername(job.getUser().getUsername());
     protocol.setUser(job.getUser());
     protocol.setJob(job);
     protocol.setSuccessful(success);

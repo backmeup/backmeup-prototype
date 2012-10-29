@@ -3,6 +3,8 @@ package org.backmeup.model;
 import java.util.List;
 import java.util.Map;
 
+import org.backmeup.model.spi.RequiredInputField;
+
 /**
  * The AuthRequest class is used as a result of the BusinessLogic#preAuth method.
  * Depending on what kind of data source/sink has been registered,
@@ -16,7 +18,7 @@ import java.util.Map;
  *
  */
 public class AuthRequest {
-	private List<String> requiredInputs;
+	private List<RequiredInputField> requiredInputs;
 	private Map<String, String> typeMapping;
 	private String redirectURL;
 	private Profile profile;	
@@ -24,7 +26,7 @@ public class AuthRequest {
 	public AuthRequest() {
 		super();
 	}
-	public AuthRequest(List<String> requiredInputs, Map<String, String> typeMapping, String redirectURL,
+	public AuthRequest(List<RequiredInputField> requiredInputs, Map<String, String> typeMapping, String redirectURL,
 			Profile profile) {
 		super();
 		this.requiredInputs = requiredInputs;
@@ -32,10 +34,10 @@ public class AuthRequest {
 		this.redirectURL = redirectURL;
 		this.profile = profile;
 	}
-	public List<String> getRequiredInputs() {
+	public List<RequiredInputField> getRequiredInputs() {
 		return requiredInputs;
 	}
-	public void setRequiredInputs(List<String> requiredInputs) {
+	public void setRequiredInputs(List<RequiredInputField> requiredInputs) {
 		this.requiredInputs = requiredInputs;
 	}
 	public String getRedirectURL() {

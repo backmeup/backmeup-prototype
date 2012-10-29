@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.backmeup.model.spi.RequiredInputField;
+import org.backmeup.model.spi.RequiredInputField.Type;
 import org.backmeup.plugin.spi.InputBased;
 
 public class ZipAuthenticator implements InputBased {
@@ -21,9 +23,9 @@ public class ZipAuthenticator implements InputBased {
   }
 
   @Override
-  public List<String> getRequiredInputFields() {
+  public List<RequiredInputField> getRequiredInputFields() {
     // Empty list will do just fine
-    return new ArrayList<String>();
+    return new ArrayList<RequiredInputField>();
   }
 
   @Override

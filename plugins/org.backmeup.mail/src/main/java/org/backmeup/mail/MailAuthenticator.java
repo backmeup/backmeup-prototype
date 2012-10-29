@@ -11,15 +11,23 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 
+import org.backmeup.model.spi.RequiredInputField;
+import org.backmeup.model.spi.RequiredInputField.Type;
 import org.backmeup.plugin.spi.InputBased;
 
 public class MailAuthenticator implements InputBased {
   private static final String PROP_SSL = "SSL";
+  private static final String PROP_SSL_DESC = "Use SSL (encrypted connection)";
   private static final String PROP_PORT = "Port";
+  private static final String PROP_PORT_DESC = "The port on which the plugin should connect to the E-Mail server";
   private static final String PROP_HOST = "Host";
+  private static final String PROP_HOST_DESC = "The hostname of your E-Mail server";
   private static final String PROP_USERNAME = "Username";
+  private static final String PROP_USERNAME_DESC = "The username of your E-Mail account";
   private static final String PROP_PASSWORD = "Password";
+  private static final String PROP_PASSWORD_DESC = "The password of your E-Mail account";
   private static final String PROP_TYPE = "Type";
+  private static final String PROP_TYPE_DESC = "IMAP or POP3";
   
   
   @Override
@@ -35,14 +43,16 @@ public class MailAuthenticator implements InputBased {
   }
 
   @Override
-  public List<String> getRequiredInputFields() {
-    List<String> inputs = new ArrayList<String>();
-    inputs.add(PROP_USERNAME);
-    inputs.add(PROP_PASSWORD);
-    inputs.add(PROP_TYPE);
-    inputs.add(PROP_HOST);
-    inputs.add(PROP_PORT);
-    inputs.add(PROP_SSL);
+  public List<RequiredInputField> getRequiredInputFields() {
+    List<RequiredInputField> inputs = new ArrayList<RequiredInputField>();
+    
+    inputs.add(new RequiredInputField (PROP_USERNAME, PROP_USERNAME_DESC, true, 0, Type.String));
+    inputs.add(new RequiredInputField (PROP_PASSWORD, PROP_PASSWORD_DESC, true, 1, Type.Password));
+    inputs.add(new RequiredInputField (PROP_TYPE, PROP_TYPE_DESC, true, 2, Type.String));
+    inputs.add(new RequiredInputField (PROP_HOST, PROP_HOST_DESC, true, 3, Type.String));
+    inputs.add(new RequiredInputField (PROP_PORT, PROP_PORT_DESC, true, 4, Type.Number));
+    inputs.add(new RequiredInputField (PROP_SSL, PROP_SSL_DESC, true, 5, Type.Bool));
+    
     return inputs;
   }
 

@@ -42,6 +42,7 @@ import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.model.exceptions.UnknownUserException;
 import org.backmeup.model.exceptions.ValidationException;
 import org.backmeup.model.spi.ActionDescribable;
+import org.backmeup.model.spi.RequiredInputField;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable.Type;
 import org.backmeup.model.spi.ValidationExceptionType;
@@ -485,9 +486,9 @@ public class DummyBusinessLogic implements BusinessLogic {
       String redirectURL = "https://www.dropbox.com/1/oauth/authorize";
       return new AuthRequest(null, null, redirectURL, p);
     }
-    List<String> requiredInputs = new ArrayList<String>();
-    requiredInputs.add("Username");
-    requiredInputs.add("Password");
+    List<RequiredInputField> requiredInputs = new ArrayList<RequiredInputField>();
+    requiredInputs.add(new RequiredInputField ("Username", "The username", true, 0, RequiredInputField.Type.String));
+    requiredInputs.add(new RequiredInputField ("Password", "The password", true, 0, RequiredInputField.Type.Password));
     Map<String, String> typeMapping = new HashMap<String, String>();
     typeMapping.put("Password", "Password");
     typeMapping.put("Username", "String");

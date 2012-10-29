@@ -3,6 +3,7 @@ package org.backmeup.job.impl;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -29,6 +30,7 @@ import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.actions.encryption.EncryptionAction;
 import org.backmeup.plugin.api.actions.filesplitting.FilesplittAction;
 import org.backmeup.plugin.api.actions.indexing.IndexAction;
+import org.backmeup.plugin.api.actions.thumbnail.ThumbnailAction;
 import org.backmeup.plugin.api.connectors.Datasink;
 import org.backmeup.plugin.api.connectors.Datasource;
 import org.backmeup.plugin.api.connectors.DatasourceException;
@@ -168,13 +170,21 @@ public class BackupJobRunner {
 	        for (ActionProfile actionProfile : persistentJob.getRequiredActions()) {
 	        	String actionId = actionProfile.getActionId();
 	        
-	        	try {   
-		        	Action action = null;
-		        	
-		        	if ("org.backmeup.filesplitting".equals(actionId)) {
-		        		action = new FilesplittAction();
-		        		action.doAction(params, storage, job, new JobStatusProgressor(persistentJob, "filesplittaction"));
+	        	try {   		        	
+		        	if ("org.backmeup.encryption".equals(actionId)) {
+		        		// If we do encryption, the Filesplitter needs to run before!
+		        		Action filesplitAction = new FilesplittAction();
+		        		filesplitAction.doAction(params, storage, persistentJob,  new JobStatusProgressor(persistentJob, "filesplittaction"));
+		        			
+		        		// After splitting, run encryption
+		        		Action encryptionAction = new EncryptionAction();
+		        		encryptionAction.doAction(params, storage, job, new JobStatusProgressor(persistentJob, "encryptionaction"));
 		        	} else if ("org.backmeup.indexer".equals(actionId)) {
+		        		// If we do indexing, the Thumbnail renderer needs to run before!
+		        		Action thumbnailAction = new ThumbnailAction();
+		        		thumbnailAction.doAction(params, storage, persistentJob, new JobStatusProgressor(persistentJob, "thumbnailAction"));
+		        		
+		        		// After thumbnail rendering, run indexing
 		        		Configuration config = Configuration.getConfig();
 		        		String host = config.getProperty(INDEX_HOST);
 		        		int port = Integer.parseInt(config.getProperty(INDEX_PORT));
@@ -182,13 +192,9 @@ public class BackupJobRunner {
 		        		Client client = new TransportClient()
 		        			.addTransportAddress(new InetSocketTransportAddress(host, port));
 		        		
-		        		action = new IndexAction(client);
-		        		action.doAction(params, storage, persistentJob, new JobStatusProgressor(persistentJob, "indexaction"));
-		        		
+		        		Action indexAction = new IndexAction(client);
+		        		indexAction.doAction(params, storage, persistentJob, new JobStatusProgressor(persistentJob, "indexaction"));
 		        		client.close();
-		          	} else if ("org.backmeup.encryption".equals(actionId)) {
-		        		action = new EncryptionAction();
-		        		action.doAction(params, storage, job, new JobStatusProgressor(persistentJob, "encryptionaction"));
 		        	} else {
 		        		// Only happens in case Job was corrupted in the core - we'll handle that as a fatal error
 		        		addStatusToDb(new Status(persistentJob, "Unsupported Action: " + actionId, StatusType.JOB_FAILED, StatusCategory.ERROR, new Date()));

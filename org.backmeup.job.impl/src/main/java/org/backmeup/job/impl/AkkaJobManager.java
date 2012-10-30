@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
+import org.backmeup.dal.UserDao;
 import org.backmeup.job.JobManager;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
@@ -58,26 +59,33 @@ abstract public class AkkaJobManager implements JobManager {
 	public BackupJob createBackupJob(BackMeUpUser user,
 			Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
 			List<ActionProfile> requiredActions, Date start, long delayInMs,
-			String keyRing, String jobTitle) {
-		
-		// Create BackupJob entity in DB...
-	    BackupJob job = new BackupJob(
-	    		user,
-	    		sourceProfiles,
-	    		sinkProfile,
-	            requiredActions, 
-	            start, delayInMs, jobTitle);
+			String keyRing, String jobTitle) {	    
+	    try {
+  	    conn.begin();
+  	    UserDao ud = dal.createUserDao();
+  	    user = ud.merge(user);
+  	    // Create BackupJob entity in DB...
+        BackupJob job = new BackupJob(
+            user,
+            sourceProfiles,
+            sinkProfile,
+                requiredActions, 
+                start, delayInMs, jobTitle);
+        
+        Long firstExecutionDate = start.getTime() + delayInMs;
+        
+        // reusable=true means, that we can get the data for the token + a new token for the next backup
+        Token t = keyserver.getToken(job, keyRing, firstExecutionDate, true);
+        job.setToken(t);
+  	    job = getDao().save(job);
+  	    conn.commit();
+  	    // ... and queue immediately
+        queueJob(job);
+        return job;
+	    } finally {
+	      conn.rollback();
+	    }	    
 	    
-	    Long firstExecutionDate = start.getTime() + delayInMs;
-	    
-	    // reusable=true means, that we can get the data for the token + a new token for the next backup
-	    Token t = keyserver.getToken(job, keyRing, firstExecutionDate, true);
-	    job.setToken(t);
-	    job = getDao().save(job);
-	    
-	    // ... and queue immediately
-	    queueJob(job);
-	    return job;
 	}
 	
 	@Override

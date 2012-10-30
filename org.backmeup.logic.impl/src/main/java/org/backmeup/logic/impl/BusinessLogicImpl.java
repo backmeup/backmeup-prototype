@@ -650,6 +650,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     try {
       conn.begin();
       BackMeUpUser user = getUser(username);     
+      
 
       if (!keyserverClient.validateUser(user.getUserId(), keyRing))
         throw new InvalidCredentialsException();
@@ -720,10 +721,9 @@ public class BusinessLogicImpl implements BusinessLogic {
         start = new Date();
         delay = DELAY_REALTIME;
       }
-      
+      conn.rollback();
       BackupJob job = jobManager.createBackupJob(user, profiles, sink, actions,
-          start, delay, keyRing, jobTitle);
-      conn.commit();
+          start, delay, keyRing, jobTitle);      
       return job;
     } finally {
       conn.rollback();

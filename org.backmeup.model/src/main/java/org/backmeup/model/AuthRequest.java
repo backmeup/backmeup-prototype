@@ -19,7 +19,6 @@ import org.backmeup.model.spi.RequiredInputField;
  */
 public class AuthRequest {
 	private List<RequiredInputField> requiredInputs;
-	private Map<String, String> typeMapping;
 	private String redirectURL;
 	private Profile profile;	
 	
@@ -30,7 +29,6 @@ public class AuthRequest {
 			Profile profile) {
 		super();
 		this.requiredInputs = requiredInputs;
-		this.typeMapping = typeMapping;
 		this.redirectURL = redirectURL;
 		this.profile = profile;
 	}
@@ -51,11 +49,5 @@ public class AuthRequest {
 	}
 	public void setProfile(Profile profile) {
 		this.profile = profile;
-	}
-	public Map<String, String> getTypeMapping() {
-		return typeMapping;
-	}
-	public void setTypeMapping(Map<String, String> typeMapping) {
-		this.typeMapping = typeMapping;
 	}
 }

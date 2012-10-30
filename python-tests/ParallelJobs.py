@@ -1,13 +1,15 @@
 from threading import Thread, current_thread
 from optparse import OptionParser
 from RESTBackMeUp2 import BMU
+from time import time
+from datetime import datetime
 
 def createJob(numberOfJobs, bmu, user, pwd):
   name = current_thread().name
   sourceId = bmu.auth_datasource(user, "org.backmeup.dummy", name, pwd).data["profileId"]
   sinkId = bmu.auth_datasink(user, "org.backmeup.dummy", name, pwd).data["profileId"]
   for i in range(0, numberOfJobs):
-    res = bmu.create_backup_job(user, pwd, [sourceId], ["org.backmeup.indexer"], sinkId, "realtime")
+    res = bmu.create_backup_job(user, pwd, [sourceId], ["org.backmeup.indexer"], sinkId, "monthly")
     if res.code >= 400:
       print res.data
 
@@ -31,11 +33,14 @@ if __name__ == "__main__":
     bmu.verify_email(verificationKey)
   except:
     print "User already created!"
+  raw_input("Press enter to continue")
   print "=============== Creating threads ========="
   threads = []
-  for i in range(0, options.count):
-    thread = Thread(target = createJob, args = (options.jobs, BMU(), options.user, options.password))
+  for i in range(0, int(options.count)):
+    thread = Thread(target = createJob, args = (int(options.jobs), BMU(), options.user, options.password))
     threads.append(thread)
+  startingDate = datetime.now()
+  startTime = time()
   print "=============== Starting threads ========="
   for t in threads:
     t.start()
@@ -43,6 +48,10 @@ if __name__ == "__main__":
   for t in threads:
     t.join()
   print "=============== Finished execution ======="
+  endTime = time()
+  print "Started @ " + str(startingDate)
+  print "==== Duration: " + str(endTime - startTime) + " ======"
+
 
 
 

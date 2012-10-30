@@ -14,9 +14,8 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 public class PreAuthContainer {
 	private String profileId;
 	private String type;
-	private List<RequiredInputField> requiredInputs;
+	private List<RequiredInputField> fields;
 
-	private Map<String, String> typeMapping;
 	private String redirectURL;
 	private boolean isSourceProfile;
 
@@ -25,14 +24,13 @@ public class PreAuthContainer {
 	}
 
 	public PreAuthContainer(String profileId, String type,
-			List<RequiredInputField> requiredInputs, Map<String, String> typeMapping,
+			List<RequiredInputField> requiredInputs,
 			String redirectURL, boolean isSourceProfile) {
 		super();
 		this.profileId = profileId;
 		this.type = type;
-		this.requiredInputs = requiredInputs;
+		this.fields = requiredInputs;
 		this.redirectURL = redirectURL;
-		this.typeMapping = typeMapping;
 		this.isSourceProfile = isSourceProfile;
 	}
 
@@ -53,11 +51,11 @@ public class PreAuthContainer {
 	}
 
 	public List<RequiredInputField> getRequiredInputs() {
-		return requiredInputs;
+		return fields;
 	}
 
 	public void setRequiredInputs(List<RequiredInputField> requiredInputs) {
-		this.requiredInputs = requiredInputs;
+		this.fields = requiredInputs;
 	}
 
 	public String getRedirectURL() {
@@ -66,17 +64,6 @@ public class PreAuthContainer {
 
 	public void setRedirectURL(String redirectURL) {
 		this.redirectURL = redirectURL;
-	}
-
-	// public List<Pair> getTypeMapping() {
-//	@XmlJavaTypeAdapter(MapAdapter.class)
-	public Map<String, String> getTypeMapping() {
-		return typeMapping;
-	}
-
-	// public void setTypeMapping(List<Pair> typeMapping) {
-	public void setTypeMapping(Map<String, String> typeMapping) {
-		this.typeMapping = typeMapping;
 	}
 
 	public boolean isSourceProfile() {

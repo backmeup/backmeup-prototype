@@ -930,18 +930,6 @@ public class BusinessLogicImpl implements BusinessLogic {
         InputBased ibased = plugins
             .getInputBasedAuthorizable(uniqueDescIdentifier);
         ar.setRequiredInputs(ibased.getRequiredInputFields());
-        Map<String, String> typeMapping = new HashMap<String, String>();
-        
-        // TypeMapping is now useles
-        // TODO remove typemapping complete
-        /*
-        for (String key : ibased.getTypeMapping().keySet()) {
-          InputBased.Type ibType = ibased.getTypeMapping().get(key);
-          typeMapping.put(key, ibType.toString());
-        }
-        */
-        
-        ar.setTypeMapping(typeMapping);
         p = new Properties();
         p.setProperty("callback", callbackUrl);
         profile = getProfileDao().save(profile);

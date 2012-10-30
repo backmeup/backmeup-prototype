@@ -91,7 +91,7 @@ public class Datasinks extends Base {
         keyRing);
     return new PreAuthContainer(Long.toString(ar.getProfile().getProfileId()),
         ar.getRedirectURL() == null ? "Input" : "OAuth",
-        ar.getRequiredInputs(), ar.getTypeMapping(), ar.getRedirectURL(), true);
+        ar.getRequiredInputs(), ar.getRedirectURL(), true);
   }
 
   @POST

@@ -41,6 +41,8 @@ public class Profile {
 	private Date created;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date modified;
+	// The username that has been used for a certain profile, e.g. the dropbox username or facebook username
+	private String identification; 
 	
 	@Enumerated(EnumType.STRING)
 	private Type sourceAndOrSink;	
@@ -109,4 +111,14 @@ public class Profile {
 	{
 		return modified;
 	}
+
+
+  public String getIdentification() {
+    return identification;
+  }
+
+
+  public void setIdentification(String identification) {
+    this.identification = identification;
+  }
 }

@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 
 @XmlRootElement
@@ -29,7 +30,7 @@ public class JobContainer {
 	public JobContainer(List<BackupJob> backupJobs, BackMeUpUser user) {
 		this.backupJobs = new ArrayList<Job>();
 		for (BackupJob j : backupJobs) {
-			this.backupJobs.add(new Job(j.getId(), j.getSourceProfiles(), j.getSinkProfile().getProfileId(), j.getStart ().getTime (), j.getCreated ().getTime (), j.getModified ().getTime (), j.getJobTitle (), j.getDelay()));
+			this.backupJobs.add(new Job(j.getId(), j.getSourceProfiles(), j.getSinkProfile(), j.getStart ().getTime (), j.getCreated ().getTime (), j.getModified ().getTime (), j.getJobTitle (), j.getDelay()));
 		}
 		
 		if (this.backupJobs.size() > 0) {
@@ -81,11 +82,68 @@ public class JobContainer {
 	public void setBackupJobs(List<Job> backupJobs) {
 		this.backupJobs = backupJobs;
 	}
+	
+	public static class DatasinkProfile {
+	  private long datasinkId;
+	  private String identification;
+	  
+	  public DatasinkProfile(long datasinkId, String identification) {
+	    this.datasinkId = datasinkId;
+	    this.identification = identification;
+	  }
+	  
+	  public DatasinkProfile() {
+	    
+	  }
+	  
+    public String getIdentification() {
+      return identification;
+    }
+    public void setIdentification(String identification) {
+      this.identification = identification;
+    }
+    public long getDatasinkId() {
+      return datasinkId;
+    }
+    public void setDatasinkId(long datasinkId) {
+      this.datasinkId = datasinkId;
+    }	  
+	}
+	
+	public static class DatasourceProfile {
+    private long datasourceId;
+    private String identification;
+    
+    public DatasourceProfile(long datasourceId, String identification) {
+      this.setDatasourceId(datasourceId);
+      this.identification = identification;
+    }
+    
+    public DatasourceProfile() {
+      
+    }
+    
+    public String getIdentification() {
+      return identification;
+    }
+    public void setIdentification(String identification) {
+      this.identification = identification;
+    }
+
+    public long getDatasourceId() {
+      return datasourceId;
+    }
+
+    public void setDatasourceId(long datasourceId) {
+      this.datasourceId = datasourceId;
+    }
+       
+  }
 
 	public static class Job {
 		private long backupJobId;
-		private List<Long> datasourceIds;
-		private long datasinkId;
+		private List<DatasourceProfile> datasources;
+		private DatasinkProfile datasink;
 		private long startDate;
 		private long createDate;
 		private long modifyDate;
@@ -96,13 +154,13 @@ public class JobContainer {
 		public Job() {
 		}
 		 
-		public Job(long backupJobId, Set<ProfileOptions> datasourceIds, long datasinkId, long startDate, long createDate, long modifyDate, String jobTitle, long delay) {
+		public Job(long backupJobId, Set<ProfileOptions> datasourceIds, Profile datasinkProfile, long startDate, long createDate, long modifyDate, String jobTitle, long delay) {
 			this.backupJobId = backupJobId;
-			this.datasourceIds = new ArrayList<Long>();
+			this.setDatasources(new ArrayList<DatasourceProfile>());
 			for (ProfileOptions po : datasourceIds) {
-				this.datasourceIds.add(po.getProfile().getProfileId());
+				this.getDatasources().add(new DatasourceProfile(po.getProfile().getProfileId(),  po.getProfile().getIdentification()));
 			}
-			this.datasinkId = datasinkId;
+			this.setDatasink(new DatasinkProfile(datasinkProfile.getProfileId(), datasinkProfile.getIdentification()));
 			this.startDate = startDate;
 			this.createDate = createDate;
 			this.modifyDate = modifyDate;
@@ -117,20 +175,7 @@ public class JobContainer {
 			this.backupJobId = backupJobId;
 		}
 		 
-		public List<Long> getDatasourceIds() {
-			return datasourceIds;
-		}
-		public void setDatasourceIds(List<Long> datasourceIds) {
-			this.datasourceIds = datasourceIds;
-		}
-		 
-		public long getDatasinkId() {
-			return datasinkId;
-		}
-		public void setDatasinkId(long datasinkId) {
-			this.datasinkId = datasinkId;
-		}
-
+	
 		public long getStartDate ()
 		{
 			return startDate;
@@ -177,5 +222,21 @@ public class JobContainer {
 		public void setDelay(long delay) {
 			this.delay = delay;
 		}
+
+    public DatasinkProfile getDatasink() {
+      return datasink;
+    }
+
+    public void setDatasink(DatasinkProfile datasink) {
+      this.datasink = datasink;
+    }
+
+    public List<DatasourceProfile> getDatasources() {
+      return datasources;
+    }
+
+    public void setDatasources(List<DatasourceProfile> datasources) {
+      this.datasources = datasources;
+    }
 	}
 }

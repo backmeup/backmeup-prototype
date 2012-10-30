@@ -42,6 +42,7 @@ public class SkyDriveSupport {
 	private static final String REFRESH_URL = "https://oauth.live.com/token?client_id=%s&client_secret=%s&redirect_uri=%s&grant_type=refresh_token&refresh_token=%s";
 	private static final String FOLDER_URL = "https://apis.live.net/v5.0/%s/files";
 	private static final String CONTENT_URL = "https://apis.live.net/v5.0/%s/content";
+	private static final String ME_URL = "https://apis.live.net/v5.0/me";
 	private static final String SHARED_LINK_URL = "https://apis.live.net/v5.0/%s/shared_read_link";
 
 	public static final String ACCESS_TOKEN = "token";
@@ -191,6 +192,18 @@ public class SkyDriveSupport {
 		} // if
 		return null;
 	} // findFolderOrFileId
+	
+	public static String getUserId(OAuthService service, Token accessToken) {
+	  OAuthRequest request = new OAuthRequest(Verb.GET, ME_URL);
+	  service.signRequest(accessToken, request);
+	  Response r = request.send();
+	  if (r.isSuccessful()) {
+	    String result = r.getBody();
+	    String name = parseJSONProperty("name", r.getBody());
+	    return name;
+	  }
+	  return null;
+	}
 
 	public static String createFolder(OAuthService service, Token accessToken,
 			String parentId, String dir) {

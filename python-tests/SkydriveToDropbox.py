@@ -8,11 +8,26 @@ SKYDRIVE_AUTH = {
   "code" : "aedfdc21-d223-2fe7-d186-74f8c70ffa3b",
   "callback" : "http://www.backmeup.at/"
 }
-sourceId = BMU.auth_datasource("TestUser", "org.backmeup.skydrive", "SrcProfile", "password").data["profileId"]
+try:
+  res = BMU.register_user("TestUser", "password", "password", "TestUser@trash-mail.com")
+  if res.code == 200:
+    BMU.verify_email(res.data["verificationKey"])
+except:
+  pass
 
-BMU.update_profile(sourceId, SKYDRIVE_AUTH, "password");
+res = BMU.auth_datasource("TestUser", "org.backmeup.skydrive", "SrcProfile", "password")
+sourceId = res.data["profileId"]
+print res.data["redirectURL"]
 
-sinkId = BMU.auth_datasink("TestUser", "org.backmeup.dropbox", "SinkProfile", "password").data["profileId"]
-BMU.update_profile(sinkId, {"token":"thhc9we93cwk78s", "secret":"656rwxei8vf7i5v"}, "password");
+BMU.post_auth_datasource("TestUser", sourceId, "password", {
+  "code" : raw_input("Code: ")
+})
+
+res = BMU.auth_datasink("TestUser", "org.backmeup.dropbox", "SinkProfile", "password")
+sinkId = res.data["profileId"]
+print res.data["redirectURL"]
+BMU.post_auth_datasource("TestUser", sinkId, "password", {  
+  "code" : raw_input("Code: ")
+})
 
 res = BMU.create_backup_job("TestUser", "password", [sourceId], [], sinkId, "realtime")

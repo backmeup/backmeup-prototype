@@ -31,8 +31,9 @@ public class MoodleAuthenticator implements InputBased {
 	}
 
 	@Override
-	public void postAuthorize(Properties inputProperties) {
-
+	public String postAuthorize(Properties inputProperties) {
+	  // TODO return the username of the moodle account
+	  return inputProperties.getProperty("Username");
 	}
 
 	@Override

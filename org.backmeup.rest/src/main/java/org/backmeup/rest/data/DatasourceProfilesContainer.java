@@ -21,7 +21,7 @@ public class DatasourceProfilesContainer {
 	public DatasourceProfilesContainer(List<Profile> profiles, BackMeUpUser user) {
 		setSourceProfiles(new ArrayList<InternalProfile>());
 		for (Profile p : profiles) {
-			getSourceProfiles().add(new InternalProfile(p.getProfileName(), p.getProfileId(), p.getDescription (), p.getCreated ().getTime (), p.getModified ().getTime ()));
+			getSourceProfiles().add(new InternalProfile(p.getProfileName(), p.getProfileId(), p.getDescription (), p.getCreated ().getTime (), p.getModified ().getTime (), p.getIdentification()));
 		}
 		this.user = new UserContainer(user.getUsername(), user.getEmail());
 	}
@@ -45,6 +45,7 @@ public class DatasourceProfilesContainer {
 	public static class InternalProfile {
 		
 		private String title;
+		private String identification;
 		private String pluginName;
 		private long datasourceProfileId;
 		private long createDate;
@@ -53,12 +54,13 @@ public class DatasourceProfilesContainer {
 		public InternalProfile() {
 		}
 		
-		public InternalProfile(String title, long datasourceProfileId, String pluginName, long createDate, long modifyDate) {
+		public InternalProfile(String title, long datasourceProfileId, String pluginName, long createDate, long modifyDate, String identification) {
 			this.title = title;
 			this.datasourceProfileId = datasourceProfileId;
 			this.pluginName = pluginName;
 			this.createDate = createDate;
 			this.modifyDate = modifyDate;
+			this.identification = identification;
 		}
 		public String getTitle() {
 			return title;
@@ -101,5 +103,13 @@ public class DatasourceProfilesContainer {
 		{
 			this.modifyDate = modifyDate;
 		}
+
+    public String getIdentification() {
+      return identification;
+    }
+
+    public void setIdentification(String identification) {
+      this.identification = identification;
+    }
 	}
 }

@@ -47,7 +47,7 @@ public class FacebookAuthenticator implements OAuthBased {
 	}
 
 	@Override
-	public void postAuthorize(Properties inputProperties) {
+	public String postAuthorize(Properties inputProperties) {
 		String code = inputProperties.getProperty("code");
 		HttpURLConnection c = null;
 		URL url;
@@ -80,7 +80,8 @@ public class FacebookAuthenticator implements OAuthBased {
 				}
 			}else throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while retrieving authentication information");
 			
-			
+			//TODO: Return the account name of the user
+			return "FacebookUser";
 		} catch (Exception e) {
 			throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while retrieving authentication information", e);
 		}

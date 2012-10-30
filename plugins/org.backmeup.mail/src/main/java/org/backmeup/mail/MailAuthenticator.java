@@ -36,10 +36,11 @@ public class MailAuthenticator implements InputBased {
   }
 
   @Override
-  public void postAuthorize(Properties inputProperties) {
+  public String postAuthorize(Properties inputProperties) {
     Properties newProps = convertInputPropertiesToAuthProperties(inputProperties);
     inputProperties.clear();
     inputProperties.putAll(newProps);
+    return inputProperties.getProperty("mail.user");
   }
 
   @Override

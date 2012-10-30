@@ -42,7 +42,7 @@ public class DropboxAuthenticator implements OAuthBased {
 	}
 
 	@Override
-	public void postAuthorize(Properties inputProperties) {
+	public String postAuthorize(Properties inputProperties) {
 		// Retrieve auth info from DB
 		try {
 			WebAuthSession session = DropboxHelper.getInstance().getWebAuthSession();
@@ -57,6 +57,9 @@ public class DropboxAuthenticator implements OAuthBased {
 			inputProperties.setProperty(DropboxHelper.PROPERTY_TOKEN, atp.key);
 			inputProperties.setProperty(DropboxHelper.PROPERTY_SECRET,
 					atp.secret);
+			
+			return DropboxHelper.getApi(inputProperties).accountInfo().displayName;
+			
 		} catch (DropboxException e) {
 			throw new PluginException(DropboxDescriptor.DROPBOX_ID, "An error occurred during post authorization", e);
 		}

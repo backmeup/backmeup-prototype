@@ -982,13 +982,15 @@ public class BusinessLogicImpl implements BusinessLogic {
           props.putAll(adr.getAuthinfos()[0].getAi_data());              
         }        
       }
-      
+            
       Authorizable auth = plugins.getAuthorizable(p.getDescription());
       if (auth.getAuthType() == AuthorizationType.InputBased) {
         InputBased inputBasedService = plugins.getInputBasedAuthorizable(p
             .getDescription());
         if (inputBasedService.isValid(props)) {
-          auth.postAuthorize(props);          
+          String userId = auth.postAuthorize(props);
+          if (userId != null)
+            p.setIdentification(userId);
           profileDao.save(p);
           keyserverClient.addAuthInfo(p, keyRing, props);
           conn.commit();
@@ -998,8 +1000,10 @@ public class BusinessLogicImpl implements BusinessLogic {
           throw new ValidationException(ValidationExceptionType.AuthException,
               textBundle.getString(VALIDATION_OF_ACCESS_DATA_FAILED));
         }
-      } else {
-        auth.postAuthorize(props);
+      } else {        
+        String userId = auth.postAuthorize(props);
+        if (userId != null)
+          p.setIdentification(userId);
         profileDao.save(p);
         if (keyserverClient.isAuthInformationAvailable(p, keyRing))
           keyserverClient.deleteAuthInfo(p.getProfileId());

@@ -114,7 +114,7 @@ abstract public class AkkaJobManager implements JobManager {
 			long executeIn = job.getStart().getTime() - currentTime;
 			
 			// If job execution was scheduled for within the past 5 mins, still schedule now...
-			if (executeIn < -300000)
+			if (executeIn >= -300000 && executeIn < 0)
 				executeIn = 0;
 			
 			// ...otherwise, schedule on the next occasion defined by .getStart and .getDelay

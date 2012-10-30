@@ -10,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -32,6 +33,7 @@ public class Status {
   
   @ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER)  
 	private BackupJob job;
+  @Lob  
 	private String message;
 	@Column(name="typ")
 	private String type;

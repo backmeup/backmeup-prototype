@@ -18,8 +18,9 @@ public class ZipAuthenticator implements InputBased {
   }
 
   @Override
-  public void postAuthorize(Properties inputProperties) {
+  public String postAuthorize(Properties inputProperties) {
     // Nothing to do here
+    return null;
   }
 
   @Override

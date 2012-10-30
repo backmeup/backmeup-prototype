@@ -4,6 +4,7 @@ import java.util.Properties;
 
 import org.backmeup.plugin.spi.OAuthBased;
 import org.backmeup.skydrive.internal.SkyDriveSupport;
+import org.backmeup.skydrive.internal.SkyDriveSupport.Service;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.LiveApi;
 import org.scribe.model.Token;
@@ -44,7 +45,7 @@ public class Authenticator implements OAuthBased {
 	}
 
 	@Override
-	public void postAuthorize(Properties inputProperties) {
+	public String postAuthorize(Properties inputProperties) {
 		SkyDriveHelper helper = SkyDriveHelper.getInstance();
 		consumerKey = helper.getAppKey();
 		consumerSecret = helper.getAppSecret();		
@@ -57,8 +58,12 @@ public class Authenticator implements OAuthBased {
 		inputProperties.setProperty(SkyDriveSupport.ACCESS_TOKEN, accessToken.getToken());
 		// 6.) The refresh token is an additional parameter within the response.
 		//     Parse it by using the JSON-Library.
-		Token refreshToken = SkyDriveSupport.parseRefreshToken(accessToken.getRawResponse());
+		Token refreshToken = SkyDriveSupport.parseRefreshToken(accessToken.getRawResponse());		
 		inputProperties.setProperty(SkyDriveSupport.REFRESH_TOKEN, refreshToken.getToken());
+		
+		Service s = SkyDriveSupport.getService(inputProperties);
+		return SkyDriveSupport.getUserId(s.service, s.accessToken);
+		
 	}
 
 	@Override

@@ -14,6 +14,7 @@ public interface Authorizable {
 	
 	public AuthorizationType getAuthType(); 
 	
-	public void postAuthorize(Properties inputProperties);
-	
+	// updates the authorization data and returns the identification of the account
+	public String postAuthorize(Properties inputProperties);
+		
 }

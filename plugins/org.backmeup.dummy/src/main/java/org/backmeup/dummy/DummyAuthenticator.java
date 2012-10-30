@@ -12,8 +12,9 @@ public class DummyAuthenticator implements OAuthBased {
   }
 
   @Override
-  public void postAuthorize(Properties inputProperties) {
+  public String postAuthorize(Properties inputProperties) {
     // do nothing
+    return null;
   }
 
   @Override

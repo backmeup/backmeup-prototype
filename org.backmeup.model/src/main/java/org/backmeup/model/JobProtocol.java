@@ -1,6 +1,7 @@
 package org.backmeup.model;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -30,7 +31,7 @@ public class JobProtocol {
   @ManyToOne(cascade=CascadeType.REFRESH, fetch=FetchType.EAGER)
   private BackupJob job;
   @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true)
-  private Set<JobProtocolMember> members;
+  private Set<JobProtocolMember> members = new HashSet<JobProtocolMember>();
   
   public JobProtocol() {
   }
@@ -42,7 +43,7 @@ public class JobProtocol {
     this.successful = successful;
     this.totalStoredEntries = totalStoredEntries;
     this.sinkTitle = sinkTitle;
-    this.members = members;
+    this.members.addAll(members);
   }
   
   public Date getExecutionTime() {
@@ -89,8 +90,12 @@ public class JobProtocol {
     return members;
   }
 
-  public void setMembers(Set<JobProtocolMember> members) {
-    this.members = members;
+  public void addMembers(Set<JobProtocolMember> members) {
+    this.members.addAll(members);
+  }
+  
+  public void addMember(JobProtocolMember member) {
+    this.members.add(member);
   }
 
   public Long getId() {

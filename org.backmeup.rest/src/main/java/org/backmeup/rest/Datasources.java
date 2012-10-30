@@ -134,7 +134,7 @@ public class Datasources extends Base {
 				datasourceId, profileName, keyRing);
 		return new PreAuthContainer(Long.toString(ar.getProfile()
 				.getProfileId()), ar.getRedirectURL() == null ? "Input"
-				: "OAuth", ar.getRequiredInputs(), ar.getTypeMapping(),
+				: "OAuth", ar.getRequiredInputs(),
 				ar.getRedirectURL(), true);
 	}
 

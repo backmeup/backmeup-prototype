@@ -42,7 +42,7 @@ public class TwitterAuthenticator implements OAuthBased {
 	}
 
 	@Override
-	public void postAuthorize(Properties inputProperties) {
+	public String postAuthorize(Properties inputProperties) {
 		try {
 			Twitter twitter = new TwitterFactory().getInstance();
 			TwitterHelper th = TwitterHelper.getInstance();
@@ -53,6 +53,8 @@ public class TwitterAuthenticator implements OAuthBased {
 			AccessToken at = twitter.getOAuthAccessToken(requestToken, verifier);
 			inputProperties.setProperty(TwitterHelper.PROPERTY_TOKEN, at.getToken());
 			inputProperties.setProperty(TwitterHelper.PROPERTY_SECRET, at.getTokenSecret());
+			// Retrieve the twitter username based on the inputProperties and return it here
+			return "TwitterUsername";
 		} catch (TwitterException e) {
 			throw new PluginException(TwitterDescriptor.TWITTER_ID, "An error occurred during post authorization", e);
 		}

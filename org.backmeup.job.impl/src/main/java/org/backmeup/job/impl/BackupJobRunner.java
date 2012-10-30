@@ -1,12 +1,16 @@
 package org.backmeup.job.impl;
 
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.backmeup.configuration.Configuration;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
@@ -37,6 +41,7 @@ import org.backmeup.plugin.api.connectors.DatasourceException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
+import org.backmeup.utilities.mail.Mailer;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -48,6 +53,9 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
  */
 public class BackupJobRunner {
 	
+  private static final String ERROR_EMAIL_TEXT = "ERROR_EMAIL_TEXT";
+  private static final String ERROR_EMAIL_SUBJECT = "ERROR_EMAIL_SUBJECT";
+  private static final String ERROR_EMAIL_MIMETYPE = "ERROR_EMAIL_MIMETYPE";
   private static final String INDEX_HOST = "index.host";
   private static final String INDEX_PORT = "index.port";
 
@@ -55,6 +63,11 @@ public class BackupJobRunner {
   private Keyserver keyserver;
   private Connection conn;
   private DataAccessLayer dal;
+  
+  private Logger logger = Logger.getLogger(BackupJobRunner.class);
+  
+  private ResourceBundle textBundle = ResourceBundle
+      .getBundle(BackupJobRunner.class.getSimpleName());
 
   public BackupJobRunner(Plugin plugins, Keyserver keyserver, Connection conn,
       DataAccessLayer dal) {
@@ -64,12 +77,13 @@ public class BackupJobRunner {
     this.dal = dal;
   }
 
-  private void addStatusToDb(Status status) {
+  private Status addStatusToDb(Status status) {
 	System.out.println("STATUS: " + status.getMessage());
     conn.beginOrJoin();    
     StatusDao sd = dal.createStatusDao();
-    sd.save(status); // store job within database
+    sd.save(status); // store job within database    
     conn.commit(); // commit to the database and to the core
+    return status;
   }
   
   private void deleteOldStatus(BackupJob persistentJob) {
@@ -80,12 +94,23 @@ public class BackupJobRunner {
   }
   
   private void storeJobProtocol(BackupJob job, JobProtocol protocol, int storedEntriesCount, boolean success) {
+    try {
+      conn.beginOrJoin();
+      BackupJobDao jobDao = dal.createBackupJobDao();
+      job = jobDao.merge(job);
+      JobProtocolDao jpd = dal.createJobProtocolDao();
+      // remove old entries, then store the new one 
+      jpd.deleteByUsername(job.getUser().getUsername());
+      conn.commit();
+    } catch (Exception ex) { 
+      logger.warn(ex.getMessage(), ex);
+    } finally {
+      conn.rollback();
+    }
     conn.beginOrJoin();
     BackupJobDao jobDao = dal.createBackupJobDao();
     job = jobDao.merge(job);
     JobProtocolDao jpd = dal.createJobProtocolDao();
-    // remove old entries, then store the new one 
-    jpd.deleteByUsername(job.getUser().getUsername());
     protocol.setUser(job.getUser());
     protocol.setJob(job);
     protocol.setSuccessful(success);
@@ -113,15 +138,21 @@ public class BackupJobRunner {
       Token newToken = authenticationData.getNewToken();
       persistentJob.setToken(newToken);
       
+      String userEmail = persistentJob.getUser().getEmail();
+      String jobName = persistentJob.getJobTitle();
+      
       // TODO: store newToken for the next backup schedule
       conn.commit(); // stores the new token within database
       
       // Protocol Overview requires information about executed jobs      
       JobProtocol protocol = new JobProtocol();      
       Set<JobProtocolMember> protocolEntries = new HashSet<JobProtocolMember>();
-      protocol.setMembers(protocolEntries);
+      protocol.addMembers(protocolEntries);
       protocol.setSinkTitle(persistentJob.getSinkProfile().getProfileName());
       protocol.setExecutionTime(new Date());      
+      
+      // tracke the error status messages
+      List<Status> errorStatus = new ArrayList<Status>();
       
       // Open temporary storage
       try {
@@ -197,11 +228,11 @@ public class BackupJobRunner {
 		        		client.close();
 		        	} else {
 		        		// Only happens in case Job was corrupted in the core - we'll handle that as a fatal error
-		        		addStatusToDb(new Status(persistentJob, "Unsupported Action: " + actionId, StatusType.JOB_FAILED, StatusCategory.ERROR, new Date()));
+		        	  errorStatus.add(addStatusToDb(new Status(persistentJob, "Unsupported Action: " + actionId, StatusType.JOB_FAILED, StatusCategory.ERROR, new Date())));
 		        	}
 	        	} catch (ActionException e) {
 	        		// Should only happen in case of problems in the core (file I/O, DB access, etc.) - we'll handle that as a fatal error
-	        		addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date()));
+	        	  errorStatus.add(addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date())));
 	        	}
 	        }    
 	        
@@ -214,7 +245,7 @@ public class BackupJobRunner {
 	        	sink.upload(sinkProperties, storage, new JobStatusProgressor(persistentJob, "datasink"));
 		        addStatusToDb(new Status(persistentJob, "", StatusType.SUCCESSFUL, StatusCategory.INFO, new Date()));
 	        } catch (StorageException e) {
-	        	addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date()));
+	          errorStatus.add(addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date())));
 	        }
 	        
 	        // store job protocol within database
@@ -225,8 +256,14 @@ public class BackupJobRunner {
 	    } catch (StorageException e) {
 	      // job failed, store job protocol within database
         storeJobProtocol(persistentJob, protocol, 0, false);
-	    	addStatusToDb(new Status(persistentJob, e.getMessage(), "ERROR", "STORE", new Date()));
+        errorStatus.add(addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date())));
 	    }
+      // send error message, if there were any error status messages
+      if (errorStatus.size() > 0) {        
+        Mailer.send(userEmail, MessageFormat.format(textBundle.getString(ERROR_EMAIL_SUBJECT), userEmail),
+                               MessageFormat.format(textBundle.getString(ERROR_EMAIL_TEXT), userEmail, jobName),
+                               textBundle.getString(ERROR_EMAIL_MIMETYPE));
+      }
     } finally {
       conn.rollback();
     }

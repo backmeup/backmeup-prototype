@@ -27,7 +27,7 @@ public class DatasinkProfilesContainer {
 	public DatasinkProfilesContainer(List<Profile> profiles, BackMeUpUser user) {
 		setSinkProfiles(new ArrayList<InternalProfile>());
 		for (Profile p : profiles) {
-			getSinkProfiles().add(new InternalProfile(p.getProfileName(), p.getProfileId(), p.getDescription (), p.getCreated ().getTime (), p.getModified ().getTime ()));
+			getSinkProfiles().add(new InternalProfile(p.getProfileName(), p.getProfileId(), p.getDescription (), p.getCreated ().getTime (), p.getModified ().getTime (), p.getIdentification()));
 		}
 		this.user = new UserContainer(user.getUsername(), user.getEmail());
 	}
@@ -51,6 +51,7 @@ public class DatasinkProfilesContainer {
 	public static class InternalProfile {
 		
 		private String title;
+		private String identification;
 		private String pluginName;
 		private long datasinkProfileId;
 		private long createDate;
@@ -59,12 +60,13 @@ public class DatasinkProfilesContainer {
 		public InternalProfile() {
 		}
 		
-		public InternalProfile(String title, long datasinkProfileId, String pluginName, long createDate, long modifyDate) {
+		public InternalProfile(String title, long datasinkProfileId, String pluginName, long createDate, long modifyDate, String identification) {
 			this.title = title;
 			this.datasinkProfileId = datasinkProfileId;
 			this.pluginName = pluginName;
 			this.createDate = createDate;
 			this.modifyDate = modifyDate;
+			this.identification = identification;
 		}
 		public String getTitle() {
 			return title;
@@ -107,5 +109,13 @@ public class DatasinkProfilesContainer {
 		{
 			this.modifyDate = modifyDate;
 		}
+
+    public String getIdentification() {
+      return identification;
+    }
+
+    public void setIdentification(String identification) {
+      this.identification = identification;
+    }
 	}
 }

@@ -2,6 +2,7 @@ package org.backmeup.skydrive.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
 
 import org.backmeup.plugin.api.connectors.Progressable;
@@ -20,7 +21,7 @@ public class SkyDriveDatasourceTest {
 		SkyDriveDatasource source = new SkyDriveDatasource();
 		Storage sw = new LocalFilesystemStorage();
 		sw.open("C:/TEMP/TEST/");
-		source.downloadAll(props, sw, new Progressable() {
+		source.downloadAll(props, new ArrayList<String>(), sw, new Progressable() {
 			@Override
 			public void progress(String message) {}
 		});

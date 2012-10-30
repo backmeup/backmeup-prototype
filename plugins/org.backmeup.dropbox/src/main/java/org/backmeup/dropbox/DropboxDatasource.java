@@ -36,7 +36,7 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 	
 	
 	@Override
-	public List<FilesystemURI> list(Properties items, FilesystemURI uri) {
+	public List<FilesystemURI> list(Properties items, List<String> options, FilesystemURI uri) {
 		String path = (uri == null) ? "/" : uri.toString();
 		DropboxAPI<WebAuthSession> api = DropboxHelper.getApi(items);
 		List<FilesystemURI> uris = new ArrayList<FilesystemURI>();
@@ -71,7 +71,7 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 	}
 
 	@Override
-	public InputStream getFile(Properties items, FilesystemURI uri) {
+	public InputStream getFile(Properties items, List<String> options, FilesystemURI uri) {
 		String path = "";
 		try {
 			path = uri.toString().replace("%20", " ");
@@ -85,7 +85,7 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 	public String getStatistics(Properties items) {
 		StringBuffer html = new StringBuffer();
 		html.append("<ul>");
-		for (FilesystemURI uri : list(items)) {
+		for (FilesystemURI uri : list(items, new ArrayList<String>())) {
 			html.append("<li>" + uri.toString() + "</li>");
 		}
 		html.append("</ul>");

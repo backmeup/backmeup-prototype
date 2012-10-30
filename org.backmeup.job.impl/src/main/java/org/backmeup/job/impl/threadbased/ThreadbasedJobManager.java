@@ -194,7 +194,7 @@ public class ThreadbasedJobManager /* implements JobManager  */{
                 } catch (StorageException e1) {
                   e1.printStackTrace();
                 }
-                source.downloadAll(sourceProperties, storage,
+                source.downloadAll(sourceProperties, new ArrayList<String>(), storage,
                     new ConsoleProgressor());
                 s = new Status(job, String.format(
                     textBundle.getString(DOWNLOAD_COMPLETED_MSG), job.getId(),

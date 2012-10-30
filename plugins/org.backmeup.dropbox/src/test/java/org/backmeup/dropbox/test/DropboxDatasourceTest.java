@@ -3,6 +3,7 @@ package org.backmeup.dropbox.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -22,7 +23,7 @@ public class DropboxDatasourceTest {
 		DropboxDatasource source = new DropboxDatasource();
 		Storage storage = new LocalFilesystemStorage();
 		storage.open("C:/TEMP/TEST/");
-		source.downloadAll(props, storage, new Progressable() {
+		source.downloadAll(props, new ArrayList<String>(), storage, new Progressable() {
 			@Override
 			public void progress(String message) {}
 		});

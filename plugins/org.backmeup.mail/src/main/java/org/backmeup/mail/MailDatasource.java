@@ -400,6 +400,7 @@ public class MailDatasource implements Datasource {
   
   private void generateIndex(Storage storage, List<MessageInfo> indexDetails) throws UnsupportedEncodingException, StorageException {
     StringBuilder sb = new StringBuilder();
+    //TODO Sort message information
     for (MessageInfo mi : indexDetails) {
       sb.append(MessageFormat.format(textBundle.getString(INDEX_HTML_ENTRY), mi.getSubject(), mi.getFrom(), mi.getSentAt(), mi.getReceivedAt(), mi.getTo(), mi.getFileName()));
     }
@@ -409,7 +410,7 @@ public class MailDatasource implements Datasource {
   }
 
   @Override
-  public void downloadAll(Properties accessData, Storage storage,
+  public void downloadAll(Properties accessData, List<String> options, Storage storage,
       Progressable progressor) throws DatasourceException, StorageException {
     try {
       Session session = Session.getInstance(accessData);

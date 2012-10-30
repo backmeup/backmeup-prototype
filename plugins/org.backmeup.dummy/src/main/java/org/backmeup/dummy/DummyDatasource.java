@@ -39,7 +39,7 @@ public class DummyDatasource implements Datasource {
   }
 
   @Override
-  public void downloadAll(Properties accessData, Storage storage,
+  public void downloadAll(Properties accessData, List<String> options, Storage storage,
       Progressable progressor) throws DatasourceException, StorageException {
     MetainfoContainer cont = new MetainfoContainer();
     cont.addMetainfo(create("1", "text/plain", "/plain.txt"));

@@ -1,5 +1,6 @@
 package org.backmeup.mail.test;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -18,7 +19,7 @@ public class MailTest {
     MailDatasource source = new MailDatasource();
     Storage storage = new LocalFilesystemStorage();
     storage.open("C:/TEMP/TEST/");
-    source.downloadAll(props, storage, new Progressable() {
+    source.downloadAll(props, new ArrayList<String>(), storage, new Progressable() {
       @Override
       public void progress(String message) {}
     });

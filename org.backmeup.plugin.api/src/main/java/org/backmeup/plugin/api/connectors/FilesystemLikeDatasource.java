@@ -17,25 +17,25 @@ import org.backmeup.plugin.api.storage.StorageException;
  */
 public abstract class FilesystemLikeDatasource implements Datasource { 
 	
-	public void downloadAll(Properties accessData, Storage storage, Progressable progressor) throws StorageException {
-		List<FilesystemURI> files = list(accessData);
+	public void downloadAll(Properties accessData, List<String> options, Storage storage, Progressable progressor) throws StorageException {
+		List<FilesystemURI> files = list(accessData, options);
 		for (int i=0; i < files.size(); i++) {
 			FilesystemURI uri = files.get(i);			
-			download(accessData, uri, storage, progressor);			
+			download(accessData, options, uri, storage, progressor);			
 		}
 	}
 	
-	private void download(Properties accessData, FilesystemURI uri, Storage storage, Progressable progressor) throws StorageException {
+	private void download(Properties accessData, List<String> options, FilesystemURI uri, Storage storage, Progressable progressor) throws StorageException {
 	  MetainfoContainer metainfo = uri.getMetainfoContainer();	  
 		if (uri.isDirectory()) {
 			//Logger.info("Downloading contents of directory " + uri);
-			for (FilesystemURI child : list(accessData, uri)) {
-				download(accessData, child, storage, progressor);
+			for (FilesystemURI child : list(accessData, options, uri)) {
+				download(accessData, options, child, storage, progressor);
 			}
 		} else {
 			//Logger.info("Downloading file " + uri);
 			progressor.progress(String.format("Downloading file %s ...", uri.toString()));
-			InputStream is = getFile(accessData, uri);
+			InputStream is = getFile(accessData, options, uri);
 			if (is == null) {
 				//Logger.warn("Got a null input stream for " + uri.getUri().getPath().toString());
 			} else {
@@ -47,12 +47,12 @@ public abstract class FilesystemLikeDatasource implements Datasource {
 		}
 	}
 	
-	public List<FilesystemURI> list(Properties accessData) {
-		return list(accessData, null);
+	public List<FilesystemURI> list(Properties accessData, List<String> options) {
+		return list(accessData, options, null);
 	}
 	
-	public abstract List<FilesystemURI> list(Properties accessData, FilesystemURI uri);
+	public abstract List<FilesystemURI> list(Properties accessData, List<String> options, FilesystemURI uri);
 	
-	public abstract InputStream getFile(Properties accessData, FilesystemURI uri);
+	public abstract InputStream getFile(Properties accessData, List<String> options, FilesystemURI uri);
 	
 }

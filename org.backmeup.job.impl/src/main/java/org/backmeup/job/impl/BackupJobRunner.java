@@ -3,6 +3,7 @@ package org.backmeup.job.impl;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -174,12 +175,16 @@ public class BackupJobRunner {
 	        
 	        Properties sourceProperties = authenticationData.getByProfileId(po
 	            .getProfile().getProfileId());
+	        List<String> sourceOptions = new ArrayList<String>();
+	        if (po.getOptions() != null)
+	          sourceOptions.addAll(Arrays.asList(po.getOptions()));	          	        
 	        
 	    	addStatusToDb(new Status(persistentJob, "", StatusType.DOWNLOADING, StatusCategory.INFO, new Date()));
 	    	
 	    	// Download from source
 	        try {
-	            source.downloadAll(sourceProperties, storage, new JobStatusProgressor(persistentJob, "datasource"));
+	            
+	            source.downloadAll(sourceProperties, sourceOptions, storage, new JobStatusProgressor(persistentJob, "datasource"));
 	        } catch (StorageException e) {
 	        	addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.DOWNLOAD_FAILED, StatusCategory.WARNING, new Date()));
 	        } catch (DatasourceException e) {

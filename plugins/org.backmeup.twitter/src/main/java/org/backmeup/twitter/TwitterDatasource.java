@@ -58,7 +58,7 @@ public class TwitterDatasource implements Datasource {
 	private User user = null;
 
 	@Override
-	public void downloadAll(Properties arg0, Storage arg1,
+	public void downloadAll(Properties arg0, List<String> options, Storage arg1,
 			Progressable arg2) throws DatasourceException, StorageException {
 
 		// create new access token

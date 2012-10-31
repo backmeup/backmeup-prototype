@@ -62,7 +62,7 @@ public class FacebookDatasource implements Datasource {
 	private String accessToken = "";
 
 	@Override
-	public void downloadAll(Properties props, Storage storage,
+	public void downloadAll(Properties props, List<String> options, Storage storage,
 			Progressable progr) throws DatasourceException, StorageException {
 
 		accessToken = props.getProperty(FacebookHelper.PROPERTY_TOKEN);

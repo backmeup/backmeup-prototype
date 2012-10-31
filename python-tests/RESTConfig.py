@@ -1,4 +1,4 @@
-SERVER="127.0.0.1"
+SERVER="bmu-dev02.x"
 '''
 PORT=8080
 BASE_URL="/rest/backmeup"

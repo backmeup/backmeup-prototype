@@ -35,7 +35,7 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 	}
 
 	@Override
-	public InputStream getFile(Properties items, FilesystemURI uri) {
+	public InputStream getFile(Properties items, List<String> options, FilesystemURI uri) {
 		try {
 			return uri.getUri().toURL().openStream();
 		} catch (Exception e) {
@@ -45,7 +45,7 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 	}
 
 	@Override
-	public List<FilesystemURI> list(Properties items, FilesystemURI uri) {
+	public List<FilesystemURI> list(Properties items, List<String> options, FilesystemURI uri) {
 
 		List<FilesystemURI> results = new ArrayList<FilesystemURI>();
 

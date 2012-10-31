@@ -123,7 +123,8 @@ public class FilesplittAction implements Action
 			}
 			else
 			{
-				throw new ActionException ("Property \"" + PROP_MAX_CONTAINER_SIZE + "\" is not set");
+				fcs = new FileContainers (CONTAINER_MAX_SIZE, true);
+				//throw new ActionException ("Property \"" + PROP_MAX_CONTAINER_SIZE + "\" is not set");
 			}
 
 			progressor.progress (FILESPLITT_SPLITT);

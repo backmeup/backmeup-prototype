@@ -62,62 +62,74 @@ public class FacebookDatasource implements Datasource {
 	private String accessToken = "";
 
 	@Override
-	public void downloadAll(Properties props, List<String> options, Storage storage,
-			Progressable progr) throws DatasourceException, StorageException {
+	public void downloadAll(Properties props, List<String> options,
+			Storage storage, Progressable progr) throws DatasourceException,
+			StorageException {
 
 		accessToken = props.getProperty(FacebookHelper.PROPERTY_TOKEN);
 		FacebookClient client = new DefaultFacebookClient(accessToken);
 
 		getThemes(storage, props);
-		
+
 		Document doc = createDocument("Index", "Facebook", false);
-		
+
 		Date d = new Date();
 		doc.appendBody(d.toString());
-		
-		doc.appendBody(new BR());
-		
-		progr.progress("Download User-Profil...");
-		doc.appendBody(new A(downloadUser("me", client, storage, progr),
-				"Mein Profil"));
+
 		doc.appendBody(new BR());
 
-		
-		progr.progress("Download Freunde..."); 
-		downloadFriends(client,storage, progr); 
-		doc.appendBody(new A("friends.html", "Freunde"));
-		doc.appendBody(new BR());
-		  
-		progr.progress("Download Freundesliste...");
-		downloadFriendlists(client, storage, progr); 
-		doc.appendBody(new A("friendlists.html", "Freundesliste")); 
-		doc.appendBody(new BR());
-		  
-		progr.progress("Download Gruppen..."); 
-		downloadGroups(client, storage, progr); 
-		doc.appendBody(new A("groups.html", "Gruppen"));
-		doc.appendBody(new BR());
-		  
-	    progr.progress("Download Posts..."); 
-	    downloadPosts("me", client, storage, progr); 
-	    doc.appendBody(new A("posts-me.html", "Posts"));
-		doc.appendBody(new BR());
-		  
-	    progr.progress("Download Fotos..."); 
-	    downloadPhotos(client, storage, progr); 
-	    doc.appendBody(new A("photos.html", "Fotos"));
-		doc.appendBody(new BR());
-		  
-		progr.progress("Download Alben..."); 
-		downloadAlbums(client, storage, progr); 
-		doc.appendBody(new A("albums.html", "Alben"));
-		doc.appendBody(new BR());
-		
-		progr.progress("Download Seiten...");
-		downloadAccounts(client, storage, progr);
-		doc.appendBody(new A("accounts.html", "Seiten"));
-		doc.appendBody(new BR());
+		if (options.contains("Profile")) {
+			progr.progress("Download User-Profil...");
+			doc.appendBody(new A(downloadUser("me", client, storage, progr),
+					"Mein Profil"));
+			doc.appendBody(new BR());
+		}
 
+		if (options.contains("Friends")) {
+			progr.progress("Download Freunde...");
+			downloadFriends(client, storage, progr);
+			doc.appendBody(new A("friends.html", "Freunde"));
+			doc.appendBody(new BR());
+		}
+		if (options.contains("Friendslists")) {
+			progr.progress("Download Freundesliste...");
+			downloadFriendlists(client, storage, progr);
+			doc.appendBody(new A("friendlists.html", "Freundesliste"));
+			doc.appendBody(new BR());
+		}
+		if (options.contains("Groups")) {
+			progr.progress("Download Gruppen...");
+			downloadGroups(client, storage, progr);
+			doc.appendBody(new A("groups.html", "Gruppen"));
+			doc.appendBody(new BR());
+		}
+		if (options.contains("Posts")) {
+			progr.progress("Download Posts...");
+			downloadPosts("me", client, storage, progr);
+			doc.appendBody(new A("posts-me.html", "Posts"));
+			doc.appendBody(new BR());
+		}
+		if (options.contains("Photos")) {
+			progr.progress("Download Fotos...");
+			downloadPhotos(client, storage, progr);
+			doc.appendBody(new A("photos.html", "Fotos"));
+			doc.appendBody(new BR());
+		}
+
+		if (options.contains("Albums")) {
+			progr.progress("Download Alben...");
+			downloadAlbums(client, storage, progr);
+			doc.appendBody(new A("albums.html", "Alben"));
+			doc.appendBody(new BR());
+		}
+
+		if (options.contains("Sites")) {
+			progr.progress("Download Seiten...");
+			downloadAccounts(client, storage, progr);
+			doc.appendBody(new A("accounts.html", "Seiten"));
+			doc.appendBody(new BR());
+		}
+		
 		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
 		storage.addFile(is, "index.html", new MetainfoContainer());
 	}
@@ -166,8 +178,8 @@ public class FacebookDatasource implements Datasource {
 	 *            can be a album or user
 	 */
 	private void downloadPhotos(String id, Document doc, FacebookClient client,
-			Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+			Storage storage, Progressable progr) throws DatasourceException,
+			StorageException {
 
 		Connection<Photo> photos = client.fetchConnection(id + "/photos",
 				Photo.class);
@@ -198,8 +210,8 @@ public class FacebookDatasource implements Datasource {
 	 */
 	private MetainfoContainer downloadComments(String id, String destination,
 			String parent, String type, Document doc, FacebookClient client,
-			Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+			Storage storage, Progressable progr) throws DatasourceException,
+			StorageException {
 		MetainfoContainer metainfo = new MetainfoContainer();
 		Metainfo commentinfo;
 		Connection<Post> comments = client.fetchConnection(id + "/comments",
@@ -305,8 +317,8 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private void downloadPosts(String id, FacebookClient client,
-			Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+			Storage storage, Progressable progr) throws DatasourceException,
+			StorageException {
 
 		Document doc = createDocument("Pinwand", "Facebook - Pinwand", false);
 		Connection<Post> posts = client.fetchConnection(id + "/feed",
@@ -361,11 +373,11 @@ public class FacebookDatasource implements Datasource {
 		storage.addFile(is, "friends.html", new MetainfoContainer());
 	}
 
-	private void downloadFriendlists(FacebookClient client,
-			Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+	private void downloadFriendlists(FacebookClient client, Storage storage,
+			Progressable progr) throws DatasourceException, StorageException {
 
-		Document doc = createDocument("Freundesliste", "Facebook - Freundeslisten", false);
+		Document doc = createDocument("Freundesliste",
+				"Facebook - Freundeslisten", false);
 
 		Connection<CategorizedFacebookType> lists = client.fetchConnection(
 				"me/friendlists", CategorizedFacebookType.class);
@@ -436,8 +448,8 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private String downloadPost(Post post, FacebookClient client,
-			Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+			Storage storage, Progressable progr) throws DatasourceException,
+			StorageException {
 
 		Metainfo postinfo = new Metainfo();
 		postinfo.setAttribute("author", checkName(post.getFrom().getName()));
@@ -513,8 +525,8 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private String downloadAlbum(Album album, FacebookClient client,
-			Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+			Storage storage, Progressable progr) throws DatasourceException,
+			StorageException {
 		String name = checkName(album.getName());
 
 		Metainfo albuminfo = new Metainfo();
@@ -629,7 +641,6 @@ public class FacebookDatasource implements Datasource {
 
 		sourceFileName = sourceFileName.substring(12);
 
-		
 		doc.appendBody(new IMG(sourceFileName));
 		String tags = "";
 
@@ -669,8 +680,8 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private String downloadGroup(String id, FacebookClient client,
-			Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+			Storage storage, Progressable progr) throws DatasourceException,
+			StorageException {
 		Group g = client.fetchObject(id, Group.class);
 		String name = checkName(g.getName());
 
@@ -722,8 +733,8 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private String downloadUser(String id, FacebookClient client,
-			Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+			Storage storage, Progressable progr) throws DatasourceException,
+			StorageException {
 
 		MetainfoContainer metainfo = new MetainfoContainer();
 		Metainfo userinfo = new Metainfo();
@@ -731,160 +742,164 @@ public class FacebookDatasource implements Datasource {
 
 		try {
 			User u = client.fetchObject(id, User.class);
-		
-		String name = checkName(u.getName());
 
-		userinfo.setAttribute("name", name);
-		userinfo.setDestination(getUserFilename(name + u.getId()));
-		userinfo.setId(name + u.getId());
-		if (u.getUpdatedTime() != null)
-			userinfo.setModified(u.getUpdatedTime());
-		userinfo.setSource("facebook");
-		userinfo.setType("user");
+			String name = checkName(u.getName());
 
-		// get profile picture
-		String pic = downloadProfilePicture(name + u.getId(), u.getId(),
-				storage, progr);
+			userinfo.setAttribute("name", name);
+			userinfo.setDestination(getUserFilename(name + u.getId()));
+			userinfo.setId(name + u.getId());
+			if (u.getUpdatedTime() != null)
+				userinfo.setModified(u.getUpdatedTime());
+			userinfo.setSource("facebook");
+			userinfo.setType("user");
 
-		userinfo.setAttribute("profilePicture", "Freunde/" + pic);
-		metainfo.addMetainfo(userinfo);
+			// get profile picture
+			String pic = downloadProfilePicture(name + u.getId(), u.getId(),
+					storage, progr);
 
-		// create HTML
-		Document doc = createDocument(name, "Facebook - Benutzer", true);
+			userinfo.setAttribute("profilePicture", "Freunde/" + pic);
+			metainfo.addMetainfo(userinfo);
 
-		doc.appendBody("Name: " + name);
-		doc.appendBody(new BR());
+			// create HTML
+			Document doc = createDocument(name, "Facebook - Benutzer", true);
 
-		if (u.getUsername() != null) {
-			doc.appendBody("Benutzername: " + u.getUsername());
+			doc.appendBody("Name: " + name);
 			doc.appendBody(new BR());
-		}
-		if (u.getEmail() != null) {
-			doc.appendBody("E-Mail: " + u.getEmail());
-			doc.appendBody(new BR());
-			doc.appendBody(new BR());
-		}
-		doc.appendBody(new IMG(pic));
-		doc.appendBody(new BR());
-		doc.appendBody(new BR());
 
-		if (u.getAbout() != null) {
-			doc.appendBody("Über: " + u.getAbout());
-			doc.appendBody(new BR());
-		}
-		if (u.getBio() != null) {
-			doc.appendBody("Bio: " + u.getBio());
-			doc.appendBody(new BR());
-		}
-		if (u.getGender() != null) {
-			doc.appendBody("Geschlecht: " + u.getGender());
-			doc.appendBody(new BR());
-		}
-		if (u.getBirthday() != null) {
-			doc.appendBody("Geburtstag: " + u.getBirthday());
-			doc.appendBody(new BR());
-		}
-		if (u.getHometownName() != null) {
-			doc.appendBody("Heimatstadt: " + u.getHometownName());
-			doc.appendBody(new BR());
-		}
-		if (u.getLocation() != null) {
-			doc.appendBody("Derzeitiger Wohnort: " + u.getLocation().getName());
-			doc.appendBody(new BR());
-		}
-		if ((u.getLanguages() != null) && (u.getLanguages().size() > 0)) {
-			doc.appendBody("Sprachen: ");
-			String[] languages = new String[u.getLanguages().size()];
-			int i = 0;
-			for (NamedFacebookType language : u.getLanguages()) {
-				languages[i] = language.getName();
-				i++;
+			if (u.getUsername() != null) {
+				doc.appendBody("Benutzername: " + u.getUsername());
+				doc.appendBody(new BR());
 			}
-			doc.appendBody(new ul(languages));
-			doc.appendBody(new BR());
-		}
-		if ((u.getEducation() != null) && (u.getEducation().size() > 0)) {
-			doc.appendBody("Ausbildung: ");
-			String[] edus = new String[u.getEducation().size()];
-			int i = 0;
-			for (Education educ : u.getEducation()) {
-				edus[i] = educ.getType()
-						+ (educ.getSchool() != null ? ": "
-								+ educ.getSchool().getName()
-								+ (educ.getYear() != null ? " until "
-										+ educ.getYear().getName() : "") : "");
-				i++;
+			if (u.getEmail() != null) {
+				doc.appendBody("E-Mail: " + u.getEmail());
+				doc.appendBody(new BR());
+				doc.appendBody(new BR());
 			}
-			doc.appendBody(new ul(edus));
+			doc.appendBody(new IMG(pic));
 			doc.appendBody(new BR());
-		}
-		if ((u.getWork() != null) && (u.getWork().size() > 0)) {
-			doc.appendBody("Arbeit: ");
-			String[] works = new String[u.getWork().size()];
-			int i = 0;
-			for (Work work : u.getWork()) {
-				works[i] = (work.getDescription() != null ? work
-						.getDescription() : "")
-						+ (work.getPosition() != null ? " als "
-								+ work.getPosition().getName() : "")
-						+ (work.getEmployer() != null ? " für "
-								+ work.getEmployer().getName() : "")
-						+ (work.getLocation() != null ? " bei "
-								+ work.getLocation().getName() : "");
-				i++;
+			doc.appendBody(new BR());
+
+			if (u.getAbout() != null) {
+				doc.appendBody("Über: " + u.getAbout());
+				doc.appendBody(new BR());
 			}
-			doc.appendBody(new ul(works));
-			doc.appendBody(new BR());
-		}
-		if ((u.getInterestedIn() != null) && (u.getInterestedIn().size() > 0)) {
-			doc.appendBody("Interressiert an: ");
-			doc.appendBody(new ul(u.getInterestedIn().toArray(new String[0])));
-			doc.appendBody(new BR());
-		}
-		if (u.getRelationshipStatus() != null) {
-			doc.appendBody("Beziehungsstatus: " + u.getRelationshipStatus());
-			doc.appendBody(new BR());
-		}
-		if (u.getSignificantOther() != null) {
-			doc.appendBody("Bedeutende Personen: ");
-			doc.appendBody(new A("../"
-					+ getUserFilename(checkName(u.getSignificantOther()
-							.getName()) + u.getSignificantOther().getId()),
-					checkName(u.getSignificantOther().getName())));
-			doc.appendBody(new BR());
-		}
-		if (u.getQuotes() != null) {
-			doc.appendBody("Zitate: " + u.getQuotes());
-			doc.appendBody(new BR());
-		}
-		if (u.getReligion() != null) {
-			doc.appendBody("Religiöse Einstellung: " + u.getReligion());
-			doc.appendBody(new BR());
-		}
-		if (u.getPolitical() != null) {
-			doc.appendBody("Politische Einstellung: " + u.getPolitical());
-			doc.appendBody(new BR());
-		}
-		if (u.getWebsite() != null) {
-			doc.appendBody("Webseite: ").appendBody(
-					new A(u.getWebsite(), u.getWebsite()));
-			doc.appendBody(new BR());
-		}
-		if (u.getLink() != null) {
-			doc.appendBody("Link: ").appendBody(
-					"<a href=" + u.getLink() + " target='_blank'>"
-							+ u.getLink() + "</a>");
-			;
-			doc.appendBody(new BR());
-		}
+			if (u.getBio() != null) {
+				doc.appendBody("Bio: " + u.getBio());
+				doc.appendBody(new BR());
+			}
+			if (u.getGender() != null) {
+				doc.appendBody("Geschlecht: " + u.getGender());
+				doc.appendBody(new BR());
+			}
+			if (u.getBirthday() != null) {
+				doc.appendBody("Geburtstag: " + u.getBirthday());
+				doc.appendBody(new BR());
+			}
+			if (u.getHometownName() != null) {
+				doc.appendBody("Heimatstadt: " + u.getHometownName());
+				doc.appendBody(new BR());
+			}
+			if (u.getLocation() != null) {
+				doc.appendBody("Derzeitiger Wohnort: "
+						+ u.getLocation().getName());
+				doc.appendBody(new BR());
+			}
+			if ((u.getLanguages() != null) && (u.getLanguages().size() > 0)) {
+				doc.appendBody("Sprachen: ");
+				String[] languages = new String[u.getLanguages().size()];
+				int i = 0;
+				for (NamedFacebookType language : u.getLanguages()) {
+					languages[i] = language.getName();
+					i++;
+				}
+				doc.appendBody(new ul(languages));
+				doc.appendBody(new BR());
+			}
+			if ((u.getEducation() != null) && (u.getEducation().size() > 0)) {
+				doc.appendBody("Ausbildung: ");
+				String[] edus = new String[u.getEducation().size()];
+				int i = 0;
+				for (Education educ : u.getEducation()) {
+					edus[i] = educ.getType()
+							+ (educ.getSchool() != null ? ": "
+									+ educ.getSchool().getName()
+									+ (educ.getYear() != null ? " until "
+											+ educ.getYear().getName() : "")
+									: "");
+					i++;
+				}
+				doc.appendBody(new ul(edus));
+				doc.appendBody(new BR());
+			}
+			if ((u.getWork() != null) && (u.getWork().size() > 0)) {
+				doc.appendBody("Arbeit: ");
+				String[] works = new String[u.getWork().size()];
+				int i = 0;
+				for (Work work : u.getWork()) {
+					works[i] = (work.getDescription() != null ? work
+							.getDescription() : "")
+							+ (work.getPosition() != null ? " als "
+									+ work.getPosition().getName() : "")
+							+ (work.getEmployer() != null ? " für "
+									+ work.getEmployer().getName() : "")
+							+ (work.getLocation() != null ? " bei "
+									+ work.getLocation().getName() : "");
+					i++;
+				}
+				doc.appendBody(new ul(works));
+				doc.appendBody(new BR());
+			}
+			if ((u.getInterestedIn() != null)
+					&& (u.getInterestedIn().size() > 0)) {
+				doc.appendBody("Interressiert an: ");
+				doc.appendBody(new ul(u.getInterestedIn()
+						.toArray(new String[0])));
+				doc.appendBody(new BR());
+			}
+			if (u.getRelationshipStatus() != null) {
+				doc.appendBody("Beziehungsstatus: " + u.getRelationshipStatus());
+				doc.appendBody(new BR());
+			}
+			if (u.getSignificantOther() != null) {
+				doc.appendBody("Bedeutende Personen: ");
+				doc.appendBody(new A("../"
+						+ getUserFilename(checkName(u.getSignificantOther()
+								.getName()) + u.getSignificantOther().getId()),
+						checkName(u.getSignificantOther().getName())));
+				doc.appendBody(new BR());
+			}
+			if (u.getQuotes() != null) {
+				doc.appendBody("Zitate: " + u.getQuotes());
+				doc.appendBody(new BR());
+			}
+			if (u.getReligion() != null) {
+				doc.appendBody("Religiöse Einstellung: " + u.getReligion());
+				doc.appendBody(new BR());
+			}
+			if (u.getPolitical() != null) {
+				doc.appendBody("Politische Einstellung: " + u.getPolitical());
+				doc.appendBody(new BR());
+			}
+			if (u.getWebsite() != null) {
+				doc.appendBody("Webseite: ").appendBody(
+						new A(u.getWebsite(), u.getWebsite()));
+				doc.appendBody(new BR());
+			}
+			if (u.getLink() != null) {
+				doc.appendBody("Link: ").appendBody(
+						"<a href=" + u.getLink() + " target='_blank'>"
+								+ u.getLink() + "</a>");
+				;
+				doc.appendBody(new BR());
+			}
 
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
-		String filename = getUserFilename(name + u.getId());
-		storage.addFile(is, filename, metainfo);
+			InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+			String filename = getUserFilename(name + u.getId());
+			storage.addFile(is, filename, metainfo);
 
-		allUsers.add(id);
-		return filename;
-		} catch(FacebookException e) {
+			allUsers.add(id);
+			return filename;
+		} catch (FacebookException e) {
 			return null;
 		}
 	}
@@ -980,6 +995,7 @@ public class FacebookDatasource implements Datasource {
 		}
 		return false;
 	}
+
 	/**
 	 * download pages, the user is admin of
 	 * 
@@ -1026,7 +1042,7 @@ public class FacebookDatasource implements Datasource {
 			}
 
 		} catch (Exception e) {
-			if(c!=null){
+			if (c != null) {
 				c.disconnect();
 			}
 		}
@@ -1077,13 +1093,14 @@ public class FacebookDatasource implements Datasource {
 			doc.appendBody(new BR());
 
 		} catch (Exception e) {
-			if(c!=null){
+			if (c != null) {
 				c.disconnect();
 			}
 		}
 
 		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
-		storage.addFile(is, "Seiten/" + name + id + ".html", new MetainfoContainer());
+		storage.addFile(is, "Seiten/" + name + id + ".html",
+				new MetainfoContainer());
 
 		return "Seiten/" + name + id + ".html";
 	}
@@ -1134,7 +1151,8 @@ public class FacebookDatasource implements Datasource {
 			if (allUsers.contains(id)) {
 				doc.appendBody(new A("../" + path, name));
 			} else {
-				if (DOWNLOAD_NON_FRIEND_USERS && downloadUser(id, client, storage, progr)!=null) {
+				if (DOWNLOAD_NON_FRIEND_USERS
+						&& downloadUser(id, client, storage, progr) != null) {
 					doc.appendBody(new A("../" + path, name));
 				} else {
 					doc.appendBody(name);
@@ -1182,11 +1200,13 @@ public class FacebookDatasource implements Datasource {
 		facebookBackupOptions.add("Friends");
 		facebookBackupOptions.add("Friendslists");
 		facebookBackupOptions.add("Groups");
+		facebookBackupOptions.add("Posts");
 		facebookBackupOptions.add("Photos");
 		facebookBackupOptions.add("Albums");
+		facebookBackupOptions.add("Sites");
 		return facebookBackupOptions;
 	}
-	
+
 	public void getThemes(Storage storage, Properties props)
 			throws DatasourceException, StorageException {
 		String css = "body { " + "font-family: 'OpenSansRegular', sans-serif;"

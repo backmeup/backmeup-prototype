@@ -88,7 +88,7 @@ public class ThumbnailAction implements Action {
 				if (tempFilename.startsWith("/"))
 					tempFilename = tempFilename.substring(1);
 				
-				tempFilename.replace("/", "$");
+				tempFilename = tempFilename.replace("/", "$");
 				File tempFile = new File(TEMP_DIR, tempFilename);
 				FileOutputStream fos = new FileOutputStream(tempFile);
 				fos.write(dataobject.getBytes());

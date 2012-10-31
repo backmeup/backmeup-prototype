@@ -10,6 +10,10 @@ import java.util.Properties;
 import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.plugin.spi.OAuthBased;
 
+import com.restfb.DefaultFacebookClient;
+import com.restfb.FacebookClient;
+import com.restfb.types.User;
+
 
 /**
  * The FacebookAuthenticator creates a redirect URL based on
@@ -49,6 +53,7 @@ public class FacebookAuthenticator implements OAuthBased {
 	@Override
 	public String postAuthorize(Properties inputProperties) {
 		String code = inputProperties.getProperty("code");
+		String accessToken = "";
 		HttpURLConnection c = null;
 		URL url;
 		try {
@@ -73,15 +78,17 @@ public class FacebookAuthenticator implements OAuthBased {
 				String[] params = content.toString().split("&");
 				for (String param : params){
 					String name = param.split("=")[0];
-					String value = param.split("=")[1];
+					accessToken = param.split("=")[1];
 					if(name.equals("access_token")){
-						inputProperties.setProperty(FacebookHelper.PROPERTY_TOKEN, value);
+						inputProperties.setProperty(FacebookHelper.PROPERTY_TOKEN, accessToken);
 					}
 				}
 			}else throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while retrieving authentication information");
 			
-			//TODO: Return the account name of the user
-			return "FacebookUser";
+			FacebookClient client = new DefaultFacebookClient(accessToken);
+			User user = client.fetchObject("me", User.class);
+			return user.getName();
+			
 		} catch (Exception e) {
 			throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while retrieving authentication information", e);
 		}

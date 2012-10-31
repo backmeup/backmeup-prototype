@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.backmeup.model.spi.RequiredInputField;
-import org.backmeup.model.spi.RequiredInputField.Type;
+import org.backmeup.model.api.RequiredInputField;
+import org.backmeup.model.api.RequiredInputField.Type;
 
 public interface InputBased extends Authorizable {
 	

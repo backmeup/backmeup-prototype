@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.backmeup.model.spi.RequiredInputField;
+import org.backmeup.model.api.RequiredInputField;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 

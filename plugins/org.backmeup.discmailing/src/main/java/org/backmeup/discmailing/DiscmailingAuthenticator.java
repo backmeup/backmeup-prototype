@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.backmeup.model.spi.RequiredInputField;
-import org.backmeup.model.spi.RequiredInputField.Type;
+import org.backmeup.model.api.RequiredInputField;
+import org.backmeup.model.api.RequiredInputField.Type;
 import org.backmeup.plugin.spi.InputBased;
 
 public class DiscmailingAuthenticator implements InputBased {
@@ -37,11 +37,11 @@ public class DiscmailingAuthenticator implements InputBased {
 	public List<RequiredInputField> getRequiredInputFields() {
 		List<RequiredInputField> inputs = new ArrayList<RequiredInputField>();
 		
-		inputs.add(new RequiredInputField (PROP_FIRSTNAME, PROP_FIRSTNAME_DESC, true, 0, Type.String));
-		inputs.add(new RequiredInputField (PROP_SURNAME, PROP_SURNAME_DESC, true, 1, Type.String));
-		inputs.add(new RequiredInputField (PROP_STREET, PROP_STREET_DESC, true, 2, Type.String));
-		inputs.add(new RequiredInputField (PROP_CITY, PROP_CITY_DESC, true, 3, Type.String));
-		inputs.add(new RequiredInputField (PROP_POSTCODE, PROP_POSTCODE_DESC, true, 4, Type.String));
+		inputs.add(new RequiredInputField (PROP_FIRSTNAME, PROP_FIRSTNAME, PROP_FIRSTNAME_DESC, true, 0, Type.String));
+		inputs.add(new RequiredInputField (PROP_SURNAME, PROP_SURNAME, PROP_SURNAME_DESC, true, 1, Type.String));
+		inputs.add(new RequiredInputField (PROP_STREET, PROP_STREET, PROP_STREET_DESC, true, 2, Type.String));
+		inputs.add(new RequiredInputField (PROP_CITY, PROP_CITY, PROP_CITY_DESC, true, 3, Type.String));
+		inputs.add(new RequiredInputField (PROP_POSTCODE, PROP_POSTCODE, PROP_POSTCODE_DESC, true, 4, Type.String));
 		
 	    return inputs;
 	}

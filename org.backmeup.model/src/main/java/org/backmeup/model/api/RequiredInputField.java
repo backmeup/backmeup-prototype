@@ -1,7 +1,8 @@
-package org.backmeup.model.spi;
+package org.backmeup.model.api;
 
 public class RequiredInputField
 {
+	private String name;
 	private String label;
 	private String description;
 	private boolean required;
@@ -16,13 +17,24 @@ public class RequiredInputField
 		Bool
 	}
 	
-	public RequiredInputField (String label, String description, boolean required, int order, Type type)
+	public RequiredInputField (String name, String label, String description, boolean required, int order, Type type)
 	{
+		this.name = name;
 		this.label = label;
 		this.description = description;
 		this.required = required;
 		this.order = order;
 		this.type = type;
+	}
+
+	public String getName ()
+	{
+		return name;
+	}
+	
+	public void setName (String name)
+	{
+		this.name = name;
 	}
 
 	public String getLabel ()

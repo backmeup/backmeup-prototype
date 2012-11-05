@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.connectors.FilesystemLikeDatasource;
 import org.backmeup.plugin.api.connectors.FilesystemURI;
@@ -39,9 +40,8 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 		try {
 			return uri.getUri().toURL().openStream();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new PluginException(MoodleDescriptor.MOODLE_ID, String.format("Download failed: \"%s\"", e.getMessage()), e);
 		}
-		return null;
 	}
 
 	@Override
@@ -54,12 +54,24 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 		String password = items.getProperty("Password");
 
 		serverurl = serverurl.endsWith("/") ? serverurl : serverurl + "/";
-
+		
+		String httpOptions = "";
+		Iterator<String> optionsIterator = options.iterator();
+		while(optionsIterator.hasNext()) {
+			httpOptions = httpOptions + optionsIterator.next();
+			if(optionsIterator.hasNext())
+				httpOptions = httpOptions + ",";
+		}
+		
 		try {
 			String authUrl = serverurl
 					+ "blocks/backmeup/service.php?username=" + username
 					+ "&password=" + password + "&action=list";
 
+			if(!options.isEmpty()) {
+				authUrl = authUrl + "&options=" + httpOptions;
+			}
+			System.out.println(authUrl);
 			Document doc = new SAXBuilder().build(authUrl);
 
 			List<Element> courses = doc.getRootElement().getChild("courses")
@@ -96,6 +108,10 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 
 					while (sequenceIterator.hasNext()) {
 						Element sequence = sequenceIterator.next();
+						
+						if(!options.contains(sequence.getChildText("type")))
+							continue;
+						
 						Metainfo sequenceMeta = new Metainfo();
 						sequenceMeta.setParent(sectionMeta.getId());
 						sequenceMeta.setId(sectionMeta.getId() + "_"
@@ -184,14 +200,13 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 				results.add(filesystemUri);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new PluginException(MoodleDescriptor.MOODLE_ID, String.format("Error while receiving file list: \"%s\"", e.getMessage()), e);
 		}
 		return results;
 	}
 
 	@Override
 	public List<String> getAvailableOptions(Properties accessData) {
-		// TODO: Return a list of selectable resources that should be backed up
 		List<String> availableOptions = new ArrayList<String>();
 		availableOptions.add("Wiki");
 		availableOptions.add("Url");

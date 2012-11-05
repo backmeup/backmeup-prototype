@@ -23,5 +23,5 @@ BMU.update_profile(sinkId, SKYDRIVE_AUTH, "password");
 
 sourceId = BMU.auth_datasource("TestUser", "org.backmeup.dummy", "SinkProfile", "password").data["profileId"]
 
-res = BMU.create_backup_job("TestUser", "password", [sourceId], [], sinkId, "realtime")
+res = BMU.create_backup_job("TestUser", "password", [sourceId], [], sinkId, "realtime", "Dummy to Skydrive")
 

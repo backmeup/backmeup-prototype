@@ -16,6 +16,6 @@ res = BMU.update_profile(sinkId, {"token" : appKey, "secret" : appSecret}, "Sepp
 res = BMU.auth_datasource("Seppl", "org.backmeup.dropbox", "Dropbox", "SepplSeppl")
 sourceId = res.data["profileId"]
 res = BMU.update_profile(sourceId, {"token" : appKey, "secret" : appSecret}, "SepplSeppl")
-res = BMU.create_backup_job("Seppl", "SepplSeppl", [sourceId], None, sinkId, "daily")
+res = BMU.create_backup_job("Seppl", "SepplSeppl", [sourceId], None, sinkId, "daily", "Dropbox to Dropbox")
 
 

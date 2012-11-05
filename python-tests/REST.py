@@ -1,7 +1,7 @@
 from urllib import urlencode
 from httplib import HTTPConnection, HTTP
 from mimetypes import guess_type
-from json import loads
+from json import loads,dumps
 
 from RESTConfig import SERVER, PORT, BASE_URL
 import logging
@@ -75,7 +75,10 @@ class Comm :
       self._retry_count = 0;
       rr = RequestResult(resp.status, resp.reason, result, location)
       if (int(resp.status) >= 400):
-        logger.warning(str(rr))
+        try:
+          logger.warning(dumps(result, sort_keys=True, indent=4))
+        except:          
+          logger.warning(str(rr))
       return rr
     except Exception as se:
       logger.debug("Exception during request: " + str(se))

@@ -117,12 +117,13 @@ def get_backup_jobs(user):
 def validate_backup_job(user, jobId, keyRing):
   return com.request("POST", "/jobs/" + user + "/validate/" + str(jobId), {"keyRing" : keyRing})
 
-def create_backup_job(user, keyRing, sourceProfileIds, requiredActions, sinkProfileId, when, sourceOptions=None):
+def create_backup_job(user, keyRing, sourceProfileIds, requiredActions, sinkProfileId, when, jobTitle, sourceOptions=None):
   params = {"sourceProfileIds" : sourceProfileIds,
             "requiredActionIds" : requiredActions,
             "keyRing" : keyRing,
             "timeExpression" : when,
-            "sinkProfileId" : sinkProfileId
+            "sinkProfileId" : sinkProfileId,
+            "jobTitle" : jobTitle
            }
   return com.request("POST", "/jobs/" + user, params)
 

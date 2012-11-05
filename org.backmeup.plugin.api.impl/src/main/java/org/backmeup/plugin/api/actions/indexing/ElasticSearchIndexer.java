@@ -84,7 +84,7 @@ public class ElasticSearchIndexer {
 				Properties metainfo = it.next().getAttributes();
 				for (Object key : metainfo.keySet()) {
 					System.out.println("Adding custom property: " + key + "=" + metainfo.get(key) + "(" + metainfo.get(key).getClass().getName());
-					contentBuilder.field(key.toString(), metainfo.get(key));
+					contentBuilder.field(key.toString(), metainfo.get(key).toString());
 				}
 			}
 		}

@@ -3,7 +3,7 @@ package org.backmeup.model;
 import java.util.List;
 import java.util.Map;
 
-import org.backmeup.model.spi.RequiredInputField;
+import org.backmeup.model.api.RequiredInputField;
 
 /**
  * The AuthRequest class is used as a result of the BusinessLogic#preAuth method.

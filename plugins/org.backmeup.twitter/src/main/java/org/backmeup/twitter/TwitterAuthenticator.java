@@ -54,7 +54,7 @@ public class TwitterAuthenticator implements OAuthBased {
 			inputProperties.setProperty(TwitterHelper.PROPERTY_TOKEN, at.getToken());
 			inputProperties.setProperty(TwitterHelper.PROPERTY_SECRET, at.getTokenSecret());
 			// Retrieve the twitter username based on the inputProperties and return it here
-			return "TwitterUsername";
+			return twitter.getScreenName();
 		} catch (TwitterException e) {
 			throw new PluginException(TwitterDescriptor.TWITTER_ID, "An error occurred during post authorization", e);
 		}

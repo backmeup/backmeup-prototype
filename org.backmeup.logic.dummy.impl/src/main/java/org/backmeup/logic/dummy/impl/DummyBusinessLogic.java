@@ -36,13 +36,13 @@ import org.backmeup.model.SearchResponse.SearchEntry;
 import org.backmeup.model.Status;
 import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.ValidationNotes;
+import org.backmeup.model.api.RequiredInputField;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.InvalidCredentialsException;
 import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.model.exceptions.UnknownUserException;
 import org.backmeup.model.exceptions.ValidationException;
 import org.backmeup.model.spi.ActionDescribable;
-import org.backmeup.model.spi.RequiredInputField;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable.Type;
 import org.backmeup.model.spi.ValidationExceptionType;
@@ -487,8 +487,8 @@ public class DummyBusinessLogic implements BusinessLogic {
       return new AuthRequest(null, null, redirectURL, p);
     }
     List<RequiredInputField> requiredInputs = new ArrayList<RequiredInputField>();
-    requiredInputs.add(new RequiredInputField ("Username", "The username", true, 0, RequiredInputField.Type.String));
-    requiredInputs.add(new RequiredInputField ("Password", "The password", true, 0, RequiredInputField.Type.Password));
+    requiredInputs.add(new RequiredInputField ("Username", "Username", "The username", true, 0, RequiredInputField.Type.String));
+    requiredInputs.add(new RequiredInputField ("Username", "Password", "The password", true, 0, RequiredInputField.Type.Password));
     Map<String, String> typeMapping = new HashMap<String, String>();
     typeMapping.put("Password", "Password");
     typeMapping.put("Username", "String");

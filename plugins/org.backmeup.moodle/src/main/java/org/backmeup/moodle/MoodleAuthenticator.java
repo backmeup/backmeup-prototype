@@ -9,8 +9,8 @@ import java.util.TreeMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.backmeup.model.spi.RequiredInputField;
-import org.backmeup.model.spi.RequiredInputField.Type;
+import org.backmeup.model.api.RequiredInputField;
+import org.backmeup.model.api.RequiredInputField.Type;
 import org.backmeup.plugin.spi.InputBased;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,9 +40,9 @@ public class MoodleAuthenticator implements InputBased {
 	public List<RequiredInputField> getRequiredInputFields() {
 		List<RequiredInputField> requiredFields = new LinkedList<RequiredInputField>();
 		
-		requiredFields.add(new RequiredInputField ("Username", "Username", true, 0, Type.String));
-		requiredFields.add(new RequiredInputField ("Password", "Password", true, 1, Type.Password));
-		requiredFields.add(new RequiredInputField ("Moodle Server Url", "Moodle Server Url", true, 2, Type.String));
+		requiredFields.add(new RequiredInputField ("Username", "Username", "Username", true, 0, Type.String));
+		requiredFields.add(new RequiredInputField ("Password", "Password", "Password", true, 1, Type.Password));
+		requiredFields.add(new RequiredInputField ("Moodle Server Url", "Moodle Server Url", "Moodle Server Url", true, 2, Type.String));
 
 		return requiredFields;
 	}

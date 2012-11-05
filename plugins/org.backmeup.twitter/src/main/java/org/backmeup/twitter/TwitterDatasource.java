@@ -42,6 +42,7 @@ import twitter4j.User;
 import twitter4j.UserList;
 import twitter4j.auth.AccessToken;
 import twitter4j.conf.ConfigurationBuilder;
+
 //import org.apache.ecs.xhtml.br;
 
 /**
@@ -58,8 +59,9 @@ public class TwitterDatasource implements Datasource {
 	private User user = null;
 
 	@Override
-	public void downloadAll(Properties arg0, List<String> options, Storage arg1,
-			Progressable arg2) throws DatasourceException, StorageException {
+	public void downloadAll(Properties arg0, List<String> options,
+			Storage arg1, Progressable arg2) throws DatasourceException,
+			StorageException {
 
 		// create new access token
 		AccessToken at = new AccessToken(arg0.getProperty("token"),
@@ -76,29 +78,45 @@ public class TwitterDatasource implements Datasource {
 		TwitterFactory tf = new TwitterFactory(cb.build());
 		Twitter twitter = tf.getInstance();
 
+		getThemes(arg1, arg0);
+
 		arg2.progress("Download Benutzer-Information...");
-		String document = downloadUser(twitter, arg1);
-		arg2.progress("Download Retweets von meinen Tweets...");
-		downloadSimpleTable(twitter, "RetweetsOfMe", arg1);
-		arg2.progress("Download Retweets an mich...");
-		downloadSimpleTable(twitter, "RetweetsToMe", arg1);
-		arg2.progress("Download Retweets von mir...");
-		downloadSimpleTable(twitter, "RetweetsByMe", arg1);
+		String document = downloadUser(twitter, arg1, options);
+
+		if (options.contains("RetweetsOfMe")) {
+			arg2.progress("Download Retweets von meinen Tweets...");
+			downloadSimpleTable(twitter, "RetweetsOfMe", arg1);
+		}
+
+		if (options.contains("RetweetsToMe")) {
+			arg2.progress("Download Retweets an mich...");
+			downloadSimpleTable(twitter, "RetweetsToMe", arg1);
+		}
+
+		if (options.contains("RetweetsByMe")) {
+			arg2.progress("Download Retweets von mir...");
+			downloadSimpleTable(twitter, "RetweetsByMe", arg1);
+		}
 
 		// to create Timeline-Metadata retweets are needed
 		createUser(document, arg1);
 
-		arg2.progress("Download Favouriten...");
-		downloadSimpleTable(twitter, "Favorites", arg1);
-		arg2.progress("Download Benutzer-Listen...");
-		downloadLists(twitter, arg1);
+		if (options.contains("Favourites")) {
+			arg2.progress("Download Favouriten...");
+			downloadSimpleTable(twitter, "Favorites", arg1);
+		}
 
-		/*try {
-			System.out.println(twitter.getRateLimitStatus().getRemainingHits());
-		} catch (TwitterException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+		if (options.contains("Lists")) {
+			arg2.progress("Download Benutzer-Listen...");
+			downloadLists(twitter, arg1);
+		}
+
+		/*
+		 * try {
+		 * System.out.println(twitter.getRateLimitStatus().getRemainingHits());
+		 * } catch (TwitterException e) { // TODO Auto-generated catch block
+		 * e.printStackTrace(); }
+		 */
 
 	}
 
@@ -118,33 +136,35 @@ public class TwitterDatasource implements Datasource {
 	private String createLink(String text) {
 		List<String> result = new ArrayList<String>();
 
-        Pattern pattern = Pattern.compile(
-            "\\b(((ht|f)tp(s?)\\:\\/\\/|~\\/|\\/)|www.)" + 
-            "(\\w+:\\w+@)?(([-\\w]+\\.)+(com|org|net|gov" + 
-            "|mil|biz|info|mobi|name|aero|jobs|museum" + 
-            "|travel|[a-z]{2}))(:[\\d]{1,5})?" + 
-            "(((\\/([-\\w~!$+|.,=]|%[a-f\\d]{2})+)+|\\/)+|\\?|#)?" + 
-            "((\\?([-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?" + 
-            "([-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)" + 
-            "(&(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?" + 
-            "([-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)*)*" + 
-            "(#([-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)?\\b");
+		Pattern pattern = Pattern
+				.compile("\\b(((ht|f)tp(s?)\\:\\/\\/|~\\/|\\/)|www.)"
+						+ "(\\w+:\\w+@)?(([-\\w]+\\.)+(com|org|net|gov"
+						+ "|mil|biz|info|mobi|name|aero|jobs|museum"
+						+ "|travel|[a-z]{2}))(:[\\d]{1,5})?"
+						+ "(((\\/([-\\w~!$+|.,=]|%[a-f\\d]{2})+)+|\\/)+|\\?|#)?"
+						+ "((\\?([-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?"
+						+ "([-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)"
+						+ "(&(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?"
+						+ "([-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)*)*"
+						+ "(#([-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)?\\b");
 
-        Matcher matcher = pattern.matcher(text);
-        while (matcher.find()) {
-            result.add(matcher.group());
-        }
+		Matcher matcher = pattern.matcher(text);
+		while (matcher.find()) {
+			result.add(matcher.group());
+		}
 
-        for(String link : result){
-        	text = text.replace(link, "<a target='_blank' href='"+link+"'>"+link+"</a>");
-        }
-        
-        return text;
+		for (String link : result) {
+			text = text.replace(link, "<a target='_blank' href='" + link + "'>"
+					+ link + "</a>");
+		}
+
+		return text;
 	}
 
 	private Document createDocument(String title, String header) {
 		Document doc = (Document) new Document();
 		doc.appendHead("<meta http-equiv='content-type' content='text/html; charset=UTF-8' />");
+		doc.appendHead("<link rel='stylesheet' type='text/css' href='Themes/backmeup.css'>");
 
 		doc.appendTitle(title);
 		doc.appendBody(new Table().addElement(
@@ -171,8 +191,7 @@ public class TwitterDatasource implements Datasource {
 		return metainfo;
 	}
 
-	private String extractMedia(Status state, String parent,
-			Storage storage) {
+	private String extractMedia(Status state, String parent, Storage storage) {
 		try {
 			MediaEntity[] media = state.getMediaEntities();
 			for (MediaEntity m : media) {
@@ -267,7 +286,8 @@ public class TwitterDatasource implements Datasource {
 		}
 	}
 
-	private String downloadUser(Twitter twitter, Storage storage) {
+	private String downloadUser(Twitter twitter, Storage storage,
+			List<String> options) {
 		TwitterDescriptor desc = new TwitterDescriptor();
 		try {
 			user = twitter.showUser(twitter.getId());
@@ -280,7 +300,7 @@ public class TwitterDatasource implements Datasource {
 
 			// create HTML timeline+userID.html
 			Document doc = createDocument("Index", "Twitter - Benutzer");
-			
+
 			Date d = new Date();
 			doc.appendBody(d.toString());
 			doc.appendBody(new BR());
@@ -325,31 +345,42 @@ public class TwitterDatasource implements Datasource {
 			doc.appendBody("Freund(e): " + acct.getFriends() + " Follower(s): "
 					+ acct.getFollowers());
 			doc.appendBody(new BR());
-			doc.appendBody(new A("Favorites.html", "Favourite(n)"));
-			doc.appendBody(acct.getFavorites() + " Update(s): "
-					+ acct.getUpdates());
-			doc.appendBody(new BR());
-			doc.appendBody(new A("RetweetsToMe.html", "Retweets an mich   "));
-			doc.appendBody(new BR());
-			doc.appendBody(new A("RetweetsOfMe.html", "   Retweets von meinen Tweets   "));
-			doc.appendBody(new BR());
-			doc.appendBody(new A("RetweetsByMe.html", "   Retweets von mir"));
-			doc.appendBody(new BR());
-			
-			doc.appendBody(new H2("Benutzer-Listen"));
 
-			long cursor = -1;
-			PagableResponseList lists;
+			if (options.contains("Favourites")) {
+				doc.appendBody(new A("Favorites.html", "Favourite(n)"));
+				doc.appendBody(": " + acct.getFavorites());
+			}
+			doc.appendBody(" Update(s): " + acct.getUpdates());
+			doc.appendBody(new BR());
 
-			do {
-				lists = twitter.getUserLists(user.getId(), cursor);
-				for (Object l : lists) {
-					UserList ul = (UserList) l;
-					doc.appendBody(new A("list" + ul.getId() + ".html", ul
-							.getFullName()));
-				}
-			} while ((cursor = lists.getNextCursor()) != 0);
+			if (options.contains("RetweetsToMe")) {
+				doc.appendBody(new A("RetweetsToMe.html", "Retweets an mich   "));
+				doc.appendBody(new BR());
+			}
+			if (options.contains("RetweetsOfMe")) {
+				doc.appendBody(new A("RetweetsOfMe.html",
+						"   Retweets von meinen Tweets   "));
+				doc.appendBody(new BR());
+			}
+			if (options.contains("RetweetsByMe")) {
+				doc.appendBody(new A("RetweetsByMe.html", "   Retweets von mir"));
+				doc.appendBody(new BR());
+			}
+			if (options.contains("Lists")) {
+				doc.appendBody(new H2("Benutzer-Listen"));
 
+				long cursor = -1;
+				PagableResponseList lists;
+
+				do {
+					lists = twitter.getUserLists(user.getId(), cursor);
+					for (Object l : lists) {
+						UserList ul = (UserList) l;
+						doc.appendBody(new A("list" + ul.getId() + ".html", ul
+								.getFullName()));
+					}
+				} while ((cursor = lists.getNextCursor()) != 0);
+			}
 			doc.appendBody(new H2("Home-Timeline"));
 
 			TR tr = null;
@@ -379,7 +410,8 @@ public class TwitterDatasource implements Datasource {
 					if (state.getMediaEntities() != null) {
 						String media = extractMedia(state, "index", storage);
 						if (media != null) {
-							td = new TD("<a href = "+media+" target='_blank' > bild </a>");
+							td = new TD("<a href = " + media
+									+ " target='_blank' > bild </a>");
 							tr.addElement(td);
 						}
 					}
@@ -416,15 +448,19 @@ public class TwitterDatasource implements Datasource {
 			List<Status> download = getTypeStates(twitter, type, paging);
 
 			String typeText = "";
-			if(type.equals("RetweetsOfMe")) typeText = "Retweets von meinen Tweets";
-			if(type.equals("RetweetsToMe")) typeText = "Retweets an mich";
-			if(type.equals("RetweetsByMe")) typeText = "Retweets von mir";
-			if(type.equals("Favorites")) typeText = "Favouriten";
+			if (type.equals("RetweetsOfMe"))
+				typeText = "Retweets von meinen Tweets";
+			if (type.equals("RetweetsToMe"))
+				typeText = "Retweets an mich";
+			if (type.equals("RetweetsByMe"))
+				typeText = "Retweets von mir";
+			if (type.equals("Favorites"))
+				typeText = "Favouriten";
 			// create HTML type.html
 			Document doc = createDocument(type, "Twitter - " + typeText);
 
-			doc.appendBody(new H2("<a name = '#test'>Die letzten </a> " + typeText
-					+ " (maximal 3200)"));
+			doc.appendBody(new H2("<a name = '#test'>Die letzten </a> "
+					+ typeText + " (maximal 3200)"));
 
 			TR tr = null;
 			TD td = null;
@@ -457,8 +493,10 @@ public class TwitterDatasource implements Datasource {
 									"zum Quell-Tweet"));
 						}
 					} else {
-						if(type.equals("RetweetsOfMe")) metainfo.setType("retweet");
-						else metainfo.setType("favourit");
+						if (type.equals("RetweetsOfMe"))
+							metainfo.setType("retweet");
+						else
+							metainfo.setType("favourit");
 						if (states.contains(state)) {
 							td.addElement(new A("index.html#" + state.getId(),
 									"zum Quell-Tweet"));
@@ -480,7 +518,8 @@ public class TwitterDatasource implements Datasource {
 					if (state.getMediaEntities() != null) {
 						String media = extractMedia(state, type, storage);
 						if (!media.equals("")) {
-							td = new TD("<a href = "+media+" target='_blank' > bild </a>");
+							td = new TD("<a href = " + media
+									+ " target='_blank' > bild </a>");
 							tr.addElement(td);
 						}
 					}
@@ -650,7 +689,8 @@ public class TwitterDatasource implements Datasource {
 						String media = extractMedia(state,
 								"list" + list.getId(), storage);
 						if (!media.equals("")) {
-							td = new TD("<a href = "+media+" target='_blank' > bild </a>");
+							td = new TD("<a href = " + media
+									+ " target='_blank' > bild </a>");
 							tr.addElement(td);
 						}
 					}
@@ -685,12 +725,37 @@ public class TwitterDatasource implements Datasource {
 	@Override
 	public List<String> getAvailableOptions(Properties accessData) {
 		List<String> twitterBackupOptions = new ArrayList<String>();
-		twitterBackupOptions.add("Profile");
 		twitterBackupOptions.add("RetweetsToMe");
 		twitterBackupOptions.add("RetweetsByMe");
 		twitterBackupOptions.add("RetweetsOfMe");
 		twitterBackupOptions.add("Favourites");
 		twitterBackupOptions.add("Lists");
 		return twitterBackupOptions;
+	}
+
+	public void getThemes(Storage storage, Properties props)
+			throws DatasourceException, StorageException {
+		String css = "body { " + "font-family: 'OpenSansRegular', sans-serif;"
+				+ "color:#000;" + "font-size: 15px;" + "background-color:#fff;"
+				+ "font-family: 'Ubuntu', sans-serif;}" + "#backmeup {"
+				+ "width: 600px;margin: 10px;}" + "#backmeup h1 {"
+				+ "font-family: 'OpenSansBold', sans-serif;"
+				+ "font-weight: normal;" + "color:#47aa0d;}" + "a {"
+				+ "color:#47aa0d;}" + "#backmeupheader {"
+				+ "text-align: right;}" + ".backmeupborder {"
+				+ "border: 1px solid #47aa0d;" + "background-color: #e8f7ff;"
+				+ "padding: 15px;" + "border-radius:10px;"
+				+ "-moz-border-radius:10px;" + "-webkit-border-radius:10px;}"
+				+ "b, strong {" + "font: 'OpenSansBold', Arial, sans-serif;"
+				+ "font-weight:normal;}" + "i, em {"
+				+ "font: 'OpenSansItalic', Arial, sans-serif;"
+				+ "font-style:normal;}" + ".description {" + "font-size: 14px;"
+				+ "border-bottom: 1px solid #47aa0d;}" + ".content {"
+				+ "padding-top:10px;}" + "img {" + "max-width:200px;"
+				+ "height:auto;}";
+
+		InputStream is = new ByteArrayInputStream(css.getBytes());
+		storage.addFile(is, "Themes/backmeup.css", null);
+
 	}
 }

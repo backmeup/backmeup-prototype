@@ -11,8 +11,8 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 
-import org.backmeup.model.spi.RequiredInputField;
-import org.backmeup.model.spi.RequiredInputField.Type;
+import org.backmeup.model.api.RequiredInputField;
+import org.backmeup.model.api.RequiredInputField.Type;
 import org.backmeup.plugin.spi.InputBased;
 
 public class MailAuthenticator implements InputBased {
@@ -47,12 +47,12 @@ public class MailAuthenticator implements InputBased {
   public List<RequiredInputField> getRequiredInputFields() {
     List<RequiredInputField> inputs = new ArrayList<RequiredInputField>();
     
-    inputs.add(new RequiredInputField (PROP_USERNAME, PROP_USERNAME_DESC, true, 0, Type.String));
-    inputs.add(new RequiredInputField (PROP_PASSWORD, PROP_PASSWORD_DESC, true, 1, Type.Password));
-    inputs.add(new RequiredInputField (PROP_TYPE, PROP_TYPE_DESC, true, 2, Type.String));
-    inputs.add(new RequiredInputField (PROP_HOST, PROP_HOST_DESC, true, 3, Type.String));
-    inputs.add(new RequiredInputField (PROP_PORT, PROP_PORT_DESC, true, 4, Type.Number));
-    inputs.add(new RequiredInputField (PROP_SSL, PROP_SSL_DESC, true, 5, Type.Bool));
+    inputs.add(new RequiredInputField (PROP_USERNAME, PROP_USERNAME, PROP_USERNAME_DESC, true, 0, Type.String));
+    inputs.add(new RequiredInputField (PROP_PASSWORD, PROP_PASSWORD, PROP_PASSWORD_DESC, true, 1, Type.Password));
+    inputs.add(new RequiredInputField (PROP_TYPE, PROP_TYPE, PROP_TYPE_DESC, true, 2, Type.String));
+    inputs.add(new RequiredInputField (PROP_HOST, PROP_HOST, PROP_HOST_DESC, true, 3, Type.String));
+    inputs.add(new RequiredInputField (PROP_PORT, PROP_PORT, PROP_PORT_DESC, true, 4, Type.Number));
+    inputs.add(new RequiredInputField (PROP_SSL, PROP_SSL, PROP_SSL_DESC, true, 5, Type.Bool));
     
     return inputs;
   }

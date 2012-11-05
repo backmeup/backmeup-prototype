@@ -1,6 +1,5 @@
 package org.backmeup.job.impl;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -22,11 +21,8 @@ import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
 import org.backmeup.model.BackMeUpUser;
-import org.backmeup.model.exceptions.BackMeUpException;
-import org.backmeup.model.serializer.JsonSerializer;
 
 import akka.actor.ActorSystem;
-import akka.actor.Cancellable;
 import akka.util.Duration;
 
 /**
@@ -117,27 +113,6 @@ abstract public class AkkaJobManager implements JobManager {
 	
 	protected abstract void runJob(BackupJob job);
 	
-	private Runnable newJobRunner(final BackupJob job) {
-		return new Runnable() {
-			@Override
-			public void run() {
-				// Run the job
-				runJob(job);
-				
-				// Reschedule if it's still in the DB
-				BackupJob nextJob = getBackUpJob(job.getId());
-				if (nextJob != null) {
-					System.out.println("Rescheduling job for execution in " + job.getDelay() + "ms");
-					system.scheduler().scheduleOnce(
-							Duration.create(job.getDelay(), TimeUnit.MILLISECONDS), 
-							newJobRunner(job));
-				} else {
-					System.out.println("Job deleted in the mean time - no re-scheduling.");
-				}
-			}
-		};
-	}
-	
 	private void queueJob(BackupJob job) {
 		try {		    
 			// Compute next job execution time
@@ -166,13 +141,42 @@ abstract public class AkkaJobManager implements JobManager {
 			// TODO we can use the 'cancellable' to terminate later on
 			system.scheduler().scheduleOnce(
 				Duration.create(executeIn, TimeUnit.MILLISECONDS), // Initial delay
-				newJobRunner(job));
+				new RunAndReschedule(job, dal));
 			
 		} catch (Exception e) {
 			// TODO there must be error handling defined in the JobManager!^
 		  Logger.getLogger(AkkaJobManager.class).error("Error during startup", e);
 			//throw new BackMeUpException(e);
 		}		
+	}
+	
+	private class RunAndReschedule implements Runnable {
+		
+		private BackupJob job;
+		
+		private DataAccessLayer dal;
+		
+		RunAndReschedule(BackupJob job, DataAccessLayer dal) {
+			this.job = job;
+			this.dal = dal;
+		}
+		
+		@Override
+		public void run() {
+			// Run the job
+			runJob(job);
+			
+			// Reschedule if it's still in the DB
+			BackupJob nextJob = dal.createBackupJobDao().findById(job.getId());
+			if (nextJob != null) {
+				System.out.println("Rescheduling job for execution in " + job.getDelay() + "ms");
+				system.scheduler().scheduleOnce(
+						Duration.create(job.getDelay(), TimeUnit.MILLISECONDS), 
+						new RunAndReschedule(job, dal));
+			} else {
+				System.out.println("Job deleted in the mean time - no re-scheduling.");
+			}
+		}
 	}
 
 }

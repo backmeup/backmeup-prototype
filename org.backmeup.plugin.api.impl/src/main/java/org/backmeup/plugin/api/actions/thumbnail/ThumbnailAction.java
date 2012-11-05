@@ -102,6 +102,7 @@ public class ThumbnailAction implements Action {
 					dataobject.getMetainfo().addMetainfo(meta);
 				} catch (Throwable t) {
 					System.out.println("Failed to render thumbnail for: " + dataobject.getPath());
+					System.out.println(t.getClass().getName() + ": " + t.getMessage());
 				}
 			}
 		} catch (Exception e) {

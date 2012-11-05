@@ -83,6 +83,7 @@ public class ElasticSearchIndexer {
 			while (it.hasNext()) {
 				Properties metainfo = it.next().getAttributes();
 				for (Object key : metainfo.keySet()) {
+					System.out.println("Adding custom property: " + key + "=" + metainfo.get(key) + "(" + metainfo.get(key).getClass().getName());
 					contentBuilder.field(key.toString(), metainfo.get(key));
 				}
 			}
@@ -90,7 +91,7 @@ public class ElasticSearchIndexer {
 		
 		contentBuilder = contentBuilder.endObject();
 		
-		System.out.print("Pusing to ES index...");
+		System.out.print("Pushing to ES index...");
 		
 		// Push to ES index
 		client.prepareIndex(INDEX_NAME, DOCUMENT_TYPE_BACKUP).setSource(contentBuilder)

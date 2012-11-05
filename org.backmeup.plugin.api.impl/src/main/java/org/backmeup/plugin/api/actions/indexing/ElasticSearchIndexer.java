@@ -16,6 +16,7 @@ import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.text.StringText;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -84,7 +85,7 @@ public class ElasticSearchIndexer {
 				Properties metainfo = it.next().getAttributes();
 				for (Object key : metainfo.keySet()) {
 					System.out.println("Adding custom property: " + key + "=" + metainfo.get(key) + " (" + metainfo.get(key).getClass().getName() + ")");
-					contentBuilder.field(key.toString(), metainfo.get(key).toString());
+					contentBuilder.field(key.toString(), new StringText(metainfo.get(key).toString()));
 				}
 			}
 		}

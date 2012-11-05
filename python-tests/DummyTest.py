@@ -7,5 +7,5 @@ sourceId = BMU.auth_datasource("Rainer", "org.backmeup.dummy", "SrcProfile", "pa
 sinkId = BMU.auth_datasink("Rainer", "org.backmeup.dummy", "SinkProfile", "password").data["profileId"]
 
 
-res = BMU.create_backup_job("Rainer", "password", [sourceId], ["org.backmeup.actiondummy"], sinkId, "realtime")
+res = BMU.create_backup_job("Rainer", "password", [sourceId], ["org.backmeup.actiondummy"], sinkId, "realtime", "Dummy to Dummy")
 

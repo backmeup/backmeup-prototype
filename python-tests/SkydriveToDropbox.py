@@ -30,4 +30,4 @@ BMU.post_auth_datasource("TestUser", sinkId, "password", {
   "code" : raw_input("Code: ")
 })
 
-res = BMU.create_backup_job("TestUser", "password", [sourceId], [], sinkId, "realtime")
+res = BMU.create_backup_job("TestUser", "password", [sourceId], [], sinkId, "realtime", "Skydrive to Dropbox")

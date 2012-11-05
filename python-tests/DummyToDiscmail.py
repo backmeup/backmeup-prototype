@@ -11,5 +11,5 @@ sinkId = BMU.auth_datasink("TestUser", "org.backmeup.discmailing", "SinkProfile"
 
 BMU.update_profile(sinkId, {"Street" : "Mariahilferstrasse 15", "City" : "Wien", "Postcode" : "1150"}, "password");
 
-res = BMU.create_backup_job("TestUser", "password", [sourceId], [], sinkId, "realtime")
+res = BMU.create_backup_job("TestUser", "password", [sourceId], [], sinkId, "realtime", "Dummy to Discmailing")
 

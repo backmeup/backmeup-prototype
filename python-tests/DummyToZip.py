@@ -14,5 +14,5 @@ sourceId = BMU.auth_datasource(USER, "org.backmeup.dummy", "SrcProfile", PASS).d
 
 sinkId = BMU.auth_datasink(USER, "org.backmeup.zip", "SinkProfile", PASS).data["profileId"]
 
-res = BMU.create_backup_job(USER, PASS, [sourceId], [], sinkId, "realtime")
+res = BMU.create_backup_job(USER, PASS, [sourceId], [], sinkId, "realtime", "Dummy to Zip")
 

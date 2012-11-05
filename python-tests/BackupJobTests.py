@@ -44,9 +44,9 @@ class TestBackupJobs(TestCase):
     
     update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET}, "pass2")
 
-    create_backup_job("TestUser", "password", [sourceId], [], sinkId, "daily")    
+    create_backup_job("TestUser", "password", [sourceId], [], sinkId, "daily", "TestUserJob")    
     
-    create_backup_job("TestUser", "password", [sourceId], [], sinkId, "daily")    
+    create_backup_job("TestUser", "password", [sourceId], [], sinkId, "daily", "TestUserJob")    
 
     res = get_backup_jobs("TestUser")
     self.assertEquals(res.code, httplib.OK)
@@ -75,27 +75,27 @@ class TestBackupJobs(TestCase):
     update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET}, "password")
 
     # test with unknown user
-    res = create_backup_job("UnknownUser", "asdf", [sourceId], [], sinkId, "weekly")
+    res = create_backup_job("UnknownUser", "asdf", [sourceId], [], sinkId, "weekly", "TestUnknownUserJob")
     self.assertEquals(res.code, httplib.NOT_FOUND)
 
     # test with wrong sourceProfiles
-    res = create_backup_job("TestUser2", "password", [9999], [], sinkId, "weekly")
+    res = create_backup_job("TestUser2", "password", [9999], [], sinkId, "weekly", "TestUser2Job")
     self.assertEquals(res.code, httplib.BAD_REQUEST)
 
     # test with wrong keyring
-    res = create_backup_job("TestUser2", "kr", [sourceId], [], sinkId, "weekly")
+    res = create_backup_job("TestUser2", "kr", [sourceId], [], sinkId, "weekly", "TestUser2Job")
     self.assertEquals(res.code, httplib.UNAUTHORIZED)
 
     # test with wrong sinkProfile
-    res = create_backup_job("TestUser2", "password", [sourceId], [], 9999, "weekly")
+    res = create_backup_job("TestUser2", "password", [sourceId], [], 9999, "weekly", "TestUser2Job")
     self.assertEquals(res.code, httplib.BAD_REQUEST)
 
     # test with empty profiles
-    res = create_backup_job("TestUser2", "password", [], [], sinkId, "weekly")
+    res = create_backup_job("TestUser2", "password", [], [], sinkId, "weekly", "TestUser2Job")
     self.assertEquals(res.code, httplib.BAD_REQUEST)
     
     # successfully create a job
-    res = create_backup_job("TestUser2", "password", [sourceId], [], sinkId, "weekly")
+    res = create_backup_job("TestUser2", "password", [sourceId], [], sinkId, "weekly", "TestUser2Job")
     self.assertEquals(res.code, httplib.OK)
     self.assertIn("jobId", res.data)
 
@@ -112,7 +112,7 @@ class TestBackupJobs(TestCase):
     
     update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET}, "password")
     
-    res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly")
+    res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly", "TestUser3Job")
     jobId = res.data["jobId"]
 
     # test bad things
@@ -139,7 +139,7 @@ class TestBackupJobs(TestCase):
     
     update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET}, "password")
     
-    res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly")
+    res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly", "TestUser3Job")
     jobId = res.data["jobId"]
     
     res = delete_backup_job("UnknownUser", jobId); # delete a job of an unknown user
@@ -162,7 +162,7 @@ class TestBackupJobs(TestCase):
     
     update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET}, "password")
     
-    res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly")
+    res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly", "TestUser3Job")
     jobId = res.data["jobId"]
 
     res = get_backup_job_status("UnknownUser", jobId) # invalid user
@@ -190,6 +190,7 @@ class TestBackupJobs(TestCase):
   @skip("Not yet implemented")
   def test_get_protocol_overview(self):
     self.fail("Implement tests + server-side")
+    res = get_overview("TestUser", "month")
 
   def test_get_status_without_job_id(self):
     res = register_user("TestUser3", "password", "password", "TestUser3@trash-mail.com")    
@@ -202,7 +203,7 @@ class TestBackupJobs(TestCase):
     
     update_profile(sinkId, {KEY_SINK_TOKEN : SINK_TOKEN, KEY_SINK_SECRET : SINK_SECRET}, "password")
     
-    res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly")
+    res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly", "TestUser3Job")
     jobId = res.data["jobId"]
 
     res = get_all_backup_job_status("UnknownUser") # invalid user

@@ -21,10 +21,8 @@ import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
 import org.backmeup.model.BackMeUpUser;
-import org.backmeup.model.exceptions.BackMeUpException;
 
 import akka.actor.ActorSystem;
-import akka.actor.Cancellable;
 import akka.util.Duration;
 
 /**
@@ -113,7 +111,7 @@ abstract public class AkkaJobManager implements JobManager {
 	  system.awaitTermination();	  
 	}
 	
-	abstract protected Runnable newJobRunner(final BackupJob job);
+	protected abstract void runJob(BackupJob job);
 	
 	private void queueJob(BackupJob job) {
 		try {		    
@@ -141,15 +139,44 @@ abstract public class AkkaJobManager implements JobManager {
 			}
 	    
 			// TODO we can use the 'cancellable' to terminate later on
-			Cancellable cancellable = system.scheduler().schedule(
+			system.scheduler().scheduleOnce(
 				Duration.create(executeIn, TimeUnit.MILLISECONDS), // Initial delay
-				Duration.create(job.getDelay(), TimeUnit.MILLISECONDS), // Interval
-				newJobRunner(job));
+				new RunAndReschedule(job, dal));
+			
 		} catch (Exception e) {
 			// TODO there must be error handling defined in the JobManager!^
 		  Logger.getLogger(AkkaJobManager.class).error("Error during startup", e);
 			//throw new BackMeUpException(e);
 		}		
+	}
+	
+	private class RunAndReschedule implements Runnable {
+		
+		private BackupJob job;
+		
+		private DataAccessLayer dal;
+		
+		RunAndReschedule(BackupJob job, DataAccessLayer dal) {
+			this.job = job;
+			this.dal = dal;
+		}
+		
+		@Override
+		public void run() {
+			// Run the job
+			runJob(job);
+			
+			// Reschedule if it's still in the DB
+			BackupJob nextJob = dal.createBackupJobDao().findById(job.getId());
+			if (nextJob != null) {
+				System.out.println("Rescheduling job for execution in " + job.getDelay() + "ms");
+				system.scheduler().scheduleOnce(
+						Duration.create(job.getDelay(), TimeUnit.MILLISECONDS), 
+						new RunAndReschedule(job, dal));
+			} else {
+				System.out.println("Job deleted in the mean time - no re-scheduling.");
+			}
+		}
 	}
 
 }

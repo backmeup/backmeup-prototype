@@ -88,7 +88,7 @@ public class ThumbnailAction implements Action {
 				if (tempFilename.startsWith("/"))
 					tempFilename = tempFilename.substring(1);
 				
-				tempFilename = tempFilename.replace("/", "$");
+				tempFilename = tempFilename.replace("/", "$").replace(" ", "_").replace("#", "_");
 				File tempFile = new File(TEMP_DIR, tempFilename);
 				FileOutputStream fos = new FileOutputStream(tempFile);
 				fos.write(dataobject.getBytes());
@@ -102,6 +102,7 @@ public class ThumbnailAction implements Action {
 					dataobject.getMetainfo().addMetainfo(meta);
 				} catch (Throwable t) {
 					System.out.println("Failed to render thumbnail for: " + dataobject.getPath());
+					System.out.println(t.getClass().getName() + ": " + t.getMessage());
 				}
 			}
 		} catch (Exception e) {

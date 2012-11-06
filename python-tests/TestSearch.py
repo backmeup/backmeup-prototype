@@ -1,9 +1,7 @@
 import RESTBackMeUp as BMU
+USER ="TestUser"
+PASS ="password"
 print "===================================== *:* ============================"
-sId = BMU.request_search_index("TestUser", "password", "*:*").data["searchId"]
-print BMU.query_index("TestUser", sId).data
-
-print "========================== title:html.txt ============================"
-sId = BMU.request_search_index("TestUser", "password", "filename:html.txt").data["searchId"]
-print BMU.query_index("TestUser", sId).data
+sId = BMU.request_search_index(USER, PASS, raw_input("Search For: ")).data["searchId"]
+print BMU.query_index(USER, sId).data
 

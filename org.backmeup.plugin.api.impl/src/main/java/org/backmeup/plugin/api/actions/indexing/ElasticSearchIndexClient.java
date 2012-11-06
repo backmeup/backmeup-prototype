@@ -26,6 +26,12 @@ public class ElasticSearchIndexClient {
 	}
 	
 	public SearchResponse queryBackup(Long userId, String query) {
+	  if (query == null || query.length() == 0) {	   	    
+	    query = "*";	    	    
+	  } else {
+	    query = "*" + query + "*";
+	  }
+	  
 		QueryBuilder qBuilder = QueryBuilders.boolQuery()
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, userId))
 				.must(QueryBuilders.queryString(query));
@@ -68,5 +74,6 @@ public class ElasticSearchIndexClient {
 		client.prepareDeleteByQuery(INDEX_NAME)
 				.setQuery(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, userId))
 				.execute().actionGet();
+	
 	}
 }

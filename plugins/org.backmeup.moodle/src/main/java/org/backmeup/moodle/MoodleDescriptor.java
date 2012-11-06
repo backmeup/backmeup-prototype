@@ -13,6 +13,8 @@ import org.backmeup.plugin.api.Metadata;
  */
 public class MoodleDescriptor implements SourceSinkDescribable {
 
+	public static final String MOODLE_ID = "org.backmeup.moodle";
+	
 	@Override
 	public String getDescription() {
 		return "Moodle Plugin for Backmeup";
@@ -20,7 +22,7 @@ public class MoodleDescriptor implements SourceSinkDescribable {
 
 	@Override
 	public String getId() {
-		return "org.backmeup.moodle";
+		return MOODLE_ID;
 	}
 
 	@Override

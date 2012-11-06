@@ -20,9 +20,9 @@ import org.w3c.dom.NodeList;
  * This class validates the stored access data of a moodle profile.
  * 
  * @author florianjungwirth
- *
+ * 
  */
-public class MoodleValidator implements Validationable{
+public class MoodleValidator implements Validationable {
 
 	@Override
 	public ValidationNotes validate(Properties accessData) {
@@ -30,59 +30,74 @@ public class MoodleValidator implements Validationable{
 		String serverurl = accessData.getProperty("Moodle Server Url");
 		String username = accessData.getProperty("Username");
 		String password = accessData.getProperty("Password");
-		
-		serverurl = serverurl.endsWith("/") ? serverurl : serverurl+"/";
-		String authurl = serverurl
-				+ "blocks/backmeup/service.php?username=" + username
-				+ "&password=" + password + "&action=auth";
+
+		serverurl = serverurl.endsWith("/") ? serverurl : serverurl + "/";
+		String authurl = serverurl + "blocks/backmeup/service.php?username="
+				+ username + "&password=" + password + "&action=auth";
 
 		try {
 			// 1. Check if the Moodle server can be reached
-			if(getResponseCode(serverurl)>=400) {
-				notes.addValidationEntry(ValidationExceptionType.AuthException, "The Moodle server cannot be achieved!");
+			if (getResponseCode(serverurl) >= 400) {
+				notes.addValidationEntry(ValidationExceptionType.AuthException,
+						"The Moodle server cannot be achieved!");
 			}
 			// 2. Check if the server-side Moodle plugin is installed
-			else if(getResponseCode(authurl)>=400) {
-				notes.addValidationEntry(ValidationExceptionType.AuthException, "The server-side Moodle Plugin is not installed!");
+			else if (getResponseCode(authurl) >= 400) {
+				notes.addValidationEntry(ValidationExceptionType.AuthException,
+						"The server-side Moodle Plugin is not installed!");
 			} else {
 				DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
 						.newInstance();
-				DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+				DocumentBuilder docBuilder = docBuilderFactory
+						.newDocumentBuilder();
 
 				Document doc = docBuilder.parse(authurl);
 				NodeList nodes = doc.getElementsByTagName("result");
 				Element result = (Element) nodes.item(0);
 				// 3. Check if the login data is correct
 				if (result.getTextContent().compareTo("true") != 0)
-					notes.addValidationEntry(ValidationExceptionType.AuthException, "Login failed!");
+					notes.addValidationEntry(
+							ValidationExceptionType.AuthException,
+							"Login failed!");
 				else {
 					authurl = serverurl
-							+ "blocks/backmeup/service.php?username=" + username
-							+ "&password=" + password + "&action=list";
+							+ "blocks/backmeup/service.php?username="
+							+ username + "&password=" + password
+							+ "&action=list";
 
 					doc = docBuilder.parse(authurl);
 					nodes = doc.getElementsByTagName("course");
 					// 4. Check if there are any courses to backup
-					if(nodes.getLength()==0)
-						notes.addValidationEntry(ValidationExceptionType.AuthException, "Login was successfull, but the user is not enrolled in any course, so there's no data to backup!");
+					if (nodes.getLength() == 0)
+						notes.addValidationEntry(
+								ValidationExceptionType.AuthException,
+								"Login was successfull, but the user is not enrolled in any course, so there's no data to backup!");
 				}
 			}
 		} catch (MalformedURLException e) {
-			notes.addValidationEntry(ValidationExceptionType.AuthException, "There's a problem with the Moodle server url: " + e.getMessage());
+			notes.addValidationEntry(
+					ValidationExceptionType.AuthException,
+					"There's a problem with the Moodle server url: "
+							+ e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-			
+
 		return notes;
 	}
-	
-	private int getResponseCode(String urlString) throws MalformedURLException, IOException {
-	    URL u = new URL(urlString); 
-	    HttpURLConnection huc =  (HttpURLConnection)  u.openConnection(); 
-	    huc.setRequestMethod("GET"); 
-	    huc.connect(); 
-	    return huc.getResponseCode();
-	}
 
+	private int getResponseCode(String urlString) throws MalformedURLException,
+			IOException {
+		try {
+			URL u = new URL(urlString);
+			HttpURLConnection huc = (HttpURLConnection) u.openConnection();
+			huc.setRequestMethod("GET");
+			huc.connect();
+			return huc.getResponseCode();
+		} catch (Exception e) {
+			// Problem accured, return 400 error
+			return 400;
+		}
+	}
 
 }

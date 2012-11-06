@@ -11,5 +11,5 @@ sourceId = BMU.auth_datasource("TestUser", "org.backmeup.dropbox", "SinkProfile"
 BMU.update_profile(sourceId, {"token":"thhc9we93cwk78s", "secret":"656rwxei8vf7i5v"}, "password");
 
 
-res = BMU.create_backup_job("TestUser", "password", [sourceId], [], sinkId, "realtime")
+res = BMU.create_backup_job("TestUser", "password", [sourceId], [], sinkId, "realtime", "TestUserJob")
 

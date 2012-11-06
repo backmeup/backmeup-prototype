@@ -206,6 +206,7 @@ public class BackupJobRunner {
 	        for (ActionProfile actionProfile : persistentJob.getRequiredActions()) {
 	        	String actionId = actionProfile.getActionId();
 	        
+	        	Client client = null;
 	        	try {   		        	
 		        	if ("org.backmeup.encryption".equals(actionId)) {
 		        		// If we do encryption, the Filesplitter needs to run before!
@@ -225,7 +226,7 @@ public class BackupJobRunner {
 		        		String host = config.getProperty(INDEX_HOST);
 		        		int port = Integer.parseInt(config.getProperty(INDEX_PORT));
 		        		
-		        		Client client = new TransportClient()
+		        		client = new TransportClient()
 		        			.addTransportAddress(new InetSocketTransportAddress(host, port));
 		        		
 		        		Action indexAction = new IndexAction(client);
@@ -238,6 +239,10 @@ public class BackupJobRunner {
 	        	} catch (ActionException e) {
 	        		// Should only happen in case of problems in the core (file I/O, DB access, etc.) - we'll handle that as a fatal error
 	        	  errorStatus.add(addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date())));
+	        	} finally {
+	        	  if (client != null) {
+	        	    client.close(); // make sure the client gets closed
+	        	  }
 	        	}
 	        }    
 	        

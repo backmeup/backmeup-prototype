@@ -1022,6 +1022,8 @@ public class BusinessLogicImpl implements BusinessLogic {
 	      
 	      return search.getId();
 	  } catch (Throwable t) {
+	    if (t instanceof BackMeUpException)
+	      throw (BackMeUpException) t;
 		  throw new BackMeUpException(textBundle.getString(ERROR_OCCURED), t);		  		  
 	  } finally {
 		  conn.rollback();

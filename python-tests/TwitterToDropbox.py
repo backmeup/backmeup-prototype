@@ -19,5 +19,5 @@ sourceId = BMU.auth_datasource("TestUser", "org.backmeup.twitter", "SinkProfile"
 BMU.update_profile(sourceId, TWITTER_AUTH_DATA, "password");
 
 
-res = BMU.create_backup_job("TestUser", "password", [sourceId], [], sinkId, "daily", "Twitter to Dropbox")
+res = BMU.create_backup_job("TestUser", "password", [sourceId], ["org.backmeup.indexer"], sinkId, "daily", "Twitter to Dropbox")
 

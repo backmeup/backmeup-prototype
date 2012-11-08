@@ -9,6 +9,7 @@ import java.util.Properties;
 import org.backmeup.configuration.Configuration;
 import org.backmeup.model.BackupJob;
 import org.backmeup.plugin.api.Metainfo;
+import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.actions.indexing.IndexUtils;
@@ -99,7 +100,9 @@ public class ThumbnailAction implements Action {
 					String thumbPath = convert(tempFile);
 					Metainfo meta = new Metainfo();
 					meta.setAttribute(IndexUtils.FIELD_THUMBNAIL_PATH, thumbPath);
-					dataobject.getMetainfo().addMetainfo(meta);
+					MetainfoContainer container = dataobject.getMetainfo();
+					container.addMetainfo(meta);
+					dataobject.setMetainfo(container);
 				} catch (Throwable t) {
 					System.out.println("Failed to render thumbnail for: " + dataobject.getPath());
 					System.out.println(t.getClass().getName() + ": " + t.getMessage());

@@ -17,6 +17,8 @@ public abstract class DataObject {
 	
 	public abstract MetainfoContainer getMetainfo();
 	
+	public abstract void setMetainfo(MetainfoContainer meta);
+	
 	public String getMD5Hash() throws IOException {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");

@@ -88,4 +88,9 @@ public class ElasticSearchIndexClient {
 				.execute().actionGet();
 	
 	}
+	
+	public void close() {
+		if (client != null)
+			client.close();
+	}
 }

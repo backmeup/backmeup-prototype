@@ -12,6 +12,20 @@ import javax.ws.rs.core.Response.Status;
 
 @Path("/thumbnails")
 public class Thumbnails extends Base {
+
+	@GET
+	@Path("/")
+	@Produces("application/json")
+	public Response foo() {
+		return Response.ok("foo").build();
+	}
+	
+	@GET
+	@Path("/{username}")
+	@Produces("application/json")
+	public Response bar(@PathParam("username") String username) {
+		return Response.ok("bar " + username).build();
+	}
 	
 	@GET
 	@Path("{username}/{fileId}")

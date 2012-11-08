@@ -29,8 +29,7 @@ public class DiscmailingAuthenticator implements InputBased {
 
 	@Override
 	public String postAuthorize(Properties inputProperties) {
-		// TODO Auto-generated method stub
-		return inputProperties.getProperty(PROP_SURNAME, null);
+		return inputProperties.getProperty(PROP_FIRSTNAME + " " + PROP_SURNAME , null);
 	}
 
 	@Override

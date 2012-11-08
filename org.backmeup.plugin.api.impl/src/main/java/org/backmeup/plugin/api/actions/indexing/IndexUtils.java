@@ -75,7 +75,7 @@ public class IndexUtils {
     Integer owner = (Integer) source.get(FIELD_OWNER_ID);
     Long timestamp = (Long) source.get(FIELD_BACKUP_AT);
 	  FileInfo fi = new FileInfo();
-	  fi.setFileId(owner + ":" + hash + ":" + timestamp);
+	  fi.setFileId(owner + hash + timestamp);
 	  fi.setSource(source.get(FIELD_BACKUP_SOURCES).toString());
 	  fi.setTimeStamp(source.get(FIELD_BACKUP_AT).toString());
 	  fi.setTitle(source.get(FIELD_FILENAME).toString());

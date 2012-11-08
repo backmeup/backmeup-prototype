@@ -1065,6 +1065,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 
 	  ElasticSearchIndexClient client = getIndexClient();	  
 	  String thumbnailPath = client.getThumbnailPathForFile(username, fileId);
+	  System.out.println("Got thumbnail path: " + thumbnailPath);
 	  if (thumbnailPath != null)
 		  return new File(thumbnailPath);
 	  

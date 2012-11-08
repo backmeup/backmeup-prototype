@@ -17,12 +17,15 @@ public class Thumbnails extends Base {
 	@Path("{username}/{fileId}")
 	@Produces("application/json")
 	public Response getThumbnail(@PathParam("username") String username, @PathParam("fileId") String fileId) {
+		System.out.println("Getting thumbnail for: " + username + ", " + fileId);
 		File f = getLogic().getThumbnail(username, fileId);
-		
+				
 		ResponseBuilder response;
 		if (f == null) {
+			System.out.println("Thumbnail not found - 404");
 			response = Response.status(Status.NOT_FOUND);
 		} else {
+			System.out.println("Streaming back JPG file...");
 			response = Response.ok(f);
 		}
 		

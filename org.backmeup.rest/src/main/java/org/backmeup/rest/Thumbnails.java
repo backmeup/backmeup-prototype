@@ -5,6 +5,7 @@ import java.io.File;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
@@ -14,6 +15,7 @@ public class Thumbnails extends Base {
 	
 	@GET
 	@Path("/{username}/{fileId}")
+	@Produces("image/jpeg")
 	public Response getThumbnail(@PathParam("username") String username, @PathParam("fileId") String fileId) {
 		System.out.println("Getting thumbnail for: " + username + ", " + fileId);
 		File f = getLogic().getThumbnail(username, fileId);

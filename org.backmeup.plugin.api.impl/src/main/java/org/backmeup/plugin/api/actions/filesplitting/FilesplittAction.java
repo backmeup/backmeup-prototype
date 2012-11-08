@@ -27,7 +27,7 @@ public class FilesplittAction implements Action
 	
 	private static String PATH_SEPARATOR = "/";
 	
-	private static final long CONTAINER_MAX_SIZE = 1024 * 1024 * 1024 * 1024; // 1 TiB
+	private static final long CONTAINER_MAX_SIZE = 1099511627776L; // 1 TiB
 
 	@Override
 	public void doAction (Properties parameters, Storage storage, BackupJob job, Progressable progressor) throws ActionException
@@ -114,16 +114,19 @@ public class FilesplittAction implements Action
 				if (parameters.getProperty (PROP_MAX_CONTAINER_SIZE) == "-1")
 				{
 					fcs = new FileContainers (CONTAINER_MAX_SIZE, true);
+					System.out.println ("Property is -1. Set container to maximum: " + CONTAINER_MAX_SIZE);
 				}
 				else
 				{
 					Long maxsize = new Long (parameters.getProperty (PROP_MAX_CONTAINER_SIZE));
 					fcs = new FileContainers (maxsize, true);
+					System.out.println ("Property is set. Set containersize: " + parameters.getProperty (PROP_MAX_CONTAINER_SIZE));
 				}
 			}
 			else
 			{
 				fcs = new FileContainers (CONTAINER_MAX_SIZE, true);
+				System.out.println ("Property is not available. Set container to maximum: " + CONTAINER_MAX_SIZE);
 				//throw new ActionException ("Property \"" + PROP_MAX_CONTAINER_SIZE + "\" is not set");
 			}
 

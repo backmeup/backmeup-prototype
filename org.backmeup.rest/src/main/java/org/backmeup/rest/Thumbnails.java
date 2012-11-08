@@ -11,21 +11,9 @@ import javax.ws.rs.core.Response.Status;
 
 @Path("/thumbnails")
 public class Thumbnails extends Base {
-
-	@GET
-	@Path("/")
-	public Response foo() {
-		return Response.ok("foo").build();
-	}
 	
 	@GET
-	@Path("/{username}")
-	public Response bar(@PathParam("username") String username) {
-		return Response.ok("bar " + username).build();
-	}
-	
-	@GET
-	@Path("{username}/{fileId}")
+	@Path("/{username}/{fileId}")
 	public Response getThumbnail(@PathParam("username") String username, @PathParam("fileId") String fileId) {
 		System.out.println("Getting thumbnail for: " + username + ", " + fileId);
 		File f = getLogic().getThumbnail(username, fileId);

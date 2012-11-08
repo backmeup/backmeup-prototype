@@ -66,4 +66,14 @@ public class FileDataObject extends DataObject {
 		}
 	}
 
+	@Override
+	public void setMetainfo(MetainfoContainer meta) {
+		try {
+			String json = MetainfoContainer.toJSON(meta);
+			FileUtils.writeStringToFile(metaFile, json, false);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }

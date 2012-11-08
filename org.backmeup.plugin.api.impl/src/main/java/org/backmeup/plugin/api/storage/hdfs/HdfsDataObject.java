@@ -40,4 +40,10 @@ public class HdfsDataObject extends DataObject {
     return metainfo;
   }
 
+@Override
+public void setMetainfo(MetainfoContainer meta) {
+	// TODO Auto-generated method stub
+	
+}
+
 }

@@ -104,9 +104,12 @@ public class Main {
 			numberOfReceivers = 4;
 		}
 		
+		// TODO that's just a quick hack
+		RabbitMQJobReceiver.initSystem(autodeploy.getAbsolutePath());
+		
 		List<RabbitMQJobReceiver> receivers = new ArrayList<RabbitMQJobReceiver>();
 		for (int i=0; i<numberOfReceivers; i++) {
-			RabbitMQJobReceiver rec = new RabbitMQJobReceiver(Configuration.getConfig().getProperty("message.queue.host"), Configuration.getConfig().getProperty("message.queue.name"), autodeploy.getAbsolutePath());
+			RabbitMQJobReceiver rec = new RabbitMQJobReceiver(Configuration.getConfig().getProperty("message.queue.host"), Configuration.getConfig().getProperty("message.queue.name"));
 			rec.start();
 			receivers.add(rec);
 		}		

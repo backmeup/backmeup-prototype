@@ -114,7 +114,7 @@ public class FilesplittAction implements Action
 				if (parameters.getProperty (PROP_MAX_CONTAINER_SIZE) == "-1")
 				{
 					fcs = new FileContainers (CONTAINER_MAX_SIZE, true);
-					System.out.println ("Property is -1. Set container to maximum: " + PROP_MAX_CONTAINER_SIZE);
+					System.out.println ("Property is -1. Set container to maximum: " + CONTAINER_MAX_SIZE);
 				}
 				else
 				{
@@ -126,7 +126,7 @@ public class FilesplittAction implements Action
 			else
 			{
 				fcs = new FileContainers (CONTAINER_MAX_SIZE, true);
-				System.out.println ("Property is not available. Set container to maximum: " + PROP_MAX_CONTAINER_SIZE);
+				System.out.println ("Property is not available. Set container to maximum: " + CONTAINER_MAX_SIZE);
 				//throw new ActionException ("Property \"" + PROP_MAX_CONTAINER_SIZE + "\" is not set");
 			}
 

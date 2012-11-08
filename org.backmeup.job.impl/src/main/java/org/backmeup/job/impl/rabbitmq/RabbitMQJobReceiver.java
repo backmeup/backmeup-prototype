@@ -45,7 +45,7 @@ public class RabbitMQJobReceiver {
 			"javax.mail " +
 			"com.sun.imap ";
 	
-	private Plugin plugins;
+	private static Plugin plugins;
 	
 	private Keyserver keyserver;
 	
@@ -72,19 +72,22 @@ public class RabbitMQJobReceiver {
 	 */
 	private boolean listening = false;
 	
-	private Logger log = Logger.getLogger(this.getClass());
-
-  private EntityManagerFactory emFactory;
+	private EntityManagerFactory emFactory;
 	
-	public RabbitMQJobReceiver(String mqHost, String mqName, String pluginsDir) throws IOException {
-		this.mqName = mqName;
-		
+	private Logger log = Logger.getLogger(this.getClass());
+	
+	
+	// TODO that's just a quick hack...
+	public static void initSystem(String pluginsDir) throws IOException {
 		// Start up the Plugin manager
-		log.info("Starting plugin framework");
 		File osgiTemp = File.createTempFile("osgi-temp", Long.toString(System.nanoTime()));
-		this.plugins = new PluginImpl(pluginsDir, osgiTemp.getAbsolutePath(), EXPORTED_PACKAGES);
-		this.plugins.startup();
+		plugins = new PluginImpl(pluginsDir, osgiTemp.getAbsolutePath(), EXPORTED_PACKAGES);
+		plugins.startup();
 	    ((PluginImpl)plugins).waitForInitialStartup();
+	}
+	
+	public RabbitMQJobReceiver(String mqHost, String mqName) throws IOException {
+		this.mqName = mqName;
 	    
 	  //TODO: Exchange with https constructor; use parameters from bl.properties + truststores from plone
 	    keyserver = new org.backmeup.keyserver.client.impl.Keyserver(

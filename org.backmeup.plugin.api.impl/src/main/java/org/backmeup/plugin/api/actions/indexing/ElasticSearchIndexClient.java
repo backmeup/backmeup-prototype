@@ -26,15 +26,27 @@ public class ElasticSearchIndexClient {
 	}
 	
 	public SearchResponse queryBackup(Long userId, String query) {
-	  if (query == null || query.length() == 0) {	   	    
-	    query = "*";	    	    
-	  } else {
-	    query = "*" + query + "*";
-	  }
+		String queryString = null;
+		String[] tokens = query.split(" ");
+		if (tokens.length == 0) {
+			queryString = "*";
+		} else if (tokens.length == 1) {
+			queryString = query;
+		} else {
+			StringBuffer sb = new StringBuffer("*");
+			for (int i=0; i<tokens.length; i++) {
+				sb.append(tokens[i]);
+				if (i < tokens.length - 1)
+					sb.append("* OR *");
+			}
+			queryString = sb.toString() + "*";
+		}
+		
+		// System.out.println(queryString);
 	  
 		QueryBuilder qBuilder = QueryBuilders.boolQuery()
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, userId))
-				.must(QueryBuilders.queryString(query));
+				.must(QueryBuilders.queryString(queryString));
 		
 		return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).execute().actionGet();
 	}

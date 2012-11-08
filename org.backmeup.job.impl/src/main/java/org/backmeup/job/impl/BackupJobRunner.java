@@ -217,6 +217,10 @@ public class BackupJobRunner {
 		        		Action encryptionAction = new EncryptionAction();
 		        		encryptionAction.doAction(params, storage, job, new JobStatusProgressor(persistentJob, "encryptionaction"));
 		        	} else if ("org.backmeup.indexer".equals(actionId)) {
+		        		// Do nothing - we ignore index action declaration in the job description and use the info
+		        		// from the user properties instead
+		        		
+		        		/*
 		        		// If we do indexing, the Thumbnail renderer needs to run before!
 		        		Action thumbnailAction = new ThumbnailAction();
 		        		thumbnailAction.doAction(params, storage, persistentJob, new JobStatusProgressor(persistentJob, "thumbnailAction"));
@@ -232,10 +236,24 @@ public class BackupJobRunner {
 		        		Action indexAction = new IndexAction(client);
 		        		indexAction.doAction(params, storage, persistentJob, new JobStatusProgressor(persistentJob, "indexaction"));
 		        		client.close();
+		        		*/
 		        	} else {
 		        		// Only happens in case Job was corrupted in the core - we'll handle that as a fatal error
 		        	  errorStatus.add(addStatusToDb(new Status(persistentJob, "Unsupported Action: " + actionId, StatusType.JOB_FAILED, StatusCategory.ERROR, new Date())));
 		        	}
+		        	
+		        	// Run indexing in case the user has enabled it using the 'enable.indexing' user property
+		        	boolean doIndexing = true; // We're using true as the default value for now
+		        	
+		        	String enableIndexing = persistentJob.getUser().getUserProperty("enable.indexing");
+		        	if (enableIndexing != null) {
+		        		if (enableIndexing.toLowerCase().trim().equals("false"));
+		        			doIndexing = false;
+		        	}
+		        	
+		        	if (doIndexing)
+		        		doIndexing(params, storage, persistentJob, client);
+		        	
 	        	} catch (ActionException e) {
 	        		// Should only happen in case of problems in the core (file I/O, DB access, etc.) - we'll handle that as a fatal error
 	        	  errorStatus.add(addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date())));
@@ -279,6 +297,24 @@ public class BackupJobRunner {
     } finally {
       conn.rollback();
     }
+  }
+  
+  private void doIndexing(Properties params, Storage storage, BackupJob job, Client client) throws ActionException {
+		// If we do indexing, the Thumbnail renderer needs to run before!
+		Action thumbnailAction = new ThumbnailAction();
+		thumbnailAction.doAction(params, storage, job, new JobStatusProgressor(job, "thumbnailAction"));
+		
+		// After thumbnail rendering, run indexing
+		Configuration config = Configuration.getConfig();
+		String host = config.getProperty(INDEX_HOST);
+		int port = Integer.parseInt(config.getProperty(INDEX_PORT));
+		
+		client = new TransportClient()
+			.addTransportAddress(new InetSocketTransportAddress(host, port));
+		
+		Action indexAction = new IndexAction(client);
+		indexAction.doAction(params, storage, job, new JobStatusProgressor(job, "indexaction"));
+		client.close();
   }
 
   private String generateTmpDirName (BackupJob job, ProfileOptions po)

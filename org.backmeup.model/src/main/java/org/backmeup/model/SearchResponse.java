@@ -119,7 +119,10 @@ public class SearchResponse {
 		}
 		
 		public CountedEntry(String title, int count) {
-			this.title = title;
+			if (title.contains(";"))
+				this.title = title.substring(0, title.indexOf(";"));
+			else
+				this.title = title;
 			this.count = count;
 		}
 		public String getTitle() {

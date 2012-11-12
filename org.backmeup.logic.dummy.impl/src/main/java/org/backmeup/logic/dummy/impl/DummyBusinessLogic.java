@@ -634,7 +634,7 @@ public class DummyBusinessLogic implements BusinessLogic {
 
   public ProtocolDetails getProtocolDetails(String username, String fileId) {
     ProtocolDetails pd = new ProtocolDetails();
-    FileInfo fi = new FileInfo("1231L", "Facebook", "13304123",
+    FileInfo fi = new FileInfo("1231L", "Facebook", 13304123,
         "sennenhund.jpg", "image", "http://thumbnails.at?id=1231");
     List<Sink> sinks = new ArrayList<Sink>();
     sinks.add(new Sink("DVD per Post", "13330403", "839482933"));
@@ -642,7 +642,7 @@ public class DummyBusinessLogic implements BusinessLogic {
         "Facebook/2012/Fotos/sennenhund.jpg"));
 
     List<FileInfo> similar = new ArrayList<FileInfo>();
-    similar.add(new FileInfo("1234L", null, null, "sennenhund2.jpg", null,
+    similar.add(new FileInfo("1234L", null, 13304123, "sennenhund2.jpg", null,
         "http://thumbnails.at?id=1234"));
     pd.setFileInfo(fi);
     pd.setSinks(sinks);

@@ -23,6 +23,7 @@ import org.backmeup.rest.Thumbnails;
 import org.backmeup.rest.Users;
 import org.backmeup.rest.exceptionmapper.AlreadyRegisteredExceptionMapper;
 import org.backmeup.rest.exceptionmapper.BackMeUpExceptionMapper;
+import org.backmeup.rest.exceptionmapper.EmailVerificationExceptionMapper;
 import org.backmeup.rest.exceptionmapper.IllegalArgumentExceptionMapper;
 import org.backmeup.rest.exceptionmapper.InvalidCredentialsMapper;
 import org.backmeup.rest.exceptionmapper.InvalidKeyExceptionMapper;
@@ -67,6 +68,7 @@ public class Main {
 		classes.add(Thumbnails.class.getName());
 		classes.add(org.backmeup.rest.Metadata.class.getName());
 		tjws.getDeployment().getResourceClasses().addAll(classes);
+		
 		tjws.getDeployment().getProviderClasses()
 				.add(AlreadyRegisteredExceptionMapper.class.getName());
 		tjws.getDeployment().getProviderClasses()
@@ -81,8 +83,11 @@ public class Main {
 				.add(UnknownUserExceptionMapper.class.getName());
 		tjws.getDeployment().getProviderClasses()
 				.add(BackMeUpExceptionMapper.class.getName());
+	  tjws.getDeployment().getProviderClasses()
+        .add(EmailVerificationExceptionMapper.class.getName());
+	  
 		tjws.getDeployment().getProviderClasses()
-				.add(ObjectMapperContextResolver.class.getName());
+				.add(ObjectMapperContextResolver.class.getName());	
 		Hashtable<String, String> ctxParams = new Hashtable<String, String>();
 		ctxParams.put("resteasy.resources",
 				ObjectMapperContextResolver.class.getName());

@@ -14,6 +14,7 @@ public class SearchResponseContainer {
 	private List<SearchEntryContainer> files;
 	private List<CountedEntryContainer> bySource;
 	private List<CountedEntryContainer> byType;
+	private String searchQuery;
 	private int progress;
 
 	public SearchResponseContainer() {
@@ -31,6 +32,8 @@ public class SearchResponseContainer {
 		this.byType = new ArrayList<CountedEntryContainer>();
 		for (CountedEntry entry : resp.getByType())
 			this.byType.add(new CountedEntryContainer(entry));
+		
+		this.searchQuery = resp.getQuery();
 
 		this.progress = resp.getProgress();
 	}
@@ -49,6 +52,14 @@ public class SearchResponseContainer {
 
 	public void setByType(List<CountedEntryContainer> byType) {
 		this.byType = byType;
+	}
+	
+	public String getSearchQuery() {
+		return searchQuery;
+	}
+
+	public void setSearchQuery(String searchQuery) {
+		this.searchQuery = searchQuery;
 	}
 
 	public int getProgress() {

@@ -85,7 +85,7 @@ public class ProtocolDetails {
 	public static class FileInfo {
 		private String fileId;
 		private String source;
-		private String timeStamp;
+		private long timeStamp;
 		private String title;
 		private String type;
 		private String thumbnailURL;
@@ -95,7 +95,7 @@ public class ProtocolDetails {
 		public FileInfo() {
 		}
 		
-		public FileInfo(String fileId, String source, String timeStamp,
+		public FileInfo(String fileId, String source, long timeStamp,
 				String title, String type, String thumbnailURL) {
 			this.fileId = fileId;
 			this.source = source;
@@ -116,10 +116,10 @@ public class ProtocolDetails {
 		public void setSource(String source) {
 			this.source = source;
 		}
-		public String getTimeStamp() {
+		public long getTimeStamp() {
 			return timeStamp;
 		}
-		public void setTimeStamp(String timeStamp) {
+		public void setTimeStamp(long timeStamp) {
 			this.timeStamp = timeStamp;
 		}
 		public String getTitle() {

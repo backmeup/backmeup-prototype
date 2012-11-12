@@ -25,7 +25,10 @@ class RequestResult:
       location = " Location: " + self.location
     data = ""
     if (self.data != None and len(str(self.data)) > 0):
-      data = "\nData:\n" + str(self.data)
+      try:
+        data = "\nData:\n" + dumps(self.data, sort_keys=True, indent=2)
+      except:
+        data = "\nData:\n" + str(self.data)
     return "Code: " + str(self.code) + " => Reason: " + self.reason + location + data
 
 

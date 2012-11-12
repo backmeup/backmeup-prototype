@@ -65,7 +65,7 @@ public class BackupJobs extends Base {
   @POST
   @Path("/{username}")
   @Produces("application/json")
-  public JobCreationContainer createBackupJob(
+  public ValidationNotesContainer createBackupJob(
       @PathParam("username") String username,
       @FormParam("sourceProfileIds") List<String> sourceProfileIds,
       @FormParam("requiredActionIds") List<String> requiredActionIds,
@@ -80,10 +80,9 @@ public class BackupJobs extends Base {
       sources.add(Long.parseLong(id));
     }
     Map<Long, String[]> optionMapping = mapOptions(sourceProfileIds, formParams);
-    BackupJob j = getLogic().createBackupJob(username, sources, sinkProfileId,
+    return new ValidationNotesContainer(getLogic().createBackupJob(username, sources, sinkProfileId,
         optionMapping, requiredActionIds.toArray(new String[] {}),
-        timeExpression, keyRing, jobTitle);
-    return new JobCreationContainer(j.getId());
+        timeExpression, keyRing, jobTitle));    
   }
 
   @DELETE

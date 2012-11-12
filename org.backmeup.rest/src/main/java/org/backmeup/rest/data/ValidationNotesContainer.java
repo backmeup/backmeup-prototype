@@ -14,12 +14,13 @@ public class ValidationNotesContainer {
   private boolean hasErrors;
   private List<ValidationEntry> errors;
   private List<ValidationEntry> warnings;
+  private JobCreationContainer job;
   
   public ValidationNotesContainer(ValidationNotes notes) {
     this.errors = new ArrayList<ValidationEntry>();
     this.warnings = new ArrayList<ValidationEntry>();
     for (ValidationEntry e : notes.getValidationEntries()) {
-      if (e.getType() == ValidationExceptionType.Warning) {
+      if (e.getType() == ValidationExceptionType.NoValidatorAvailable) {
         warnings.add(e);
       } else {
         errors.add(e);
@@ -31,6 +32,8 @@ public class ValidationNotesContainer {
       this.errors = null;
     if (this.warnings.size() == 0)
       this.warnings = null;
+    
+    setJob(new JobCreationContainer(notes.getJob()));    
   }
   public boolean isHasErrors() {
     return hasErrors;
@@ -50,6 +53,10 @@ public class ValidationNotesContainer {
   public void setWarnings(List<ValidationEntry> warnings) {
     this.warnings = warnings;
   }
-  
-  
+  public JobCreationContainer getJob() {
+    return job;
+  }
+  public void setJob(JobCreationContainer job) {
+    this.job = job;
+  }
 }

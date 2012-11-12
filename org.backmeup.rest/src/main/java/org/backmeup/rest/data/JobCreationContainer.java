@@ -2,15 +2,23 @@ package org.backmeup.rest.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.backmeup.model.BackupJob;
+
 @XmlRootElement
 public class JobCreationContainer {
 	private long jobId;
+	private String jobTitle;	
 	
-		public JobCreationContainer() {
+	public JobCreationContainer() {
 		super();
 	}
 
-	public JobCreationContainer(long jobId) {
+	public JobCreationContainer(BackupJob job) {
+    this.jobId = job.getId();
+    this.jobTitle = job.getJobTitle();
+  }
+
+  public JobCreationContainer(long jobId) {
 		super();
 		this.jobId = jobId;
 	}

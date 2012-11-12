@@ -5,7 +5,7 @@ public class UserNotActivatedException extends BackMeUpException {
   private String username;
 
   public UserNotActivatedException(String username) {
-    super("User " + username + " has not been activated!");
+    super("User has not been activated!");
     this.username = username;
   }
 

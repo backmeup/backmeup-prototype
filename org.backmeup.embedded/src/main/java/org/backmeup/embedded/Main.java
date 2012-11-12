@@ -29,6 +29,7 @@ import org.backmeup.rest.exceptionmapper.InvalidCredentialsMapper;
 import org.backmeup.rest.exceptionmapper.InvalidKeyExceptionMapper;
 import org.backmeup.rest.exceptionmapper.NullPointerExceptionMapper;
 import org.backmeup.rest.exceptionmapper.UnknownUserExceptionMapper;
+import org.backmeup.rest.exceptionmapper.UserNotActivatedExceptionMapper;
 import org.backmeup.rest.provider.ObjectMapperContextResolver;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.node.Node;
@@ -85,7 +86,8 @@ public class Main {
 				.add(BackMeUpExceptionMapper.class.getName());
 	  tjws.getDeployment().getProviderClasses()
         .add(EmailVerificationExceptionMapper.class.getName());
-	  
+	  tjws.getDeployment().getProviderClasses()
+        .add(UserNotActivatedExceptionMapper.class.getName());
 		tjws.getDeployment().getProviderClasses()
 				.add(ObjectMapperContextResolver.class.getName());	
 		Hashtable<String, String> ctxParams = new Hashtable<String, String>();

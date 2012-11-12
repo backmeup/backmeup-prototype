@@ -3,13 +3,24 @@ package org.backmeup.rest.data;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.backmeup.model.BackMeUpUser;
+import org.backmeup.rest.messages.Messages;
 
 @XmlRootElement
 public class UserLoginContainer
 {
 	private boolean activated;
+	private String type = "success";
+	private String message = Messages.LOGIN_USER;
 
-	public UserLoginContainer (BackMeUpUser user)
+	public String getType() {
+    return type;
+  }
+  
+  public String getMessage() {
+    return message;
+  }
+
+  public UserLoginContainer (BackMeUpUser user)
 	{
 		this.activated = user.isActivated ();
 	}

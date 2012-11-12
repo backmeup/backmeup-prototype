@@ -15,10 +15,13 @@ import javax.ws.rs.Produces;
 import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.exceptions.UnknownUserPropertyException;
+import org.backmeup.rest.data.ResultMessage;
+import org.backmeup.rest.data.ResultMessage.Type;
 import org.backmeup.rest.data.UserContainer;
 import org.backmeup.rest.data.UserLoginContainer;
 import org.backmeup.rest.data.VerificationContainer;
 import org.backmeup.rest.data.VerifyEmailContainer;
+import org.backmeup.rest.messages.Messages;
 
 /**
  * All user specific operations will be handled within this class.
@@ -39,19 +42,32 @@ public class Users extends Base {
 	@DELETE
 	@Path("{username}")
 	@Produces("application/json")
-	public void deleteUser(@PathParam("username") String username) {
+	public ResultMessage deleteUser(@PathParam("username") String username) {
 		getLogic().deleteUser(username);
+		return Messages.MSG_DELETE_USER;
 	}
 
 	@PUT
 	@Path("{oldUsername}")
 	@Produces("application/json")
-	public void changeUser(@PathParam("oldUsername") String oldUsername,
+	public ResultMessage changeUser(@PathParam("oldUsername") String oldUsername,
 	    @FormParam("username") String username,
 			@FormParam("oldPassword") String oldPassword,
 			@FormParam("password") String newPassword,			
 			@FormParam("email") String newEmail) {
-		getLogic().changeUser(oldUsername, username, oldPassword, newPassword, newEmail);
+	  BackMeUpUser oldUser = getLogic().getUser(oldUsername);
+		BackMeUpUser user = getLogic().changeUser(oldUsername, username, oldPassword, newPassword, newEmail);
+		ResultMessage rslt = new ResultMessage(Type.success);
+		if (!oldUsername.equals(user.getUsername())) {
+		  rslt.addMessage(Messages.CHANGE_USER_USERNAME);
+		}
+		if (!oldPassword.equals(newPassword)) {
+		  rslt.addMessage(Messages.CHANGE_USER_PASSWORD);
+    }
+		if (!oldUser.getEmail().equals(newEmail)) {
+		  rslt.addMessage(Messages.CHANGE_USER_EMAIL);
+		}
+		return rslt;
 	}
 
 	@POST
@@ -106,17 +122,19 @@ public class Users extends Base {
 	@POST 
 	@Path("{username}/properties/{property}/{value}")
   @Produces("application/json")
-	public void setUserProperty(@PathParam("username") String username,
+	public ResultMessage setUserProperty(@PathParam("username") String username,
       @PathParam("property") String property,
       @PathParam("value") String value) {
     getLogic().setUserProperty(username, property, value);
+    return Messages.MSG_POST_PROPERTY;
   }
 	
 	@DELETE
 	@Path("{username}/properties/{property}")
 	@Produces("application/json")
-	public void deleteUserProperty(@PathParam("username") String username, @PathParam("property") String property) {
+	public ResultMessage deleteUserProperty(@PathParam("username") String username, @PathParam("property") String property) {
 	  getLogic().deleteUserProperty(username, property);
+	  return Messages.MSG_DELETE_USER_PROPERTY;
 	}
 	
 	@GET

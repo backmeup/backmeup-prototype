@@ -7,6 +7,7 @@ import org.backmeup.model.spi.ValidationExceptionType;
 
 public class ValidationNotes {  
   private List<ValidationEntry> validationNotes = new ArrayList<ValidationEntry>();
+  private BackupJob job;
   
   public void addValidationEntry(ValidationExceptionType type, String message) {
     this.validationNotes.add(new ValidationEntry(type, message));
@@ -16,6 +17,14 @@ public class ValidationNotes {
     return this.validationNotes;
   }
   
+  public BackupJob getJob() {
+    return job;
+  }
+
+  public void setJob(BackupJob job) {
+    this.job = job;
+  }
+
   public static class ValidationEntry {
     private ValidationExceptionType type;
     private String message;

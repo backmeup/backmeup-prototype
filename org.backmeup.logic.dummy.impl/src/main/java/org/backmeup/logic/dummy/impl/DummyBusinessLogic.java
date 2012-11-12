@@ -556,7 +556,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     return jobs;
   }
 
-  public BackupJob createBackupJob(String username, List<Long> sourceProfiles,
+  public ValidationNotes createBackupJob(String username, List<Long> sourceProfiles,
       Long sinkProfileId, Map<Long, String[]> sourceOptions,
       String[] requiredActions, String timeExpression, String keyRing, String jobTitle) {
 
@@ -604,7 +604,9 @@ public class DummyBusinessLogic implements BusinessLogic {
         findActions(requiredActions), start, delay, "TestJob");
     job.setId(maxId++);
     jobs.add(job);
-    return job;
+    ValidationNotes vn = new ValidationNotes();
+    vn.setJob(job);
+    return vn;
   }
 
   public void deleteJob(String username, Long jobId) {

@@ -10,7 +10,7 @@ package org.backmeup.model.exceptions;
  */
 public class PluginException extends BackMeUpException {
   private static final long serialVersionUID = 1L;
-  protected String pluginId;
+  private String pluginId;
 
   public PluginException(String pluginId, String message, Throwable cause) {
     super(message, cause);
@@ -19,5 +19,9 @@ public class PluginException extends BackMeUpException {
 
   public PluginException(String pluginId, String message) {
     this(pluginId, "Plugin '" + pluginId + "': " + message, null);
+  }
+
+  public String getPluginId() {
+    return pluginId;
   }
 }

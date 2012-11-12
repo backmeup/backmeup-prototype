@@ -66,6 +66,7 @@ import org.backmeup.model.exceptions.InvalidCredentialsException;
 import org.backmeup.model.exceptions.NotAnEmailAddressException;
 import org.backmeup.model.exceptions.PasswordTooShortException;
 import org.backmeup.model.exceptions.PluginException;
+import org.backmeup.model.exceptions.PluginUnavailableException;
 import org.backmeup.model.exceptions.UnknownUserException;
 import org.backmeup.model.exceptions.UserAlreadyActivatedException;
 import org.backmeup.model.exceptions.UserNotActivatedException;
@@ -101,6 +102,7 @@ import org.backmeup.utilities.mail.Mailer;
 @ApplicationScoped
 public class BusinessLogicImpl implements BusinessLogic {
 
+  private static final String VALIDATOR_NOT_AVAILABLE = "org.backmeup.logic.impl.BusinessLogicImpl.VALIDATOR_NOT_AVAILABLE";
   private static final String JOB_USER_MISSMATCH = "org.backmeup.logic.impl.BusinessLogicImpl.JOB_USER_MISSMATCH";
   private static final String NO_SUCH_JOB = "org.backmeup.logic.impl.BusinessLogicImpl.NO_SUCH_JOB";
   private static final String CANNOT_COMPUTE_FREE = "org.backmeup.logic.impl.BusinessLogicImpl.CANNOT_COMPUTE_FREE";
@@ -644,7 +646,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   }
 
-  public BackupJob createBackupJob(String username, List<Long> sourceProfiles,
+  public ValidationNotes createBackupJob(String username, List<Long> sourceProfiles,
       Long sinkProfileId, Map<Long, String[]> sourceOptions,
       String[] requiredActions, String timeExpression, String keyRing, String jobTitle) {
     try {
@@ -724,7 +726,9 @@ public class BusinessLogicImpl implements BusinessLogic {
       conn.rollback();
       BackupJob job = jobManager.createBackupJob(user, profiles, sink, actions,
           start, delay, keyRing, jobTitle);      
-      return job;
+      ValidationNotes vn = validateBackupJob(username, job.getId(), keyRing);
+      vn.setJob(job);
+      return vn;
     } finally {
       conn.rollback();
     }
@@ -1161,7 +1165,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   //TODO: Add password parameter to get token from keyserver to validate the profile
   public ValidationNotes validateProfile(String username, Long profileId, String keyRing) {
-
+    String pluginName = null;
     try {
       conn.beginOrJoin();
       Profile p = getProfileDao().findById(profileId);
@@ -1169,10 +1173,15 @@ public class BusinessLogicImpl implements BusinessLogic {
         throw new IllegalArgumentException(String.format(
             textBundle.getString(USER_HAS_NO_PROFILE), username, profileId));
       }
+      pluginName = p.getDescription();
       Validationable validator = plugins.getValidator(p.getDescription());
       Properties accessData = fetchAuthenticationData(p, keyRing);
       return validator.validate(accessData);
 
+    } catch (PluginUnavailableException pue) {      
+      ValidationNotes notes = new ValidationNotes();      
+      notes.addValidationEntry(ValidationExceptionType.Warning, String.format(textBundle.getString(VALIDATOR_NOT_AVAILABLE), pluginName));
+      return notes;
     } catch (PluginException pe) {
       ValidationNotes notes = new ValidationNotes();
       notes.addValidationEntry(ValidationExceptionType.Error, pe.getMessage());

@@ -18,6 +18,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.print.attribute.standard.JobOriginatingUserName;
 
 /**
  * The BackupJob class contains all necessary data to
@@ -166,5 +167,15 @@ public class BackupJob {
 	{
 		this.modified = new Date ();
 		this.jobTitle = jobTitle;
+	}
+	
+	public JobProtocol lastProtocol() {
+	  JobProtocol last = null;
+	  for (JobProtocol jp : jobProtocols) {
+	    if (last == null || jp.getExecutionTime().compareTo(last.getExecutionTime()) > 0) {
+	      last = jp;
+	    }
+	  }
+	  return last;
 	}
 }

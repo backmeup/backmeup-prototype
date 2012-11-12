@@ -23,7 +23,9 @@ import org.backmeup.rest.data.DatasinkContainer;
 import org.backmeup.rest.data.DatasinkContainer.Datasink;
 import org.backmeup.rest.data.DatasinkProfilesContainer;
 import org.backmeup.rest.data.PreAuthContainer;
+import org.backmeup.rest.data.ResultMessage;
 import org.backmeup.rest.data.ValidationNotesContainer;
+import org.backmeup.rest.messages.Messages;
 
 /**
  * All datasink specific operations will be handled within this class.
@@ -58,9 +60,10 @@ public class Datasinks extends Base {
 
   @DELETE
   @Path("/{username}/profiles/{profileId}")
-  public void deleteProfile(@PathParam("username") String username,
+  public ResultMessage deleteProfile(@PathParam("username") String username,
       @PathParam("profileId") Long profileId) {
     getLogic().deleteProfile(username, profileId);
+    return Messages.MSG_DELETE_SINK_PROFILE;
   }
 
   /*
@@ -108,7 +111,7 @@ public class Datasinks extends Base {
   @POST
   @Path("/{username}/{profileId}/auth/post")
   @Produces("application/json")
-  public void postAuthenticate(@PathParam("profileId") Long profileId,
+  public ResultMessage postAuthenticate(@PathParam("profileId") Long profileId,
       @PathParam("username") String username,
       @FormParam("keyRing") String keyRing,
       MultivaluedMap<String, String> formParams) {
@@ -121,6 +124,7 @@ public class Datasinks extends Base {
     }
 
     getLogic().postAuth(profileId, p, keyRing);
+    return Messages.MSG_POST_AUTH_SINK_PROFILE;
   }
   
   @PUT

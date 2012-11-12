@@ -124,7 +124,8 @@ public class IndexUtils {
 	}
 	
 	public static List<CountedEntry> getByType(org.elasticsearch.action.search.SearchResponse esResponse) {
-		return groupByField(esResponse, FIELD_CONTENT_TYPE);
+		// return groupByField(esResponse, FIELD_CONTENT_TYPE);
+		return groupByContentType(esResponse);
 	}
 	
 	private static List<CountedEntry> groupByField(org.elasticsearch.action.search.SearchResponse esResponse, String field) {
@@ -150,6 +151,56 @@ public class IndexUtils {
 		}
 		
 		return countedEntries;		
+	}
+	
+	private static List<CountedEntry> groupByContentType(org.elasticsearch.action.search.SearchResponse esResponse) {
+		// Now where's my Scala groupBy!? *heul*
+		Map<String, Integer> groupedHits = new HashMap<String, Integer>();
+		for (SearchHit hit : esResponse.getHits()) {
+			if (hit.getSource().get(FIELD_CONTENT_TYPE) != null) {
+				String type = getTypeFromMimeType(hit.getSource().get(FIELD_CONTENT_TYPE).toString());
+				Integer count = groupedHits.get(type);
+				if (count == null) {
+					count = Integer.valueOf(1);
+				} else {
+					count = Integer.valueOf(count.intValue() + 1);
+				}
+				groupedHits.put(type, count);
+			}
+		}
+		
+		// ...and .map
+		List<CountedEntry> countedEntries = new ArrayList<SearchResponse.CountedEntry>();
+		for (Entry<String, Integer> entry : groupedHits.entrySet()) {
+			countedEntries.add(new CountedEntry(entry.getKey(), entry.getValue().intValue()));
+		}
+		
+		return countedEntries;			
+	}
+	
+	private static String getTypeFromMimeType(String mime) {
+		if (mime.startsWith("image"))
+			return "image";
+					
+		if (mime.startsWith("video"))
+			return "video";
+		
+		if (mime.startsWith("audio"))
+			return "audio";
+		
+		if (mime.startsWith("text"))
+			return "text";
+		
+		if (mime.contains("pdf"))
+			return "text";
+		
+		if (mime.contains("ogg"))
+			return "audio";
+					
+		// Add more special rules as needed 
+		
+		return "other";
+					
 	}
 
 }

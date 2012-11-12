@@ -17,13 +17,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.backmeup.model.BackMeUpUser;
-import org.backmeup.model.BackupJob;
 import org.backmeup.rest.data.JobContainer;
-import org.backmeup.rest.data.JobCreationContainer;
 import org.backmeup.rest.data.ProtocolDetailsContainer;
 import org.backmeup.rest.data.ProtocolOverviewContainer;
+import org.backmeup.rest.data.ResultMessage;
 import org.backmeup.rest.data.StatusContainer;
 import org.backmeup.rest.data.ValidationNotesContainer;
+import org.backmeup.rest.messages.Messages;
 
 /**
  * All Job specific operations will be handled here.
@@ -87,9 +87,10 @@ public class BackupJobs extends Base {
 
   @DELETE
   @Path("/{username}/{jobId}")
-  public void deleteJob(@PathParam("username") String username,
+  public ResultMessage deleteJob(@PathParam("username") String username,
       @PathParam("jobId") Long jobId) {
     getLogic().deleteJob(username, jobId);
+    return Messages.MSG_DELETE_JOB;
   }
 
   @GET

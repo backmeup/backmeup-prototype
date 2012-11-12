@@ -1037,6 +1037,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   public SearchResponse queryBackup(String username, long searchId,
       String filterType, String filterValue) {
     
+	  ElasticSearchIndexClient client = null;
 	  try {
 	    conn.begin();
 	    
@@ -1046,10 +1047,11 @@ public class BusinessLogicImpl implements BusinessLogic {
 	    SearchResponse search = getSearchResponseDao().findById(searchId);
 	    if (search == null)
 	      throw new BackMeUpException(textBundle.getString(UNKNOWN_SEARCH_ID));
+	    
 	    try {
 		    String query = search.getQuery();
 		    
-		    ElasticSearchIndexClient client = getIndexClient();
+		    client = getIndexClient();
 		    org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(user.getUserId(), query);
 		    search.setFiles(IndexUtils.convertSearchEntries(esResponse));
 		    search.setBySource(IndexUtils.getBySource(esResponse));
@@ -1060,6 +1062,8 @@ public class BusinessLogicImpl implements BusinessLogic {
 	    return search;
 	  } finally {
 		conn.rollback();
+		if (client != null)
+			client.close();
 	  }
   }
   
@@ -1069,8 +1073,11 @@ public class BusinessLogicImpl implements BusinessLogic {
 
 	  ElasticSearchIndexClient client = getIndexClient();	  
 	  String thumbnailPath = client.getThumbnailPathForFile(username, fileId);
+	  System.out.println("Got thumbnail path: " + thumbnailPath);
 	  if (thumbnailPath != null)
 		  return new File(thumbnailPath);
+	  
+	  client.close();
 	  
 	  return null; // Too bad there's no optional return types in Java...
   }

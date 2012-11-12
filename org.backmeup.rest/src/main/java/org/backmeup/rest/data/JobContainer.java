@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.JobProtocol;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 
@@ -30,7 +31,17 @@ public class JobContainer {
 	public JobContainer(List<BackupJob> backupJobs, BackMeUpUser user) {
 		this.backupJobs = new ArrayList<Job>();
 		for (BackupJob j : backupJobs) {
-			this.backupJobs.add(new Job(j.getId(), j.getSourceProfiles(), j.getSinkProfile(), j.getStart ().getTime (), j.getCreated ().getTime (), j.getModified ().getTime (), j.getJobTitle (), j.getDelay()));
+		  JobProtocol jp = j.lastProtocol();
+		  long lastBackup;
+		  if (jp == null)
+		    lastBackup = j.getStart().getTime();
+		  else 
+		    lastBackup = jp.getExecutionTime().getTime();
+		  long nextBackup = lastBackup + j.getDelay();
+		  Job job = new Job(j.getId(), j.getSourceProfiles(), j.getSinkProfile(), j.getStart ().getTime (), j.getCreated ().getTime (), j.getModified ().getTime (), j.getJobTitle (), j.getDelay());
+		  job.setLastBackup(lastBackup);
+		  job.setNextBackup(nextBackup);
+			this.backupJobs.add(job);
 		}
 		
 		if (this.backupJobs.size() > 0) {
@@ -149,6 +160,8 @@ public class JobContainer {
 		private long modifyDate;
 		private String jobTitle;
 		private long delay;
+		private long lastBackup;
+		private long nextBackup;
 		
 		
 		public Job() {
@@ -237,6 +250,22 @@ public class JobContainer {
 
     public void setDatasources(List<DatasourceProfile> datasources) {
       this.datasources = datasources;
+    }
+
+    public long getLastBackup() {
+      return lastBackup;
+    }
+
+    public void setLastBackup(long lastBackup) {
+      this.lastBackup = lastBackup;
+    }
+
+    public long getNextBackup() {
+      return nextBackup;
+    }
+
+    public void setNextBackup(long nextBackup) {
+      this.nextBackup = nextBackup;
     }
 	}
 }

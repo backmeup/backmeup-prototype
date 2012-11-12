@@ -1,9 +1,7 @@
 package org.backmeup.rest;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -26,7 +24,9 @@ import org.backmeup.rest.data.DatasourceContainer.Datasource;
 import org.backmeup.rest.data.DatasourceOptionContainer;
 import org.backmeup.rest.data.DatasourceProfilesContainer;
 import org.backmeup.rest.data.PreAuthContainer;
+import org.backmeup.rest.data.ResultMessage;
 import org.backmeup.rest.data.ValidationNotesContainer;
+import org.backmeup.rest.messages.Messages;
 
 /**
  * All datasource specific operation will be handled within this class.
@@ -71,20 +71,22 @@ public class Datasources extends Base {
 
 	@DELETE
 	@Path("/{username}/profiles/{profileId}")
-	public void deleteProfile(@PathParam("username") String username,
+	public ResultMessage deleteProfile(@PathParam("username") String username,
 			@PathParam("profileId") Long profileId) {
 		getLogic().deleteProfile(username, profileId);
+		return Messages.MSG_DELETE_SOURCE_PROFILE;
 	}
 	
 	@PUT
 	@Path("/{username}/profiles/{profileId}/{jobId}")
 	@Produces("application/json")
-	public void updateProfile(
+	public ResultMessage updateProfile(
 			@PathParam("username") String username,
 			@PathParam("profileId") Long profileId,
 			@PathParam("jobId") Long jobId,
 			@FormParam("sourceOptions") List<String> sourceOptions) {
-		getLogic().changeProfile(profileId, jobId, sourceOptions);	  
+		getLogic().changeProfile(profileId, jobId, sourceOptions);
+		return Messages.MSG_UPDATE_SOURCE_PROFILE;
 	}
 	
 	@GET
@@ -141,7 +143,7 @@ public class Datasources extends Base {
 	@POST
 	@Path("/{username}/{profileId}/auth/post")
 	@Produces("application/json")
-	public void postAuthenticate(@PathParam("profileId") Long profileId,
+	public ResultMessage postAuthenticate(@PathParam("profileId") Long profileId,
 			@PathParam("username") String username,
 			@FormParam("keyRing") String keyRing,
 			MultivaluedMap<String, String> formParams) {
@@ -154,5 +156,6 @@ public class Datasources extends Base {
 		}
 
 		getLogic().postAuth(profileId, p, keyRing);
+		return Messages.MSG_POST_AUTH_SOURCE_PROFILE;
 	}
 }

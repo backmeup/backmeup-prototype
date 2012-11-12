@@ -167,14 +167,20 @@ abstract public class AkkaJobManager implements JobManager {
 			runJob(job);
 			
 			// Reschedule if it's still in the DB
-			BackupJob nextJob = dal.createBackupJobDao().findById(job.getId());
-			if (nextJob != null) {
-				System.out.println("Rescheduling job for execution in " + job.getDelay() + "ms");
-				system.scheduler().scheduleOnce(
-						Duration.create(job.getDelay(), TimeUnit.MILLISECONDS), 
-						new RunAndReschedule(job, dal));
-			} else {
-				System.out.println("Job deleted in the mean time - no re-scheduling.");
+			try {
+			  conn.beginOrJoin();
+			
+  			BackupJob nextJob = dal.createBackupJobDao().findById(job.getId());
+  			if (nextJob != null) {
+  				System.out.println("Rescheduling job for execution in " + job.getDelay() + "ms");
+  				system.scheduler().scheduleOnce(
+  						Duration.create(job.getDelay(), TimeUnit.MILLISECONDS), 
+  						new RunAndReschedule(job, dal));
+  			} else {
+  				System.out.println("Job deleted in the mean time - no re-scheduling.");
+  			}
+			} finally {
+			  conn.rollback();
 			}
 		}
 	}

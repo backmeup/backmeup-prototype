@@ -74,7 +74,7 @@ public class ElasticSearchIndexer {
 		// Where's my Scala .map and mkString!?!
 		List<String> sourceNames = new ArrayList<String>(); 
 		for (ProfileOptions source : job.getSourceProfiles()) {
-			sourceNames.add(source.getProfile().getProfileName());			
+			sourceNames.add(source.getProfile().getDescription());			
 		}
 		contentBuilder.field(IndexUtils.FIELD_BACKUP_SOURCES, StringUtils.join(sourceNames, ", "));
 		

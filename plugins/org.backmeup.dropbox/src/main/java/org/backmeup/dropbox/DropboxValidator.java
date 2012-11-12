@@ -19,7 +19,7 @@ public class DropboxValidator implements Validationable {
 			// 1. Make sure authentication / authorization is working well
 			DropboxAPI<WebAuthSession> api = DropboxHelper.getApi(accessData);
 			if (!api.getSession().isLinked()) {
-				notes.addValidationEntry(ValidationExceptionType.AuthException, "Invalid access tokens!");			
+				notes.addValidationEntry(ValidationExceptionType.AuthException, DropboxDescriptor.DROPBOX_ID);			
 			}			
 			
 			// 2. Crawl metadata via the API so that we can be sure that the API is working as expected.
@@ -27,10 +27,10 @@ public class DropboxValidator implements Validationable {
 			Entry entry = api.metadata("/", 100, null, true, null);
 			entry.contents.size();									
 		} catch (DropboxUnlinkedException due) {
-			notes.addValidationEntry(ValidationExceptionType.AuthException, "Dropbox profile couldn't be authenticated! The tokens of the user or of the platform might be invalid!");
+			notes.addValidationEntry(ValidationExceptionType.AuthException, DropboxDescriptor.DROPBOX_ID, due);
 		}
 		catch (DropboxException de) {
-			notes.addValidationEntry(ValidationExceptionType.APIException, "Dropbox API metadata-call failed");
+			notes.addValidationEntry(ValidationExceptionType.APIException, DropboxDescriptor.DROPBOX_ID, de);
 		}
 		return notes;
 	}

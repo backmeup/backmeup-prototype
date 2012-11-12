@@ -42,7 +42,7 @@ public class TwitterValidator implements Validationable {
         try {
 			twitter.getOAuthAccessToken();
 		} catch (TwitterException e) {
-			notes.addValidationEntry(ValidationExceptionType.AuthException, "Invalid access token!");
+			notes.addValidationEntry(ValidationExceptionType.AuthException, TwitterDescriptor.TWITTER_ID, e);
 		}
         
         try {
@@ -50,10 +50,10 @@ public class TwitterValidator implements Validationable {
 			RateLimitStatus rls = twitter.getRateLimitStatus();
 			//3. check if there are remainig hits left 
 			if(rls.getRemainingHits()<=0){
-				notes.addValidationEntry(ValidationExceptionType.APIException, "No remaining API calls left!");
+				notes.addValidationEntry(ValidationExceptionType.APIException, TwitterDescriptor.TWITTER_ID, new Exception("No remaining API calls left!"));
 			}
 		} catch (TwitterException e1) {
-			notes.addValidationEntry(ValidationExceptionType.APIException, "Twitter API ratelimit-call failed ");
+			notes.addValidationEntry(ValidationExceptionType.APIException, TwitterDescriptor.TWITTER_ID, e1);
 		}
         
         return notes;

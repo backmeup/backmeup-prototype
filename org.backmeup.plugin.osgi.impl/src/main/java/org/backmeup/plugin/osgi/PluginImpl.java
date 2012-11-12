@@ -208,8 +208,7 @@ public class PluginImpl implements Plugin {
   public <T> T service(final Class<T> service, final String filter) {
     ServiceReference ref = getReference(service, filter);
     if (ref == null) {
-      throw new PluginException(filter, String.format(
-          "Plug-In service of class '%s' not available!", service.getName()));
+      throw new PluginUnavailableException(filter);
     }
     bundleContext().ungetService(ref);
     return (T) Proxy.newProxyInstance(PluginImpl.class.getClassLoader(),

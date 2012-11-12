@@ -802,61 +802,15 @@ public class DummyBusinessLogic implements BusinessLogic {
 
     ValidationNotes notes = new ValidationNotes();
 
-    // plugin-level validation
-    double requiredSpace = 0;
+    // plugin-level validation    
     for (ProfileOptions po : job.getSourceProfiles()) {
       // TODO: start validation of profile
       SourceSinkDescribable ssd = findSourceDescribable(po.getProfile()
           .getDescription());
       if (ssd == null) {
-        notes.addValidationEntry(ValidationExceptionType.Error, String.format(
-            "No plug-in found with id %s", po.getProfile().getDescription()));
-      }
-
-      Properties meta = getMetadata(username, po.getProfile().getProfileId(),
-          keyRing);
-      String quota = meta.getProperty(Metadata.QUOTA);
-      if (quota != null) {
-        requiredSpace += Double.parseDouble(meta.getProperty(Metadata.QUOTA));
-      } else {
-        notes
-            .addValidationEntry(
-                ValidationExceptionType.Warning,
-                String
-                    .format(
-                        "Cannot compute quota for profile '%s' and plugin '%s'. The required space for a backup could be more than the available space.",
-                        po.getProfile().getProfileName(), po.getProfile()
-                            .getDescription()));
-      }
-    }
-    // TODO: Add required space for index and encryption
-
-    requiredSpace *= 1.1;
-
-    // TODO: validate sink profile
-    Properties meta = getMetadata(username,
-        job.getSinkProfile().getProfileId(), keyRing);
-    String sinkQuota = meta.getProperty(Metadata.QUOTA);
-    String sinkQuotaLimit = meta.getProperty(Metadata.QUOTA_LIMIT);
-    if (sinkQuota != null && sinkQuotaLimit != null) {
-      double freeSpace = Double.parseDouble(sinkQuotaLimit)
-          - Double.parseDouble(sinkQuota);
-      if (freeSpace < requiredSpace) {
-        notes
-            .addValidationEntry(
-                ValidationExceptionType.NotEnoughSpaceException,
-                String
-                    .format(
-                        "Not enough space for backup: Required space for backup was %d. Free space on service was %d. (Profile '%s' and plugin '%s')",
-                        requiredSpace, freeSpace, job.getSinkProfile()
-                            .getProfileName(), job.getSinkProfile().getDescription()));
-      }
-    } else {
-      notes.addValidationEntry(ValidationExceptionType.Warning, String.format(
-          "Cannot compute free space for profile '%s' and plugin '%s'", job
-              .getSinkProfile().getProfileName(), job.getSinkProfile()
-              .getDescription()));
-    }
+        notes.addValidationEntry(ValidationExceptionType.NoValidatorAvailable, po.getProfile().getDescription());
+      }      
+    }        
     return notes;
   }
 

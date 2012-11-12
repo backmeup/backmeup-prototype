@@ -30,7 +30,7 @@ public class FacebookValidator implements Validationable {
 			// Make sure authentication / authorization and API is working well
 			String accessToken = arg0.getProperty("token");
 			if (accessToken == null)
-				notes.addValidationEntry(ValidationExceptionType.AuthException,"No access token available");
+				notes.addValidationEntry(ValidationExceptionType.AuthException, FacebookDescriptor.FACEBOOK_ID);
 
 			FacebookClient client = new DefaultFacebookClient(accessToken);
 			
@@ -38,11 +38,11 @@ public class FacebookValidator implements Validationable {
 			User user = client.fetchObject("me", User.class);
 
 		} catch (FacebookNetworkException e) {
-			notes.addValidationEntry(ValidationExceptionType.APIException,"Facebook Network error, API returned HTTP status code: "+e.getHttpStatusCode());
+			notes.addValidationEntry(ValidationExceptionType.APIException, FacebookDescriptor.FACEBOOK_ID, e);
 		} catch (FacebookOAuthException e) {
-			notes.addValidationEntry(ValidationExceptionType.AuthException,"Invalid access token");
+			notes.addValidationEntry(ValidationExceptionType.AuthException, FacebookDescriptor.FACEBOOK_ID, e);
 		} catch (FacebookGraphException e) {
-			notes.addValidationEntry(ValidationExceptionType.APIException,"API call failed");
+			notes.addValidationEntry(ValidationExceptionType.APIException, FacebookDescriptor.FACEBOOK_ID, e);
 		}
 		
 		return notes;

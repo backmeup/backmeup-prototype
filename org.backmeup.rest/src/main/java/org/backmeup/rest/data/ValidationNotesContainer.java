@@ -20,7 +20,7 @@ public class ValidationNotesContainer {
     this.errors = new ArrayList<ValidationEntry>();
     this.warnings = new ArrayList<ValidationEntry>();
     for (ValidationEntry e : notes.getValidationEntries()) {
-      if (e.getType() == ValidationExceptionType.Warning) {
+      if (e.getType() == ValidationExceptionType.NoValidatorAvailable) {
         warnings.add(e);
       } else {
         errors.add(e);

@@ -1163,7 +1163,6 @@ public class BusinessLogicImpl implements BusinessLogic {
     }
   }
 
-  //TODO: Add password parameter to get token from keyserver to validate the profile
   public ValidationNotes validateProfile(String username, Long profileId, String keyRing) {
     String pluginName = null;
     try {
@@ -1180,11 +1179,11 @@ public class BusinessLogicImpl implements BusinessLogic {
 
     } catch (PluginUnavailableException pue) {      
       ValidationNotes notes = new ValidationNotes();      
-      notes.addValidationEntry(ValidationExceptionType.Warning, String.format(textBundle.getString(VALIDATOR_NOT_AVAILABLE), pluginName));
+      notes.addValidationEntry(ValidationExceptionType.NoValidatorAvailable, pluginName);
       return notes;
-    } catch (PluginException pe) {
+    } catch (Exception pe) {
       ValidationNotes notes = new ValidationNotes();
-      notes.addValidationEntry(ValidationExceptionType.Error, pe.getMessage());
+      notes.addValidationEntry(ValidationExceptionType.Error, pluginName, pe);
       return notes;
     } finally {
       conn.rollback();
@@ -1206,65 +1205,29 @@ public class BusinessLogicImpl implements BusinessLogic {
 
       ValidationNotes notes = new ValidationNotes();
       try {
-        // plugin-level validation
-        double requiredSpace = 0;
+        // plugin-level validation      
         for (ProfileOptions po : job.getSourceProfiles()) {
+          SourceSinkDescribable ssd = plugins.getSourceSinkById(po.getProfile()
+              .getDescription());
+          if (ssd == null) {
+            notes.addValidationEntry(ValidationExceptionType.PluginUnavailable, po
+                    .getProfile().getDescription());
+          }
+          
           // Validate source plug-in itself
           notes.getValidationEntries().addAll(
               validateProfile(username, po.getProfile().getProfileId(), keyRing)
                   .getValidationEntries());
-
-          SourceSinkDescribable ssd = plugins.getSourceSinkById(po.getProfile()
-              .getDescription());
-          if (ssd == null) {
-            notes.addValidationEntry(ValidationExceptionType.Error, String
-                .format(textBundle.getString(NO_PLUG_IN_FOUND_WITH_ID), po
-                    .getProfile().getDescription()));
-          }
-
-          Properties meta = getMetadata(username, po.getProfile()
-              .getProfileId(), keyRing);
-          String quota = meta.getProperty(Metadata.QUOTA);
-          if (quota != null) {
-            requiredSpace += Double.parseDouble(meta
-                .getProperty(Metadata.QUOTA));
-          } else {
-            notes.addValidationEntry(ValidationExceptionType.Warning, String
-                .format(textBundle.getString(CANNOT_COMPUTE_QUOTA), po
-                    .getProfile().getProfileName(), po.getProfile().getDescription()));
-          }
         }
-        // TODO: Add required space for index and encryption
-        requiredSpace *= 1.3;
+        
         // validate sink profile
         notes.getValidationEntries().addAll(
             validateProfile(username, job.getSinkProfile().getProfileId(), keyRing)
                 .getValidationEntries());
 
-        // validate available space
-        Properties meta = getMetadata(username, job.getSinkProfile()
-            .getProfileId(), keyRing);
-        String sinkQuota = meta.getProperty(Metadata.QUOTA);
-        String sinkQuotaLimit = meta.getProperty(Metadata.QUOTA_LIMIT);
-        if (sinkQuota != null && sinkQuotaLimit != null) {
-          double freeSpace = Double.parseDouble(sinkQuotaLimit)
-              - Double.parseDouble(sinkQuota);
-          if (freeSpace < requiredSpace) {
-            notes.addValidationEntry(
-                ValidationExceptionType.NotEnoughSpaceException, String.format(
-                    textBundle.getString(NOT_ENOUGH_SPACE), requiredSpace,
-                    freeSpace, job.getSinkProfile().getProfileName(), job
-                        .getSinkProfile().getDescription()));
-          }
-        } else {
-          notes.addValidationEntry(ValidationExceptionType.Warning, String
-              .format(textBundle.getString(CANNOT_COMPUTE_FREE), job
-                  .getSinkProfile().getProfileName(), job.getSinkProfile()
-                  .getDescription()));
-        }
       } catch (BackMeUpException bme) {
         notes.addValidationEntry(ValidationExceptionType.Error,
-            bme.getMessage());
+            bme);
       }
       return notes;
     } finally {

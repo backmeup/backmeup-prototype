@@ -37,14 +37,14 @@ public class MoodleValidator implements Validationable {
 
 		try {
 			// 1. Check if the Moodle server can be reached
-			if (getResponseCode(serverurl) >= 400) {
-				notes.addValidationEntry(ValidationExceptionType.AuthException,
-						"The Moodle server cannot be achieved!");
+			if (getResponseCode(serverurl) >= 400) {			  
+				notes.addValidationEntry(ValidationExceptionType.APIException,
+						MoodleDescriptor.MOODLE_ID, new Exception("Server cannot be achieved!"));
 			}
 			// 2. Check if the server-side Moodle plugin is installed
 			else if (getResponseCode(authurl) >= 400) {
-				notes.addValidationEntry(ValidationExceptionType.AuthException,
-						"The server-side Moodle Plugin is not installed!");
+				notes.addValidationEntry(ValidationExceptionType.APIException,
+				    MoodleDescriptor.MOODLE_ID, new Exception("The server-side Moodle Plugin is not installed!"));
 			} else {
 				DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
 						.newInstance();
@@ -58,7 +58,7 @@ public class MoodleValidator implements Validationable {
 				if (result.getTextContent().compareTo("true") != 0)
 					notes.addValidationEntry(
 							ValidationExceptionType.AuthException,
-							"Login failed!");
+							MoodleDescriptor.MOODLE_ID, new Exception("Invalid credentials!"));
 				else {
 					authurl = serverurl
 							+ "blocks/backmeup/service.php?username="
@@ -71,14 +71,15 @@ public class MoodleValidator implements Validationable {
 					if (nodes.getLength() == 0)
 						notes.addValidationEntry(
 								ValidationExceptionType.AuthException,
-								"Login was successfull, but the user is not enrolled in any course, so there's no data to backup!");
+								MoodleDescriptor.MOODLE_ID,
+								new Exception("Login was successfull, but the user is not enrolled in any course, so there's no data to backup!"));
 				}
 			}
 		} catch (MalformedURLException e) {
 			notes.addValidationEntry(
 					ValidationExceptionType.AuthException,
-					"There's a problem with the Moodle server url: "
-							+ e.getMessage());
+					MoodleDescriptor.MOODLE_ID,
+					e);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

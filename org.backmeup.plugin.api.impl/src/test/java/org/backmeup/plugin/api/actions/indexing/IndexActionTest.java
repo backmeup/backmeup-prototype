@@ -41,12 +41,12 @@ public class IndexActionTest {
 			"\"sourceProfiles\":" +
 			"[{\"profile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"TestUser\"," +
 			"\"password\":\"pw\",\"keyRing\":\"k3yr1nG\",\"email\":\"e@ma.il\",\"isActivated\":" +
-			"false,\"properties\":[]},\"profileName\":\"TestProfile\",\"desc\":" +
+			"false,\"properties\":[]},\"profileName\":\"TestProfile\",\"description\":" +
 			"\"org.backmeup.dummy\",\"sourceAndOrSink\":\"Source\"},\"options\":" + 
 			"[\"folder1\",\"folder2\"]}]," +
 			"\"sinkProfile\":{\"profileId\":2,\"user\":{\"userId\":1,\"username\":\"TestUser\"" +
 			",\"password\":\"pw\",\"keyRing\":\"pw\",\"email\":\"e@ma.il\",\"isActivated\":" +
-			"false,\"properties\":[]},\"profileName\":\"TestProfile2\",\"desc\":" +
+			"false,\"properties\":[]},\"profileName\":\"TestProfile2\",\"description\":" +
 			"\"org.backmeup.dummy\",\"sourceAndOrSink\":\"Sink\"},\"requiredActions\":[]," + 
 			"\"start\":\"1345203377704\",\"delay\":1345203258212}";
 	
@@ -103,10 +103,10 @@ public class IndexActionTest {
 					Assert.assertEquals(1, source.get(key));
 				
 				if (key.equals("backup_sources"))
-					Assert.assertEquals("TestProfile", source.get(key));
+					Assert.assertEquals("org.backmeup.dummy", source.get(key));
 				
 				if (key.equals("backup_sink"))
-					Assert.assertEquals("TestProfile2", source.get(key));
+					Assert.assertEquals("org.backmeup.dummy", source.get(key));
 				
 				// if (key.equals("path"))
 					// Assert.assertTrue(source.get(key).toString().startsWith("src"));

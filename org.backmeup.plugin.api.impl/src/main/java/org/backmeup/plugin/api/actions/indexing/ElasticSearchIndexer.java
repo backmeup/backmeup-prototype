@@ -67,14 +67,14 @@ public class ElasticSearchIndexer {
 		contentBuilder.field(IndexUtils.FIELD_FILENAME, getFilename(dataObject.getPath()));
 		contentBuilder.field(IndexUtils.FIELD_PATH, dataObject.getPath());
 		contentBuilder.field(IndexUtils.FIELD_FILE_HASH, dataObject.getMD5Hash());
-		contentBuilder.field(IndexUtils.FIELD_BACKUP_SINK, job.getSinkProfile().getProfileName());
+		contentBuilder.field(IndexUtils.FIELD_BACKUP_SINK, job.getSinkProfile().getDescription());
 		contentBuilder.field(IndexUtils.FIELD_BACKUP_AT, new Date().getTime());
 		contentBuilder.field(IndexUtils.FIELD_JOB_ID, job.getId());
 		
 		// Where's my Scala .map and mkString!?!
 		List<String> sourceNames = new ArrayList<String>(); 
 		for (ProfileOptions source : job.getSourceProfiles()) {
-			sourceNames.add(source.getProfile().getProfileName());			
+			sourceNames.add(source.getProfile().getDescription());			
 		}
 		contentBuilder.field(IndexUtils.FIELD_BACKUP_SOURCES, StringUtils.join(sourceNames, ", "));
 		

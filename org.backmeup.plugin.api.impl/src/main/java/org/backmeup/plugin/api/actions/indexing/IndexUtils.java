@@ -81,7 +81,7 @@ public class IndexUtils {
 	  fi.setTitle(source.get(FIELD_FILENAME).toString());
 	  fi.setPath(source.get(FIELD_PATH).toString());
 	  fi.setSink(source.get(FIELD_BACKUP_SINK).toString());
-	  fi.setType(source.get(FIELD_CONTENT_TYPE).toString());	  
+	  fi.setType(getTypeFromMimeType(source.get(FIELD_CONTENT_TYPE).toString()));	  
 	  return fi;
 	}
 	
@@ -103,7 +103,7 @@ public class IndexUtils {
 	    	
 	    	Object contentType = source.get(FIELD_CONTENT_TYPE);
 	    	if (contentType != null) {
-	    		entry.setType(contentType.toString());
+	    		entry.setType(getTypeFromMimeType(contentType.toString()));
 	    	} else {
 	    		entry.setType("[unknown]");
 	    	}

@@ -984,6 +984,8 @@ public class BusinessLogicImpl implements BusinessLogic {
           if (userId != null)
             p.setIdentification(userId);
           profileDao.save(p);
+          if (keyserverClient.isAuthInformationAvailable(p, keyRing))
+            keyserverClient.deleteAuthInfo(p.getProfileId());
           keyserverClient.addAuthInfo(p, keyRing, props);
           conn.commit();
           return;

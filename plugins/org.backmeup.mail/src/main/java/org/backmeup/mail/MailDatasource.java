@@ -31,6 +31,7 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeUtility;
 
+import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.connectors.Datasource;
@@ -355,7 +356,7 @@ public class MailDatasource implements Datasource {
     }
   }
 
-  private void handleFolder(Folder folder, Storage storage, Set<String> alreadyInspected, List<MessageInfo> indexDetails)
+  private void handleFolder(Folder folder, Storage storage, Set<String> alreadyInspected, List<MessageInfo> indexDetails, int retryCount)
       throws IOException, MessagingException, StorageException {
     try {
       folder.open(Folder.READ_ONLY);
@@ -377,7 +378,11 @@ public class MailDatasource implements Datasource {
       folder.close(false);
     } catch (FolderClosedException fce) {
       logger.log(Level.WARNING, "Retrying folder " + folder, fce);
-      handleFolder(folder, storage, alreadyInspected, indexDetails);
+      if (retryCount < 10) {        
+        handleFolder(folder, storage, alreadyInspected, indexDetails, retryCount + 1);
+      } else {
+        throw new PluginException(MailDescriptor.MAIL_ID, "Failed to download folder", fce);
+      }
     } catch (MessagingException me) {
       logger.log(Level.FINE, me.getMessage(), me);    
     } 
@@ -388,8 +393,8 @@ public class MailDatasource implements Datasource {
       StorageException {
     if (alreadyInspected.contains(current.getFullName()))
       return;
-          
-    handleFolder(current, storage, alreadyInspected, indexDetails);
+    int retryCount = 0;
+    handleFolder(current, storage, alreadyInspected, indexDetails, retryCount);
     alreadyInspected.add(current.getFullName());
 
     Folder[] subFolders = current.list("*");
@@ -429,10 +434,13 @@ public class MailDatasource implements Datasource {
       store.close();
     } catch (NoSuchProviderException e) {
       logger.log(Level.SEVERE, e.getMessage(), e);
+      throw new PluginException(MailDescriptor.MAIL_ID, "No such provider", e);
     } catch (MessagingException e) {
       logger.log(Level.SEVERE, e.getMessage(), e);
+      throw new PluginException(MailDescriptor.MAIL_ID, "An error occured during the backup", e);
     } catch (IOException e) {
-      logger.log(Level.SEVERE, e.getMessage(), e);      
+      logger.log(Level.SEVERE, e.getMessage(), e);
+      throw new PluginException(MailDescriptor.MAIL_ID, "An error occured during the backup", e);
     }
   }
 

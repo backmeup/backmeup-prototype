@@ -27,9 +27,6 @@ import org.jdom2.input.SAXBuilder;
  */
 public class MoodleDatasource extends FilesystemLikeDatasource {
 
-	private static final SimpleDateFormat formatter = new SimpleDateFormat(
-			"dd.MM.yyyy HH:mm:ss");
-
 	@Override
 	public String getStatistics(Properties items) {
 		return null;
@@ -148,9 +145,7 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 								fileMeta.setParent(sequenceMeta.getId());
 								
 								if (file.hasAttributes()) {
-									fileMeta.setModified(formatter.parse(file
-											.getAttributeValue("modified")));
-
+									fileMeta.setModified(MoodleDatasource.parse(file.getAttributeValue("modified")));
 									fileMeta.setType(file
 											.getAttributeValue("mime"));
 								}
@@ -216,4 +211,28 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 		availableOptions.add("Folder");
 		return availableOptions;
 	}
+	/**
+	 * Used for Conversion into ISO8601 Date Format, which the Indexer needs
+	 * @param input
+	 * @return
+	 * @throws java.text.ParseException
+	 */
+    private static Date parse( String input ) throws java.text.ParseException {
+
+        SimpleDateFormat df = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ssz" );
+        
+        if ( input.endsWith( "Z" ) ) {
+            input = input.substring( 0, input.length() - 1) + "GMT-00:00";
+        } else {
+            int inset = 6;
+        
+            String s0 = input.substring( 0, input.length() - inset );
+            String s1 = input.substring( input.length() - inset, input.length() );
+
+            input = s0 + "GMT" + s1;
+        }
+        
+        return df.parse( input );
+        
+    }
 }

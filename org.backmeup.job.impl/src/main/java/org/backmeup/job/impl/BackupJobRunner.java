@@ -98,7 +98,7 @@ public class BackupJobRunner {
     try {
       conn.beginOrJoin();
       BackupJobDao jobDao = dal.createBackupJobDao();
-      job = jobDao.merge(job);
+      job = jobDao.findById(job.getId());
       JobProtocolDao jpd = dal.createJobProtocolDao();
       // remove old entries, then store the new one 
       jpd.deleteByUsername(job.getUser().getUsername());
@@ -110,7 +110,7 @@ public class BackupJobRunner {
     }
     conn.beginOrJoin();
     BackupJobDao jobDao = dal.createBackupJobDao();
-    job = jobDao.merge(job);
+    job = jobDao.findById(job.getId());
     JobProtocolDao jpd = dal.createJobProtocolDao();
     protocol.setUser(job.getUser());
     protocol.setJob(job);
@@ -126,7 +126,7 @@ public class BackupJobRunner {
       BackupJobDao bjd = dal.createBackupJobDao();
       
       // use the job which is stored within the database      
-      BackupJob persistentJob = bjd.merge(job);             
+      BackupJob persistentJob = bjd.findById(job.getId());             
       
       // when will the next access to the access data occur? current time +
       // delay

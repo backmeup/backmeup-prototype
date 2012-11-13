@@ -15,6 +15,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -47,6 +48,13 @@ import org.backmeup.plugin.api.storage.StorageException;
  * @author fschoeppl
  */
 public class MailDatasource implements Datasource {
+  
+  private static class Content {    
+    public String contentId;
+    public String filename;
+    public InputStream content;     
+  }
+  
   private static class MessageInfo {
     private String fileName;
     private String subject;
@@ -317,7 +325,17 @@ public class MailDatasource implements Datasource {
       logger.fine("Downloading attachment " + a.filename);
       storage.addFile(a.stream, attachmentFolder + a.filename, new MetainfoContainer());
       logger.fine("Done.");
-    }    
+    }
+    
+    // get embedded images
+    List<Content> contentIds = getContentIds(m);
+    for (Content c : contentIds) {
+      logger.fine("Downloading embedded resources " + c.filename);
+      appendToBody = appendToBody.replace("cid:" + c.contentId, "attachments" + msgNmbr + "/" + c.filename);
+      storage.addFile(c.content, attachmentFolder + c.filename, new MetainfoContainer());
+      logger.fine("Done.");
+    }
+    
     String attachmentString = attachmentLinks.length() == 0 ? "" : MessageFormat.format(textBundle.getString(MESSAGE_HTML_ATTACHMENT_WRAP), attachmentLinks.toString());
     
     String htmlText = MessageFormat.format(textBundle.getString(MESSAGE_HTML_WRAP), 
@@ -354,6 +372,39 @@ public class MailDatasource implements Datasource {
     for (int i=0; i < nested.size(); i++) {
       handlePart(nested.get(i), folderName + "/nested/", storage, alreadyInspected, indexDetails);
     }
+  }
+
+  private List<Content> getContentIds(Part m) throws MessagingException, IOException {
+    List<Content> contentIds = new ArrayList<Content>();
+    Stack<Part> parts = new Stack<Part>();
+    parts.push(m);
+    while (!parts.empty()) {
+      Part current = parts.pop();
+      
+      // analyze current part
+      String[] header = current.getHeader("Content-ID");
+      if (header != null && header.length > 0) {
+        Content c = new Content();
+        c.contentId = header[0];
+        if (c.contentId.startsWith("<"))
+          c.contentId = c.contentId.substring(1);
+        if (c.contentId.endsWith(">"))
+          c.contentId = c.contentId.substring(0, c.contentId.length() - 1);
+        c.filename = current.getFileName();
+        c.content = (InputStream) current.getDataHandler().getContent();
+        contentIds.add(c);
+      }
+      
+      // push children on stack
+      if (current.isMimeType("multipart/*")) {
+        Multipart mp = (Multipart) current.getContent();
+        int count = mp.getCount();
+        for (int i = 0; i < count; i++) {
+          parts.push(mp.getBodyPart(i));
+        }
+      }
+    }
+    return contentIds;
   }
 
   private void handleFolder(Folder folder, Storage storage, Set<String> alreadyInspected, List<MessageInfo> indexDetails, int retryCount)
@@ -420,15 +471,18 @@ public class MailDatasource implements Datasource {
     try {
       Session session = Session.getInstance(accessData);
       Store store = session.getStore();
+      logger.log(Level.FINE, "Connecting to mail provider " + accessData.getProperty("mail.host"));
       store.connect(accessData.getProperty("mail.host"),
           accessData.getProperty("mail.user"),
           accessData.getProperty("mail.password"));
       Set<String> alreadyInspected = new HashSet<String>();
+      logger.log(Level.FINE, "Connected! Downloading folders...");
       Folder[] folders = store.getDefaultFolder().list("*");
       List<MessageInfo> indexDetails = new ArrayList<MessageInfo>();
       for (Folder folder : folders) {
         handleDownloadAll(folder, accessData, storage, alreadyInspected, indexDetails);
       }
+      logger.log(Level.FINE, "Download completed; creating index...");
       // generate index based on message info structs
       generateIndex(storage, indexDetails);
       store.close();

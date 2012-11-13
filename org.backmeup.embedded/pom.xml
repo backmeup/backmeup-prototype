@@ -87,7 +87,7 @@
 				</executions>
 				<configuration>
 					<executable>java</executable>
-					<arguments>
+                                        <arguments>
 						<argument>-Xmx1024m</argument>
 						<argument>-XX:MaxPermSize=256m</argument>
 						<argument>-cp</argument>
@@ -127,6 +127,7 @@
 								<argument>-XX:MaxPermSize=256m</argument>
 								<argument>-Xdebug</argument>
 								<argument>-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044</argument>
+                                                        <argument>-Djava.util.logging.config.file=logging.properties</argument>
 								<argument>-cp</argument>
 								<classpath />
 								<argument>org.backmeup.embedded.Main</argument>

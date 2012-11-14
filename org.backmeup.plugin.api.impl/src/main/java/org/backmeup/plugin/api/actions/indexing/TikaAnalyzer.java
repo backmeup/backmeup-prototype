@@ -36,8 +36,6 @@ public class TikaAnalyzer {
 	
 			for (String name : metadata.names()) {
 				String value = metadata.get(name);
-				System.out.println("TIKA property name: " + name);
-				System.out.println("TIKA property value: " + value);
 				meta.put(name, value);
 			}
 		} catch (Exception e) {

@@ -99,7 +99,7 @@ public class IndexAction implements Action {
 	}
 	
 	private String extractFullText_HTML(DataObject dob) throws IOException, SAXException, TikaException {		
-        ContentHandler handler = new BodyContentHandler();
+        ContentHandler handler = new BodyContentHandler(10*1024*1024);
         Metadata metadata = new Metadata();
         new HtmlParser().parse(new ByteArrayInputStream(dob.getBytes()), handler, metadata, new ParseContext());
         return handler.toString();

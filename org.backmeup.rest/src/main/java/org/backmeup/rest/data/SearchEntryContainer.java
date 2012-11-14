@@ -14,6 +14,7 @@ public class SearchEntryContainer {
 	private String title;
 	private String type;
 	private String thumbnailUrl;
+	private String datasource;
 	
 	public SearchEntryContainer(SearchEntry entry) {
 		this.setFileId(entry.getFileId());
@@ -21,7 +22,7 @@ public class SearchEntryContainer {
 		this.setTitle(entry.getTitle());
 		this.setType(entry.getType());
 		this.setThumbnailUrl(entry.getThumbnailUrl());
-		
+		this.setDatasource(entry.getDatasource());
 		// TODO implement properties key/value map
 	}
 
@@ -63,6 +64,14 @@ public class SearchEntryContainer {
 
 	public void setThumbnailUrl(String thumbnailUrl) {
 		this.thumbnailUrl = thumbnailUrl;
+	}
+
+	public String getDatasource() {
+		return datasource;
+	}
+
+	public void setDatasource(String datasource) {
+		this.datasource = datasource;
 	}
 
 }

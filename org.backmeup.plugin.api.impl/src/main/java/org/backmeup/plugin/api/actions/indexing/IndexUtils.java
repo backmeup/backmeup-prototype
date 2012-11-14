@@ -100,6 +100,7 @@ public class IndexUtils {
 	    	entry.setFileId(owner + ":" + hash + ":" + timestamp);
 	    	entry.setTitle(source.get(FIELD_FILENAME).toString());
 	    	entry.setTimeStamp(new Date(timestamp));
+	    	entry.setDatasource(source.get(FIELD_BACKUP_SOURCES).toString());
 	    	
 	    	Object contentType = source.get(FIELD_CONTENT_TYPE);
 	    	if (contentType != null) {
@@ -109,7 +110,6 @@ public class IndexUtils {
 	    	}
 	    	
 	    	entry.setProperty(FIELD_PATH, source.get(FIELD_PATH).toString());
-	    	entry.setProperty(FIELD_BACKUP_SOURCES, source.get(FIELD_BACKUP_SOURCES).toString());
 	    	entry.setProperty(FIELD_BACKUP_SINK, source.get(FIELD_BACKUP_SINK).toString());
 	    	entry.setProperty(FIELD_FILE_HASH, hash);
 	    	

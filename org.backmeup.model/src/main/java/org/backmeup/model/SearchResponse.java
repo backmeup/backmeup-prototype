@@ -145,6 +145,7 @@ public class SearchResponse {
 		private String title;
 		private String type;
 		private String thumbnailUrl;
+		private String datasource;
 		private Map<String, String> properties = new HashMap<String, String>();
 		
 		public SearchEntry() {
@@ -152,12 +153,13 @@ public class SearchResponse {
 		}
 		
 		public SearchEntry(String fileId, Date timeStamp, String type, String title,
-				String thumbnailUrl) {
+				String thumbnailUrl, String datasource) {
 			this.fileId = fileId;
 			this.timeStamp = timeStamp;
 			this.title = title;
 			this.setType(type);
 			this.thumbnailUrl = thumbnailUrl;
+			this.datasource = datasource;
 		}
 		
 		public String getProperty(String key) {
@@ -205,6 +207,14 @@ public class SearchResponse {
 
 		public void setType(String type) {
 			this.type = type;
+		}
+
+		public String getDatasource() {
+			return datasource;
+		}
+
+		public void setDatasource(String datasource) {
+			this.datasource = datasource;
 		}
 	}
 }

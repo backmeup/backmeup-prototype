@@ -46,7 +46,6 @@ import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable.Type;
 import org.backmeup.model.spi.ValidationExceptionType;
-import org.backmeup.plugin.api.Metadata;
 
 /**
  * The dummy businness logic stores all data within Lists and Maps (in-memory).
@@ -667,11 +666,11 @@ public class DummyBusinessLogic implements BusinessLogic {
     long id = maxId++;
     List<SearchEntry> responses = new ArrayList<SearchEntry>();
     responses.add(new SearchEntry(Long.toString(maxId++), new Date(), "image", "image1.png",
-        "http://athumbnail.png"));
+        "http://athumbnail.png", ""));
     responses.add(new SearchEntry(Long.toString(maxId++), new Date(), "image", "image2.png",
-        "http://athumbnail.png"));
+        "http://athumbnail.png", ""));
     responses.add(new SearchEntry(Long.toString(maxId++), new Date(), "image", "image3.png",
-        "http://athumbnail.png"));
+        "http://athumbnail.png", ""));
     searches.put(id, new SearchResponse(0, 100, "query", responses));
 
     List<CountedEntry> bySource = new ArrayList<CountedEntry>();

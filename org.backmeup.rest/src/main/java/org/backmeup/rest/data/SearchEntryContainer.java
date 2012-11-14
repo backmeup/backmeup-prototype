@@ -1,6 +1,8 @@
 package org.backmeup.rest.data;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -14,6 +16,9 @@ public class SearchEntryContainer {
 	private String title;
 	private String type;
 	private String thumbnailUrl;
+	private String datasource;
+	
+	private List<KeyValue> properties;
 	
 	public SearchEntryContainer(SearchEntry entry) {
 		this.setFileId(entry.getFileId());
@@ -21,8 +26,11 @@ public class SearchEntryContainer {
 		this.setTitle(entry.getTitle());
 		this.setType(entry.getType());
 		this.setThumbnailUrl(entry.getThumbnailUrl());
-		
-		// TODO implement properties key/value map
+		this.setDatasource(entry.getDatasource());
+		this.properties = new ArrayList<SearchEntryContainer.KeyValue>();
+		for (String key : entry.getPropertyKeys()) {
+			this.properties.add(new KeyValue(key, entry.getProperty(key)));
+		}
 	}
 
 	public String getFileId() {
@@ -63,6 +71,50 @@ public class SearchEntryContainer {
 
 	public void setThumbnailUrl(String thumbnailUrl) {
 		this.thumbnailUrl = thumbnailUrl;
+	}
+
+	public String getDatasource() {
+		return datasource;
+	}
+
+	public void setDatasource(String datasource) {
+		this.datasource = datasource;
+	}
+	
+	public List<KeyValue> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(List<KeyValue> properties) {
+		this.properties = properties;
+	}
+
+	class KeyValue {
+		
+		private String key;
+		
+		private String value;
+		
+		public KeyValue(String key, String value) {
+			this.key = key;
+			this.value = value;
+		}
+		
+		public String getKey() {
+			return key;
+		}
+		
+		public void setKey(String key) {
+			this.key = key;
+		}
+		
+		public String getValue() {
+			return value;
+		}
+		
+		public void setValue(String value) {
+			this.value= value;
+		}
 	}
 
 }

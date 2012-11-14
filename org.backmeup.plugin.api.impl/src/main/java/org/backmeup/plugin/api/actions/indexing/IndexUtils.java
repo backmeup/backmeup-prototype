@@ -105,7 +105,7 @@ public class IndexUtils {
 	    	if (contentType != null) {
 	    		entry.setType(getTypeFromMimeType(contentType.toString()));
 	    	} else {
-	    		entry.setType("[unknown]");
+	    		entry.setType("other");
 	    	}
 	    	
 	    	entry.setProperty(FIELD_PATH, source.get(FIELD_PATH).toString());
@@ -157,16 +157,20 @@ public class IndexUtils {
 		// Now where's my Scala groupBy!? *heul*
 		Map<String, Integer> groupedHits = new HashMap<String, Integer>();
 		for (SearchHit hit : esResponse.getHits()) {
+			String type;
 			if (hit.getSource().get(FIELD_CONTENT_TYPE) != null) {
-				String type = getTypeFromMimeType(hit.getSource().get(FIELD_CONTENT_TYPE).toString());
-				Integer count = groupedHits.get(type);
-				if (count == null) {
-					count = Integer.valueOf(1);
-				} else {
-					count = Integer.valueOf(count.intValue() + 1);
-				}
-				groupedHits.put(type, count);
+				type = getTypeFromMimeType(hit.getSource().get(FIELD_CONTENT_TYPE).toString());
+			} else {
+				type = "other";
 			}
+			
+			Integer count = groupedHits.get(type);
+			if (count == null) {
+				count = Integer.valueOf(1);
+			} else {
+				count = Integer.valueOf(count.intValue() + 1);
+			}
+			groupedHits.put(type, count);
 		}
 		
 		// ...and .map

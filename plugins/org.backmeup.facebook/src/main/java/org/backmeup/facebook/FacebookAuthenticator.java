@@ -32,8 +32,7 @@ public class FacebookAuthenticator implements OAuthBased {
 
 	@Override
 	public String createRedirectURL(Properties inputProperties, String callback) {
-		this.callback = callback;
-		
+		this.callback = (callback.endsWith("/")) ? callback : callback + '/';
 		FacebookHelper fh = FacebookHelper.getInstance();
 		
 		return "https://www.facebook.com/dialog/oauth?client_id=" + fh.getAppKey() +
@@ -59,7 +58,7 @@ public class FacebookAuthenticator implements OAuthBased {
 		try {
 			url = new URL("https://graph.facebook.com/oauth/access_token?" +
 					"client_id="+FacebookHelper.getInstance().getAppKey()+
-					"&redirect_uri=http://www.backmeup.at/oauth_callback"+
+					"&redirect_uri="+this.callback+
 					"&client_secret="+FacebookHelper.getInstance().getAppSecret()+"&code="+code);
 		
 			c = (HttpURLConnection) url.openConnection();
@@ -93,6 +92,4 @@ public class FacebookAuthenticator implements OAuthBased {
 			throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while retrieving authentication information", e);
 		}
 	}
-
-
 }

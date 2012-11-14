@@ -9,8 +9,8 @@ import java.util.Properties;
 
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.html.HtmlParser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.backmeup.model.BackupJob;
 import org.backmeup.plugin.api.actions.Action;
@@ -92,17 +92,21 @@ public class IndexAction implements Action {
 	}
 	
 	private String extractFullText(DataObject dob, String contentType) throws IOException, SAXException, TikaException {
-		if (contentType.startsWith("text/html"))
-			return extractFullText_HTML(dob);
-					
-		return null;
+        ContentHandler handler = new BodyContentHandler(10*1024*1024);
+        Metadata metadata = new Metadata();
+        
+        AutoDetectParser parser = new AutoDetectParser();
+        parser.parse(new ByteArrayInputStream(dob.getBytes()), handler, metadata, new ParseContext());
+        return handler.toString();
 	}
 	
+	/*
 	private String extractFullText_HTML(DataObject dob) throws IOException, SAXException, TikaException {		
         ContentHandler handler = new BodyContentHandler(10*1024*1024);
         Metadata metadata = new Metadata();
         new HtmlParser().parse(new ByteArrayInputStream(dob.getBytes()), handler, metadata, new ParseContext());
         return handler.toString();
 	}
+	*/
 
 }

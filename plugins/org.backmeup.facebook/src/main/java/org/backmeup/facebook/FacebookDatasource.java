@@ -1229,6 +1229,8 @@ public class FacebookDatasource implements Datasource {
 		facebookBackupOptions.add("Friendslists");
 		facebookBackupOptions.add("Groups");
 		facebookBackupOptions.add("Photos");
+		facebookBackupOptions.add("Posts");
+		facebookBackupOptions.add("Sites");
 		facebookBackupOptions.add("Albums");
 		return facebookBackupOptions;
 	}

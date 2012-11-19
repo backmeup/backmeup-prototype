@@ -1,5 +1,6 @@
 from REST import Comm
 from time import mktime
+from json import dumps
 
 ##### User operations #####
 com = Comm()
@@ -117,16 +118,30 @@ def get_backup_jobs(user):
 def validate_backup_job(user, jobId, keyRing):
   return com.request("POST", "/jobs/" + user + "/validate/" + str(jobId), {"keyRing" : keyRing})
 
-def create_backup_job(user, keyRing, sourceProfileIds, requiredActions, sinkProfileId, when, jobTitle, sourceOptions=None):
-  params = {"sourceProfileIds" : sourceProfileIds,
+def create_backup_job(user, keyRing, sourceProfiles, requiredActions, sinkProfileId, when, jobTitle, settings=None):
+  params = {"sourceProfiles" : sourceProfiles,
+            "keyRing" : keyRing,
+            "timeExpression" : when,
+            "sinkProfileId" : sinkProfileId,
+            "jobTitle" : jobTitle,
+            "actions" : requiredActions
+           }
+  if (settings != None):
+    params.update(settings)
+  #print dumps(params, indent=2)
+  return com.request("POST", "/jobs/" + user, params)
+
+'''def create_backup_job(user, keyRing, sourceProfileIds, requiredActions, sinkProfileId, when, jobTitle, sourceOptions=None):
+  params = {"sourceProfiles" : [
+              sourceProfileIds,
             "requiredActionIds" : requiredActions,
             "keyRing" : keyRing,
             "timeExpression" : when,
             "sinkProfileId" : sinkProfileId,
             "jobTitle" : jobTitle
            }
-  return com.request("POST", "/jobs/" + user, params)
-
+  return com.request("POST", "/jobs/" + user, params, encoding="application/json")
+'''
 def delete_backup_job(user, jobId):
   return com.request("DELETE", "/jobs/" + user + "/" + str(jobId))
 

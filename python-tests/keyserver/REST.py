@@ -34,6 +34,10 @@ class Comm :
 
 
   def _create_connection(self):
+    try:
+      self.con.close()
+    except:
+      pass
     self.con = HTTPConnection(SERVER, PORT)
     #self.con.set_debuglevel(100)    
 
@@ -44,6 +48,9 @@ class Comm :
 
   def set_json_request_encoding(self, isJsonEncoded):
     self._isJsonEncoded = isJsonEncoded
+
+  def close(self):
+    self.con.close()
 
   def request(self, op, url, params=None, isFile=False, convertToJson=True):
     try:

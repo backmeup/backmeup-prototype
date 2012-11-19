@@ -118,15 +118,18 @@ class BMU:
   
   def validate_backup_job(self, user, jobId, keyRing):
     return self.com.request("POST", "/jobs/" + user + "/validate/" + str(jobId), {"keyRing" : keyRing})
-  
-  def create_backup_job(self, user, keyRing, sourceProfileIds, requiredActions, sinkProfileId, when, jobTitle, sourceOptions=None):
-    params = {"sourceProfileIds" : sourceProfileIds,
-            "requiredActionIds" : requiredActions,
+
+
+  def create_backup_job(self, user, keyRing, sourceProfiles, requiredActions, sinkProfileId, when, jobTitle, settings=None):
+    params = {"sourceProfiles" : sourceProfiles,
             "keyRing" : keyRing,
             "timeExpression" : when,
             "sinkProfileId" : sinkProfileId,
-            "jobTitle" : jobTitle
+            "jobTitle" : jobTitle,
+            "actions" : requiredActions
            }
+    if (settings != None):
+      params.update(settings)
     return self.com.request("POST", "/jobs/" + user, params)
   
   def delete_backup_job(self, user, jobId):

@@ -42,7 +42,7 @@ class Comm :
     self._create_connection()
     self._retry_count = 0
 
-  def request(self, op, url, params=None, isFile=False, convertToJson=True):
+  def request(self, op, url, params=None, isFile=False, convertToJson=True, encoding="application/x-www-form-urlencoded"):
     try:
       if hasattr(url, "startswith") == True:
         if not url.startswith("http://") and not url.startswith("https://"):
@@ -54,11 +54,13 @@ class Comm :
         fh.close()
         data = self._post_multipart(SERVER+":"+str(PORT), url, None, [[name, fileName, data]])
         return data
-      headers = {"Content-Type" : "application/x-www-form-urlencoded", "Accept" : "application/json", "Connection" : "Keep-Alive", "Cache-Control" : "max-age=0", "User-Agent" : "Mozilla/5.0 (Windows NT 6.1; WOW64)"}
+      headers = {"Content-Type" : encoding, "Accept" : "application/json", "Connection" : "Keep-Alive", "Cache-Control" : "max-age=0", "User-Agent" : "Mozilla/5.0 (Windows NT 6.1; WOW64)"}
+      if params <> None and encoding == "application/x-www-form-urlencoded":
+        params = urlencode(params, doseq=True)
+        
       if params <> None:
-        encoded = urlencode(params, doseq=True)
-        logger.debug("REQUEST: "+ op + " http://" + SERVER + ":" + str(PORT) + url + " " + str(encoded))
-        self.con.request(op, url, encoded, headers)
+        logger.debug("REQUEST: "+ op + " http://" + SERVER + ":" + str(PORT) + url + " " + str(params))
+        self.con.request(op, url, params, headers)
       else:
         logger.debug("REQUEST: " + op + " http://" + SERVER + ":" + str(PORT) + url)
         self.con.request(op, url, headers=headers)

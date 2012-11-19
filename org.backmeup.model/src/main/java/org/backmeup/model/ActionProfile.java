@@ -59,7 +59,9 @@ public class ActionProfile implements Comparable<ActionProfile> {
   }
 
   public void addActionOption(String key, String value) {
-    this.actionOptions.add(new ActionProperty(key, value));
+    ActionProperty ap = new ActionProperty(key, value);
+    ap.setProfile(this);
+    this.actionOptions.add(ap);
   }
 
   @Entity

@@ -10,11 +10,15 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.backmeup.model.dto.ActionProfileEntry;
 import org.backmeup.model.dto.JobCreationRequest;
 import org.backmeup.model.dto.SourceProfileEntry;
+import org.backmeup.model.exceptions.BackMeUpException;
 
 public class JobCreationRequestParser {
   public static JobCreationRequest parse(MultivaluedMap<String, String> formParameters) {
     JobCreationRequest jcr = new JobCreationRequest();
     
+    if (!formParameters.containsKey("sourceProfiles")) {
+      throw new BackMeUpException("Missing sourceProfiles property!");
+    }
     for (String sourceProfile : formParameters.get("sourceProfiles")) {
       SourceProfileEntry spe = new SourceProfileEntry();
       spe.setId(Long.parseLong(sourceProfile));
@@ -32,6 +36,10 @@ public class JobCreationRequestParser {
         ape.getOptions().put(entry.getKey(), entry.getValue());
       }
       jcr.getActions().add(ape);
+    }
+    
+    if (!formParameters.containsKey("sinkProfileId")) {
+      throw new BackMeUpException("Missing sinkProfileId property!");
     }
     
     jcr.setSinkProfileId(Long.parseLong(formParameters.getFirst("sinkProfileId")));

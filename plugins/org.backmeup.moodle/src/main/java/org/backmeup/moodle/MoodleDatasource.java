@@ -32,10 +32,20 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 		return null;
 	}
 
+	/**
+	 * Depending on the options, there can be files which don't get downloaded.
+	 * The "delete" link at the end of the backup guarantees that those files will be
+	 * deleted on the moodle server.
+	 */
 	@Override
 	public InputStream getFile(Properties items, List<String> options, FilesystemURI uri) {
 		try {
-			return uri.getUri().toURL().openStream();
+			if(uri.getMappedUri().toString().equals("delete")) {
+				uri.getUri().toURL().openStream();
+				return null;
+			}
+			else
+				return uri.getUri().toURL().openStream();
 		} catch (Exception e) {
 			throw new PluginException(MoodleDescriptor.MOODLE_ID, String.format("Download failed: \"%s\"", e.getMessage()), e);
 		}
@@ -194,6 +204,13 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 						+ new File(file.getText()).getName()));
 				results.add(filesystemUri);
 			}
+			
+			Element deleteFile = doc.getRootElement().getChild("delete").getChild("file");
+			FilesystemURI filesystemUri = new FilesystemURI(new URI(
+					deleteFile.getText()), false);
+			filesystemUri.setMappedUri(new URI("delete"));
+			results.add(filesystemUri);
+			
 		} catch (Exception e) {
 			throw new PluginException(MoodleDescriptor.MOODLE_ID, String.format("Error while receiving file list: \"%s\"", e.getMessage()), e);
 		}

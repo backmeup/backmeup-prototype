@@ -21,6 +21,7 @@ import org.backmeup.dal.StatusDao;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.ActionProfile;
+import org.backmeup.model.ActionProfile.ActionProperty;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.JobProtocol;
 import org.backmeup.model.JobProtocol.JobProtocolMember;
@@ -203,9 +204,16 @@ public class BackupJobRunner {
 	        
 	        // Execute Actions in sequence
 	        addStatusToDb(new Status(persistentJob, "", StatusType.PROCESSING, StatusCategory.INFO, new Date()));
+	        
+	        // add all properties which have been stored to the params collection
+	        for (ActionProfile actionProfile : persistentJob.getRequiredActions()) {
+	          for (ActionProperty ap : actionProfile.getActionOptions()) {
+              params.put(ap.getKey(), ap.getValue());
+            }
+	        }
+	        
 	        for (ActionProfile actionProfile : persistentJob.getRequiredActions()) {
 	        	String actionId = actionProfile.getActionId();
-	        
 	        	Client client = null;
 	        	try {   		        	
 		        	if ("org.backmeup.encryption".equals(actionId)) {

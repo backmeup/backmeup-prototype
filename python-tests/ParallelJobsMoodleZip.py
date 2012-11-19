@@ -29,7 +29,7 @@ if __name__ == "__main__":
   print "=============== Creating user ============"
   try:
     bmu = BMU()
-    if options.delete:
+    if bool(options.delete):
       bmu.delete_user(options.user)
     verificationKey = bmu.register_user(options.user, options.password, options.password, options.user).data["verificationKey"]
     bmu.verify_email(verificationKey)

@@ -191,7 +191,7 @@ public class TwitterDatasource implements Datasource {
 		return metainfo;
 	}
 
-	private String extractMedia(Status state, String parent, Storage storage) {
+	private String extractMedia(Status state, String parent, Storage storage, String text) {
 		try {
 			MediaEntity[] media = state.getMediaEntities();
 			for (MediaEntity m : media) {
@@ -216,6 +216,7 @@ public class TwitterDatasource implements Datasource {
 					metainfo.setParent(Long.toString(state.getId()));
 					metainfo.setSource(TWITTER);
 					metainfo.setType("image");
+					metainfo.setAttribute("tweet", text);
 
 					metadata.addMetainfo(metainfo);
 
@@ -408,7 +409,7 @@ public class TwitterDatasource implements Datasource {
 
 					// extract media entities and save in separate file
 					if (state.getMediaEntities() != null) {
-						String media = extractMedia(state, "index", storage);
+						String media = extractMedia(state, "index", storage, text);
 						if (media != null) {
 							td = new TD("<a href = " + media
 									+ " target='_blank' > bild </a>");
@@ -516,7 +517,7 @@ public class TwitterDatasource implements Datasource {
 
 					// extract media entities and save in separate file
 					if (state.getMediaEntities() != null) {
-						String media = extractMedia(state, type, storage);
+						String media = extractMedia(state, type, storage, text);
 						if (!media.equals("")) {
 							td = new TD("<a href = " + media
 									+ " target='_blank' > bild </a>");
@@ -687,7 +688,7 @@ public class TwitterDatasource implements Datasource {
 					// extract media entities and save in separate file
 					if (state.getMediaEntities() != null) {
 						String media = extractMedia(state,
-								"list" + list.getId(), storage);
+								"list" + list.getId(), storage, state.getText());
 						if (!media.equals("")) {
 							td = new TD("<a href = " + media
 									+ " target='_blank' > bild </a>");

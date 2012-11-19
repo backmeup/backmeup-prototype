@@ -50,7 +50,7 @@ import com.restfb.types.User.Work;
 
 /**
  * class FacebookDatasource to download the own profile, friends with photos,
- * groups, posts, friendslists and albums with photos
+ * groups, posts, friendslists, sites and albums with photos
  * 
  * @author aschmiedhofer, mmurauer
  */
@@ -129,9 +129,10 @@ public class FacebookDatasource implements Datasource {
 			doc.appendBody(new A("accounts.html", "Seiten"));
 			doc.appendBody(new BR());
 		}
-		
+
 		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
 		storage.addFile(is, "index.html", new MetainfoContainer());
+
 	}
 
 	@Override
@@ -165,7 +166,7 @@ public class FacebookDatasource implements Datasource {
 
 		Document doc = createDocument("Fotos", "Facebook - Fotos", false);
 
-		downloadPhotos("me", doc, client, storage, progr);
+		downloadPhotos("me", "", doc, client, storage, progr);
 
 		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
 		storage.addFile(is, "photos.html", new MetainfoContainer());
@@ -177,9 +178,9 @@ public class FacebookDatasource implements Datasource {
 	 * @param id
 	 *            can be a album or user
 	 */
-	private void downloadPhotos(String id, Document doc, FacebookClient client,
-			Storage storage, Progressable progr) throws DatasourceException,
-			StorageException {
+	private void downloadPhotos(String id, String type, Document doc,
+			FacebookClient client, Storage storage, Progressable progr)
+			throws DatasourceException, StorageException {
 
 		Connection<Photo> photos = client.fetchConnection(id + "/photos",
 				Photo.class);
@@ -193,6 +194,8 @@ public class FacebookDatasource implements Datasource {
 						progr);
 				if (!id.equals("me"))
 					piclink = piclink.substring(6);
+				if (type.equals("site"))
+					piclink = "../Alben/" + piclink;
 				doc.appendBody(new A(piclink, photo.getName() != null ? photo
 						.getName().split("\n")[0] : "Foto"));
 				doc.appendBody(new BR());
@@ -361,9 +364,12 @@ public class FacebookDatasource implements Datasource {
 		;
 		do {
 			for (User friend : friends.getData()) {
-				doc.appendBody(new A(downloadUser(friend.getId(), client,
-						storage, progr), checkName(friend.getName())));
-				doc.appendBody(new BR());
+				if (friend != null && friend.getId() != null
+						&& friend.getName() != null) {
+					doc.appendBody(new A(downloadUser(friend.getId(), client,
+							storage, progr), checkName(friend.getName())));
+					doc.appendBody(new BR());
+				}
 			}
 		} while (friends.hasNext()
 				&& (friends = client.fetchConnectionPage(
@@ -377,7 +383,7 @@ public class FacebookDatasource implements Datasource {
 			Progressable progr) throws DatasourceException, StorageException {
 
 		Document doc = createDocument("Freundesliste",
-				"Facebook - Freundeslisten", false);
+				"Facebook - Freundesliste", false);
 
 		Connection<CategorizedFacebookType> lists = client.fetchConnection(
 				"me/friendlists", CategorizedFacebookType.class);
@@ -565,7 +571,7 @@ public class FacebookDatasource implements Datasource {
 		}
 
 		doc.appendBody(new H2("Fotos"));
-		downloadPhotos(album.getId(), doc, client, storage, progr);
+		downloadPhotos(album.getId(), "", doc, client, storage, progr);
 
 		MetainfoContainer metainfo = downloadComments(album.getId(),
 				getAlbumFilename(name + album.getId()), getAlbumFilename(name
@@ -634,7 +640,7 @@ public class FacebookDatasource implements Datasource {
 
 		String ending = ".jpg";// only jpg supported
 		String sourceFileName = "Alben/Fotos/" + photo.getId() + ending;
-		downloadPicture(photo.getSource(), sourceFileName, storage, progr,
+		downloadPicture(photo.getSource(), sourceFileName, "", storage, progr,
 				photoinfo);
 
 		photoinfo.setDestination("Alben/Fotos/" + photo.getId() + ".html");
@@ -755,7 +761,7 @@ public class FacebookDatasource implements Datasource {
 
 			// get profile picture
 			String pic = downloadProfilePicture(name + u.getId(), u.getId(),
-					storage, progr);
+					"", storage, progr);
 
 			userinfo.setAttribute("profilePicture", "Freunde/" + pic);
 			metainfo.addMetainfo(userinfo);
@@ -940,10 +946,12 @@ public class FacebookDatasource implements Datasource {
 	 * @return the path to the picture
 	 * @throws StorageException
 	 */
-	private String downloadProfilePicture(String name, String id,
+	private String downloadProfilePicture(String name, String id, String type,
 			Storage storage, Progressable progr) throws StorageException {
 		String fileName = "";
-		if (name != "me")
+		if (type.equals("site"))
+			fileName = "Seiten/Fotos/" + name + ".jpg";
+		else if (!name.equals("me"))
 			fileName = "Freunde/Fotos/" + name + ".jpg";
 		else
 			fileName = name + ".jpg";
@@ -958,17 +966,24 @@ public class FacebookDatasource implements Datasource {
 		photoinfo.setType("photo");
 
 		String uPicLoc = null;
-		uPicLoc = getGraphUrl(id + "/picture", "type=large");
+		if (type.equals("site"))
+			uPicLoc = getGraphUrl(id + "/picture?access_token=" + accessToken,
+					null);
+		else
+			uPicLoc = getGraphUrl(id + "/picture", "type=large");
 		if (uPicLoc != null) {
-			downloadPicture(uPicLoc, fileName, storage, progr, photoinfo);
+			downloadPicture(uPicLoc, fileName, type, storage, progr, photoinfo);
 		} else {
 			progr.progress("no picture URL...");
 		}
+		if (type.equals("site"))
+			return fileName.substring(7);
+
 		return fileName.substring(8);
 	}
 
 	private boolean downloadPicture(String path, String destination,
-			Storage storage, Progressable progr, Metainfo photoinfo)
+			String type, Storage storage, Progressable progr, Metainfo photoinfo)
 			throws StorageException {
 
 		MetainfoContainer metainfo = new MetainfoContainer();
@@ -1055,6 +1070,12 @@ public class FacebookDatasource implements Datasource {
 	private String downloadAccount(String id, String name,
 			FacebookClient client, Storage storage, Progressable progr)
 			throws DatasourceException, StorageException {
+		MetainfoContainer metadata = new MetainfoContainer();
+		Metainfo accountinfo = new Metainfo();
+		accountinfo.setBackupDate(new Date());
+		accountinfo.setId(id);
+		accountinfo.setSource("facebook");
+		accountinfo.setType("site");
 
 		Document doc = createDocument(name, "Facebook - Seite", true);
 
@@ -1062,7 +1083,8 @@ public class FacebookDatasource implements Datasource {
 		URL url;
 		try {
 
-			url = new URL("https://graph.facebook.com/" + id);
+			url = new URL("https://graph.facebook.com/" + id + "?access_token="
+					+ accessToken);
 			c = (HttpURLConnection) url.openConnection();
 			c.connect();
 
@@ -1083,24 +1105,30 @@ public class FacebookDatasource implements Datasource {
 			doc.appendBody(new BR());
 			doc.appendBody(new BR());
 
-			String pic = downloadProfilePicture(name + id, id, storage, progr);
-			pic = "../Freunde/" + pic;
+			String pic = downloadProfilePicture(name + id, id, "site", storage,
+					progr);
+			// pic = "../Freunde/" + pic;
 			doc.appendBody(new IMG(pic));
 			doc.appendBody(new BR());
 			doc.appendBody(new BR());
 			downloadPosts(id, client, storage, progr);
 			doc.appendBody(new A("../" + "posts-" + id + ".html", "Posts"));
 			doc.appendBody(new BR());
+			doc.appendBody(new H2("Fotos:"));
+			downloadPhotos(id, "site", doc, client, storage, progr);
+
+			accountinfo.setId(id);
+			accountinfo.setDestination("Seiten/" + name + id + ".html");
+			accountinfo.setAttribute("name", name);
 
 		} catch (Exception e) {
 			if (c != null) {
 				c.disconnect();
 			}
 		}
-
+		metadata.addMetainfo(accountinfo);
 		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
-		storage.addFile(is, "Seiten/" + name + id + ".html",
-				new MetainfoContainer());
+		storage.addFile(is, "Seiten/" + name + id + ".html", metadata);
 
 		return "Seiten/" + name + id + ".html";
 	}
@@ -1200,10 +1228,10 @@ public class FacebookDatasource implements Datasource {
 		facebookBackupOptions.add("Friends");
 		facebookBackupOptions.add("Friendslists");
 		facebookBackupOptions.add("Groups");
-		facebookBackupOptions.add("Posts");
 		facebookBackupOptions.add("Photos");
-		facebookBackupOptions.add("Albums");
+		facebookBackupOptions.add("Posts");
 		facebookBackupOptions.add("Sites");
+		facebookBackupOptions.add("Albums");
 		return facebookBackupOptions;
 	}
 
@@ -1232,4 +1260,5 @@ public class FacebookDatasource implements Datasource {
 		storage.addFile(is, "Themes/backmeup.css", null);
 
 	}
+
 }

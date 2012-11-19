@@ -4,14 +4,32 @@ from RESTBackMeUp2 import BMU
 from time import time
 from datetime import datetime
 
+TWITTER_AUTH_DATA = {
+  "secret" : "WYnjIW2ymHBXI4IjPUubaeSgxaMtQ3gEv8bFdGsN7lQ",
+  "oauth_token" : "n7MgvbBnL2keYejuC0FePAFuAsXmzC6P5BpeFqCZs",
+  "oauth_verifier" : "igLr5JsgmQlxNcQXFoAtcFAWZoilwLPHbw1OFuRkIM",
+  "token" : "843501650-3eU0c2txIX6rzNTNaPXEmHcsN7qvu7drzNNo32Sz"
+}
+
+SKYDRIVE_AUTH = {
+  "secret" : "jvZDGQl1aUamXYJCpyqWCqncO5bxRpd-",
+  "refreshToken" : "vEUNSAAAHgA%241uVUDAYSjCt!wxeimQCsIl!wCKVNQwvMzJl1ap9TawbDjQR1tAO7DW4rvd35HBKeMu2*svalqszcgJJDP3osO*W8e96SWsEp9oSEXxi!5vgEhoNnHkCPw2fLcgYyoHyOWzvxH4mdJ8C5toMdugYEcyKRZLJPR7BfC2",
+  "token": "EwAoAq1DBAAUlbRWyAJjK5w968Ru3Cyt\/6GvwXwAAWEUR4uTb0I1nikK\/BOgJqORMRWmtnATWNyinXE47pLib87+hOTiv4kFkOlb86GwEzn69Mkup5v5Qpl4+E9OA5nVzm69ah9b6mMVlMDKqjGxdwLBxtrAi8\/kAfYh0eG+GT9gILR504RUYe5VKPYpdKBwTAvbdX9HCMct2v3oc4lG24ZMu3Z9MTXWQOOfIIFrD\/s2Mdwe\/pcZE1\/M2q6RrFEaBqKRLAEUEupmSn6TDCtTZZReAlCASjKguZPzjXm8K5icMp9ho3myLxZmDDWJZ7Jpn89QwoBLsw85wrEDOrjkrw+fpkjenQ55dzUfw9lwvzMJ\/jJsWd9qK10xX72+I6gDZgAACCCUMcDqmjjK+AAduBLN6yL4JDhjgh4nQjsP4r4pKN6fsnViobcnezTFBXyGalF7kG1T97iTjsOCxw4zR1r3b\/hIS+4aGwTlY8Z\/OSU2jqprEe6IH6Ccvpm6pT8RqFta3ODOrx1XuEBMN9e4bTbmyivzKePGLVZTa4pDWfmBwWL9qyPv\/JWXj0wqFHo6Wj4ExUG1EpjpsN807BSoplKoMQSU7izU8SOadak4T0OStHhCzSwZi6jpIQYnUuDF8Ja9cuScbnthS2wywST3yPRmKaZFLullgbqyJ1QpVkMkgQufef4eOZ+cABdfootlrtaA5J2kfHxoeW\/76lnr1sZ\/T0DfyAAA",
+  "key" : "00000000480D45BC",
+  "code" : "aedfdc21-d223-2fe7-d186-74f8c70ffa3b",
+  "callback" : "http://www.backmeup.at/"
+}
+
 def createJob(numberOfJobs, bmu, user, pwd):
   name = current_thread().name
-  sourceId = bmu.auth_datasource(user, "org.backmeup.moodle", name, pwd).data["profileId"]
-  bmu.update_profile(sourceId, {"Username" : "backmeup", "Password" : "286bafbb1a9faf4dc4e104a33e222304", "Moodle Server Url" : "http://gtn02.gtn-solutions.com/moodle20"}, pwd);
+  sourceId = bmu.auth_datasource(user, "org.backmeup.twitter", name, pwd).data["profileId"]
+  bmu.update_profile(sourceId, TWITTER_AUTH_DATA, pwd);
 
-  sinkId = bmu.auth_datasink(user, "org.backmeup.zip", name, pwd).data["profileId"]
+  sinkId = bmu.auth_datasink(user, "org.backmeup.skydrive", "SinkProfile", pwd).data["profileId"]
+  bmu.update_profile(sinkId, SKYDRIVE_AUTH, pwd);
+
   for i in range(0, numberOfJobs):
-    res = bmu.create_backup_job(user, pwd, [sourceId], ["org.backmeup.indexer"], sinkId, "monthly", "Moodle to Zip: " + name)
+    res = bmu.create_backup_job(user, pwd, [sourceId], ["org.backmeup.indexer"], sinkId, "monthly", "Twitter to Skydrive: " + name)
     if res.code >= 400:
       print res.data
 

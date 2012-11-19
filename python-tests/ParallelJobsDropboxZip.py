@@ -4,14 +4,16 @@ from RESTBackMeUp2 import BMU
 from time import time
 from datetime import datetime
 
+DROPBOX_DATA={"token":"thhc9we93cwk78s", "secret":"656rwxei8vf7i5v"};
+
 def createJob(numberOfJobs, bmu, user, pwd):
   name = current_thread().name
-  sourceId = bmu.auth_datasource(user, "org.backmeup.moodle", name, pwd).data["profileId"]
-  bmu.update_profile(sourceId, {"Username" : "backmeup", "Password" : "286bafbb1a9faf4dc4e104a33e222304", "Moodle Server Url" : "http://gtn02.gtn-solutions.com/moodle20"}, pwd);
+  sourceId = bmu.auth_datasource(user, "org.backmeup.dropbox", name, pwd).data["profileId"]
+  bmu.update_profile(sourceId, DROPBOX_DATA, pwd);
 
   sinkId = bmu.auth_datasink(user, "org.backmeup.zip", name, pwd).data["profileId"]
   for i in range(0, numberOfJobs):
-    res = bmu.create_backup_job(user, pwd, [sourceId], ["org.backmeup.indexer"], sinkId, "monthly", "Moodle to Zip: " + name)
+    res = bmu.create_backup_job(user, pwd, [sourceId], ["org.backmeup.indexer"], sinkId, "monthly", "Dropbox to Zip: " + name)
     if res.code >= 400:
       print res.data
 

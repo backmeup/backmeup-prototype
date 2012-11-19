@@ -4,14 +4,18 @@ from RESTBackMeUp2 import BMU
 from time import time
 from datetime import datetime
 
+FACEBOOK_CODE = "AQCIkUBMc_NCeLL4YocL4iHZFjqWVTeO_soolwWpbPAuOJCeniBWpgZ8eMC5NE4cgkg4LKUBqqzJgQ6tLWszsn2Sn_iSR-G_VcGEdyCuEkAhbi2kEowRhKtZfS0U7HN_KtlOgQykgSFwkJZj-W8Z2hGCA0U4U6GB6F0kkIgOspFG15lZl2pNB9V4XrGD9oq2sp2J_Fgyn7_cQaqDgfTbX0W9#_=_"
+
 def createJob(numberOfJobs, bmu, user, pwd):
   name = current_thread().name
-  sourceId = bmu.auth_datasource(user, "org.backmeup.moodle", name, pwd).data["profileId"]
-  bmu.update_profile(sourceId, {"Username" : "backmeup", "Password" : "286bafbb1a9faf4dc4e104a33e222304", "Moodle Server Url" : "http://gtn02.gtn-solutions.com/moodle20"}, pwd);
+  sourceId = bmu.auth_datasource(user, "org.backmeup.facebook", name, pwd).data["profileId"]
+  bmu.post_auth_datasource(user, sourceId, pwd, {"code" : FACEBOOK_CODE});
 
-  sinkId = bmu.auth_datasink(user, "org.backmeup.zip", name, pwd).data["profileId"]
+  sinkId = BMU.auth_datasink(user, "org.backmeup.discmailing", "SinkProfile", pwd).data["profileId"]
+  bmu.update_profile(sinkId, {"Street" : "Mariahilferstrasse 15", "City" : "Wien", "Postcode" : "1150"}, pwd);
+
   for i in range(0, numberOfJobs):
-    res = bmu.create_backup_job(user, pwd, [sourceId], ["org.backmeup.indexer"], sinkId, "monthly", "Moodle to Zip: " + name)
+    res = bmu.create_backup_job(user, pwd, [sourceId], ["org.backmeup.indexer"], sinkId, "monthly", "Facebook to Discmailing: " + name)
     if res.code >= 400:
       print res.data
 

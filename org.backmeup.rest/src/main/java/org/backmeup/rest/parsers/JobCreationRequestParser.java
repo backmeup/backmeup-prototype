@@ -29,24 +29,31 @@ public class JobCreationRequestParser {
       jcr.getSourceProfiles().add(spe);
     }
     
-    for (String action : formParameters.get("actions")) {
-      ActionProfileEntry ape = new ActionProfileEntry();
-      ape.setId(action);
-      for (Entry<String, String> entry : getOptions(ape.getId()+"", formParameters).entrySet()) {
-        ape.getOptions().put(entry.getKey(), entry.getValue());
+    if (formParameters.containsKey("actions"))
+      for (String action : formParameters.get("actions")) {
+        ActionProfileEntry ape = new ActionProfileEntry();
+        ape.setId(action);
+        for (Entry<String, String> entry : getOptions(ape.getId()+"", formParameters).entrySet()) {
+          ape.getOptions().put(entry.getKey(), entry.getValue());
+        }
+        jcr.getActions().add(ape);
       }
-      jcr.getActions().add(ape);
-    }
     
     if (!formParameters.containsKey("sinkProfileId")) {
       throw new BackMeUpException("Missing sinkProfileId property!");
     }
     
-    jcr.setSinkProfileId(Long.parseLong(formParameters.getFirst("sinkProfileId")));
+    if (formParameters.containsKey("sinkProfileId"))
+      jcr.setSinkProfileId(Long.parseLong(formParameters.getFirst("sinkProfileId")));
     
-    jcr.setJobTitle(formParameters.getFirst("jobTitle"));
-    jcr.setKeyRing(formParameters.getFirst("keyRing"));
-    jcr.setTimeExpression(formParameters.getFirst("timeExpression"));
+    if (formParameters.containsKey("jobTitle"))
+      jcr.setJobTitle(formParameters.getFirst("jobTitle"));
+    
+    if (formParameters.containsKey("keyRing"))
+      jcr.setKeyRing(formParameters.getFirst("keyRing"));
+    
+    if (formParameters.containsKey("timeExpression"))
+      jcr.setTimeExpression(formParameters.getFirst("timeExpression"));
     return jcr;
   }
   

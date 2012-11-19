@@ -1,5 +1,6 @@
 package org.backmeup.model;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -20,7 +21,7 @@ public class ActionProfile implements Comparable<ActionProfile> {
   private String actionId;
   private int priority;
   @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval=true, mappedBy="profile")
-  private Set<ActionProperty> actionOptions;
+  private Set<ActionProperty> actionOptions = new HashSet<ActionProperty>();
   
   public ActionProfile() {
   }
@@ -57,8 +58,8 @@ public class ActionProfile implements Comparable<ActionProfile> {
     return actionOptions;
   }
 
-  public void setActionOptions(Set<ActionProperty> actionOptions) {
-    this.actionOptions = actionOptions;
+  public void addActionOption(String key, String value) {
+    this.actionOptions.add(new ActionProperty(key, value));
   }
 
   @Entity

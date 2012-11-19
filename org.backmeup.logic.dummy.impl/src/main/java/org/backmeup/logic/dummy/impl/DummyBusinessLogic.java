@@ -20,6 +20,7 @@ import javax.enterprise.context.ApplicationScoped;
 import org.backmeup.logic.BusinessLogic;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.AuthRequest;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.FileItem;
 import org.backmeup.model.KeyserverLog;
@@ -34,9 +35,11 @@ import org.backmeup.model.SearchResponse;
 import org.backmeup.model.SearchResponse.CountedEntry;
 import org.backmeup.model.SearchResponse.SearchEntry;
 import org.backmeup.model.Status;
-import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.api.RequiredInputField;
+import org.backmeup.model.dto.ActionProfileEntry;
+import org.backmeup.model.dto.JobCreationRequest;
+import org.backmeup.model.dto.SourceProfileEntry;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.InvalidCredentialsException;
 import org.backmeup.model.exceptions.PluginException;
@@ -46,7 +49,6 @@ import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable.Type;
 import org.backmeup.model.spi.ValidationExceptionType;
-import org.backmeup.plugin.api.Metadata;
 
 /**
  * The dummy businness logic stores all data within Lists and Maps (in-memory).
@@ -556,9 +558,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     return jobs;
   }
 
-  public ValidationNotes createBackupJob(String username, List<Long> sourceProfiles,
-      Long sinkProfileId, Map<Long, String[]> sourceOptions,
-      String[] requiredActions, String timeExpression, String keyRing, String jobTitle) {
+  public ValidationNotes createBackupJob(String username, JobCreationRequest request) {
 
     BackMeUpUser user = findUser(username);
     if (user == null)
@@ -566,21 +566,20 @@ public class DummyBusinessLogic implements BusinessLogic {
 
     Set<ProfileOptions> sources = new HashSet<ProfileOptions>();
 
-    for (long sId : sourceProfiles) {
-      Profile sourceProfile = findProfile(sId);
+    for (SourceProfileEntry profile: request.getSourceProfiles()) {
+      Profile sourceProfile = findProfile(profile.getId());
 
       if (sourceProfile == null)
-        throw new IllegalArgumentException("Source-profile not found " + sId);
-      String[] opts = sourceOptions.get(sId);
-      ProfileOptions po = new ProfileOptions(sourceProfile, opts);
+        throw new IllegalArgumentException("Source-profile not found " + profile.getId());      
+      ProfileOptions po = new ProfileOptions(sourceProfile, profile.getOptions().values().toArray(new String[]{}));
       sources.add(po);
     }
 
-    Profile sinkProfile = findProfile(sinkProfileId);
+    Profile sinkProfile = findProfile(request.getSinkProfileId());
     if (sinkProfile == null)
       throw new IllegalArgumentException("Sink-profile not found "
-          + sinkProfileId);
-
+          + request.getSinkProfileId());
+    String timeExpression = request.getTimeExpression();
     if (timeExpression == null)
       throw new IllegalArgumentException("Cron expression missing");
 
@@ -601,7 +600,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     }
 
     BackupJob job = new BackupJob(user, sources, sinkProfile,
-        findActions(requiredActions), start, delay, "TestJob");
+        findActions(request.getActions()), start, delay, "TestJob");
     job.setId(maxId++);
     jobs.add(job);
     ValidationNotes vn = new ValidationNotes();
@@ -757,10 +756,10 @@ public class DummyBusinessLogic implements BusinessLogic {
     return null;
   }
 
-  private List<ActionProfile> findActions(String[] actionIds) {
+  private List<ActionProfile> findActions(List<ActionProfileEntry> actionIds) {
     List<ActionProfile> actionDescs = new ArrayList<ActionProfile>();
-    for (String action : actionIds) {
-      ActionDescribable itm = actions.get(action);
+    for (ActionProfileEntry action : actionIds) {
+      ActionDescribable itm = actions.get(action.getId());
       if (itm != null) {
         actionDescs.add(new ActionProfile(itm.getId(), itm.getPriority()));
       }

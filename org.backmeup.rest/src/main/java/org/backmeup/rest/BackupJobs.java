@@ -1,11 +1,8 @@
 package org.backmeup.rest;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -17,6 +14,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.backmeup.model.BackMeUpUser;
+import org.backmeup.model.ValidationNotes;
+import org.backmeup.model.dto.JobCreationRequest;
 import org.backmeup.rest.data.JobContainer;
 import org.backmeup.rest.data.ProtocolDetailsContainer;
 import org.backmeup.rest.data.ProtocolOverviewContainer;
@@ -24,6 +23,7 @@ import org.backmeup.rest.data.ResultMessage;
 import org.backmeup.rest.data.StatusContainer;
 import org.backmeup.rest.data.ValidationNotesContainer;
 import org.backmeup.rest.messages.Messages;
+import org.backmeup.rest.parsers.JobCreationRequestParser;
 
 /**
  * All Job specific operations will be handled here.
@@ -50,39 +50,21 @@ public class BackupJobs extends Base {
       @PathParam("jobId") String jobId,
       @FormParam("keyRing") String keyRing) {
     return new ValidationNotesContainer(getLogic().validateBackupJob(username, Long.parseLong(jobId), keyRing));    
-  }
+  }   
   
-  private Map<Long, String[]> mapOptions(List<String> sourceProfileIds, MultivaluedMap<String, String> formParams) {
-    Map<Long, String[]> optionMapping = new HashMap<Long, String[]>();
-    for (String sPId : sourceProfileIds) {
-      Long id = Long.parseLong(sPId);
-      List<String> options = formParams.get(sPId);
-      optionMapping.put(id, options != null ? options.toArray(new String[] {}) : null); 
-    }
-    return optionMapping;
+  @POST
+  @Path("/{username}")
+  @Produces("application/json")
+  @Consumes("application/x-www-form-urlencoded")
+  public ValidationNotesContainer createBackupJob(@PathParam("username") String username, MultivaluedMap<String, String> validationRequest) {
+    return createBackupJob(username, JobCreationRequestParser.parse(validationRequest));
   }
 
   @POST
   @Path("/{username}")
   @Produces("application/json")
-  public ValidationNotesContainer createBackupJob(
-      @PathParam("username") String username,
-      @FormParam("sourceProfileIds") List<String> sourceProfileIds,
-      @FormParam("requiredActionIds") List<String> requiredActionIds,
-      @FormParam("sinkProfileId") Long sinkProfileId,
-      @FormParam("timeExpression") String timeExpression,
-      @FormParam("keyRing") String keyRing,
-      @FormParam("jobTitle") String jobTitle,
-      MultivaluedMap<String, String> formParams) {
-    // String cronTime, String keyRing);
-    List<Long> sources = new ArrayList<Long>();
-    for (String id : sourceProfileIds) {
-      sources.add(Long.parseLong(id));
-    }
-    Map<Long, String[]> optionMapping = mapOptions(sourceProfileIds, formParams);
-    return new ValidationNotesContainer(getLogic().createBackupJob(username, sources, sinkProfileId,
-        optionMapping, requiredActionIds.toArray(new String[] {}),
-        timeExpression, keyRing, jobTitle));    
+  public ValidationNotesContainer createBackupJob(@PathParam("username") String username, JobCreationRequest request) {    
+    return new ValidationNotesContainer(getLogic().createBackupJob(username, request));
   }
 
   @DELETE

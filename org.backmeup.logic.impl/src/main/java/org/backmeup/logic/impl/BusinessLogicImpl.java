@@ -59,6 +59,9 @@ import org.backmeup.model.SearchResponse;
 import org.backmeup.model.Status;
 import org.backmeup.model.Token;
 import org.backmeup.model.ValidationNotes;
+import org.backmeup.model.dto.ActionProfileEntry;
+import org.backmeup.model.dto.JobCreationRequest;
+import org.backmeup.model.dto.SourceProfileEntry;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.BackMeUpException;
 import org.backmeup.model.exceptions.EmailVerificationException;
@@ -76,7 +79,6 @@ import org.backmeup.model.spi.SourceSinkDescribable;
 import org.backmeup.model.spi.ValidationExceptionType;
 import org.backmeup.model.spi.Validationable;
 import org.backmeup.plugin.Plugin;
-import org.backmeup.plugin.api.Metadata;
 import org.backmeup.plugin.api.actions.encryption.EncryptionDescribable;
 import org.backmeup.plugin.api.actions.filesplitting.FilesplittDescribable;
 import org.backmeup.plugin.api.actions.indexing.ElasticSearchIndexClient;
@@ -646,65 +648,63 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   }
 
-  public ValidationNotes createBackupJob(String username, List<Long> sourceProfiles,
-      Long sinkProfileId, Map<Long, String[]> sourceOptions,
-      String[] requiredActions, String timeExpression, String keyRing, String jobTitle) {
+  public ValidationNotes createBackupJob(String username, JobCreationRequest request) {
     try {
       conn.begin();
       BackMeUpUser user = getUser(username);     
       
 
-      if (!keyserverClient.validateUser(user.getUserId(), keyRing))
+      if (!keyserverClient.validateUser(user.getUserId(), request.getKeyRing()))
         throw new InvalidCredentialsException();
 
       Set<ProfileOptions> profiles = new HashSet<ProfileOptions>();
-      if (sourceProfiles.size() == 0) {
+      if (request.getSourceProfiles().size() == 0) {
         throw new IllegalArgumentException(
             "There must be at least one source profile to download data from!");
       }
 
-      for (Long source : sourceProfiles) {
-        Profile p = getProfileDao().findById(source);
+      for (SourceProfileEntry source : request.getSourceProfiles()) {
+        Profile p = getProfileDao().findById(source.getId());
         if (p == null)
           throw new IllegalArgumentException(String.format(
-              textBundle.getString(UNKNOWN_PROFILE), source));
+              textBundle.getString(UNKNOWN_PROFILE), source.getId()));
 
-        if (sourceOptions != null) {
-          profiles.add(new ProfileOptions(p, sourceOptions.get(source)));
-        } else {
-          profiles.add(new ProfileOptions(p, null));
-        }
+        profiles.add(new ProfileOptions(p, source.getOptions().values().toArray(new String[]{})));        
       }
 
-      Profile sink = getProfileDao().findById(sinkProfileId);
+      Profile sink = getProfileDao().findById(request.getSinkProfileId());
       if (sink == null) {
         throw new IllegalArgumentException(String.format(
-            textBundle.getString(UNKNOWN_PROFILE), sinkProfileId));
+            textBundle.getString(UNKNOWN_PROFILE), request.getSinkProfileId()));
       }
 
       List<ActionProfile> actions = new ArrayList<ActionProfile>();
-      if (requiredActions != null) {
-        for (String action : requiredActions) {
-          ActionDescribable ad = null;
-          // TODO: Remove workaround for embedded action plugins
-          if ("org.backmeup.filesplitting".equals(action)) {
-            ad = new FilesplittDescribable();
-          } else if ("org.backmeup.indexer".equals(action)) {
-            ad = new IndexDescribable();
-          } else if ("org.backmeup.encryption".equals(action)) {
-            ad = new EncryptionDescribable();
-          } else {
-            ad = plugins.getActionById(action);
-          }
-          if (ad == null) {
-            throw new IllegalArgumentException(String.format(
-                textBundle.getString(UNKNOWN_ACTION), action));
-          }
-          actions.add(new ActionProfile(ad.getId(), ad.getPriority()));          
-        }
-      }           
-      Collections.sort(actions);
       
+      for (ActionProfileEntry action : request.getActions()) {
+        ActionDescribable ad = null;
+        // TODO: Remove workaround for embedded action plugins
+        if ("org.backmeup.filesplitting".equals(action.getId())) {
+          ad = new FilesplittDescribable();
+        } else if ("org.backmeup.indexer".equals(action.getId())) {
+          ad = new IndexDescribable();
+        } else if ("org.backmeup.encryption".equals(action.getId())) {
+          ad = new EncryptionDescribable();
+        } else {
+          ad = plugins.getActionById(action.getId());
+        }
+        if (ad == null) {
+          throw new IllegalArgumentException(String.format(
+              textBundle.getString(UNKNOWN_ACTION), action.getId()));
+        }
+        ActionProfile ap = new ActionProfile(ad.getId(), ad.getPriority());
+        for (Map.Entry<String, String> entry : action.getOptions().entrySet()) {
+          ap.addActionOption(entry.getKey(), entry.getValue());
+        }
+        actions.add(ap);          
+      }
+                 
+      Collections.sort(actions);
+      String timeExpression = request.getTimeExpression();
       Date start = null;
       long delay = 0;
       if (timeExpression.equalsIgnoreCase("daily")) {
@@ -725,8 +725,8 @@ public class BusinessLogicImpl implements BusinessLogic {
       }
       conn.rollback();
       BackupJob job = jobManager.createBackupJob(user, profiles, sink, actions,
-          start, delay, keyRing, jobTitle);      
-      ValidationNotes vn = validateBackupJob(username, job.getId(), keyRing);
+          start, delay, request.getKeyRing(), request.getJobTitle());      
+      ValidationNotes vn = validateBackupJob(username, job.getId(), request.getKeyRing());
       vn.setJob(job);
       return vn;
     } finally {

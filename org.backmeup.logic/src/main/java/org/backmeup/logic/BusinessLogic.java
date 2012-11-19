@@ -17,6 +17,7 @@ import org.backmeup.model.ProtocolOverview;
 import org.backmeup.model.SearchResponse;
 import org.backmeup.model.Status;
 import org.backmeup.model.ValidationNotes;
+import org.backmeup.model.dto.JobCreationRequest;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.InvalidCredentialsException;
 import org.backmeup.model.exceptions.PluginException;
@@ -89,7 +90,7 @@ public interface BusinessLogic {
 	
 	//job & validation operations
 	public ValidationNotes validateBackupJob(String username, Long jobId, String keyRing);	
-	public ValidationNotes createBackupJob(String username, List<Long> sourceProfiles, Long sinkProfileId, Map<Long, String[]> sourceOptions, String[] requiredActions, String timeExpression, String keyRing, String jobTitle);
+	public ValidationNotes createBackupJob(String username, JobCreationRequest request);
 	public List<BackupJob> getJobs(String username);
 	public void deleteJob(String username, Long jobId);
 	public List<Status> getStatus(String username, Long jobId);

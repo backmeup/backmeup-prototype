@@ -59,6 +59,8 @@ public class ElasticSearchIndexer {
 		XContentBuilder contentBuilder = XContentFactory.jsonBuilder().startObject();
 		
 		for (String metaKey : meta.keySet()) {
+			System.out.println("Meta key: " + metaKey);
+			System.out.println("Meta value: " + meta.get(metaKey));
 			contentBuilder = contentBuilder.field(metaKey, meta.get(metaKey));
 		}
 		

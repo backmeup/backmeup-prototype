@@ -1,9 +1,17 @@
 package org.backmeup.plugin.api.actions.indexing;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.sax.BodyContentHandler;
 import org.backmeup.model.BackupJob;
 import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
@@ -11,6 +19,8 @@ import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.Storage;
 import org.elasticsearch.client.Client;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
 public class IndexAction implements Action {
 	
@@ -22,6 +32,7 @@ public class IndexAction implements Action {
 
 	private static final String START_INDEX_PROCESS = "Starting index process";
 	private static final String ANALYZING = "Analyzing data object ";
+	private static final String SKIPPING = "This filetype is not indexed";
 	private static final String INDEXING = "Indexing data object ";
 	private static final String INDEX_PROCESS_COMPLETE = "Indexing complete";
 	
@@ -38,18 +49,29 @@ public class IndexAction implements Action {
 			Iterator<DataObject> dataObjects = storage.getDataObjects();
 			while (dataObjects.hasNext()) {
 				DataObject dob = dataObjects.next();
-				System.out.println("Analyzing: " + dob.getPath());
 				progressor.progress(ANALYZING + dob.getPath());
 				
-				// TODO Should the analyzer pack metainfo directly into the MetainfoContainer?
-				Map<String, String> meta = analyzer.analyze(dob);
-
-				progressor.progress(INDEXING + dob.getPath());				
-				ElasticSearchIndexer indexer = new ElasticSearchIndexer(client);
-				
-				// TODO username needs to be available to action
-				System.out.println("Indexing " + dob.getPath());
-				indexer.doIndexing(job, dob, meta);
+				if (needsIndexing(dob)) {				
+					Map<String, String> meta = analyzer.analyze(dob);
+					String fulltext = null;
+					if (meta.get("Content-Type") != null) {
+						fulltext = extractFullText(dob, meta.get("Content-Type"));
+					}
+	
+					progressor.progress(INDEXING + dob.getPath());				
+					ElasticSearchIndexer indexer = new ElasticSearchIndexer(client);
+					
+					// TODO username needs to be available to action
+					System.out.println("Indexing " + dob.getPath());
+					meta = new HashMap<String, String>();
+					
+					if (fulltext != null)
+						meta.put("fulltext", fulltext);
+					
+					indexer.doIndexing(job, dob, meta);
+				} else {
+					progressor.progress(SKIPPING);
+				}
 			}
 		} catch (Exception e) {
 			throw new ActionException(e);
@@ -57,5 +79,34 @@ public class IndexAction implements Action {
 		
 		progressor.progress(INDEX_PROCESS_COMPLETE);			
 	}
+	
+	private boolean needsIndexing(DataObject dob) {
+		// TODO make this list configurable
+		if (dob.getPath().endsWith(".css"))
+			return false;
+		
+		if (dob.getPath().endsWith(".xsd"))
+			return false;
+		
+		return true;
+	}
+	
+	private String extractFullText(DataObject dob, String contentType) throws IOException, SAXException, TikaException {
+        ContentHandler handler = new BodyContentHandler(10*1024*1024);
+        Metadata metadata = new Metadata();
+        
+        AutoDetectParser parser = new AutoDetectParser();
+        parser.parse(new ByteArrayInputStream(dob.getBytes()), handler, metadata, new ParseContext());
+        return handler.toString();
+	}
+	
+	/*
+	private String extractFullText_HTML(DataObject dob) throws IOException, SAXException, TikaException {		
+        ContentHandler handler = new BodyContentHandler(10*1024*1024);
+        Metadata metadata = new Metadata();
+        new HtmlParser().parse(new ByteArrayInputStream(dob.getBytes()), handler, metadata, new ParseContext());
+        return handler.toString();
+	}
+	*/
 
 }

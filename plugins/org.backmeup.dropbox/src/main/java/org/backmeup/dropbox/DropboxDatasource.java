@@ -1,8 +1,11 @@
 package org.backmeup.dropbox;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,11 +45,23 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 		List<FilesystemURI> uris = new ArrayList<FilesystemURI>();
 		
 		try {
-			path = path.replace("%20", " "); // Dropbox cannot handle %20 encoded spaces, but URI needs it
+		  try {
+		    path = URLDecoder.decode(path, "UTF-8");
+		  } catch (Exception ex) {
+		    ex.printStackTrace();
+		  }
+			path = path.replace("%20", " "); // Dropbox cannot handle %20 encoded spaces, but URI needs it			
 			// adjusted to maximum file_limit of 25k (https://www.dropbox.com/developers/reference/api#metadata)
 			Entry entry = api.metadata(path, 25000, null, true, null);				
 			for (Entry e : entry.contents) {
-				String encodedURI = e.path.replace(" ", "%20");
+				//String encodedURI = e.path.replace(" ", "%20");
+			  String encodedURI = e.path;
+        try {
+          encodedURI = URLEncoder.encode(e.path, "UTF-8").replace("%2F", "/");
+        } catch (UnsupportedEncodingException e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
+        }
 				FilesystemURI furi = new FilesystemURI(new URI(encodedURI), e.isDir);
 				Metainfo meta = new Metainfo();				
 				meta.setId(encodedURI);
@@ -74,7 +89,12 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 	public InputStream getFile(Properties items, List<String> options, FilesystemURI uri) {
 		String path = "";
 		try {
-			path = uri.toString().replace("%20", " ");
+		  try {
+		    path = URLDecoder.decode(uri.toString(), "UTF-8");
+		  } catch (Exception ex) {
+		    ex.printStackTrace();
+		  }
+			//path = uri.toString().replace("%20", " ");
 			return DropboxHelper.getApi(items).getFileStream(path, null);
 		} catch (DropboxException e) {
 			throw new PluginException(DropboxDescriptor.DROPBOX_ID, String.format("Error downloading file \" %s\"", path), e);

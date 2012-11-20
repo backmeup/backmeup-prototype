@@ -2,6 +2,7 @@ package org.backmeup.twitter;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -278,9 +279,14 @@ public class TwitterDatasource implements Datasource {
 				metadata.addMetainfo(tweetInfo);
 			}
 
-			InputStream is = new ByteArrayInputStream(document.getBytes());
-			storage.addFile(is, "index.html", metadata);
-
+			InputStream is;
+      try {
+        is = new ByteArrayInputStream(document.getBytes("UTF-8"));
+        storage.addFile(is, "index.html", metadata);
+      } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+        throw new StorageException(e);
+      }
 		} catch (StorageException e) {
 			throw new PluginException(TwitterDescriptor.TWITTER_ID,
 					"A twitter-error occurred while creating User-File", e);
@@ -536,7 +542,7 @@ public class TwitterDatasource implements Datasource {
 
 			doc.appendBody(table);
 
-			InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+			InputStream is = new ByteArrayInputStream(doc.toString().getBytes("UTF-8"));
 			storage.addFile(is, type + ".html", metadata);
 
 		} catch (Exception e) {
@@ -702,7 +708,7 @@ public class TwitterDatasource implements Datasource {
 
 			doc.appendBody(stateTable);
 
-			InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+			InputStream is = new ByteArrayInputStream(doc.toString().getBytes("UTF-8"));
 			storage.addFile(is, "list" + listId + ".html", metadata);
 
 		} catch (Exception e) {
@@ -755,8 +761,12 @@ public class TwitterDatasource implements Datasource {
 				+ "padding-top:10px;}" + "img {" + "max-width:200px;"
 				+ "height:auto;}";
 
-		InputStream is = new ByteArrayInputStream(css.getBytes());
-		storage.addFile(is, "Themes/backmeup.css", null);
-
+		InputStream is;
+    try {
+      is = new ByteArrayInputStream(css.getBytes("UTF-8"));
+      storage.addFile(is, "Themes/backmeup.css", null);
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
 	}
 }

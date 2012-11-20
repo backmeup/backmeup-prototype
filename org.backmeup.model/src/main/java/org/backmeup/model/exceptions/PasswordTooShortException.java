@@ -8,7 +8,7 @@ public class PasswordTooShortException extends BackMeUpException{
   private int actualLength;
   
   public PasswordTooShortException(int minimalLength, int actualLength) {
-    super("The given password/keyring has to exceed at least " + minimalLength + " characters!");
+    super("Password too short!");
     this.minimalLength = minimalLength;
     this.actualLength = actualLength;
   } 

@@ -5,8 +5,7 @@ public class UserAlreadyActivatedException extends BackMeUpException {
   private String username;
 
   public UserAlreadyActivatedException(String username) {
-    super("User " + username
-        + " is active and does not need a new verification email!");
+    super("User is already active!");
     this.username = username;
   }
 

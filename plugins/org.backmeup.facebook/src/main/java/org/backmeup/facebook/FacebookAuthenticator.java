@@ -24,7 +24,6 @@ import com.restfb.types.User;
  */
 public class FacebookAuthenticator implements OAuthBased {
 
-	String callback = "";
 	@Override
 	public AuthorizationType getAuthType() {
 		return AuthorizationType.OAuth;
@@ -32,11 +31,12 @@ public class FacebookAuthenticator implements OAuthBased {
 
 	@Override
 	public String createRedirectURL(Properties inputProperties, String callback) {
-		this.callback = (callback.endsWith("/")) ? callback : callback + '/';
-		FacebookHelper fh = FacebookHelper.getInstance();
+		 callback = (callback.endsWith("/")) ? callback : callback + '/';
+		 inputProperties.setProperty("callback", callback);
+		 FacebookHelper fh = FacebookHelper.getInstance();
 		
 		return "https://www.facebook.com/dialog/oauth?client_id=" + fh.getAppKey() +
-				"&return_session=true&redirect_uri="+this.callback+"&scope="
+				"&return_session=true&redirect_uri="+callback+"&scope="
 				+ "user_birthday,user_photos,read_stream,user_about_me,user_activities," +
 				"user_education_history,user_events,user_groups,user_hometown,user_interests" +
 				",user_likes,user_location,user_notes,user_questions,user_relationships," +
@@ -52,13 +52,14 @@ public class FacebookAuthenticator implements OAuthBased {
 	@Override
 	public String postAuthorize(Properties inputProperties) {
 		String code = inputProperties.getProperty("code");
+		String callback = inputProperties.getProperty("callback");
 		String accessToken = "";
 		HttpURLConnection c = null;
 		URL url;
 		try {
 			url = new URL("https://graph.facebook.com/oauth/access_token?" +
 					"client_id="+FacebookHelper.getInstance().getAppKey()+
-					"&redirect_uri="+this.callback+
+					"&redirect_uri="+callback+
 					"&client_secret="+FacebookHelper.getInstance().getAppSecret()+"&code="+code);
 		
 			c = (HttpURLConnection) url.openConnection();
@@ -83,8 +84,8 @@ public class FacebookAuthenticator implements OAuthBased {
 				String[] params = content.toString().split("&");
 				for (String param : params){
 					String name = param.split("=")[0];
-					accessToken = param.split("=")[1];
 					if(name.equals("access_token")){
+						accessToken = param.split("=")[1];
 						inputProperties.setProperty(FacebookHelper.PROPERTY_TOKEN, accessToken);
 					}
 				}

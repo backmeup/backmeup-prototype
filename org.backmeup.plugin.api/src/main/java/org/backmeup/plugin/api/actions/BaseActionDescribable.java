@@ -25,8 +25,9 @@ public class BaseActionDescribable implements ActionDescribable {
   
   private Properties getDescriptionEntries() throws PluginException {
     if (descriptionEntries == null) {
+      InputStream is = null;
       try {
-        InputStream is = getClass().getClassLoader().getResourceAsStream(propertyFilename);
+        is = getClass().getClassLoader().getResourceAsStream(propertyFilename);
         if (is == null) {
           throw new PluginException("UNKWN", "Please provide " + propertyFilename + " for your plugins!");
         }
@@ -34,6 +35,12 @@ public class BaseActionDescribable implements ActionDescribable {
         descriptionEntries.load(is);        
       } catch (IOException e) {
         throw new PluginException("UNKWN", "Unable to load from " + propertyFilename + " stream!");
+      } finally {
+        try {
+          is.close();
+        } catch (Exception ex) {
+          ex.printStackTrace();
+        }
       }
     }
     return descriptionEntries;

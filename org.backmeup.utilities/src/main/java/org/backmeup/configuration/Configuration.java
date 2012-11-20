@@ -45,7 +45,14 @@ public class Configuration {
       configuration.load(is);
     } catch (IOException e) {
       throw new RuntimeException("Failed to read bl.properties! ", e);
-    }    
+    } finally {
+      try {
+        if (is != null)
+          is.close();
+      } catch(Exception ex) {
+        ex.printStackTrace();
+      }
+    }
   }
   
   public String getProperty(String key) {

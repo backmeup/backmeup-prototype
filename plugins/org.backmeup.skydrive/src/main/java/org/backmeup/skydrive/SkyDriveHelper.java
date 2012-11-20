@@ -26,9 +26,14 @@ public class SkyDriveHelper {
 
 		try {
 			properties.load(is);
-			is.close();
 		} catch (IOException e) {
 			throw new RuntimeException("Fatal error: could not load skydrive.properties: " + e.getMessage());
+		} finally {
+		  try {
+		    is.close();
+		  } catch(Exception ex) {
+		    ex.printStackTrace();
+		  }
 		}
 		
 		appKey = properties.getProperty("app.key");

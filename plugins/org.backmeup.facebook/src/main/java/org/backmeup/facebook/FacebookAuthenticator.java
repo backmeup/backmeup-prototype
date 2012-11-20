@@ -73,6 +73,12 @@ public class FacebookAuthenticator implements OAuthBased {
 				content.append((char) temp);
 			}
 			
+			try {
+			  reader.close();
+			} catch (Exception ex) {
+			  ex.printStackTrace();
+			}
+			
 			if(content.toString().startsWith("access_token")){
 				String[] params = content.toString().split("&");
 				for (String param : params){

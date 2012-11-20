@@ -37,7 +37,8 @@ public class BaseActionDescribable implements ActionDescribable {
         throw new PluginException("UNKWN", "Unable to load from " + propertyFilename + " stream!");
       } finally {
         try {
-          is.close();
+          if (is != null)
+            is.close();
         } catch (Exception ex) {
           ex.printStackTrace();
         }

@@ -207,8 +207,9 @@ public class SkyDriveSupport {
 
 	public static String createFolder(OAuthService service, Token accessToken,
 			String parentId, String dir) {
+	  HttpURLConnection connection = null;
 		try {
-			HttpURLConnection connection = (HttpURLConnection) new URL(String.format(
+			connection = (HttpURLConnection) new URL(String.format(
 					"https://apis.live.net/v5.0/%s?access_token=%s", parentId,
 					accessToken.getToken())).openConnection();
 			connection.setRequestMethod("POST");
@@ -227,20 +228,37 @@ public class SkyDriveSupport {
 			connection.connect();
 			code = connection.getResponseCode();
 			if (code >= 200 && code <= 299) {
-				InputStream is = connection.getInputStream();
-				byte[] buffer = new byte[1024 * 1024];
-				int readBytes = 0;
-				StringBuffer sb = new StringBuffer();
-				while ((readBytes = is.read(buffer)) != -1) {
-					sb.append(new String(buffer, 0, readBytes));
-				}
-				String result = sb.toString();
-				return parseJSONProperty("id", result);
+			  InputStream is = null;
+			  try {
+  				is = connection.getInputStream();
+  				byte[] buffer = new byte[1024 * 1024];
+  				int readBytes = 0;
+  				StringBuffer sb = new StringBuffer();
+  				while ((readBytes = is.read(buffer)) != -1) {
+  					sb.append(new String(buffer, 0, readBytes));
+  				}
+  				String result = sb.toString();
+  				return parseJSONProperty("id", result);
+			  } finally {
+			    try {
+  			    if (is != null)
+  			      is.close();
+			    } catch (Exception ex) {
+			      ex.printStackTrace();
+			    }			    
+			  }
 			} // if
 		} catch (Throwable e) {
 			throw new PluginException(SkyDriveDescriptor.SKYDRIVE_ID,
 					"An exception occurred during folder creation", e);
 		} // try/catch
+		finally {
+		  try {
+        connection.disconnect();
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
+		}
 		return null;
 	}
 
@@ -268,10 +286,10 @@ public class SkyDriveSupport {
 				currentId = id;
 			}
 		}
-
+		HttpURLConnection connection = null;
 		try {
 			fileName = URLEncoder.encode(fileName, "UTF-8");
-			HttpURLConnection connection = (HttpURLConnection) new URL(String.format(
+			connection = (HttpURLConnection) new URL(String.format(
 					"https://apis.live.net/v5.0/%s/files/%s?access_token=%s", currentId,
 					fileName, accessToken.getToken())).openConnection();
 			connection.setRequestMethod("PUT");
@@ -297,6 +315,13 @@ public class SkyDriveSupport {
 				String.format(
 					"An exception occurred while storing file %s", name), e);
 		} // try/catch
+		finally {
+		  try {
+		    connection.disconnect();
+		  } catch (Exception ex) {
+		    ex.printStackTrace();
+		  }
+		}
 	} // storeFile
 
 	public static InputStream readFile(OAuthService service, Token accessToken,
@@ -409,8 +434,9 @@ public class SkyDriveSupport {
 		String currentId = determineIdFor(true, service, accessToken, name);
 
 		if (!"me/skydrive".equals(currentId)) {
+		  HttpURLConnection connection = null;
 			try {
-				HttpURLConnection connection = (HttpURLConnection) new URL(
+				connection = (HttpURLConnection) new URL(
 						String.format("https://apis.live.net/v5.0/%s?access_token=%s",
 								currentId, accessToken.getToken())).openConnection();
 				connection.setRequestMethod("DELETE");
@@ -418,6 +444,12 @@ public class SkyDriveSupport {
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
+			} finally {
+			  try { 
+			    connection.disconnect();			    
+			  } catch (Exception ex) {
+			    ex.printStackTrace();
+			  }
 			}
 		}
 	}

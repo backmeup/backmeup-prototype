@@ -43,10 +43,16 @@ public class ZipHelper {
       remoteDirectory = properties.getProperty("remote.directory");
       port = Integer.parseInt(properties.getProperty("remote.port"));
       sshkey = properties.getProperty("ssh.key");
-      is.close();
     } catch (IOException e) {
       throw new PluginException(ZipDescriptor.ZIP_ID,
           "Fatal error: could not load zip.properties: " + e.getMessage(), e);
+    } finally {
+      try {
+        if (is != null)
+          is.close();
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
     }
   }
 

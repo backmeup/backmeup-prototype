@@ -1038,6 +1038,12 @@ public class FacebookDatasource implements Datasource {
 			while ((temp = reader.read()) != -1) {
 				content.append((char) temp);
 			}
+			
+			try {
+			  reader.close();
+			} catch(Exception ex) {
+			  ex.printStackTrace();
+			}
 
 			JSONObject json = new JSONObject(content.toString());
 			JSONArray jsonArray = json.getJSONArray("data");
@@ -1097,6 +1103,13 @@ public class FacebookDatasource implements Datasource {
 			while ((temp = reader.read()) != -1) {
 				content.append((char) temp);
 			}
+			
+			try {
+			  reader.close();
+			} catch (Exception ex) {
+			  ex.printStackTrace();
+			}
+			
 			JSONObject json = new JSONObject(content.toString());
 
 			doc.appendBody("Name: " + name);

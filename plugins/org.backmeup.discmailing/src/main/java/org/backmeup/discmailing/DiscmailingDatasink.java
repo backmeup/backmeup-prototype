@@ -41,14 +41,22 @@ public class DiscmailingDatasink implements Datasink {
         	throw new PluginException(DiscmailingDescriptor.DISC_ID, "Error during connecting to Server " + session.getHost());
         }
         
-        //generate XML Ticket	
+        //generate XML Ticket
+    InputStream in = null; 
 		try {
         	String ticketPath = helper.getTicketpath() + "/ticket-" + jobid + ".xml";
       		String dataPath = target + "/";
-      		InputStream in = helper.generateTicket(items, dataPath);
+      		in = helper.generateTicket(items, dataPath);
       		sftpChannel.put(in, ticketPath);
       	} catch (Exception e) {
       		throw new PluginException(DiscmailingDescriptor.DISC_ID, "Error during upload of file %s", e);
+      	} finally {
+      	  try {
+      	    if (in != null)
+      	      in.close();
+      	  } catch (Exception ex) {
+      	    ex.printStackTrace();
+      	  }
       	}
 		
 		int i = 1;

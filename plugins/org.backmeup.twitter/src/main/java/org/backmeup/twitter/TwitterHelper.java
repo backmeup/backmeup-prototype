@@ -26,9 +26,14 @@ public class TwitterHelper {
 
 		try {
 			properties.load(is);
-			is.close();
 		} catch (IOException e) {
 			throw new RuntimeException("Fatal error: could not load twitter.properties: " + e.getMessage());
+		} finally {
+		  try {
+		    is.close();
+		  } catch (Exception ex) {
+		    ex.printStackTrace();
+		  }
 		}
 		
 		appKey = properties.getProperty("app.key");

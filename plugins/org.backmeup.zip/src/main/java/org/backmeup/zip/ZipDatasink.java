@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -19,7 +22,8 @@ import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
 
 public class ZipDatasink implements Datasink {
-
+  private Logger logger = Logger.getLogger(ZipDatasink.class.getName());
+  
   @Override
   public String upload(Properties accessData, Storage storage,
       Progressable progressor) throws StorageException {
@@ -37,8 +41,9 @@ public class ZipDatasink implements Datasink {
     }
     
     String fileName = tmpDir + "_" + new Date().getTime() +".zip";
+    logger.log(Level.FINE, "Creating zip backup file: " + fileName);
     String path = MessageFormat.format(zipHelper.getTemporaryPath(), userId) + fileName;
-    
+    logger.log(Level.FINE, "Path zip backup path: " + path);
     FileOutputStream fos = null;
     ZipOutputStream zos = null;
     try {      
@@ -52,15 +57,29 @@ public class ZipDatasink implements Datasink {
         DataObject entry = it.next();
         String entryPath = entry.getPath();
         if (entryPath.startsWith("/") || entryPath.startsWith("\\"))
-          entryPath = entryPath.substring(1);        
+          entryPath = entryPath.substring(1);
+        logger.log(Level.FINE, "Putting entry to zip: " + entryPath);
         zos.putNextEntry(new ZipEntry(entryPath));
         zos.write(entry.getBytes());
         zos.closeEntry();
       }
+      logger.log(Level.FINE, "Zip file created.");
       zos.close();
       fos.close();            
       if (zipHelper.isRemote()) {
-        zipHelper.sendToSftpDestination(new FileInputStream(path), fileName, userId);
+        logger.log(Level.FINE, "Sending zip file to sftp destination...");
+        InputStream stream = null;
+        try {
+          stream = new FileInputStream(path);
+          zipHelper.sendToSftpDestination(stream, fileName, userId);
+        } finally {
+          try {
+            if (stream != null)
+              stream.close();
+          } catch (Exception ex) {
+            ex.printStackTrace();
+          }
+        }
       }
     } catch (Exception ex) {
       throw new PluginException(ZipDescriptor.ZIP_ID, "An exception occurred during zip creation!", ex);

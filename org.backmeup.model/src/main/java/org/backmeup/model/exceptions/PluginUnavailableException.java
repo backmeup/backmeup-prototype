@@ -6,7 +6,7 @@ public class PluginUnavailableException extends PluginException {
   }
   
   public PluginUnavailableException(String pluginId, Throwable cause) {
-    super(pluginId, String.format("Plugin %s not available", pluginId), cause);
+    super(pluginId, "Plugin is not available", cause);
   }
 
   private static final long serialVersionUID = 1L;

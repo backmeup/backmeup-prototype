@@ -19,7 +19,7 @@ def createJob(numberOfJobs, bmu, pwd):
 
   sinkId = bmu.auth_datasink(user, "org.backmeup.zip", name, pwd).data["profileId"]
   for i in range(0, numberOfJobs):
-    res = bmu.create_backup_job(user, pwd, [sourceId], ["org.backmeup.indexer"], sinkId, "monthly")
+    res = bmu.create_backup_job(user, pwd, [sourceId], ["org.backmeup.indexer"], sinkId, "monthly", "Moodle to Zip: " + name)
     if res.code >= 400:
       print res.data
 

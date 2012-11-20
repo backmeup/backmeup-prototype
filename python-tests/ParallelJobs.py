@@ -9,7 +9,7 @@ def createJob(numberOfJobs, bmu, user, pwd):
   sourceId = bmu.auth_datasource(user, "org.backmeup.dummy", name, pwd).data["profileId"]
   sinkId = bmu.auth_datasink(user, "org.backmeup.dummy", name, pwd).data["profileId"]
   for i in range(0, numberOfJobs):
-    res = bmu.create_backup_job(user, pwd, [sourceId], ["org.backmeup.indexer"], sinkId, "monthly", name)
+    res = bmu.create_backup_job(user, pwd, [sourceId], ["org.backmeup.indexer"], sinkId, "monthly", "Dummy To Dummy: " + name)
     if res.code >= 400:
       print res.data
 

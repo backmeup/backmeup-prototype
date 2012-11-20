@@ -7,6 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -61,11 +63,11 @@ public class MailDatasource implements Datasource {
     private String from;
     private String to;
     private String sentAt;
-    private String receivedAt;
+    private Date receivedAt;
     
     
     public MessageInfo(String fileName, String subject, String from, String to,
-        String sentAt, String receivedAt) {
+        String sentAt, Date receivedAt) {
       this.fileName = fileName;
       this.subject = subject;
       this.from = from;
@@ -104,10 +106,10 @@ public class MailDatasource implements Datasource {
     public void setSentAt(String sentAt) {
       this.sentAt = sentAt;
     }
-    public String getReceivedAt() {
+    public Date getReceivedAt() {
       return receivedAt;
     }
-    public void setReceivedAt(String receivedAt) {
+    public void setReceivedAt(Date receivedAt) {
       this.receivedAt = receivedAt;
     }       
   }
@@ -264,7 +266,7 @@ public class MailDatasource implements Datasource {
     String to="N/A";
     String subject="N/A";
     String sentAt="N/A";
-    String receivedAt="N/A";
+    Date receivedAt=new Date();
     int msgNmbr = 0;
     
     if (m instanceof Message) {
@@ -277,7 +279,7 @@ public class MailDatasource implements Datasource {
       msgNmbr = mesg.getMessageNumber();  
       subject = mesg.getSubject();
       sentAt = mesg.getSentDate().toString();
-      receivedAt = mesg.getReceivedDate().toString();           
+      receivedAt = mesg.getReceivedDate();           
     }
     
     String destinationFileName = folderName + "content" + msgNmbr + ".html";
@@ -358,7 +360,7 @@ public class MailDatasource implements Datasource {
     metaData.setDestination(destinationFileName);
     metaData.setAttribute("from", from);
     metaData.setAttribute("to", to);
-    metaData.setAttribute("receivedAt", receivedAt);
+    metaData.setAttribute("receivedAt", receivedAt.toString());
     metaData.setAttribute("sentAt", sentAt);
     metaData.setAttribute("subject", subject);
     infos.addMetainfo(metaData);
@@ -456,7 +458,13 @@ public class MailDatasource implements Datasource {
   
   private void generateIndex(Storage storage, List<MessageInfo> indexDetails) throws UnsupportedEncodingException, StorageException {
     StringBuilder sb = new StringBuilder();
-    //TODO Sort message information
+    Collections.sort(indexDetails, new Comparator<MessageInfo>() {
+      @Override
+      public int compare(MessageInfo o1, MessageInfo o2) {
+        return o2.getReceivedAt().compareTo(o1.getReceivedAt());
+      }
+    });
+    
     for (MessageInfo mi : indexDetails) {
       sb.append(MessageFormat.format(textBundle.getString(INDEX_HTML_ENTRY), mi.getSubject(), mi.getFrom(), mi.getSentAt(), mi.getReceivedAt(), mi.getTo(), mi.getFileName()));
     }
@@ -479,6 +487,15 @@ public class MailDatasource implements Datasource {
       logger.log(Level.FINE, "Connected! Downloading folders...");
       Folder[] folders = store.getDefaultFolder().list("*");
       List<MessageInfo> indexDetails = new ArrayList<MessageInfo>();
+      if (options.size() > 0) {        
+        List<Folder> toVisit = new ArrayList<Folder>();
+        for (Folder f : folders) {
+          if (options.contains(f.getFullName())) {
+            toVisit.add(f);
+          }
+        }
+        folders = toVisit.toArray(new Folder[]{});
+      }      
       for (Folder folder : folders) {
         handleDownloadAll(folder, accessData, storage, alreadyInspected, indexDetails);
       }
@@ -509,8 +526,17 @@ public class MailDatasource implements Datasource {
           accessData.getProperty("mail.password"));
       Folder[] folders = store.getDefaultFolder().list("*");
       for (Folder folder : folders) {
-        availOpts.add(folder.getName());
+        String folderName = folder.getFullName();
+        availOpts.add(folderName);
       }
+      
+      Collections.sort(availOpts, new Comparator<String>() {
+        @Override
+        public int compare(String o1, String o2) {
+          return o1.compareTo(o2);
+        }
+      });
+      
       store.close();
     } catch (NoSuchProviderException e) {
       // TODO Auto-generated catch block

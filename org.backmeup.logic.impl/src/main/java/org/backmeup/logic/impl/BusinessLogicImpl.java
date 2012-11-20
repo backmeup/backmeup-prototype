@@ -669,7 +669,7 @@ public class BusinessLogicImpl implements BusinessLogic {
           throw new IllegalArgumentException(String.format(
               textBundle.getString(UNKNOWN_PROFILE), source.getId()));
 
-        profiles.add(new ProfileOptions(p, source.getOptions().values().toArray(new String[]{})));        
+        profiles.add(new ProfileOptions(p, source.getOptions().keySet().toArray(new String[]{})));        
       }
 
       Profile sink = getProfileDao().findById(request.getSinkProfileId());

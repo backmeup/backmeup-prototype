@@ -26,6 +26,9 @@ public class SkyDriveDatasink implements Datasink {
 	@Override
 	public String upload(Properties accessData, Storage storage, Progressable progressor) throws StorageException {
 		Service s = SkyDriveSupport.getService(accessData);
+		String tmpDir = accessData.getProperty("org.backmeup.tmpdir");
+		if (tmpDir == null)
+		  tmpDir = "";
 		Iterator<DataObject> it = storage.getDataObjects();		
 		int i = 1;
 		while(it.hasNext()) {
@@ -34,8 +37,8 @@ public class SkyDriveDatasink implements Datasink {
 			try {
 				ByteArrayInputStream bis = new ByteArrayInputStream(dataObj.getBytes());
 				String log = String.format("Uploading file %s (Number: %d)...", dataObj.getPath(), i++);
-				progressor.progress(log);
-				SkyDriveSupport.storeFile(s.service, s.accessToken, bis, dataObj.getPath());
+				progressor.progress(log);				
+				SkyDriveSupport.storeFile(s.service, s.accessToken, bis, tmpDir + "/" + dataObj.getPath());
 				bis.close();
 			} catch (IOException e) {
 				throw new PluginException(SkyDriveDescriptor.SKYDRIVE_ID, "Error during upload of file %s", e);

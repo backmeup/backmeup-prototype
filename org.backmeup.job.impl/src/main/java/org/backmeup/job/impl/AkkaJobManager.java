@@ -57,7 +57,7 @@ abstract public class AkkaJobManager implements JobManager {
 	public BackupJob createBackupJob(BackMeUpUser user,
 			Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
 			List<ActionProfile> requiredActions, Date start, long delayInMs,
-			String keyRing, String jobTitle) {	    
+			String keyRing, String jobTitle, boolean reschedule) {	    
 	    try {
   	    conn.begin();
   	    UserDao ud = dal.createUserDao();

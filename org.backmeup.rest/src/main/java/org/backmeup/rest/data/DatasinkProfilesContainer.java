@@ -29,7 +29,7 @@ public class DatasinkProfilesContainer {
 		for (Profile p : profiles) {
 			getSinkProfiles().add(new InternalProfile(p.getProfileName(), p.getProfileId(), p.getDescription (), p.getCreated ().getTime (), p.getModified ().getTime (), p.getIdentification()));
 		}
-		this.user = new UserContainer(user.getUsername(), user.getEmail());
+		this.user = new UserContainer(user);
 	}
 	
 	public UserContainer getUser() {

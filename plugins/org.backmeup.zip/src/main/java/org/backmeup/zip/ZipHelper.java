@@ -1,9 +1,13 @@
 package org.backmeup.zip;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Properties;
+import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.backmeup.model.exceptions.PluginException;
 
@@ -15,7 +19,8 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 
 public class ZipHelper {
-
+  private Logger logger = Logger.getLogger(ZipDatasink.class.getName());
+  
   private String temporaryPath;
   private boolean isRemote;
   private String host;
@@ -89,6 +94,7 @@ public class ZipHelper {
       ChannelSftp sftpChannel = (ChannelSftp) channel;
       return sftpChannel;
     } catch (JSchException e) {
+      logger.log(Level.FINE, "Couldn't create sftp channel!", e);      
       throw new PluginException(ZipDescriptor.ZIP_ID, "Couldn't create sftp channel!", e);      
     }
   }
@@ -97,11 +103,30 @@ public class ZipHelper {
     ChannelSftp sftpChannel = getSftpChannel();
     try {
       try {
-        sftpChannel.mkdir(MessageFormat.format(remoteDirectory, userId));
+        String absolutePath = MessageFormat.format(remoteDirectory, userId);
+        File f = new File(absolutePath);
+        Stack<String> paths = new Stack<String>();
+        File current = f;
+        while (current != null) {
+          if (!current.getAbsolutePath().equals("/"))
+            paths.push(current.getAbsolutePath());
+          current = current.getParentFile();
+        }
+        
+        String path = null;
+        while (!paths.isEmpty()) {
+          path = paths.pop();
+          try {
+            sftpChannel.mkdir(path);
+          } catch (Exception ex) {
+            logger.log(Level.FINE, "Couldn't create folder: " + path, ex);
+          }
+        }
       } catch (Exception ex) {}
       sftpChannel.put(zipStream, MessageFormat.format(target, userId, fileName));      
       sftpChannel.disconnect();      
     } catch (SftpException e) {
+      logger.log(Level.FINE, "Failed to put file via sftp", e);
       throw new PluginException(ZipDescriptor.ZIP_ID, "Failed to put file via sftp!", e);
     }
   }

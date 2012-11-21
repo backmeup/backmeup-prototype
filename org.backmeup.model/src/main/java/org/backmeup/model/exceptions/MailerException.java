@@ -8,7 +8,7 @@ public class MailerException extends BackMeUpException {
   private String mimeType;
   
   public MailerException(String to, String subject, String message, String mimeType, Exception innerException) {
-    super(String.format("Failed to send email:\nmimetype: %s\nsubject: %s\nto: %s\nmessage: %s\n", mimeType, subject, to, message), innerException);
+    super("Failed to send email!", innerException);
     this.to = to;
     this.message = message;
     this.mimeType = mimeType;

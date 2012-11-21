@@ -7,7 +7,7 @@ public class NotAnEmailAddressException extends BackMeUpException {
   private String actual;
   
   public NotAnEmailAddressException(String expected, String actual) {
-    super("The given email address \"" + actual + "\" is invalid! The regular expression that has been used is: \"" + expected +"\"");
+    super("The given email address is invalid!");
     this.expected = expected;
     this.actual = actual;
   }

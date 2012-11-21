@@ -36,7 +36,7 @@ public class Users extends Base {
 	@Produces("application/json")
 	public UserContainer getUser(@PathParam("username") String username) {
 		BackMeUpUser user = getLogic().getUser(username);
-		return new UserContainer(user.getUsername(), user.getEmail());
+		return new UserContainer(user);
 	}
 
 	@DELETE

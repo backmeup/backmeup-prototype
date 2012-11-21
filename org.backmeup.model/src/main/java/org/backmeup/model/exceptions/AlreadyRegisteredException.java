@@ -13,7 +13,7 @@ public class AlreadyRegisteredException extends BackMeUpException {
 	private String username;
 	
 	public AlreadyRegisteredException(String username) {
-		super(String.format("The user %s has already been registered!", username));
+		super("The user has already been registered!");
 		this.username = username;
 		
 	}

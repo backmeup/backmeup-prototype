@@ -11,6 +11,7 @@ public class UserLoginContainer
 	private boolean activated;
 	private String type = "success";
 	private String message = Messages.LOGIN_USER;
+	private Long userId;
 
 	public String getType() {
     return type;
@@ -23,6 +24,7 @@ public class UserLoginContainer
   public UserLoginContainer (BackMeUpUser user)
 	{
 		this.activated = user.isActivated ();
+		this.userId = user.getUserId();
 	}
 
 	public boolean isActivated ()
@@ -34,4 +36,12 @@ public class UserLoginContainer
 	{
 		this.activated = activated;
 	}
+
+  public Long getUserId() {
+    return userId;
+  }
+
+  public void setUserId(Long userId) {
+    this.userId = userId;
+  }
 }

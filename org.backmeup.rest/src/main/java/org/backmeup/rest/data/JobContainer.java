@@ -59,7 +59,7 @@ public class JobContainer {
 		
 		
 		
-		this.user = new UserContainer(user.getUsername(), user.getEmail());
+		this.user = new UserContainer(user);
 	}
 	
 	public UserContainer getUser() {

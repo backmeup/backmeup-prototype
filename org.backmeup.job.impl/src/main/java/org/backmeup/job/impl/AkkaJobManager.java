@@ -67,8 +67,8 @@ abstract public class AkkaJobManager implements JobManager {
             user,
             sourceProfiles,
             sinkProfile,
-                requiredActions, 
-                start, delayInMs, jobTitle);
+            requiredActions, 
+            start, delayInMs, jobTitle, reschedule);
         
         Long firstExecutionDate = start.getTime() + delayInMs;
         
@@ -171,7 +171,7 @@ abstract public class AkkaJobManager implements JobManager {
 			  conn.beginOrJoin();
 			
   			BackupJob nextJob = dal.createBackupJobDao().findById(job.getId());
-  			if (nextJob != null) {
+  			if (nextJob != null && nextJob.isReschedule()) {
   				System.out.println("Rescheduling job for execution in " + job.getDelay() + "ms");
   				system.scheduler().scheduleOnce(
   						Duration.create(job.getDelay(), TimeUnit.MILLISECONDS), 

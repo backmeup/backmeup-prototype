@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Properties;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.backmeup.model.exceptions.PluginException;
 
@@ -17,7 +19,8 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 
 public class ZipHelper {
-
+  private Logger logger = Logger.getLogger(ZipDatasink.class.getName());
+  
   private String temporaryPath;
   private boolean isRemote;
   private String host;
@@ -91,6 +94,7 @@ public class ZipHelper {
       ChannelSftp sftpChannel = (ChannelSftp) channel;
       return sftpChannel;
     } catch (JSchException e) {
+      logger.log(Level.FINE, "Couldn't create sftp channel!", e);      
       throw new PluginException(ZipDescriptor.ZIP_ID, "Couldn't create sftp channel!", e);      
     }
   }
@@ -115,13 +119,14 @@ public class ZipHelper {
           try {
             sftpChannel.mkdir(path);
           } catch (Exception ex) {
-            
+            logger.log(Level.FINE, "Couldn't create folder: " + path, ex);
           }
         }
       } catch (Exception ex) {}
       sftpChannel.put(zipStream, MessageFormat.format(target, userId, fileName));      
       sftpChannel.disconnect();      
     } catch (SftpException e) {
+      logger.log(Level.FINE, "Failed to put file via sftp", e);
       throw new PluginException(ZipDescriptor.ZIP_ID, "Failed to put file via sftp!", e);
     }
   }

@@ -18,7 +18,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.print.attribute.standard.JobOriginatingUserName;
 
 /**
  * The BackupJob class contains all necessary data to
@@ -59,6 +58,7 @@ public class BackupJob {
   
   @Temporal(TemporalType.TIMESTAMP)
   private Date nextExecutionTime;
+  private boolean reschedule;
 
   public BackupJob() {
     super();
@@ -66,7 +66,7 @@ public class BackupJob {
 
   public BackupJob(BackMeUpUser user, Set<ProfileOptions> sourceProfile,
       Profile sinkProfile, List<ActionProfile> requiredActions,
-      Date start, long delay, String jobTitle) {
+      Date start, long delay, String jobTitle, boolean reschedule) {
     this.user = user;
     this.sourceProfiles = sourceProfile;
     this.sinkProfile = sinkProfile;
@@ -77,6 +77,7 @@ public class BackupJob {
     this.created = new Date ();
     this.modified = this.created;
     this.jobTitle = jobTitle;
+    this.reschedule = reschedule;
   }
 
   public Long getId() {
@@ -189,4 +190,12 @@ public class BackupJob {
   public void setNextExecutionTime(Date nextExecutionTime) {
     this.nextExecutionTime = nextExecutionTime;
   }
+
+	public boolean isReschedule() {
+		return reschedule;
+	}
+
+	public void setReschedule(boolean reschedule) {
+		this.reschedule = reschedule;
+	}
 }

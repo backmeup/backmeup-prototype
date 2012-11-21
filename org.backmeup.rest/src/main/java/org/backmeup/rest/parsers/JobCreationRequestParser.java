@@ -9,6 +9,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.backmeup.model.dto.ActionProfileEntry;
 import org.backmeup.model.dto.JobCreationRequest;
+import org.backmeup.model.dto.JobUpdateRequest;
 import org.backmeup.model.dto.SourceProfileEntry;
 import org.backmeup.model.exceptions.BackMeUpException;
 
@@ -54,6 +55,49 @@ public class JobCreationRequestParser {
     
     if (formParameters.containsKey("timeExpression"))
       jcr.setTimeExpression(formParameters.getFirst("timeExpression"));
+    return jcr;
+  }
+  
+  public static JobUpdateRequest parseUpdateRequest(MultivaluedMap<String, String> formParameters) {
+    JobUpdateRequest jcr = new JobUpdateRequest();
+    
+    if (formParameters.containsKey("sourceProfiles")) {
+      for (String sourceProfile : formParameters.get("sourceProfiles")) {
+        SourceProfileEntry spe = new SourceProfileEntry();
+        spe.setId(Long.parseLong(sourceProfile));
+        for (Entry<String, String> entry : getOptions(spe.getId()+"", formParameters).entrySet()) {
+          spe.getOptions().put(entry.getKey(), entry.getValue());
+        }
+        
+        jcr.getSourceProfiles().add(spe);
+      }
+    }
+    
+    if (formParameters.containsKey("actions"))
+      for (String action : formParameters.get("actions")) {
+        ActionProfileEntry ape = new ActionProfileEntry();
+        ape.setId(action);
+        for (Entry<String, String> entry : getOptions(ape.getId()+"", formParameters).entrySet()) {
+          ape.getOptions().put(entry.getKey(), entry.getValue());
+        }
+        jcr.getActions().add(ape);
+      }
+    
+    
+    if (formParameters.containsKey("sinkProfileId"))
+      jcr.setSinkProfileId(Long.parseLong(formParameters.getFirst("sinkProfileId")));
+    
+    if (formParameters.containsKey("jobTitle"))
+      jcr.setJobTitle(formParameters.getFirst("jobTitle"));
+    
+    if (formParameters.containsKey("keyRing"))
+      jcr.setKeyRing(formParameters.getFirst("keyRing"));
+    
+    if (formParameters.containsKey("timeExpression"))
+      jcr.setTimeExpression(formParameters.getFirst("timeExpression"));
+    
+    if (formParameters.containsKey("jobId")) 
+      jcr.setJobId(Long.parseLong(formParameters.getFirst("jobId")));
     return jcr;
   }
   

@@ -3,6 +3,7 @@ package org.backmeup.rest.data;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -19,9 +20,9 @@ public class JobContainer {
 	
 	private UserContainer user;
 	
-	private long lastBackup;
+	private Long lastBackup;
 	
-	private long nextBackup;
+	private Long nextBackup;
 	
 	private List<Job> backupJobs;
 	
@@ -31,16 +32,18 @@ public class JobContainer {
 	public JobContainer(List<BackupJob> backupJobs, BackMeUpUser user) {
 		this.backupJobs = new ArrayList<Job>();
 		for (BackupJob j : backupJobs) {
-		  JobProtocol jp = j.lastProtocol();
-		  long lastBackup;
-		  if (jp == null)
-		    lastBackup = j.getStart().getTime();
-		  else 
-		    lastBackup = jp.getExecutionTime().getTime();
-		  long nextBackup = lastBackup + j.getDelay();
+		  Date nextExecTime = j.getNextExecutionTime();
 		  Job job = new Job(j.getId(), j.getSourceProfiles(), j.getSinkProfile(), j.getStart ().getTime (), j.getCreated ().getTime (), j.getModified ().getTime (), j.getJobTitle (), j.getDelay());
-		  job.setLastBackup(lastBackup);
-		  job.setNextBackup(nextBackup);
+		  JobProtocol protocol = j.lastProtocol();
+		  
+		  if (protocol != null) {
+		    job.setLastBackup(protocol.getExecutionTime().getTime());
+		  }
+      
+		  if (nextExecTime != null && nextExecTime.getTime() > new Date().getTime()) {
+		    job.setNextBackup(nextExecTime.getTime());
+		  }		  
+		  
 			this.backupJobs.add(job);
 		}
 		
@@ -54,7 +57,6 @@ public class JobContainer {
 			
 			Job lastJob = this.backupJobs.get(this.backupJobs.size() - 1);
 			this.lastBackup = lastJob.startDate;
-			this.nextBackup = this.lastBackup + lastJob.delay;
 		}
 		
 		
@@ -70,19 +72,19 @@ public class JobContainer {
 		this.user = user;
 	}
 	
-	public long getLastBackup() {
+	public Long getLastBackup() {
 		return this.lastBackup;
 	}
 	
-	public void setLastBackup(long lastBackup) {
+	public void setLastBackup(Long lastBackup) {
 		this.lastBackup = lastBackup;
 	}
 	
-	public long getNextBackup() {
+	public Long getNextBackup() {
 		return this.nextBackup;
 	}
 	
-	public void setNextBackup(long nextBackup) {
+	public void setNextBackup(Long nextBackup) {
 		this.nextBackup = nextBackup;
 	}
 
@@ -152,22 +154,22 @@ public class JobContainer {
   }
 
 	public static class Job {
-		private long backupJobId;
+		private Long backupJobId;
 		private List<DatasourceProfile> datasources;
 		private DatasinkProfile datasink;
-		private long startDate;
-		private long createDate;
-		private long modifyDate;
+		private Long startDate;
+		private Long createDate;
+		private Long modifyDate;
 		private String jobTitle;
-		private long delay;
-		private long lastBackup;
-		private long nextBackup;
+		private Long delay;
+		private Long lastBackup;
+		private Long nextBackup;
 		
 		
 		public Job() {
 		}
 		 
-		public Job(long backupJobId, Set<ProfileOptions> datasourceIds, Profile datasinkProfile, long startDate, long createDate, long modifyDate, String jobTitle, long delay) {
+		public Job(long backupJobId, Set<ProfileOptions> datasourceIds, Profile datasinkProfile, Long startDate, Long createDate, Long modifyDate, String jobTitle, Long delay) {
 			this.backupJobId = backupJobId;
 			this.setDatasources(new ArrayList<DatasourceProfile>());
 			for (ProfileOptions po : datasourceIds) {
@@ -179,69 +181,14 @@ public class JobContainer {
 			this.modifyDate = modifyDate;
 			this.jobTitle = jobTitle;
 			this.delay = delay;
-		} 
-
-		public long getBackupJobId() {
-			return backupJobId;
-		}
-		public void setBackupJobId(long backupJobId) {
-			this.backupJobId = backupJobId;
-		}
-		 
-	
-		public long getStartDate ()
-		{
-			return startDate;
-		}
-		public void setStartDate (long startDate)
-		{
-			this.startDate = startDate;
 		}
 
-		public long getCreateDate ()
-		{
-			return createDate;
-		}
-
-		public void setCreateDate (long createDate)
-		{
-			this.createDate = createDate;
-		}
-
-		public long getModifyDate ()
-		{
-			return modifyDate;
-		}
-
-		public void setModifyDate (long modifyDate)
-		{
-			this.modifyDate = modifyDate;
-		}
-
-		public String getJobTitle ()
-		{
-			return jobTitle;
-		}
-
-		public void setJobTitle (String jobTitle)
-		{
-			this.jobTitle = jobTitle;
-		}
-		
-		public long getDelay() {
-			return delay;
-		}
-		
-		public void setDelay(long delay) {
-			this.delay = delay;
-		}
-
-    public DatasinkProfile getDatasink() {
-      return datasink;
+    public Long getBackupJobId() {
+      return backupJobId;
     }
 
-    public void setDatasink(DatasinkProfile datasink) {
-      this.datasink = datasink;
+    public void setBackupJobId(Long backupJobId) {
+      this.backupJobId = backupJobId;
     }
 
     public List<DatasourceProfile> getDatasources() {
@@ -252,19 +199,67 @@ public class JobContainer {
       this.datasources = datasources;
     }
 
-    public long getLastBackup() {
+    public DatasinkProfile getDatasink() {
+      return datasink;
+    }
+
+    public void setDatasink(DatasinkProfile datasink) {
+      this.datasink = datasink;
+    }
+
+    public Long getStartDate() {
+      return startDate;
+    }
+
+    public void setStartDate(Long startDate) {
+      this.startDate = startDate;
+    }
+
+    public Long getCreateDate() {
+      return createDate;
+    }
+
+    public void setCreateDate(Long createDate) {
+      this.createDate = createDate;
+    }
+
+    public Long getModifyDate() {
+      return modifyDate;
+    }
+
+    public void setModifyDate(Long modifyDate) {
+      this.modifyDate = modifyDate;
+    }
+
+    public String getJobTitle() {
+      return jobTitle;
+    }
+
+    public void setJobTitle(String jobTitle) {
+      this.jobTitle = jobTitle;
+    }
+
+    public Long getDelay() {
+      return delay;
+    }
+
+    public void setDelay(Long delay) {
+      this.delay = delay;
+    }
+
+    public Long getLastBackup() {
       return lastBackup;
     }
 
-    public void setLastBackup(long lastBackup) {
+    public void setLastBackup(Long lastBackup) {
       this.lastBackup = lastBackup;
     }
 
-    public long getNextBackup() {
+    public Long getNextBackup() {
       return nextBackup;
     }
 
-    public void setNextBackup(long nextBackup) {
+    public void setNextBackup(Long nextBackup) {
       this.nextBackup = nextBackup;
     }
 	}

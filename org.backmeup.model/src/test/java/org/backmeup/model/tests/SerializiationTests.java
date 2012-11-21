@@ -55,7 +55,7 @@ public class SerializiationTests {
     options.add(po);
     Profile sink = new Profile(2L, user, "TestProfile2", "org.backmeup.sink", Type.Sink);
     List<ActionProfile> actions = new ArrayList<ActionProfile>();
-    BackupJob job = new BackupJob(user, options, sink, actions, new Date(), new Date().getTime() + 1000000L, "TestJob1");
+    BackupJob job = new BackupJob(user, options, sink, actions, new Date(), new Date().getTime() + 1000000L, "TestJob1", false);
     String serializedJob = JsonSerializer.serialize(job);
     BackupJob restored = JsonSerializer.deserialize(serializedJob, BackupJob.class);
     restored.toString();

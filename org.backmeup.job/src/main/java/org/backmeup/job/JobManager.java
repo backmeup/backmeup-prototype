@@ -26,7 +26,8 @@ public interface JobManager {
 
 	public BackupJob createBackupJob(BackMeUpUser user,
 			Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
-			List<ActionProfile> requiredActions, Date start, long delay, String keyRing, String jobTitle);
+			List<ActionProfile> requiredActions, Date start, long delay, String keyRing, String jobTitle,
+			boolean reschedule);
 
 	
 	public BackupJob getBackUpJob(Long jobId);

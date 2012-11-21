@@ -707,6 +707,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       String timeExpression = request.getTimeExpression();
       Date start = null;
       long delay = 0;
+      boolean reschedule = true;
       if (timeExpression.equalsIgnoreCase("daily")) {
         start = new Date();
         delay = DELAY_DAILY;      
@@ -722,10 +723,11 @@ public class BusinessLogicImpl implements BusinessLogic {
       } else {
         start = new Date();
         delay = DELAY_REALTIME;
+        reschedule = false;
       }
       conn.rollback();
       BackupJob job = jobManager.createBackupJob(user, profiles, sink, actions,
-          start, delay, request.getKeyRing(), request.getJobTitle());      
+          start, delay, request.getKeyRing(), request.getJobTitle(), reschedule);      
       ValidationNotes vn = validateBackupJob(username, job.getId(), request.getKeyRing());
       vn.setJob(job);
       return vn;

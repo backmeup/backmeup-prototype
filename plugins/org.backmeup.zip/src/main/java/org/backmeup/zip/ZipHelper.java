@@ -1,9 +1,11 @@
 package org.backmeup.zip;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Properties;
+import java.util.Stack;
 
 import org.backmeup.model.exceptions.PluginException;
 
@@ -97,7 +99,25 @@ public class ZipHelper {
     ChannelSftp sftpChannel = getSftpChannel();
     try {
       try {
-        sftpChannel.mkdir(MessageFormat.format(remoteDirectory, userId));
+        String absolutePath = MessageFormat.format(remoteDirectory, userId);
+        File f = new File(absolutePath);
+        Stack<String> paths = new Stack<String>();
+        File current = f;
+        while (current != null) {
+          if (!current.getAbsolutePath().equals("/"))
+            paths.push(current.getAbsolutePath());
+          current = current.getParentFile();
+        }
+        
+        String path = null;
+        while (!paths.isEmpty()) {
+          path = paths.pop();
+          try {
+            sftpChannel.mkdir(path);
+          } catch (Exception ex) {
+            
+          }
+        }
       } catch (Exception ex) {}
       sftpChannel.put(zipStream, MessageFormat.format(target, userId, fileName));      
       sftpChannel.disconnect();      

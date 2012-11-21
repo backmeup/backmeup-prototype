@@ -78,7 +78,7 @@ abstract public class AkkaJobManager implements JobManager {
   	    job = getDao().save(job);
   	    conn.commit();
   	    // ... and queue immediately
-        queueJob(job);
+  	    queueJob(job);
         return job;
 	    } finally {
 	      conn.rollback();
@@ -96,7 +96,9 @@ abstract public class AkkaJobManager implements JobManager {
       // TODO only take N next recent ones (at least if allJobs has an excessive length)
 	  try {
 	    conn.begin();
-  		for (BackupJob storedJob : getDao().findAll()) {
+	    List<BackupJob> storedJobs = getDao().findAll();
+	    conn.rollback();
+  		for (BackupJob storedJob : storedJobs) {
   			queueJob(storedJob);
   		}
 	  } finally {
@@ -113,11 +115,14 @@ abstract public class AkkaJobManager implements JobManager {
 	
 	protected abstract void runJob(BackupJob job);
 	
+	// Don't call this method within a database transaction!
 	private void queueJob(BackupJob job) {
 		try {		    
 			// Compute next job execution time
 		  long currentTime = new Date().getTime();
 			long executeIn = job.getStart().getTime() - currentTime;
+			if (job.getNextExecutionTime() != null)
+			  executeIn = job.getNextExecutionTime().getTime() - currentTime;
 			
 			// If job execution was scheduled for within the past 5 mins, still schedule now...
 			if (executeIn >= -300000 && executeIn < 0)
@@ -126,7 +131,8 @@ abstract public class AkkaJobManager implements JobManager {
 			// ...otherwise, schedule on the next occasion defined by .getStart and .getDelay
 			if (executeIn < 0) {
 				executeIn += Math.ceil((double) Math.abs(executeIn) / (double) job.getDelay()) * job.getDelay();
-
+				  conn.begin();
+				  job = getBackUpJob(job.getId());
 				// TODO we need to update these jobs' tokens - but where do we get keyRing password from?
 			    job.getToken().setBackupdate(currentTime + executeIn);
 			      
@@ -136,6 +142,7 @@ abstract public class AkkaJobManager implements JobManager {
 			    // the token for the next getData call
 			    Token newToken = authenticationData.getNewToken();
 			    job.setToken(newToken);
+			    conn.commit();
 			}
 	    
 			// TODO we can use the 'cancellable' to terminate later on
@@ -147,7 +154,9 @@ abstract public class AkkaJobManager implements JobManager {
 			// TODO there must be error handling defined in the JobManager!^
 		  Logger.getLogger(AkkaJobManager.class).error("Error during startup", e);
 			//throw new BackMeUpException(e);
-		}		
+		} finally {
+		  conn.rollback();
+		}
 	}
 	
 	private class RunAndReschedule implements Runnable {
@@ -173,9 +182,13 @@ abstract public class AkkaJobManager implements JobManager {
   			BackupJob nextJob = dal.createBackupJobDao().findById(job.getId());
   			if (nextJob != null) {
   				System.out.println("Rescheduling job for execution in " + job.getDelay() + "ms");
+  				Date execTime = new Date(new Date().getTime() + job.getDelay());  				
+  				nextJob.setNextExecutionTime(execTime);
   				system.scheduler().scheduleOnce(
   						Duration.create(job.getDelay(), TimeUnit.MILLISECONDS), 
   						new RunAndReschedule(job, dal));
+  				// store the next execution time
+  				conn.commit();
   			} else {
   				System.out.println("Job deleted in the mean time - no re-scheduling.");
   			}

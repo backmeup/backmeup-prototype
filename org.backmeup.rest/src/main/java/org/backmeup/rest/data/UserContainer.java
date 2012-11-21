@@ -2,17 +2,21 @@ package org.backmeup.rest.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.backmeup.model.BackMeUpUser;
+
 @XmlRootElement
 public class UserContainer {
 	private String username;
 	private String email;
+	private Long userId;
 	
 	public UserContainer() {
 	}
 	
-	public UserContainer(String username, String email) {
-		this.username = username;
-		this.email = email;
+	public UserContainer(BackMeUpUser user) {
+		this.username = user.getUsername();
+		this.email = user.getEmail();
+		this.userId = user.getUserId();
 	}
 	
 	public String getUsername() {
@@ -30,4 +34,12 @@ public class UserContainer {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+  public Long getUserId() {
+    return userId;
+  }
+
+  public void setUserId(Long userId) {
+    this.userId = userId;
+  }
 }

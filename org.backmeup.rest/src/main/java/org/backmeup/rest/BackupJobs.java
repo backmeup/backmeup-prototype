@@ -14,7 +14,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.backmeup.model.BackMeUpUser;
-import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.dto.JobCreationRequest;
 import org.backmeup.rest.data.JobContainer;
 import org.backmeup.rest.data.ProtocolDetailsContainer;

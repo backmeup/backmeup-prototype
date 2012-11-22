@@ -1037,6 +1037,27 @@ public class BusinessLogicImpl implements BusinessLogic {
 		  conn.rollback();
 	  }
   }
+  
+  public void deleteIndexForUser(String username) {
+	  ElasticSearchIndexClient client = null;
+	  try {
+	    conn.begin();
+	    
+	    // at least we make sure, that the user exists
+	    BackMeUpUser user = getUser(username);
+	    
+	    try {
+		    client = getIndexClient();
+		    client.deleteRecordsForUser(user.getUserId());
+	    } catch (Throwable t) {
+	    	t.printStackTrace();
+	    }
+	  } finally {
+		conn.rollback();
+		if (client != null)
+			client.close();
+	  }
+  }
 
   public SearchResponse queryBackup(String username, long searchId,
       String filterType, String filterValue) {

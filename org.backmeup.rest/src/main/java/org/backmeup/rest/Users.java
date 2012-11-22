@@ -99,6 +99,14 @@ public class Users extends Base {
 	}
 	
 	@GET
+	@Path("{username}/deleteIndex")
+	@Produces("application/json")
+	public ResultMessage deleteIndex(@PathParam("username") String username) {
+		getLogic().deleteIndexForUser(username);
+		return Messages.MSG_DELETE_INDEX_FOR_USER;
+	}
+	
+	@GET
 	@Path("{username}/newVerificationEmail")
 	@Produces("application/json")
 	public VerificationContainer requestNewVerificationEmail(@PathParam("username") String username) {

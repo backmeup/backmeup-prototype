@@ -56,6 +56,8 @@ public class BackupJob {
   private Date modified;
   private String jobTitle;
   
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date nextExecutionTime;
   private boolean reschedule;
 
   public BackupJob() {
@@ -180,6 +182,14 @@ public class BackupJob {
 	  }
 	  return last;
 	}
+
+  public Date getNextExecutionTime() {
+    return nextExecutionTime;
+  }
+
+  public void setNextExecutionTime(Date nextExecutionTime) {
+    this.nextExecutionTime = nextExecutionTime;
+  }
 
 	public boolean isReschedule() {
 		return reschedule;

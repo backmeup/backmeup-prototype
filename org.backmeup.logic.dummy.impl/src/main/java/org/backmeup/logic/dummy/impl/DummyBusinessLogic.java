@@ -39,6 +39,7 @@ import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.api.RequiredInputField;
 import org.backmeup.model.dto.ActionProfileEntry;
 import org.backmeup.model.dto.JobCreationRequest;
+import org.backmeup.model.dto.JobUpdateRequest;
 import org.backmeup.model.dto.SourceProfileEntry;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.InvalidCredentialsException;
@@ -878,9 +879,22 @@ public class DummyBusinessLogic implements BusinessLogic {
     return null;
   }
 
-@Override
-public void deleteIndexForUser(String username) {
+  @Override
+  public void deleteIndexForUser(String username) {
 	// TODO Auto-generated method stub
-	
-}
+  }
+
+  @Override
+  public ValidationNotes updateBackupJob(String username,
+      JobUpdateRequest updateRequest) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public JobUpdateRequest getBackupJob(String username, Long jobId) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }

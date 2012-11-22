@@ -40,6 +40,8 @@ import org.backmeup.job.JobManager;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.logic.BusinessLogic;
+import org.backmeup.logic.impl.helper.BackUpJobConverter;
+import org.backmeup.logic.impl.helper.BackUpJobCreationHelper;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.ActionProfile.ActionProperty;
 import org.backmeup.model.AuthRequest;
@@ -60,7 +62,9 @@ import org.backmeup.model.Status;
 import org.backmeup.model.Token;
 import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.dto.ActionProfileEntry;
+import org.backmeup.model.dto.ExecutionTime;
 import org.backmeup.model.dto.JobCreationRequest;
+import org.backmeup.model.dto.JobUpdateRequest;
 import org.backmeup.model.dto.SourceProfileEntry;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.BackMeUpException;
@@ -132,11 +136,11 @@ public class BusinessLogicImpl implements BusinessLogic {
   private static final String INDEX_PORT = "index.port";
 
   //private static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
-  private static final long DELAY_REALTIME = 1 * 1000;
-  private static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
-  private static final long DELAY_WEEKLY = 24 * 60 * 60 * 1000 * 7;
-  private static final long DELAY_MONTHLY = (long)(24 * 60 * 60 * 1000 * 365.242199 / 12.0);
-  private static final long DELAY_YEARLY = (long)(24 * 60 * 60 * 1000 * 365.242199);
+  public static final long DELAY_REALTIME = 1 * 1000;
+  public static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
+  public static final long DELAY_WEEKLY = 24 * 60 * 60 * 1000 * 7;
+  public static final long DELAY_MONTHLY = (long)(24 * 60 * 60 * 1000 * 365.242199 / 12.0);
+  public static final long DELAY_YEARLY = (long)(24 * 60 * 60 * 1000 * 365.242199);
   
 
   @Inject
@@ -647,6 +651,64 @@ public class BusinessLogicImpl implements BusinessLogic {
     // TODO Auto-generated method stub
 
   }
+  
+  private List<ActionProfile> getActionProfilesFor(JobCreationRequest request) {
+    List<ActionProfile> actions = new ArrayList<ActionProfile>();
+    
+    for (ActionProfileEntry action : request.getActions()) {
+      ActionDescribable ad = null;
+      // TODO: Remove workaround for embedded action plugins
+      if ("org.backmeup.filesplitting".equals(action.getId())) {
+        ad = new FilesplittDescribable();
+      } else if ("org.backmeup.indexer".equals(action.getId())) {
+        ad = new IndexDescribable();
+      } else if ("org.backmeup.encryption".equals(action.getId())) {
+        ad = new EncryptionDescribable();
+      } else {
+        ad = plugins.getActionById(action.getId());
+      }
+      if (ad == null) {
+        throw new IllegalArgumentException(String.format(
+            textBundle.getString(UNKNOWN_ACTION), action.getId()));
+      }
+      ActionProfile ap = new ActionProfile(ad.getId(), ad.getPriority());
+      for (Map.Entry<String, String> entry : action.getOptions().entrySet()) {
+        ap.addActionOption(entry.getKey(), entry.getValue());
+      }
+      actions.add(ap);          
+    }
+    Collections.sort(actions);
+    return actions;
+  }
+  
+  private Set<ProfileOptions> getSourceProfilesFor(JobCreationRequest request) {
+    Set<ProfileOptions> profiles = new HashSet<ProfileOptions>();
+    if (request.getSourceProfiles().size() == 0) {
+      throw new IllegalArgumentException(
+          "There must be at least one source profile to download data from!");
+    }
+
+    for (SourceProfileEntry source : request.getSourceProfiles()) {
+      Profile p = getProfileDao().findById(source.getId());
+      if (p == null)
+        throw new IllegalArgumentException(String.format(
+            textBundle.getString(UNKNOWN_PROFILE), source.getId()));
+
+      profiles.add(new ProfileOptions(p, source.getOptions().keySet().toArray(new String[]{})));        
+    }
+    return profiles;
+  }
+  
+  private Profile getSinkProfileFor(JobCreationRequest request) {
+    Profile sink = getProfileDao().findById(request.getSinkProfileId());
+    if (sink == null) {
+      throw new IllegalArgumentException(String.format(
+          textBundle.getString(UNKNOWN_PROFILE), request.getSinkProfileId()));
+    }
+    return sink;
+  }
+  
+  
 
   public ValidationNotes createBackupJob(String username, JobCreationRequest request) {
     try {
@@ -657,82 +719,79 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (!keyserverClient.validateUser(user.getUserId(), request.getKeyRing()))
         throw new InvalidCredentialsException();
 
-      Set<ProfileOptions> profiles = new HashSet<ProfileOptions>();
-      if (request.getSourceProfiles().size() == 0) {
-        throw new IllegalArgumentException(
-            "There must be at least one source profile to download data from!");
-      }
+      Set<ProfileOptions> profiles = getSourceProfilesFor(request);
 
-      for (SourceProfileEntry source : request.getSourceProfiles()) {
-        Profile p = getProfileDao().findById(source.getId());
-        if (p == null)
-          throw new IllegalArgumentException(String.format(
-              textBundle.getString(UNKNOWN_PROFILE), source.getId()));
+      Profile sink = getSinkProfileFor(request);
 
-        profiles.add(new ProfileOptions(p, source.getOptions().keySet().toArray(new String[]{})));        
-      }
-
-      Profile sink = getProfileDao().findById(request.getSinkProfileId());
-      if (sink == null) {
-        throw new IllegalArgumentException(String.format(
-            textBundle.getString(UNKNOWN_PROFILE), request.getSinkProfileId()));
-      }
-
-      List<ActionProfile> actions = new ArrayList<ActionProfile>();
+      List<ActionProfile> actions = getActionProfilesFor(request);
       
-      for (ActionProfileEntry action : request.getActions()) {
-        ActionDescribable ad = null;
-        // TODO: Remove workaround for embedded action plugins
-        if ("org.backmeup.filesplitting".equals(action.getId())) {
-          ad = new FilesplittDescribable();
-        } else if ("org.backmeup.indexer".equals(action.getId())) {
-          ad = new IndexDescribable();
-        } else if ("org.backmeup.encryption".equals(action.getId())) {
-          ad = new EncryptionDescribable();
-        } else {
-          ad = plugins.getActionById(action.getId());
-        }
-        if (ad == null) {
-          throw new IllegalArgumentException(String.format(
-              textBundle.getString(UNKNOWN_ACTION), action.getId()));
-        }
-        ActionProfile ap = new ActionProfile(ad.getId(), ad.getPriority());
-        for (Map.Entry<String, String> entry : action.getOptions().entrySet()) {
-          ap.addActionOption(entry.getKey(), entry.getValue());
-        }
-        actions.add(ap);          
-      }
-                 
-      Collections.sort(actions);
-      String timeExpression = request.getTimeExpression();
-      Date start = null;
-      long delay = 0;
-      boolean reschedule = true;
-      if (timeExpression.equalsIgnoreCase("daily")) {
-        start = new Date();
-        delay = DELAY_DAILY;      
-      } else if (timeExpression.equalsIgnoreCase("weekly")) {
-        start = new Date();
-        delay = DELAY_WEEKLY;
-      } else if (timeExpression.equalsIgnoreCase("monthly")) {
-        start = new Date();
-        delay = DELAY_MONTHLY;
-      } else if (timeExpression.equalsIgnoreCase("yearly")) {
-        start = new Date();
-        delay = DELAY_YEARLY;
-      } else {
-        start = new Date();
-        delay = DELAY_REALTIME;
-        reschedule = false;
-      }
+      ExecutionTime execTime = BackUpJobCreationHelper.getExecutionTimeFor(request);
+      
       conn.rollback();
       BackupJob job = jobManager.createBackupJob(user, profiles, sink, actions,
-          start, delay, request.getKeyRing(), request.getJobTitle(), reschedule);      
+          execTime.getStart(), execTime.getDelay(), request.getKeyRing(), request.getJobTitle(), execTime.isReschedule());      
       ValidationNotes vn = validateBackupJob(username, job.getId(), request.getKeyRing());
       vn.setJob(job);
       return vn;
     } finally {
       conn.rollback();
+    }
+  }
+  
+  // Note: keyRing won't be overridden
+  @Override
+  public ValidationNotes updateBackupJob(String username,
+      JobUpdateRequest updateRequest) {
+    if (updateRequest == null)
+      throw new IllegalArgumentException("Update must not be null!");
+    
+    if (updateRequest.getJobId() == null)
+      throw new IllegalArgumentException("JobId must not be null!");
+    
+    
+    BackMeUpUser user = getUser(username);
+    if (!keyserverClient.validateUser(user.getUserId(), updateRequest.getKeyRing()))
+      throw new InvalidCredentialsException();
+    
+    try {
+      conn.begin();
+      BackupJob job = getBackupJobDao().findById(updateRequest.getJobId());
+      if (job == null || !job.getUser().getUsername().equals(username)) {
+        throw new IllegalArgumentException(String.format(textBundle.getString(JOB_USER_MISSMATCH),
+            updateRequest.getJobId(), username));
+      }
+      
+      job.getRequiredActions().clear();
+      job.getRequiredActions().addAll(this.getActionProfilesFor(updateRequest));
+      
+      job.getSourceProfiles().clear();
+      job.getSourceProfiles().addAll(this.getSourceProfilesFor(updateRequest));
+      
+      job.setJobTitle(updateRequest.getJobTitle());
+      job.setSinkProfile(getSinkProfileFor(updateRequest));
+      
+      ExecutionTime et = BackUpJobCreationHelper.getExecutionTimeFor(updateRequest);
+      job.setDelay(et.getDelay());
+      conn.commit();
+      ValidationNotes vn = validateBackupJob(username, job.getId(), updateRequest.getKeyRing());
+      vn.setJob(job);
+      return vn;
+    } finally {
+      conn.rollback();
+    }
+  }
+
+  @Override
+  public JobUpdateRequest getBackupJob(String username, Long jobId) {
+    try {
+      if (jobId == null)
+        throw new IllegalArgumentException("Missing parameter " + jobId);
+      conn.begin();
+      BackupJobDao jobDao = dal.createBackupJobDao();
+      BackupJob job = jobDao.findById(jobId);
+      return BackUpJobConverter.convertJobToUpdateRequest(job);
+    } finally {
+      conn.rollback();     
     }
   }
 

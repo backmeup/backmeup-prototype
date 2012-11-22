@@ -18,6 +18,7 @@ import org.backmeup.model.SearchResponse;
 import org.backmeup.model.Status;
 import org.backmeup.model.ValidationNotes;
 import org.backmeup.model.dto.JobCreationRequest;
+import org.backmeup.model.dto.JobUpdateRequest;
 import org.backmeup.model.exceptions.AlreadyRegisteredException;
 import org.backmeup.model.exceptions.InvalidCredentialsException;
 import org.backmeup.model.exceptions.PluginException;
@@ -89,7 +90,9 @@ public interface BusinessLogic {
 	public void deleteActionPlugin(String name);
 	
 	//job & validation operations
-	public ValidationNotes validateBackupJob(String username, Long jobId, String keyRing);	
+	public ValidationNotes validateBackupJob(String username, Long jobId, String keyRing);
+	public ValidationNotes updateBackupJob(String username, JobUpdateRequest updateRequest);
+	public JobUpdateRequest getBackupJob(String username, Long jobId);
 	public ValidationNotes createBackupJob(String username, JobCreationRequest request);
 	public List<BackupJob> getJobs(String username);
 	public void deleteJob(String username, Long jobId);

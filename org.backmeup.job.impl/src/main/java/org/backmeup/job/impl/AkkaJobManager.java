@@ -173,7 +173,8 @@ abstract public class AkkaJobManager implements JobManager {
 		@Override
 		public void run() {
 			// Run the job
-			runJob(job);
+			if (!job.isOnHold())
+				runJob(job);
 			
 			// Reschedule if it's still in the DB
 			try {

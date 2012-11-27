@@ -9,8 +9,10 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.backmeup.logic.BusinessLogic;
 import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.BackupJob.JobStatus;
 import org.backmeup.model.JobProtocol;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
@@ -34,6 +36,9 @@ public class JobContainer {
 		for (BackupJob j : backupJobs) {
 		  Date nextExecTime = j.getNextExecutionTime();
 		  Job job = new Job(j.getId(), j.getSourceProfiles(), j.getSinkProfile(), j.getStart ().getTime (), j.getCreated ().getTime (), j.getModified ().getTime (), j.getJobTitle (), j.getDelay());
+		  job.setLastFail(j.getLastFailed() != null ? j.getLastFailed().getTime() : null);
+		  job.setLastSuccessful(j.getLastSuccessful() != null ? j.getLastSuccessful().getTime() : null);
+		  job.setStatus(j.getStatus());
 		  JobProtocol protocol = j.lastProtocol();
 		  
 		  if (protocol != null) {
@@ -162,8 +167,12 @@ public class JobContainer {
 		private Long modifyDate;
 		private String jobTitle;
 		private Long delay;
+		private String timeExpression;
 		private Long lastBackup;
 		private Long nextBackup;
+		private Long lastSuccessful;
+		private Long lastFail;
+		private JobStatus status;
 		
 		
 		public Job() {
@@ -181,6 +190,17 @@ public class JobContainer {
 			this.modifyDate = modifyDate;
 			this.jobTitle = jobTitle;
 			this.delay = delay;
+			
+			 if (delay == BusinessLogic.DELAY_DAILY)    
+		      setTimeExpression("daily");
+		    else if (delay == BusinessLogic.DELAY_MONTHLY)
+		      setTimeExpression("monthly");      
+		    else if (delay == BusinessLogic.DELAY_WEEKLY)
+		      setTimeExpression("weekly");
+		    else if (delay == BusinessLogic.DELAY_YEARLY)    
+		      setTimeExpression("yearly");
+		    else 
+		      setTimeExpression("realtime");
 		}
 
     public Long getBackupJobId() {
@@ -261,6 +281,38 @@ public class JobContainer {
 
     public void setNextBackup(Long nextBackup) {
       this.nextBackup = nextBackup;
+    }
+
+    public String getTimeExpression() {
+      return timeExpression;
+    }
+
+    public void setTimeExpression(String timeExpression) {
+      this.timeExpression = timeExpression;
+    }
+
+    public Long getLastSuccessful() {
+      return lastSuccessful;
+    }
+
+    public void setLastSuccessful(Long lastSuccessful) {
+      this.lastSuccessful = lastSuccessful;
+    }
+
+    public JobStatus getStatus() {
+      return status;
+    }
+
+    public void setStatus(JobStatus status) {
+      this.status = status;
+    }
+
+    public Long getLastFail() {
+      return lastFail;
+    }
+
+    public void setLastFail(Long lastFail) {
+      this.lastFail = lastFail;
     }
 	}
 }

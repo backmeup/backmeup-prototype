@@ -20,6 +20,7 @@ public class ElasticSearchIndexClient {
 	private Client client;
 	
 	public ElasticSearchIndexClient(String host, int port) {
+		host = NetworkUtils.getLocalAddress().getHostName();
 		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "es-cluster-" + NetworkUtils.getLocalAddress().getHostName()).build();
 		client = new TransportClient(settings)
 			.addTransportAddress(new InetSocketTransportAddress(host, port));

@@ -62,6 +62,12 @@
 			<version>2.2.5</version>
 		</dependency>
 		
+		<dependency>
+			<groupId>org.backmeup</groupId>
+			<artifactId>job.impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
 		<!--  dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-jettison-provider</artifactId>
@@ -123,7 +129,7 @@
 					<name>standard</name>
 				</property>
 			</activation>
-			<dependencies>
+			<dependencies>				
 				<dependency>
 					<groupId>org.backmeup</groupId>
 					<artifactId>logic.impl</artifactId>

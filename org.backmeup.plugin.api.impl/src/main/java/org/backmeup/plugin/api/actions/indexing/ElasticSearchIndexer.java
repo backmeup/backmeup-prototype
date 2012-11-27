@@ -56,7 +56,7 @@ public class ElasticSearchIndexer {
 		client = new TransportClient(settings)
 			.addTransportAddress(new InetSocketTransportAddress(host, port));
 	}
-	
+
 	public ElasticSearchIndexer(Client client) {
 		this.client = client;
 	}

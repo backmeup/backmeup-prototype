@@ -47,6 +47,9 @@ import org.backmeup.plugin.api.storage.StorageException;
 import org.backmeup.utilities.mail.Mailer;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.network.NetworkUtils;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 /**
@@ -331,8 +334,12 @@ public class BackupJobRunner {
 		String host = config.getProperty(INDEX_HOST);
 		int port = Integer.parseInt(config.getProperty(INDEX_PORT));
 		
-		client = new TransportClient()
+		String clusterName = "es-cluster-" + NetworkUtils.getLocalAddress().getHostName();
+		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", clusterName).build();
+		
+		client = new TransportClient(settings)
 			.addTransportAddress(new InetSocketTransportAddress(host, port));
+	
 		
 		Action indexAction = new IndexAction(client);
 		indexAction.doAction(params, storage, job, new JobStatusProgressor(job, "indexaction"));

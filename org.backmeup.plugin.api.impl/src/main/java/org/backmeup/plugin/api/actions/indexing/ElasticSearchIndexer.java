@@ -16,6 +16,9 @@ import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.network.NetworkUtils;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.text.StringText;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -46,7 +49,8 @@ public class ElasticSearchIndexer {
 	private Client client;
 	
 	public ElasticSearchIndexer(String host, int port) {
-		client = new TransportClient()
+		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "es-cluster-" + NetworkUtils.getLocalAddress().getHostName()).build();
+		client = new TransportClient(settings)
 			.addTransportAddress(new InetSocketTransportAddress(host, port));
 	}
 	

@@ -149,7 +149,7 @@ public class BackupJobs extends Base {
     return new StatusContainer(getLogic().getStatus(username, null));
   }
   
-  @GET
+  /*@GET
   @Path("/{username}/{jobId}")
   @Produces("application/json")
   public StatusContainer getJobDetails(
@@ -165,5 +165,5 @@ public class BackupJobs extends Base {
       tDate = new Date(Long.parseLong(toDate));
     }
     return new StatusContainer(getLogic().getStatus(username, null));
-  }
+  }*/
 }

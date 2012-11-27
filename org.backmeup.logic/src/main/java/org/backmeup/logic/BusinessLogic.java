@@ -40,6 +40,12 @@ import org.backmeup.model.spi.SourceSinkDescribable;
  *
  */
 public interface BusinessLogic {
+  // constants for scheduler in milliseconds
+  public static final long DELAY_REALTIME = 1 * 1000;
+  public static final long DELAY_DAILY = 24 * 60 * 60 * 1000;
+  public static final long DELAY_WEEKLY = 24 * 60 * 60 * 1000 * 7;
+  public static final long DELAY_MONTHLY = (long)(24 * 60 * 60 * 1000 * 365.242199 / 12.0);
+  public static final long DELAY_YEARLY = (long)(24 * 60 * 60 * 1000 * 365.242199);
 	
 	// user operations 
 	public BackMeUpUser getUser(String username);

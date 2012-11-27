@@ -26,13 +26,11 @@
 	<context-param>
 		<param-name>resteasy.providers</param-name>
 		<param-value>
-		org.backmeup.rest.exceptionmapper.AlreadyRegisteredExceptionMapper,
 		org.backmeup.rest.exceptionmapper.IllegalArgumentExceptionMapper,
 		org.backmeup.rest.exceptionmapper.InvalidCredentialsMapper,
 		org.backmeup.rest.exceptionmapper.InvalidKeyExceptionMapper,
 		org.backmeup.rest.exceptionmapper.NullPointerExceptionMapper,
 		org.backmeup.rest.exceptionmapper.UnknownUserExceptionMapper,
-		org.backmeup.rest.exceptionmapper.UnknownUserPropertyExceptionMapper,
 		org.backmeup.rest.exceptionmapper.BackMeUpExceptionMapper,		
 		org.backmeup.rest.provider.ObjectMapperContextResolver
 		</param-value>
@@ -47,6 +45,7 @@
 		org.backmeup.rest.Datasources,
 		org.backmeup.rest.Mails,
 		org.backmeup.rest.Metadata,
+		org.backmeup.rest.Thumbnails,
 		org.backmeup.rest.Profiles,
 		org.backmeup.rest.Users				
 		</param-value>

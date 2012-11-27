@@ -49,7 +49,9 @@ public class ElasticSearchIndexer {
 	private Client client;
 	
 	public ElasticSearchIndexer(String host, int port) {
-		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "es-cluster-" + NetworkUtils.getLocalAddress().getHostName()).build();
+		String clusterName = "es-cluster-" + NetworkUtils.getLocalAddress().getHostName();
+		System.out.println("Using cluster name: " + clusterName);
+		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", clusterName).build();
 		client = new TransportClient(settings)
 			.addTransportAddress(new InetSocketTransportAddress(host, port));
 	}

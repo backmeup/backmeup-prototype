@@ -59,6 +59,7 @@ public class BackupJob {
   @Temporal(TemporalType.TIMESTAMP)
   private Date nextExecutionTime;
   private boolean reschedule;
+  private boolean onHold = false;
 
   public BackupJob() {
     super();
@@ -197,5 +198,13 @@ public class BackupJob {
 
 	public void setReschedule(boolean reschedule) {
 		this.reschedule = reschedule;
+	}
+
+	public boolean isOnHold() {
+		return onHold;
+	}
+
+	public void setOnHold(boolean onHold) {
+		this.onHold = onHold;
 	}
 }

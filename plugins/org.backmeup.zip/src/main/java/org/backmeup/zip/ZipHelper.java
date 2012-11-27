@@ -118,7 +118,8 @@ public class ZipHelper {
           path = paths.pop();
           try {
             sftpChannel.mkdir(path);
-          } catch (Exception ex) {            
+          } catch (Exception ex) {
+            // ignore mkdir exceptions
           }
         }
       } catch (Exception ex) {}

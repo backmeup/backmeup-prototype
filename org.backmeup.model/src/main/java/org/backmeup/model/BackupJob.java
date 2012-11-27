@@ -78,6 +78,9 @@ public class BackupJob {
   @Enumerated(EnumType.STRING)
   private JobStatus status;
 
+  private boolean onHold = false;
+
+
   public BackupJob() {
     super();
   }
@@ -240,4 +243,12 @@ public class BackupJob {
   public void setLastFailed(Date lastFailed) {
     this.lastFailed = lastFailed;
   }
+  
+	public boolean isOnHold() {
+		return onHold;
+	}
+
+	public void setOnHold(boolean onHold) {
+		this.onHold = onHold;
+	}
 }

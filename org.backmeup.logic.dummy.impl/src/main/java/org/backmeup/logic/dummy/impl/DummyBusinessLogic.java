@@ -880,6 +880,11 @@ public class DummyBusinessLogic implements BusinessLogic {
   }
 
   @Override
+  public void deleteIndexForUser(String username) {
+	// TODO Auto-generated method stub
+  }
+
+  @Override
   public ValidationNotes updateBackupJob(String username,
       JobUpdateRequest updateRequest) {
     // TODO Auto-generated method stub
@@ -891,4 +896,5 @@ public class DummyBusinessLogic implements BusinessLogic {
     // TODO Auto-generated method stub
     return null;
   }
+
 }

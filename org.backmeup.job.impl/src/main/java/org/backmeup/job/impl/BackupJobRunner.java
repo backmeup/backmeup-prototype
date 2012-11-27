@@ -151,6 +151,7 @@ public class BackupJobRunner {
       // the token for the next getData call
       Token newToken = authenticationData.getNewToken();
       persistentJob.setToken(newToken);
+      persistentJob.setStatus(JobStatus.running);
       
       String userEmail = persistentJob.getUser().getEmail();
       String jobName = persistentJob.getJobTitle();

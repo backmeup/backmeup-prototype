@@ -35,8 +35,8 @@ public class BackupJob {
   public static enum JobStatus {
     queued,
     running,
-    failed,
-    successful    
+    successful,
+    error
   }
   
   @Id

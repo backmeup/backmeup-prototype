@@ -124,7 +124,7 @@ public class BackupJobRunner {
         job.setStatus(JobStatus.successful);
       } else {
         job.setLastFailed(protocol.getExecutionTime());
-        job.setStatus(JobStatus.failed);
+        job.setStatus(JobStatus.error);
       }
       jpd.save(protocol);    
       conn.commit();

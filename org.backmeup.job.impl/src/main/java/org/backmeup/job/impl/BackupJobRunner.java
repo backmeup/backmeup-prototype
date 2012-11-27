@@ -22,6 +22,7 @@ import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.ActionProfile.ActionProperty;
+import org.backmeup.model.BackupJob.JobStatus;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.JobProtocol;
 import org.backmeup.model.JobProtocol.JobProtocolMember;
@@ -109,16 +110,27 @@ public class BackupJobRunner {
     } finally {
       conn.rollback();
     }
-    conn.beginOrJoin();
-    BackupJobDao jobDao = dal.createBackupJobDao();
-    job = jobDao.findById(job.getId());
-    JobProtocolDao jpd = dal.createJobProtocolDao();
-    protocol.setUser(job.getUser());
-    protocol.setJob(job);
-    protocol.setSuccessful(success);
-    protocol.setTotalStoredEntries(storedEntriesCount);
-    jpd.save(protocol);
-    conn.commit();
+    try {
+      conn.beginOrJoin();
+      BackupJobDao jobDao = dal.createBackupJobDao();
+      job = jobDao.findById(job.getId());
+      JobProtocolDao jpd = dal.createJobProtocolDao();
+      protocol.setUser(job.getUser());
+      protocol.setJob(job);
+      protocol.setSuccessful(success);
+      protocol.setTotalStoredEntries(storedEntriesCount);
+      if(protocol.isSuccessful()) {
+        job.setLastSuccessful(protocol.getExecutionTime());
+        job.setStatus(JobStatus.successful);
+      } else {
+        job.setLastFailed(protocol.getExecutionTime());
+        job.setStatus(JobStatus.error);
+      }
+      jpd.save(protocol);    
+      conn.commit();
+    } finally {
+      conn.rollback();
+    }
   }
 
   public void executeBackup(BackupJob job, Storage storage) {
@@ -294,6 +306,7 @@ public class BackupJobRunner {
         storeJobProtocol(persistentJob, protocol, 0, false);
         errorStatus.add(addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date())));
 	    } catch (Exception e) {
+	      storeJobProtocol(persistentJob, protocol, 0, false);
 	      errorStatus.add(addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date())));
 	    }
       // send error message, if there were any error status messages

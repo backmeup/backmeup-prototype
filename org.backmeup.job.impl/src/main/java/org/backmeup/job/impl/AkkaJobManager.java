@@ -21,6 +21,7 @@ import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
 import org.backmeup.model.BackMeUpUser;
+import org.backmeup.model.BackupJob.JobStatus;
 
 import akka.actor.ActorSystem;
 import akka.util.Duration;
@@ -69,6 +70,7 @@ abstract public class AkkaJobManager implements JobManager {
             sinkProfile,
             requiredActions, 
             start, delayInMs, jobTitle, reschedule);
+        job.setStatus(JobStatus.queued);
         
         Long firstExecutionDate = start.getTime() + delayInMs;
         

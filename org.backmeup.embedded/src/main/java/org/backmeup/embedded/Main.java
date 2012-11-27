@@ -21,15 +21,12 @@ import org.backmeup.rest.Mails;
 import org.backmeup.rest.Profiles;
 import org.backmeup.rest.Thumbnails;
 import org.backmeup.rest.Users;
-import org.backmeup.rest.exceptionmapper.AlreadyRegisteredExceptionMapper;
 import org.backmeup.rest.exceptionmapper.BackMeUpExceptionMapper;
-import org.backmeup.rest.exceptionmapper.EmailVerificationExceptionMapper;
 import org.backmeup.rest.exceptionmapper.IllegalArgumentExceptionMapper;
 import org.backmeup.rest.exceptionmapper.InvalidCredentialsMapper;
 import org.backmeup.rest.exceptionmapper.InvalidKeyExceptionMapper;
 import org.backmeup.rest.exceptionmapper.NullPointerExceptionMapper;
 import org.backmeup.rest.exceptionmapper.UnknownUserExceptionMapper;
-import org.backmeup.rest.exceptionmapper.UserNotActivatedExceptionMapper;
 import org.backmeup.rest.provider.ObjectMapperContextResolver;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.node.Node;
@@ -69,9 +66,7 @@ public class Main {
 		classes.add(Thumbnails.class.getName());
 		classes.add(org.backmeup.rest.Metadata.class.getName());
 		tjws.getDeployment().getResourceClasses().addAll(classes);
-		
-		tjws.getDeployment().getProviderClasses()
-				.add(AlreadyRegisteredExceptionMapper.class.getName());
+				
 		tjws.getDeployment().getProviderClasses()
 				.add(IllegalArgumentExceptionMapper.class.getName());
 		tjws.getDeployment().getProviderClasses()
@@ -83,11 +78,7 @@ public class Main {
 		tjws.getDeployment().getProviderClasses()
 				.add(UnknownUserExceptionMapper.class.getName());
 		tjws.getDeployment().getProviderClasses()
-				.add(BackMeUpExceptionMapper.class.getName());
-	  tjws.getDeployment().getProviderClasses()
-        .add(EmailVerificationExceptionMapper.class.getName());
-	  tjws.getDeployment().getProviderClasses()
-        .add(UserNotActivatedExceptionMapper.class.getName());
+				.add(BackMeUpExceptionMapper.class.getName());	  
 		tjws.getDeployment().getProviderClasses()
 				.add(ObjectMapperContextResolver.class.getName());	
 		Hashtable<String, String> ctxParams = new Hashtable<String, String>();

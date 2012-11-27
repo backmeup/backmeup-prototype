@@ -29,6 +29,7 @@ import org.backmeup.rest.exceptionmapper.NullPointerExceptionMapper;
 import org.backmeup.rest.exceptionmapper.UnknownUserExceptionMapper;
 import org.backmeup.rest.provider.ObjectMapperContextResolver;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.network.NetworkUtils;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
@@ -43,7 +44,9 @@ import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 public class Main {
 	private static final int PORT = 8080;
 	
-	private static Node indexNode = NodeBuilder.nodeBuilder().node();		
+	private static final String CLUSTER_NAME = "es-cluster-" + NetworkUtils.getLocalAddress().getHostName();
+	
+	private static Node indexNode = NodeBuilder.nodeBuilder().clusterName(CLUSTER_NAME).node();		
 
 	private static URI getBaseURI() {
 		return UriBuilder.fromUri("http://localhost/").port(PORT).build();

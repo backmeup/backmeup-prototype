@@ -94,6 +94,9 @@ import org.backmeup.plugin.spi.Authorizable.AuthorizationType;
 import org.backmeup.plugin.spi.InputBased;
 import org.backmeup.plugin.spi.OAuthBased;
 import org.backmeup.utilities.mail.Mailer;
+import org.elasticsearch.common.network.NetworkUtils;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 
 /**
  * Implements the BusinessLogic interface by delegating most operations to
@@ -1162,8 +1165,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   private ElasticSearchIndexClient getIndexClient() {
 	  Configuration config = Configuration.getConfig();
 	  String host = config.getProperty(INDEX_HOST);
-	  int port = Integer.parseInt(config.getProperty(INDEX_PORT));
-	    
+	  int port = Integer.parseInt(config.getProperty(INDEX_PORT));	  
 	  return new ElasticSearchIndexClient(host, port);	  	  
   }
 

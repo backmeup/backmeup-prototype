@@ -14,6 +14,8 @@ import org.backmeup.configuration.Configuration;
 import org.backmeup.job.impl.rabbitmq.RabbitMQJobReceiver;
 import org.backmeup.logic.BusinessLogic;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.network.NetworkUtils;
+import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
@@ -49,7 +51,8 @@ public class ContextListener implements ServletContextListener {
   }
   
   public static Client startIndexClient() {
-    return NodeBuilder.nodeBuilder().node().client();
+	  String clusterName = "es-cluster-" + NetworkUtils.getLocalAddress().getHostName();
+    return NodeBuilder.nodeBuilder().clusterName(clusterName).node().client();
   }
 
   @Override

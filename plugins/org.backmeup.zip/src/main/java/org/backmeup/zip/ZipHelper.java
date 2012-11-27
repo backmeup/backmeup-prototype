@@ -118,8 +118,7 @@ public class ZipHelper {
           path = paths.pop();
           try {
             sftpChannel.mkdir(path);
-          } catch (Exception ex) {
-            logger.log(Level.FINE, "Couldn't create folder: " + path, ex);
+          } catch (Exception ex) {            
           }
         }
       } catch (Exception ex) {}

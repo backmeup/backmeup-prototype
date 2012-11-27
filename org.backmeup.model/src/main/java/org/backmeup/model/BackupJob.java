@@ -9,6 +9,8 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -30,6 +32,13 @@ import javax.persistence.TemporalType;
  */
 @Entity
 public class BackupJob {
+  public static enum JobStatus {
+    queued,
+    running,
+    failed,
+    successful    
+  }
+  
   @Id
   @GeneratedValue(strategy=GenerationType.IDENTITY)
   @Column(nullable = false)
@@ -59,6 +68,15 @@ public class BackupJob {
   @Temporal(TemporalType.TIMESTAMP)
   private Date nextExecutionTime;
   private boolean reschedule;
+  
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date lastSuccessful;
+  
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date lastFailed;
+  
+  @Enumerated(EnumType.STRING)
+  private JobStatus status;
 
   public BackupJob() {
     super();
@@ -198,4 +216,28 @@ public class BackupJob {
 	public void setReschedule(boolean reschedule) {
 		this.reschedule = reschedule;
 	}
+
+  public JobStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(JobStatus status) {
+    this.status = status;
+  }
+
+  public Date getLastSuccessful() {
+    return lastSuccessful;
+  }
+
+  public void setLastSuccessful(Date lastSuccessful) {
+    this.lastSuccessful = lastSuccessful;
+  }
+
+  public Date getLastFailed() {
+    return lastFailed;
+  }
+
+  public void setLastFailed(Date lastFailed) {
+    this.lastFailed = lastFailed;
+  }
 }

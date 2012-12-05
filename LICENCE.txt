@@ -11,11 +11,13 @@ Limitation: The licence terms stated below only apply to the BackMeUp Core
 module, neither to other parts of the BackMeUp suite (Keyserver,
 Datasource/-sink Plugins, Job-Action Plugins, Webfrontend,...) nor to the
 BackMeUp trademark itself. Unless otherwise identified all source code and
-program modules located in this repository expect Datasource/-sink plugins
+program modules located in this repository except Datasource/-sink plugins
 located at /plugins and Job-Action plugins located at 
-/org.backmeup.plugin.api.impl belong to BackMeUp Core module. Please note that
-the used programming languages, libraries and frameworks also have their own
-licence agreements.
+/org.backmeup.plugin.api.impl belong to BackMeUp Core module. The copyright
+holders of BackMeUp Core do not intent the licence terms to cover the API for
+Datesource/-sink and Job-Action plugins within package org.backmeup.plugin.api
+and any plugins implementing these API. Please note that the used programming 
+languages, libraries and frameworks also have their own licence agreements.
 
 
 This program is free software: you can redistribute it and/or modify

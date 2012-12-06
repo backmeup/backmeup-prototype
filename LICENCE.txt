@@ -5,7 +5,7 @@ interfaces (e.g. BackMeUp Web-Frontend) via a REST API, to BackMeUp Keyserver
 for storing authentication data and to plugins for datasources/-sinks and
 job-actions. 
 Copyright (C) 2010-2012 Austrian Institute of Technologie GmbH, 
-Fachhochschule Hagenberg, X-Net Services GmbH
+FH OÖ Forschungs & Entwicklungs GmbH, X-Net Services GmbH
 
 Limitation: The licence terms stated below only apply to the BackMeUp Core
 module, neither to other parts of the BackMeUp suite (Keyserver,
@@ -35,6 +35,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Contact information:
-X-Net Services GmbH, Elisabethstrasse 1, 4020 Linz, Austria
+X-Net Services GmbH 
+Elisabethstrasse 1 
+4020 Linz, Austria
 www.x-net.at, office@x-net.at
 

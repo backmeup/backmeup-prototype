@@ -2,7 +2,6 @@ package org.backmeup.facebook;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1388,18 +1387,7 @@ public class FacebookDatasource implements Datasource {
 			uPicLoc = getGraphUrl(id + "/picture", "type=large");
 		if (uPicLoc != null) {
 			downloadPicture(uPicLoc, fileName, type, storage, progr, photoinfo);
-		} else {
-			/*FileInputStream fis;
-			try {
-				fis = new FileInputStream("themes/alternative.jpg");
-				storage.addFile(fis, fileName, null);
-				fis.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e){
-				e.printStackTrace();
-			}*/
-		}
+		} 
 		if (type.equals("site"))
 			return fileName.substring(7);
 
@@ -1426,17 +1414,16 @@ public class FacebookDatasource implements Datasource {
 				storage.addFile(is, destination, metainfo);
 				return true;
 			} else {
-				FileInputStream fis;
+				InputStream is;
 				try {
-					fis = new FileInputStream("themes/alternative.jpg");
-					storage.addFile(fis, destination, null);
-					fis.close();
+					is = this.getClass().getResourceAsStream("/alternative.jpg");
+					storage.addFile(is, destination, null);
+					is.close();
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e){
 					e.printStackTrace();
 				}
-				//progr.progress(c.getContentType() + " is not a jpg");
 			}
 		} catch (IOException e) {
 			if (c != null)
@@ -1741,6 +1728,7 @@ public class FacebookDatasource implements Datasource {
 		return str;
 	}
 
+	
 	@Override
 	public List<String> getAvailableOptions(Properties accessData) {
 		List<String> facebookBackupOptions = new ArrayList<String>();
@@ -1757,22 +1745,32 @@ public class FacebookDatasource implements Datasource {
 
 	public void getThemes(Storage storage, Properties props)
 			throws DatasourceException, StorageException {
-		FileInputStream fis;
+		//FileInputStream fis;
+		InputStream is;
 		try {
-			fis = new FileInputStream("themes/backmeuplogo.jpg");
-			storage.addFile(fis, "Themes/backmeuplogo.jpg", null);
-			fis = new FileInputStream("themes/facebooklogo.jpg");
-			storage.addFile(fis, "Themes/facebooklogo.jpg", null);
-			fis = new FileInputStream("themes/list_point.jpg");
-			storage.addFile(fis, "Themes/list_point.jpg", null);
-			fis = new FileInputStream("themes/styles.css");
-			storage.addFile(fis, "Themes/styles.css", null);
-			fis.close();
+			is = this.getClass().getResourceAsStream("/backmeuplogo.jpg");
+			//if(is != null)System.out.println(is.toString());
+			//fis = new FileInputStream("themes/backmeuplogo.jpg");
+			storage.addFile(is, "Themes/backmeuplogo.jpg", null);
+			is = this.getClass().getResourceAsStream("/facebooklogo.jpg");
+			//if(is != null)System.out.println(is.toString());
+			//fis = new FileInputStream("themes/facebooklogo.jpg");
+			storage.addFile(is, "Themes/facebooklogo.jpg", null);
+			is = this.getClass().getResourceAsStream("/list_point.jpg");
+			//if(is != null)System.out.println(is.toString());
+			//fis = new FileInputStream("themes/list_point.jpg");
+			storage.addFile(is, "Themes/list_point.jpg", null);
+			is = this.getClass().getResourceAsStream("/styles.css");
+			//if(is != null)System.out.println(is.toString());
+			//fis = new FileInputStream("themes/styles.css");
+			storage.addFile(is, "Themes/styles.css", null);
+			if(is!=null)
+			is.close();
+			//fis.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e){
 			e.printStackTrace();
 		}
 	}
-
 }

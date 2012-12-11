@@ -1387,7 +1387,9 @@ public class FacebookDatasource implements Datasource {
 			uPicLoc = getGraphUrl(id + "/picture", "type=large");
 		if (uPicLoc != null) {
 			downloadPicture(uPicLoc, fileName, type, storage, progr, photoinfo);
-		} 
+		} else {
+			progr.progress("no picture URL...");
+		}
 		if (type.equals("site"))
 			return fileName.substring(7);
 
@@ -1404,21 +1406,24 @@ public class FacebookDatasource implements Datasource {
 		metainfo.addMetainfo(photoinfo);
 
 		HttpURLConnection c = null;
-		progr.progress("Download " + path + " nach " + destination);
+		
 		try {
 			URL url = new URL(path);
 			c = (HttpURLConnection) url.openConnection();
 			c.connect();
 			if (c.getContentType().equals("image/jpeg")) {
+				progr.progress("Download " + path + " nach " + destination);
 				InputStream is = c.getInputStream();
 				storage.addFile(is, destination, metainfo);
+				is.close();
 				return true;
 			} else {
-				InputStream is;
+				progr.progress("Lade alternatives Bild");
+				InputStream isAlt;
 				try {
-					is = this.getClass().getResourceAsStream("/alternative.jpg");
-					storage.addFile(is, destination, null);
-					is.close();
+					isAlt = this.getClass().getResourceAsStream("/alternative.jpg");
+					storage.addFile(isAlt, destination, null);
+					isAlt.close();
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e){
@@ -1745,28 +1750,18 @@ public class FacebookDatasource implements Datasource {
 
 	public void getThemes(Storage storage, Properties props)
 			throws DatasourceException, StorageException {
-		//FileInputStream fis;
 		InputStream is;
 		try {
 			is = this.getClass().getResourceAsStream("/backmeuplogo.jpg");
-			//if(is != null)System.out.println(is.toString());
-			//fis = new FileInputStream("themes/backmeuplogo.jpg");
 			storage.addFile(is, "Themes/backmeuplogo.jpg", null);
 			is = this.getClass().getResourceAsStream("/facebooklogo.jpg");
-			//if(is != null)System.out.println(is.toString());
-			//fis = new FileInputStream("themes/facebooklogo.jpg");
 			storage.addFile(is, "Themes/facebooklogo.jpg", null);
 			is = this.getClass().getResourceAsStream("/list_point.jpg");
-			//if(is != null)System.out.println(is.toString());
-			//fis = new FileInputStream("themes/list_point.jpg");
 			storage.addFile(is, "Themes/list_point.jpg", null);
 			is = this.getClass().getResourceAsStream("/styles.css");
-			//if(is != null)System.out.println(is.toString());
-			//fis = new FileInputStream("themes/styles.css");
 			storage.addFile(is, "Themes/styles.css", null);
 			if(is!=null)
 			is.close();
-			//fis.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e){

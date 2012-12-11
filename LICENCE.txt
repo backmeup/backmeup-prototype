@@ -1,0 +1,42 @@
+BackMeUp Core
+The BackMeUp Core is the central part of the BackMeUp suite managing and
+scheduling backup jobs and providing interfaces to clients and graphical user
+interfaces (e.g. BackMeUp Web-Frontend) via a REST API, to BackMeUp Keyserver
+for storing authentication data and to plugins for datasources/-sinks and
+job-actions. 
+Copyright (C) 2010-2012 Austrian Institute of Technology GmbH, 
+FH OÖ Forschungs & Entwicklungs GmbH, X-Net Services GmbH
+
+Limitation: The licence terms stated below only apply to the BackMeUp Core
+module, neither to other parts of the BackMeUp suite (Keyserver,
+Datasource/-sink Plugins, Job-Action Plugins, Webfrontend,...) nor to the
+BackMeUp trademark itself. Unless otherwise identified all source code and
+program modules located in this repository except Datasource/-sink plugins
+located at /plugins and Job-Action plugins located at 
+/org.backmeup.plugin.api.impl belong to BackMeUp Core module. The copyright
+holders of BackMeUp Core do not intent the licence terms to cover the API for
+Datesource/-sink and Job-Action plugins within package org.backmeup.plugin.api
+and any plugins implementing these API. Please note that the used programming 
+languages, libraries and frameworks also have their own licence agreements.
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+Contact information:
+X-Net Services GmbH 
+Elisabethstrasse 1 
+4020 Linz, Austria
+www.x-net.at, office@x-net.at
+

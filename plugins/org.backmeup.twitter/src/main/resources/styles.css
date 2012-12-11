@@ -1,0 +1,356 @@
+
+
+
+/* ######################################################################################################
+
+** ### Vorbereitende Ma�?nahmen | Reset ##################################################################
+
+** ######################################################################################################
+
+*/
+
+	/* Hiermit werden die Randabstände und border aller HTML-Elemente auf Null gesetzt. Damit wird das       
+
+	** Aussehen der Webseite in unterschiedlichen Browsern vereinheitlicht. 
+
+	*/
+
+	
+
+	* { margin:0; padding: 0; } 
+
+
+
+	/* Das zurücksetzen der Innen- und Au�?enabstände verursacht zu kleine Selectboxen. Dies wird korrigiert */
+
+	option {padding-left: 0.4em}
+
+	
+
+	/*
+
+	** Die nachfolgenden Angaben entstammen dem Artikel 'Useful Code Snippets' von Mike Foskett
+
+	** [http://www.websemantics.co.uk/tutorials/useful_css_snippets/]
+
+	*/
+
+	
+
+	/* Vertikalen Scrollbalken im Netscape & Firefox erzwingen. Dies verhindert, dass zentrierte Layouts 
+
+	** um 10 Pixel springen wenn der Seiteninhalt kleiner wird als die Höhe des Browserfensters. */
+
+	html { height: 100% } 
+
+	body { 
+
+	/*	min-height: 101%;	*/
+
+	/* Beseitigung des Rundungsfehlers bei Schriftgrö�?en im Opera sowie Standardformatierungen */
+
+		font-size: 100.01%; 
+
+	/* FIX: Verhindert, dass positionierte Elemente nicht verschoben werden when die Grö�?e des Browser 
+
+			Fensters geändert wird. */
+
+		position: relative; 
+
+	
+
+	/* Vorgabe der Standardfarben und Textausrichtung*/     
+
+		color: #000;        
+
+		background: #fff;
+
+		text-align: left; 
+
+	} 
+
+	
+
+	/* Standardrahmen zurücksetzen */
+
+	fieldset, img { border:0; }
+
+	
+
+	/* Anpassung für Safari Browser. font-size:100% ist für den Safari in Formularen zu gro�? */ 
+
+	select, input, textarea { font-size: 99% }
+
+	
+
+	
+
+/* ######################################################################################################
+
+** ### Markupfreie CSS-Floatclearing-Lösungen ###########################################################
+
+** ######################################################################################################
+
+*/
+
+
+
+	/* Clearfix-Methode zum Clearen der Float-Umgebungen */
+	 .clearfix:after {
+		content: "."; 
+		display: block; 
+		height: 0; 
+		clear: both; 
+		visibility: hidden;
+	}
+
+	.clearfix {display: inline-block;}
+
+/* Hides from IE-mac \*/
+* html .clearfix  {height: 1%;}
+
+.clearfix  {display: block;}
+
+/* End hide from IE-mac */
+
+/* Diese Angabe bentigt der Safari-Browser zwingend !! */
+	.clearfix  { display: block; } 
+
+	/* Overflow-Methode zum Clearen der Float-Umgebungen */
+	.clearfix  { overflow:hidden; }
+
+	/* IE-Clearing: Bentigt nur der Internet Explorer und er iehacks.css zugeschaltet */
+
+	#ie_clearing { display: none }
+
+	
+
+
+
+	
+
+/* ####################################### Ende Clearing ####################################### */
+
+/* ######################################################################################################
+
+** ### Skiplink-Navigation ##############################################################################
+
+** ######################################################################################################
+
+*/
+
+
+
+
+
+body { 
+	font: 14px Verdana, Arial, sans-serif;
+	color:#000;
+	font-size: 14px;
+	}
+
+html, body {
+	width:100%;
+	height:100%; 
+}
+
+#top {
+	height:38px;
+	background-color: #5b80ab;
+}
+.headlogo {
+	height:38px;
+	vertical-align: middle;
+}
+
+
+.headlogo img {
+	width: 50%;
+	max-width: 174px; 
+	min-width: 130px;
+	
+}
+
+#topcontent, #content {
+	margin: 0 15% 0 15%;
+	max-width: 926px; 
+}
+
+.applic_logo {
+	margin: 15px 10px 15px 0;
+	text-align: right;
+}
+
+.applic_content_header {
+	background-color: #5b80ab;
+	color: #fff;
+	-webkit-border-top-right-radius: 5px;
+	-webkit-border-top-left-radius: 5px;
+	-moz-border-radius-topright: 5px;
+	-moz-border-radius-topleft: 5px;
+	border-top-right-radius: 5px;
+	border-top-left-radius: 5px;
+	border-top: 1px solid #5b80ab;
+	border-left: 1px solid #5b80ab;
+	border-right: 1px solid #5b80ab;
+	padding: 5px 15px;
+	margin: 0;
+}
+
+.applic_content {
+	border-bottom: 1px solid #bababa;
+	border-left: 1px solid #bababa;
+	border-right: 1px solid #bababa;
+	-webkit-border-bottom-right-radius: 5px;
+	-webkit-border-bottom-left-radius: 5px;
+	-moz-border-radius-bottomright: 5px;
+	-moz-border-radius-bottomleft: 5px;
+	border-bottom-right-radius: 5px;
+	border-bottom-left-radius: 5px;
+	padding: 25px 15px;
+	margin: 0;
+}
+
+.applic_navlist {
+	margin: 0 10% 0 10%;
+}
+
+.applic_navlist ul {
+	max-width: 350px;
+	margin: 0 auto 0 auto;
+	list-style-type: none;
+}
+
+.applic_navlist ul li {
+	text-align: center;
+	margin-bottom: 10px;
+	margin-left: -16px;
+}
+
+a.navbutton {
+  cursor: pointer;
+  text-decoration:none;
+  border: 1px solid rgb(68,106,150);
+  padding: 6px 8px;
+
+  
+  width: 100%;
+  color:rgb(255, 255, 255);
+  font-size:14px;
+  border-radius:5px 5px 5px 5px;
+  -moz-border-radius:5px 5px 5px 5px;
+  -webkit-border-radius:5px 5px 5px 5px;
+  box-shadow:0px 0px 0px rgb(0, 0, 0);
+  -moz-box-shadow:0px 0px 0px rgb(0, 0, 0);
+  -webkit-box-shadow:0px 0px 0px rgb(0, 0, 0);
+    background-color: rgb(2,56,138);
+    
+    display: inline-block;
+background-image: linear-gradient(bottom, rgb(68,106,150) 0%, rgb(88,125,168) 100%);
+background-image: -o-linear-gradient(bottom, rgb(68,106,150) 0%, rgb(88,125,168) 100%);
+background-image: -moz-linear-gradient(bottom, rgb(68,106,150) 0%, rgb(88,125,168) 100%);
+background-image: -webkit-linear-gradient(bottom, rgb(68,106,150) 0%, rgb(88,125,168) 100%);
+background-image: -ms-linear-gradient(bottom, rgb(68,106,150) 0%, rgb(88,125,168) 100%);
+background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0, rgb(68,106,150)),
+    color-stop(1, rgb(88,125,168))
+);
+filter: progid:DXImageTransform.Microsoft.gradient
+(startColorstr='#587da8', endColorstr='#446a96');
+}
+
+a.navbutton:hover {
+    display: inline-block;
+background-image: linear-gradient(bottom, rgb(41,74,111) 0%, rgb(68,106,150) 100%);
+background-image: -o-linear-gradient(bottom, rgb(41,74,111) 0%, rgb(68,106,150) 100%);
+background-image: -moz-linear-gradient(bottom, rgb(41,74,111) 0%, rgb(68,106,150) 100%);
+background-image: -webkit-linear-gradient(bottom, rgb(41,74,111) 0%, rgb(68,106,150) 100%);
+background-image: -ms-linear-gradient(bottom, rgb(41,74,111) 0%, rgb(68,106,150) 100%);
+background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0, rgb(41,74,111)),
+    color-stop(1, rgb(68,106,150))
+);
+filter: progid:DXImageTransform.Microsoft.gradient
+(startColorstr='#446a96', endColorstr='#294a6f');
+}
+
+.applic_friends img, .applic_photos img, .applic_albums img {
+	width: 80px;
+}
+
+.applic_friends ul, .applic_photos ul, .applic_albums ul, .applic_posts ul {
+	list-style-type: none;
+	display: block;
+	margin-bottom: 20px;
+}
+
+.applic_friends ul li, .applic_photos ul li, .applic_albums ul li, .applic_posts ul li {
+	float: left;
+	display: inline;
+}
+
+.applic_friends ul li.friend_name, .applic_photos ul li.photo_name, .applic_albums ul li.albums_name {
+	padding-left: 20px;
+	padding-top: 25px;
+}
+
+.applic_posts ul li.poststxt_date {
+	padding-left: 20px;
+}
+
+.applic_posts ul li.poststxt_txt {
+	clear: both;
+	padding-top: 5px;
+}
+
+table.timeline_table td {
+border: 1px solid #bababa;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	padding: 7px 7px;
+	margin: 0;
+}
+
+
+table.detail_table td {
+	padding-bottom:10px;
+}
+
+table.detail_table td.firstrow {
+	font-weight: normal;
+	padding-right: 20px;
+	color: #5b80ab;
+	vertical-align: top;
+	text-align: right;
+}
+
+table.detail_table ul li {
+	margin: 0;
+	padding: 0 0 0 15px;
+	margin-bottom: 10px;
+	list-style-type: none;
+	background-image: url("list_point.jpg");
+	 background-repeat: no-repeat;
+	 background-position: center left;
+}
+
+.detail_row1 {
+	width: 200px;
+	float: left;
+}
+
+h2.detailhead2 {
+	font-weight: normal;
+	color: #5b80ab;
+	margin-bottom: 20px;
+}
+a {
+	color: #5b80ab;
+}

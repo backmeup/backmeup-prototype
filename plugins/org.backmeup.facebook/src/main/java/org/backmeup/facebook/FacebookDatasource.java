@@ -1412,6 +1412,7 @@ public class FacebookDatasource implements Datasource {
 			if (c.getContentType().equals("image/jpeg")) {
 				InputStream is = c.getInputStream();
 				storage.addFile(is, destination, metainfo);
+				is.close();
 				return true;
 			} else {
 				InputStream is;

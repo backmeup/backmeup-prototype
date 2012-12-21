@@ -187,6 +187,11 @@ public class IndexUtils {
 	}
 	
 	private static String getTypeFromMimeType(String mime) {
+		mime = mime.toLowerCase();
+		
+		if (mime.contains("html"))
+			return "html";
+		
 		if (mime.startsWith("image"))
 			return "image";
 					

@@ -77,6 +77,7 @@ public class ElasticSearchIndexer {
 		contentBuilder.field(IndexUtils.FIELD_BACKUP_SINK, job.getSinkProfile().getIdentification());
 		contentBuilder.field(IndexUtils.FIELD_BACKUP_AT, new Date().getTime());
 		contentBuilder.field(IndexUtils.FIELD_JOB_ID, job.getId());
+		contentBuilder.field(IndexUtils.FIELD_JOB_NAME, job.getJobTitle());
 		
 		// Where's my Scala .map and mkString!?!
 		List<String> sourceNames = new ArrayList<String>(); 

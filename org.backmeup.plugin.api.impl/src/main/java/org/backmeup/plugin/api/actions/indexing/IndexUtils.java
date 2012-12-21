@@ -42,6 +42,8 @@ public class IndexUtils {
 	
 	public static final String FIELD_JOB_ID = "job_id";
 	
+	public static final String FIELD_JOB_NAME = "job_name";
+	
 	public static final String FIELD_FULLTEXT = "fulltext";
 	
 	public static Set<FileItem> convertToFileItems(org.elasticsearch.action.search.SearchResponse esResponse) {
@@ -118,6 +120,7 @@ public class IndexUtils {
 	    	entry.setTitle(source.get(FIELD_FILENAME).toString());
 	    	entry.setTimeStamp(new Date(timestamp));
 	    	entry.setDatasource(source.get(FIELD_BACKUP_SOURCES).toString());
+	    	entry.setJobName(source.get(FIELD_JOB_NAME).toString());
 	    	
 			if (preview != null)
 				entry.setPreviewSnippet(preview.toString().trim());

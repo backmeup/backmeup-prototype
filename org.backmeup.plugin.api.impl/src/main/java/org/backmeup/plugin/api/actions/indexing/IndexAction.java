@@ -53,8 +53,9 @@ public class IndexAction implements Action {
 				
 				if (needsIndexing(dob)) {				
 					Map<String, String> meta = analyzer.analyze(dob);
+					String mime = meta.get("Content-Type");
 					String fulltext = null;
-					if (meta.get("Content-Type") != null) {
+					if (mime != null) {
 						fulltext = extractFullText(dob, meta.get("Content-Type"));
 					}
 	
@@ -64,7 +65,7 @@ public class IndexAction implements Action {
 					// TODO username needs to be available to action
 					System.out.println("Indexing " + dob.getPath());
 					meta = new HashMap<String, String>();
-					
+					meta.put(IndexUtils.FIELD_CONTENT_TYPE, mime);
 					if (fulltext != null)
 						meta.put(IndexUtils.FIELD_FULLTEXT, fulltext);
 					

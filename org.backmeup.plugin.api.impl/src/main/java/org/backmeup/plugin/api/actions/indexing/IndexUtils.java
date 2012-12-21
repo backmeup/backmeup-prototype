@@ -14,7 +14,9 @@ import org.backmeup.model.ProtocolDetails.FileInfo;
 import org.backmeup.model.SearchResponse;
 import org.backmeup.model.SearchResponse.CountedEntry;
 import org.backmeup.model.SearchResponse.SearchEntry;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.highlight.HighlightField;
 
 public class IndexUtils {
 	
@@ -40,13 +42,17 @@ public class IndexUtils {
 	
 	public static final String FIELD_JOB_ID = "job_id";
 	
+	public static final String FIELD_JOB_NAME = "job_name";
+	
+	public static final String FIELD_FULLTEXT = "fulltext";
+	
 	public static Set<FileItem> convertToFileItems(org.elasticsearch.action.search.SearchResponse esResponse) {
 		Set<FileItem> fItems = new HashSet<FileItem>();
 		
 		for (SearchHit hit : esResponse.getHits()) {
 			FileItem fileItem = new FileItem();
-			Map<String, Object> source = hit.getSource();
 			
+			Map<String, Object> source = hit.getSource();
 	    	String hash = source.get(FIELD_FILE_HASH).toString();
 	    	Integer owner = (Integer) source.get(FIELD_OWNER_ID);
 	    	Long timestamp = (Long) source.get(FIELD_BACKUP_AT);
@@ -93,6 +99,15 @@ public class IndexUtils {
 	    List<SearchEntry> entries = new ArrayList<SearchResponse.SearchEntry>();
 	    for (SearchHit hit : esResponse.getHits()) {
 	    	Map<String, Object> source = hit.getSource();
+	    	
+			StringBuilder preview = null;
+			HighlightField highlight = hit.getHighlightFields().get(IndexUtils.FIELD_FULLTEXT);
+			if (highlight != null) {
+				preview = new StringBuilder("... ");
+				for (Text fragment : highlight.fragments()) {
+					preview.append(fragment.string().replace("\n", " ").trim() + " ... ");
+				}
+			}	
 
 	    	String hash = source.get(FIELD_FILE_HASH).toString();
 	    	Integer owner = (Integer) source.get(FIELD_OWNER_ID);
@@ -104,7 +119,15 @@ public class IndexUtils {
 	    	entry.setFileId(owner + ":" + hash + ":" + timestamp);
 	    	entry.setTitle(source.get(FIELD_FILENAME).toString());
 	    	entry.setTimeStamp(new Date(timestamp));
-	    	entry.setDatasource(source.get(FIELD_BACKUP_SOURCES).toString());
+	    	
+	    	if (source.get(FIELD_BACKUP_SOURCES) != null)
+	    		entry.setDatasource(source.get(FIELD_BACKUP_SOURCES).toString());
+	    	
+	    	if (source.get(FIELD_JOB_NAME) != null)
+	    		entry.setJobName(source.get(FIELD_JOB_NAME).toString());
+	    	
+			if (preview != null)
+				entry.setPreviewSnippet(preview.toString().trim());
 	    	
 	    	Object contentType = source.get(FIELD_CONTENT_TYPE);
 	    	if (contentType != null) {
@@ -114,7 +137,10 @@ public class IndexUtils {
 	    	}
 	    	
 	    	entry.setProperty(FIELD_PATH, source.get(FIELD_PATH).toString());
-	    	entry.setProperty(FIELD_BACKUP_SINK, source.get(FIELD_BACKUP_SINK).toString());
+	    	
+	    	if (source.get(FIELD_BACKUP_SINK) != null)
+	    		entry.setProperty(FIELD_BACKUP_SINK, source.get(FIELD_BACKUP_SINK).toString());
+	    	
 	    	entry.setProperty(FIELD_FILE_HASH, hash);
 	    	
 	    	entries.add(entry);
@@ -187,6 +213,11 @@ public class IndexUtils {
 	}
 	
 	private static String getTypeFromMimeType(String mime) {
+		mime = mime.toLowerCase();
+		
+		if (mime.contains("html"))
+			return "html";
+		
 		if (mime.startsWith("image"))
 			return "image";
 					

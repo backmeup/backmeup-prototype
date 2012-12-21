@@ -59,4 +59,5 @@ public class FileItem {
   public void setStatus(Status status) {
     this.status = status;
   }
+  
 }

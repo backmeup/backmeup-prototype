@@ -66,8 +66,6 @@ public class ElasticSearchIndexer {
 		XContentBuilder contentBuilder = XContentFactory.jsonBuilder().startObject();
 		
 		for (String metaKey : meta.keySet()) {
-			System.out.println("Meta key: " + metaKey);
-			System.out.println("Meta value: " + meta.get(metaKey));
 			contentBuilder = contentBuilder.field(metaKey, meta.get(metaKey));
 		}
 		
@@ -76,14 +74,15 @@ public class ElasticSearchIndexer {
 		contentBuilder.field(IndexUtils.FIELD_FILENAME, getFilename(dataObject.getPath()));
 		contentBuilder.field(IndexUtils.FIELD_PATH, dataObject.getPath());
 		contentBuilder.field(IndexUtils.FIELD_FILE_HASH, dataObject.getMD5Hash());
-		contentBuilder.field(IndexUtils.FIELD_BACKUP_SINK, job.getSinkProfile().getDescription());
+		contentBuilder.field(IndexUtils.FIELD_BACKUP_SINK, job.getSinkProfile().getProfileName());
 		contentBuilder.field(IndexUtils.FIELD_BACKUP_AT, new Date().getTime());
 		contentBuilder.field(IndexUtils.FIELD_JOB_ID, job.getId());
+		contentBuilder.field(IndexUtils.FIELD_JOB_NAME, job.getJobTitle());
 		
 		// Where's my Scala .map and mkString!?!
 		List<String> sourceNames = new ArrayList<String>(); 
 		for (ProfileOptions source : job.getSourceProfiles()) {
-			sourceNames.add(source.getProfile().getDescription());			
+			sourceNames.add(source.getProfile().getProfileName());			
 		}
 		contentBuilder.field(IndexUtils.FIELD_BACKUP_SOURCES, StringUtils.join(sourceNames, ", "));
 		
@@ -93,7 +92,6 @@ public class ElasticSearchIndexer {
 			while (it.hasNext()) {
 				Properties metainfo = it.next().getAttributes();
 				for (Object key : metainfo.keySet()) {
-					System.out.println("Adding custom property: " + key + "=" + metainfo.get(key) + " (" + metainfo.get(key).getClass().getName() + ")");
 					contentBuilder.field(key.toString(), new StringText(metainfo.get(key).toString()));
 				}
 			}

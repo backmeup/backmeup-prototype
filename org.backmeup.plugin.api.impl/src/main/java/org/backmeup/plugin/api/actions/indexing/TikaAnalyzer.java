@@ -26,7 +26,7 @@ public class TikaAnalyzer {
 		String mimeType = (is.markSupported()) ? tika.detect(is) : null;
 
 		if (mimeType != null) 
-			meta.put(Metadata.CONTENT_TYPE, mimeType);
+			meta.put(IndexUtils.FIELD_CONTENT_TYPE, mimeType);
 		
 		try {
 			Metadata metadata = new Metadata();

@@ -66,7 +66,7 @@ public class IndexAction implements Action {
 					meta = new HashMap<String, String>();
 					
 					if (fulltext != null)
-						meta.put("fulltext", fulltext);
+						meta.put(IndexUtils.FIELD_FULLTEXT, fulltext);
 					
 					indexer.doIndexing(job, dob, meta);
 				} else {

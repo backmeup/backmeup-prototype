@@ -66,8 +66,6 @@ public class ElasticSearchIndexer {
 		XContentBuilder contentBuilder = XContentFactory.jsonBuilder().startObject();
 		
 		for (String metaKey : meta.keySet()) {
-			System.out.println("Meta key: " + metaKey);
-			System.out.println("Meta value: " + meta.get(metaKey));
 			contentBuilder = contentBuilder.field(metaKey, meta.get(metaKey));
 		}
 		
@@ -93,7 +91,6 @@ public class ElasticSearchIndexer {
 			while (it.hasNext()) {
 				Properties metainfo = it.next().getAttributes();
 				for (Object key : metainfo.keySet()) {
-					System.out.println("Adding custom property: " + key + "=" + metainfo.get(key) + " (" + metainfo.get(key).getClass().getName() + ")");
 					contentBuilder.field(key.toString(), new StringText(metainfo.get(key).toString()));
 				}
 			}

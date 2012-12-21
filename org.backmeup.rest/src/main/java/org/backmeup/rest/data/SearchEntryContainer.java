@@ -15,6 +15,7 @@ public class SearchEntryContainer {
 	private Date timeStamp;
 	private String title;
 	private String type;
+	private String preview;
 	private String thumbnailUrl;
 	private String datasource;
 	
@@ -27,6 +28,7 @@ public class SearchEntryContainer {
 		this.setType(entry.getType());
 		this.setThumbnailUrl(entry.getThumbnailUrl());
 		this.setDatasource(entry.getDatasource());
+		this.setPreview(entry.getPreviewSnippet());
 		this.properties = new ArrayList<SearchEntryContainer.KeyValue>();
 		for (String key : entry.getPropertyKeys()) {
 			this.properties.add(new KeyValue(key, entry.getProperty(key)));
@@ -87,6 +89,14 @@ public class SearchEntryContainer {
 
 	public void setProperties(List<KeyValue> properties) {
 		this.properties = properties;
+	}
+
+	public String getPreview() {
+		return preview;
+	}
+
+	public void setPreview(String preview) {
+		this.preview = preview;
 	}
 
 	class KeyValue {

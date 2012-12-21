@@ -146,6 +146,7 @@ public class SearchResponse {
 		private String type;
 		private String thumbnailUrl;
 		private String datasource;
+		private String preview;
 		private Map<String, String> properties = new HashMap<String, String>();
 		
 		public SearchEntry() {
@@ -216,5 +217,14 @@ public class SearchResponse {
 		public void setDatasource(String datasource) {
 			this.datasource = datasource;
 		}
+		
+		public String getPreviewSnippet() {
+			return preview;
+		}
+
+		public void setPreviewSnippet(String preview) {
+			this.preview = preview;
+		}
+		
 	}
 }

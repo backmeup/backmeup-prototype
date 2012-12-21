@@ -55,7 +55,11 @@ public class ElasticSearchIndexClient {
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, userId))
 				.must(QueryBuilders.queryString(queryString));
 		
-		return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).setSize(10000).execute().actionGet();
+		return client.prepareSearch(INDEX_NAME)
+				.setQuery(qBuilder)
+				.addHighlightedField(IndexUtils.FIELD_FULLTEXT)
+				.setSize(10000)
+				.execute().actionGet();
 	}
 	
 	public SearchResponse searchByJobId(long jobId) {

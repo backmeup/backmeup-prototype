@@ -119,7 +119,10 @@ public class IndexUtils {
 	    	entry.setFileId(owner + ":" + hash + ":" + timestamp);
 	    	entry.setTitle(source.get(FIELD_FILENAME).toString());
 	    	entry.setTimeStamp(new Date(timestamp));
-	    	entry.setDatasource(source.get(FIELD_BACKUP_SOURCES).toString());
+	    	
+	    	if (source.get(FIELD_BACKUP_SOURCES) != null)
+	    		entry.setDatasource(source.get(FIELD_BACKUP_SOURCES).toString());
+	    	
 	    	if (source.get(FIELD_JOB_NAME) != null)
 	    		entry.setJobName(source.get(FIELD_JOB_NAME).toString());
 	    	
@@ -134,7 +137,10 @@ public class IndexUtils {
 	    	}
 	    	
 	    	entry.setProperty(FIELD_PATH, source.get(FIELD_PATH).toString());
-	    	entry.setProperty(FIELD_BACKUP_SINK, source.get(FIELD_BACKUP_SINK).toString());
+	    	
+	    	if (source.get(FIELD_BACKUP_SINK) != null)
+	    		entry.setProperty(FIELD_BACKUP_SINK, source.get(FIELD_BACKUP_SINK).toString());
+	    	
 	    	entry.setProperty(FIELD_FILE_HASH, hash);
 	    	
 	    	entries.add(entry);

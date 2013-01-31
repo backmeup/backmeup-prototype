@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.FileItem;
 import org.backmeup.model.ProtocolDetails.FileInfo;
 import org.backmeup.model.SearchResponse;
@@ -95,7 +96,7 @@ public class IndexUtils {
 	  return fi;
 	}
 	
-	public static List<SearchEntry> convertSearchEntries(org.elasticsearch.action.search.SearchResponse esResponse) {	    
+	public static List<SearchEntry> convertSearchEntries(org.elasticsearch.action.search.SearchResponse esResponse, BackMeUpUser user) {	    
 	    List<SearchEntry> entries = new ArrayList<SearchResponse.SearchEntry>();
 	    for (SearchHit hit : esResponse.getHits()) {
 	    	Map<String, Object> source = hit.getSource();
@@ -144,7 +145,7 @@ public class IndexUtils {
 	    	entry.setProperty(FIELD_FILE_HASH, hash);
 	    	
 			if (source.get(FIELD_THUMBNAIL_PATH) != null)
-				entry.setThumbnailUrl("thumbnails/" + owner + ":" + hash + ":" + timestamp);
+				entry.setThumbnailUrl("thumbnails/" + user.getUsername() + "/" + owner + ":" + hash + ":" + timestamp);
 	    	
 	    	entries.add(entry);
 	    }

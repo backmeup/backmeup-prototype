@@ -2,6 +2,7 @@ package org.backmeup.plugin.api.actions.indexing;
 
 import java.util.Map;
 
+import org.backmeup.model.BackMeUpUser;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -30,7 +31,7 @@ public class ElasticSearchIndexClient {
 		this.client = client;
 	}
 	
-	public SearchResponse queryBackup(Long userId, String query) {
+	public SearchResponse queryBackup(BackMeUpUser user, String query) {
 		String queryString = null;
 		String[] tokens = query.split(" ");
 		if (tokens.length == 0) {
@@ -52,7 +53,7 @@ public class ElasticSearchIndexClient {
 		}
 	  
 		QueryBuilder qBuilder = QueryBuilders.boolQuery()
-				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, userId))
+				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, user.getUserId()))
 				.must(QueryBuilders.queryString(queryString));
 		
 		return client.prepareSearch(INDEX_NAME)

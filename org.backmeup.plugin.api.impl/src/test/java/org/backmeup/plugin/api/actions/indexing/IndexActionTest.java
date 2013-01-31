@@ -116,6 +116,7 @@ public class IndexActionTest {
 		System.out.println("Done.");
 	}
 	
+	/*
 	@Test
 	public void verifyQuery() {
 		System.out.println("Verifying keyword search");
@@ -158,5 +159,6 @@ public class IndexActionTest {
 			System.out.println("item " + f.getFileId() + " - " + f.getTitle());
 		}
 	}
+	*/
 
 }

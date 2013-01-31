@@ -143,6 +143,9 @@ public class IndexUtils {
 	    	
 	    	entry.setProperty(FIELD_FILE_HASH, hash);
 	    	
+			if (source.get(FIELD_THUMBNAIL_PATH) != null)
+				entry.setThumbnailUrl("thumbnails/" + owner + ":" + hash + ":" + timestamp);
+	    	
 	    	entries.add(entry);
 	    }
 		return entries;

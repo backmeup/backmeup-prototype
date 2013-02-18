@@ -200,16 +200,13 @@ public class BackupJobRunner {
 	    	
 	    	// Download from source
 	        try {
-	            System.out.println ("Start download");
 	            source.downloadAll(sourceProperties, sourceOptions, storage, new JobStatusProgressor(persistentJob, "datasource"));
-	            System.out.println ("Finished download");
 	        } catch (StorageException e) {
 	          errorStatus.add(addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.DOWNLOAD_FAILED, StatusCategory.WARNING, new Date())));
 	        } catch (DatasourceException e) {
 	          errorStatus.add(addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.DOWNLOAD_FAILED, StatusCategory.WARNING, new Date())));
 	        }
 	        
-	        System.out.println ("Do next steps");
 	        // for each datasource add an entry with bytes it consumed 
 	        long currentSize = storage.getDataObjectSize() - previousSize;
 	        protocolEntries.add(new JobProtocolMember(protocol, po.getProfile().getProfileName(), currentSize));

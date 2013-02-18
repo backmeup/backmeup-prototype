@@ -308,9 +308,11 @@ public class BackupJobRunner {
 	    } catch (StorageException e) {
 	      // job failed, store job protocol within database
         storeJobProtocol(persistentJob, protocol, 0, false);
+        System.out.println ("Storage Exception! " + e.getMessage ());
         errorStatus.add(addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date())));
 	    } catch (Exception e) {
 	      storeJobProtocol(persistentJob, protocol, 0, false);
+	      System.out.println ("Exception! " + e.getMessage ());
 	      errorStatus.add(addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date())));
 	    }
       // send error message, if there were any error status messages

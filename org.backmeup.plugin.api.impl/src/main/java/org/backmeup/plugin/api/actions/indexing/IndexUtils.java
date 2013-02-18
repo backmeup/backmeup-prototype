@@ -146,7 +146,32 @@ public class IndexUtils {
 	    	
 			if (source.get(FIELD_THUMBNAIL_PATH) != null)
 				entry.setThumbnailUrl("thumbnails/" + user.getUsername() + "/" + owner + ":" + hash + ":" + timestamp);
-	    	
+			
+			// Custom props
+			if (source.get("destination") != null)
+				entry.setProperty("destination", source.get("destination").toString());
+			
+			if (source.get("message") != null)
+				entry.setProperty("message", source.get("message").toString());
+			
+			if (source.get("parent") != null)
+				entry.setProperty("parent", source.get("parent").toString());
+			
+			if (source.get("author") != null)
+				entry.setProperty("author", source.get("author").toString());
+			
+			if (source.get("source") != null)
+				entry.setProperty("source", source.get("source").toString());
+			
+			if (source.get("likes") != null)
+				entry.setProperty("likes", source.get("likes").toString());
+			
+			if (source.get("tags") != null)
+				entry.setProperty("tags", source.get("tags").toString());
+			
+			if (source.get("modified") != null)
+				entry.setProperty("modified", source.get("modified").toString());
+			
 	    	entries.add(entry);
 	    }
 		return entries;

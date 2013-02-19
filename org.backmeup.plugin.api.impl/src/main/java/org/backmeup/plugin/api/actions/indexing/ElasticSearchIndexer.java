@@ -84,7 +84,7 @@ public class ElasticSearchIndexer {
 		
 		if (sourceProfile != null) {
 			contentBuilder.field(IndexUtils.FIELD_BACKUP_SOURCE_ID, sourceProfile.getProfileId());
-			contentBuilder.field(IndexUtils.FIELD_BACKUP_SOURCE_PLUGIN_NAME, sourceProfile.getProfileName());
+			contentBuilder.field(IndexUtils.FIELD_BACKUP_SOURCE_PLUGIN_NAME, sourceProfile.getDescription());
 			contentBuilder.field(IndexUtils.FIELD_BACKUP_SOURCE_IDENTIFICATION, sourceProfile.getIdentification());
 		}
 		

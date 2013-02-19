@@ -85,6 +85,7 @@ public class ProtocolDetails {
 	public static class FileInfo {
 		private String fileId;
 		private String source;
+		private Long sourceId;
 		private long timeStamp;
 		private String title;
 		private String type;
@@ -156,5 +157,13 @@ public class ProtocolDetails {
     public String getSink() {
       return this.sink;
     }
+
+	public Long getSourceId() {
+		return sourceId;
+	}
+
+	public void setSourceId(Long sourceId) {
+		this.sourceId = sourceId;
+	}
 	}
 }

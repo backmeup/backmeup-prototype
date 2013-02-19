@@ -146,6 +146,7 @@ public class SearchResponse {
 		private String type;
 		private String thumbnailUrl;
 		private String datasource;
+		private Long datasourceId;
 		private String jobName;
 		private String preview;
 		private Map<String, String> properties = new HashMap<String, String>();
@@ -234,6 +235,14 @@ public class SearchResponse {
 
 		public void setJobName(String jobName) {
 			this.jobName = jobName;
+		}
+
+		public Long getDatasourceId() {
+			return datasourceId;
+		}
+
+		public void setDatasourceId(Long datasourceId) {
+			this.datasourceId = datasourceId;
 		}
 		
 	}

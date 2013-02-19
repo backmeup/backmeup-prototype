@@ -38,14 +38,10 @@ public abstract class FilesystemLikeDatasource implements Datasource {
 			InputStream is = getFile(accessData, options, uri);
 			if (is == null) {
 				//Logger.warn("Got a null input stream for " + uri.getUri().getPath().toString());
-				System.out.println ("Input Stream was null");
 			} else {
-				System.out.println ("Input Stream was not null");
 			  URI destination = uri.getMappedUri();
 			  if (destination == null)
 			    destination = uri.getUri();
-			  
-			  System.out.println ("Destination: " + destination.toString ());
 				storage.addFile(is, destination.getPath().toString(), metainfo);
 			}
 		}

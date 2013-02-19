@@ -88,7 +88,7 @@ public class IndexUtils {
 	  FileInfo fi = new FileInfo();
 	  fi.setFileId(owner + ":" + hash + ":" + timestamp);
 	  fi.setSource(source.get(FIELD_BACKUP_SOURCE_PLUGIN_NAME) + "(" + source.get(FIELD_BACKUP_SOURCE_IDENTIFICATION) + ")");
-	  fi.setSourceId((Long) source.get(FIELD_BACKUP_SOURCE_ID));
+	  fi.setSourceId(Long.valueOf((Integer) source.get(FIELD_BACKUP_SOURCE_ID)));
 	  fi.setTimeStamp(timestamp.longValue());
 	  fi.setTitle(source.get(FIELD_FILENAME).toString());
 	  fi.setPath(source.get(FIELD_PATH).toString());
@@ -127,7 +127,7 @@ public class IndexUtils {
 	    	entry.setTimeStamp(new Date(timestamp));
 	    	
 	    	if (source.get(FIELD_BACKUP_SOURCE_ID) != null) {
-	    		entry.setDatasourceId((Long) source.get(FIELD_BACKUP_SOURCE_ID));
+	    		entry.setDatasourceId(Long.valueOf(((Integer) source.get(FIELD_BACKUP_SOURCE_ID))));
 	    		entry.setDatasource(source.get(FIELD_BACKUP_SOURCE_PLUGIN_NAME) + "(" + source.get(FIELD_BACKUP_SOURCE_IDENTIFICATION) + ")");
 	    	}
 	    	

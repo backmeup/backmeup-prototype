@@ -31,7 +31,11 @@ public class IndexUtils {
 	
 	public static final String FIELD_THUMBNAIL_PATH = "thumbnail_path";
 	
-	public static final String FIELD_BACKUP_SOURCES = "backup_sources";
+	public static final String FIELD_BACKUP_SOURCE_ID = "backup_source_id";
+	
+	public static final String FIELD_BACKUP_SOURCE_IDENTIFICATION = "backup_source_identification";
+	
+	public static final String FIELD_BACKUP_SOURCE_PLUGIN_NAME = "backup_source_plugin_name";
 	
 	public static final String FIELD_BACKUP_SINK = "backup_sink";
 	
@@ -83,7 +87,8 @@ public class IndexUtils {
     Long timestamp = (Long) source.get(FIELD_BACKUP_AT);
 	  FileInfo fi = new FileInfo();
 	  fi.setFileId(owner + ":" + hash + ":" + timestamp);
-	  fi.setSource(source.get(FIELD_BACKUP_SOURCES).toString());
+	  fi.setSource(source.get(FIELD_BACKUP_SOURCE_PLUGIN_NAME) + "(" + source.get(FIELD_BACKUP_SOURCE_IDENTIFICATION) + ")");
+	  fi.setSourceId((Long) source.get(FIELD_BACKUP_SOURCE_ID));
 	  fi.setTimeStamp(timestamp.longValue());
 	  fi.setTitle(source.get(FIELD_FILENAME).toString());
 	  fi.setPath(source.get(FIELD_PATH).toString());
@@ -121,8 +126,10 @@ public class IndexUtils {
 	    	entry.setTitle(source.get(FIELD_FILENAME).toString());
 	    	entry.setTimeStamp(new Date(timestamp));
 	    	
-	    	if (source.get(FIELD_BACKUP_SOURCES) != null)
-	    		entry.setDatasource(source.get(FIELD_BACKUP_SOURCES).toString());
+	    	if (source.get(FIELD_BACKUP_SOURCE_ID) != null) {
+	    		entry.setDatasourceId((Long) source.get(FIELD_BACKUP_SOURCE_ID));
+	    		entry.setDatasource(source.get(FIELD_BACKUP_SOURCE_PLUGIN_NAME) + "(" + source.get(FIELD_BACKUP_SOURCE_IDENTIFICATION) + ")");
+	    	}
 	    	
 	    	if (source.get(FIELD_JOB_NAME) != null)
 	    		entry.setJobName(source.get(FIELD_JOB_NAME).toString());
@@ -179,7 +186,7 @@ public class IndexUtils {
 	
 	public static List<CountedEntry> getBySource(org.elasticsearch.action.search.SearchResponse esResponse) {		
 		// TODO we currently group by 'list of sources' rather than source
-		return groupByField(esResponse, FIELD_BACKUP_SOURCES);
+		return groupByField(esResponse, FIELD_BACKUP_SOURCE_PLUGIN_NAME);
 	}
 	
 	public static List<CountedEntry> getByType(org.elasticsearch.action.search.SearchResponse esResponse) {

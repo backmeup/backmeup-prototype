@@ -1,15 +1,13 @@
 package org.backmeup.plugin.api.actions.indexing;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.MetainfoContainer;
@@ -78,13 +76,17 @@ public class ElasticSearchIndexer {
 		contentBuilder.field(IndexUtils.FIELD_BACKUP_AT, new Date().getTime());
 		contentBuilder.field(IndexUtils.FIELD_JOB_ID, job.getId());
 		contentBuilder.field(IndexUtils.FIELD_JOB_NAME, job.getJobTitle());
+				
+		// There is currently only one source per job!
+		Profile sourceProfile = null;
+		for (ProfileOptions source : job.getSourceProfiles())
+			sourceProfile = source.getProfile();			
 		
-		// Where's my Scala .map and mkString!?!
-		List<String> sourceNames = new ArrayList<String>(); 
-		for (ProfileOptions source : job.getSourceProfiles()) {
-			sourceNames.add(source.getProfile().getProfileName());			
+		if (sourceProfile != null) {
+			contentBuilder.field(IndexUtils.FIELD_BACKUP_SOURCE_ID, sourceProfile.getProfileId());
+			contentBuilder.field(IndexUtils.FIELD_BACKUP_SOURCE_PLUGIN_NAME, sourceProfile.getProfileName());
+			contentBuilder.field(IndexUtils.FIELD_BACKUP_SOURCE_IDENTIFICATION, sourceProfile.getIdentification());
 		}
-		contentBuilder.field(IndexUtils.FIELD_BACKUP_SOURCES, StringUtils.join(sourceNames, ", "));
 		
 		MetainfoContainer metainfoContainer = dataObject.getMetainfo();
 		if (metainfoContainer != null) {

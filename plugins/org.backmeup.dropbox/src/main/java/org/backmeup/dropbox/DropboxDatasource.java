@@ -99,6 +99,14 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 		} catch (DropboxException e) {
 			throw new PluginException(DropboxDescriptor.DROPBOX_ID, String.format("Error downloading file \" %s\"", path), e);
 		}
+		catch (Exception e)
+		{
+			System.out.println ("Exception come up");
+			System.out.println (e.getMessage ());
+			// throw an not allowed exeption ;)
+			double i = 5 / 0;
+			return null;
+		}
 	}
 
 	@Override

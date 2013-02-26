@@ -24,6 +24,7 @@ import org.backmeup.plugin.api.connectors.FilesystemURI;
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.DropboxAPI.Entry;
 import com.dropbox.client2.exception.DropboxException;
+import com.dropbox.client2.exception.DropboxServerException;
 import com.dropbox.client2.session.WebAuthSession;
 
 /**
@@ -95,12 +96,10 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 		    ex.printStackTrace();
 		  }
 			//path = uri.toString().replace("%20", " ");
-		    System.out.println ("Path: " + path);
-		    DropboxAPI<WebAuthSession> dpa = DropboxHelper.getApi(items);
-		    System.out.println ("Got WebAuthSession");
-		    System.out.println ("Try to get FileStream");
-			return dpa.getFileStream(path, null);
+		    //System.out.println ("Path: " + path);
+			return DropboxHelper.getApi(items).getFileStream(path, null);
 		} catch (DropboxException e) {
+			System.out.println (((DropboxServerException) e).reason);
 			e.printStackTrace ();
 			throw new PluginException(DropboxDescriptor.DROPBOX_ID, String.format("Error downloading file \" %s\"", path), e);
 		}

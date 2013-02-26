@@ -98,9 +98,16 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 			//path = uri.toString().replace("%20", " ");
 		    //System.out.println ("Path: " + path);
 			return DropboxHelper.getApi(items).getFileStream(path, null);
+		} catch (DropboxServerException e) {
+			if (e.error == 460)
+			{
+				return null;
+			}
+			else
+			{
+				throw new PluginException(DropboxDescriptor.DROPBOX_ID, String.format("Error downloading file \" %s\"", path), e);
+			}
 		} catch (DropboxException e) {
-			System.out.println (((DropboxServerException) e).reason);
-			e.printStackTrace ();
 			throw new PluginException(DropboxDescriptor.DROPBOX_ID, String.format("Error downloading file \" %s\"", path), e);
 		}
 	}

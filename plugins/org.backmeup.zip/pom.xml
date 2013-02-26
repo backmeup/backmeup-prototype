@@ -52,7 +52,7 @@
 						<Bundle-Version>${project.version}</Bundle-Version>
 						<Import-Package>!keypairgen, !org.ietf.*,!signature,!userauth,*</Import-Package>
 						<Embed-Dependency>jsch,jzlib,ant</Embed-Dependency>
-						<Embed-Transitive>true</Embed-Transitive>
+						<Embed-Transitive>false</Embed-Transitive>
 						<Embed-Directory>lib</Embed-Directory>
 						<Private-Package>org.backmeup.zip.*</Private-Package>
 					</instructions>

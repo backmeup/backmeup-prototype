@@ -101,7 +101,7 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 		    System.out.println ("Try to get FileStream");
 			return dpa.getFileStream(path, null);
 		} catch (DropboxException e) {
-			System.out.println ("Exception: " + e.getMessage ());
+			e.printStackTrace ();
 			throw new PluginException(DropboxDescriptor.DROPBOX_ID, String.format("Error downloading file \" %s\"", path), e);
 		}
 	}

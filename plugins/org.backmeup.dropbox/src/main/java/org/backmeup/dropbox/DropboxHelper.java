@@ -62,9 +62,12 @@ public class DropboxHelper {
 		String secret = items.getProperty(DropboxHelper.PROPERTY_SECRET);
 		WebAuthSession session = DropboxHelper.getInstance().getWebAuthSession();
 		session.setAccessTokenPair(new AccessTokenPair(token, secret));
+		System.out.println ("Got session");
 		if (!session.isLinked()) {
+			System.out.println ("Something went wrong with the session!");
 			throw new InvalidKeyException("org.backmeup.dropbox", "userToken, userSecret", token + ", " + secret, "dropbox.properties");
-		}		
+		}
+		System.out.println ("Return the session");
 		return new DropboxAPI<WebAuthSession>(session);
 	}
 	

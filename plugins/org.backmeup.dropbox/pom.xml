@@ -9,12 +9,22 @@
 	<artifactId>dropbox</artifactId>
 	<packaging>bundle</packaging>
 	<dependencies>
+	
+		<!--
 		<dependency>
 			<groupId>com.dropbox</groupId>
 			<artifactId>client2</artifactId>
 			<version>1.2.1</version>
 			<scope>system</scope>
 			<systemPath>${basedir}/lib/dropbox-java-sdk-1.2.1.jar</systemPath>
+		</dependency>
+		-->
+		<dependency>
+			<groupId>com.dropbox</groupId>
+			<artifactId>client2</artifactId>
+			<version>1.5.3</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/dropbox-java-sdk-1.5.3.jar</systemPath>
 		</dependency>
 
 		<!-- <dependency> <groupId>org.apache.commons</groupId> <artifactId>logging</artifactId> 

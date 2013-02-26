@@ -11,8 +11,10 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+//import java.util.zip.ZipEntry;
+//import java.util.zip.ZipOutputStream;
+import org.apache.tools.zip.ZipEntry;
+import org.apache.tools.zip.ZipOutputStream;
 
 import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.plugin.api.connectors.Datasink;
@@ -52,6 +54,7 @@ public class ZipDatasink implements Datasink {
       // create zip file
       fos = new FileOutputStream(path);
       zos = new ZipOutputStream(fos);
+      zos.setEncoding ("UTF-8");
       Iterator<DataObject> it = storage.getDataObjects();
       while(it.hasNext()) {
         DataObject entry = it.next();

@@ -67,17 +67,10 @@ public class ZipDatasink implements Datasink {
         zos.write(entry.getBytes());
         zos.closeEntry();
       }
-      
-      System.out.println ("Write log");
       logger.log(Level.FINE, "Zip file created.");
-      
-      System.out.println ("Close zos");
       zos.close();
-      
-      System.out.println ("close fos");
       fos.close();            
       if (zipHelper.isRemote()) {
-    	  System.out.println ("Zip helper is remote!");
         logger.log(Level.FINE, "Sending zip file to sftp destination...");
         InputStream stream = null;
         try {
@@ -93,25 +86,20 @@ public class ZipDatasink implements Datasink {
         }
       }
     } catch (Exception ex) {
-    	ex.printStackTrace ();
-    	System.out.println ("Error happens during zip creation");
       throw new PluginException(ZipDescriptor.ZIP_ID, "An exception occurred during zip creation!", ex);
     } finally {
       if (fos != null)
         try {
           fos.close();
         } catch (IOException e) {
-        	e.printStackTrace ();
-        	System.out.println ("Error happens during zip creation2");
           throw new PluginException(ZipDescriptor.ZIP_ID, "An exception occurred during zip creation!", e);
         }
       if (zos != null)
         try {
           zos.close();
         } catch (IOException e) {
-        	e.printStackTrace ();
-        	System.out.println ("Error happens during zip creation3");
-          throw new PluginException(ZipDescriptor.ZIP_ID, "An exception occurred during zip creation!", e);
+        	// Ignore. The stream is closed anyway. apache zos.close throws an error if it get closed multible times
+          //throw new PluginException(ZipDescriptor.ZIP_ID, "An exception occurred during zip creation!", e);
         }
     }
     return null;

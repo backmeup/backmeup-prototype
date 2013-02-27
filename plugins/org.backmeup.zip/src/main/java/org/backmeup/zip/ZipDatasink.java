@@ -50,7 +50,6 @@ public class ZipDatasink implements Datasink {
     ZipOutputStream zos = null;
     
     try {
-    	System.out.println ("Generate temp folders");
       // create folder to file
       new File(path).getParentFile().mkdirs();
       // create zip file
@@ -59,33 +58,26 @@ public class ZipDatasink implements Datasink {
       zos.setEncoding ("UTF-8");
       Iterator<DataObject> it = storage.getDataObjects();
       while(it.hasNext()) {
-    	  System.out.println ("Get entry");
         DataObject entry = it.next();
-        
-        System.out.println ("Get path");
         String entryPath = entry.getPath();
-        System.out.println ("Path: " + entryPath);
-        
-        System.out.println ("Replace slashes");
         if (entryPath.startsWith("/") || entryPath.startsWith("\\"))
           entryPath = entryPath.substring(1);
-        
-        System.out.println ("Log something");
         logger.log(Level.FINE, "Putting entry to zip: " + entryPath);
-        
-        System.out.println ("Put entry to zos");
         zos.putNextEntry(new ZipEntry(entryPath));
-        
-        System.out.println ("Write entry");
         zos.write(entry.getBytes());
-        
-        System.out.println ("Close entry");
         zos.closeEntry();
       }
+      
+      System.out.println ("Write log");
       logger.log(Level.FINE, "Zip file created.");
+      
+      System.out.println ("Close zos");
       zos.close();
+      
+      System.out.println ("close fos");
       fos.close();            
       if (zipHelper.isRemote()) {
+    	  System.out.println ("Zip helper is remote!");
         logger.log(Level.FINE, "Sending zip file to sftp destination...");
         InputStream stream = null;
         try {
@@ -102,18 +94,23 @@ public class ZipDatasink implements Datasink {
       }
     } catch (Exception ex) {
     	ex.printStackTrace ();
+    	System.out.println ("Error happens during zip creation");
       throw new PluginException(ZipDescriptor.ZIP_ID, "An exception occurred during zip creation!", ex);
     } finally {
       if (fos != null)
         try {
           fos.close();
         } catch (IOException e) {
+        	e.printStackTrace ();
+        	System.out.println ("Error happens during zip creation2");
           throw new PluginException(ZipDescriptor.ZIP_ID, "An exception occurred during zip creation!", e);
         }
       if (zos != null)
         try {
           zos.close();
         } catch (IOException e) {
+        	e.printStackTrace ();
+        	System.out.println ("Error happens during zip creation3");
           throw new PluginException(ZipDescriptor.ZIP_ID, "An exception occurred during zip creation!", e);
         }
     }

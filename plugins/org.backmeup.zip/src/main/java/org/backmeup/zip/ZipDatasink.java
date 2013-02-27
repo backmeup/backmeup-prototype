@@ -29,26 +29,18 @@ public class ZipDatasink implements Datasink {
   @Override
   public String upload(Properties accessData, Storage storage,
       Progressable progressor) throws StorageException {
-    
-	  System.out.println ("Start the upload");
 	  
     ZipHelper zipHelper = ZipHelper.getInstance();
     String tmpDir = accessData.getProperty ("org.backmeup.tmpdir");
     String userId = accessData.getProperty ("org.backmeup.userid");
     
-    System.out.println ("Got the properties");
-    
     if (tmpDir == null) {
       throw new PluginException(ZipDescriptor.ZIP_ID, "Error: org.backmeup.tmpDir property has not been set!");
     }
     
-    System.out.println ("Tmpdir is not null");
-    
     if (userId == null) {
       throw new PluginException(ZipDescriptor.ZIP_ID, "Error: org.backmeup.userid property has not been set!");
     }
-    
-    System.out.println ("User id is not null");
     
     String fileName = tmpDir + "_" + new Date().getTime() +".zip";
     logger.log(Level.FINE, "Creating zip backup file: " + fileName);
@@ -57,16 +49,25 @@ public class ZipDatasink implements Datasink {
     FileOutputStream fos = null;
     ZipOutputStream zos = null;
     
-    System.out.println ("Try to create the output streams");
-    
-    try {      
+    try {
+    	System.out.println ("Generate temp folders");
       // create folder to file
       new File(path).getParentFile().mkdirs();
       // create zip file
+      
+      System.out.println ("create fileos");
       fos = new FileOutputStream(path);
+      
+      System.out.println ("create zos");
       zos = new ZipOutputStream(fos);
+      
+      System.out.println ("Set encoding");
       zos.setEncoding ("UTF-8");
+      
+      System.out.println ("Create iterator");
       Iterator<DataObject> it = storage.getDataObjects();
+      
+      System.out.println ("Do the while");
       while(it.hasNext()) {
         DataObject entry = it.next();
         String entryPath = entry.getPath();

@@ -54,28 +54,32 @@ public class ZipDatasink implements Datasink {
       // create folder to file
       new File(path).getParentFile().mkdirs();
       // create zip file
-      
-      System.out.println ("create fileos");
       fos = new FileOutputStream(path);
-      
-      System.out.println ("create zos");
       zos = new ZipOutputStream(fos);
-      
-      System.out.println ("Set encoding");
       zos.setEncoding ("UTF-8");
-      
-      System.out.println ("Create iterator");
       Iterator<DataObject> it = storage.getDataObjects();
-      
-      System.out.println ("Do the while");
       while(it.hasNext()) {
+    	  System.out.println ("Get entry");
         DataObject entry = it.next();
+        
+        System.out.println ("Get path");
         String entryPath = entry.getPath();
+        System.out.println ("Path: " + entryPath);
+        
+        System.out.println ("Replace slashes");
         if (entryPath.startsWith("/") || entryPath.startsWith("\\"))
           entryPath = entryPath.substring(1);
+        
+        System.out.println ("Log something");
         logger.log(Level.FINE, "Putting entry to zip: " + entryPath);
+        
+        System.out.println ("Put entry to zos");
         zos.putNextEntry(new ZipEntry(entryPath));
+        
+        System.out.println ("Write entry");
         zos.write(entry.getBytes());
+        
+        System.out.println ("Close entry");
         zos.closeEntry();
       }
       logger.log(Level.FINE, "Zip file created.");
@@ -97,6 +101,7 @@ public class ZipDatasink implements Datasink {
         }
       }
     } catch (Exception ex) {
+    	ex.printStackTrace ();
       throw new PluginException(ZipDescriptor.ZIP_ID, "An exception occurred during zip creation!", ex);
     } finally {
       if (fos != null)

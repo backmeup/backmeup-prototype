@@ -38,6 +38,7 @@ public abstract class FilesystemLikeDatasource implements Datasource {
 			InputStream is = getFile(accessData, options, uri);
 			if (is == null) {
 				//Logger.warn("Got a null input stream for " + uri.getUri().getPath().toString());
+				progressor.progress(String.format("Downloading file %s failed!", uri.toString()));
 			} else {
 			  URI destination = uri.getMappedUri();
 			  if (destination == null)

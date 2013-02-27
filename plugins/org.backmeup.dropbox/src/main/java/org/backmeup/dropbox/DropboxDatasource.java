@@ -101,7 +101,9 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 		} catch (DropboxServerException e) {
 			if (e.error == 460)
 			{
-				return null;
+				System.out.println ("Error was 460");
+				throw new PluginException(DropboxDescriptor.DROPBOX_ID, String.format("Error downloading file \" %s\"", path), e);
+				//return null;
 			}
 			else
 			{

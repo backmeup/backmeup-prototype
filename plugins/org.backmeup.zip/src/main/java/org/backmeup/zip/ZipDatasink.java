@@ -85,6 +85,7 @@ public class ZipDatasink implements Datasink {
         }
       }
     } catch (Exception ex) {
+    	ex.printStackTrace ();
       throw new PluginException(ZipDescriptor.ZIP_ID, "An exception occurred during zip creation!", ex);
     } finally {
       if (fos != null)

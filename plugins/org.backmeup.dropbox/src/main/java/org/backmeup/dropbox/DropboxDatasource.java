@@ -95,15 +95,14 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 		  } catch (Exception ex) {
 		    ex.printStackTrace();
 		  }
-			//path = uri.toString().replace("%20", " ");
-		    //System.out.println ("Path: " + path);
 			return DropboxHelper.getApi(items).getFileStream(path, null);
 		} catch (DropboxServerException e) {
+			// Handle undocumented error 460 (Restricted).
+			// https://forums.dropbox.com/topic.php?id=97208
 			if (e.error == 460)
 			{
-				System.out.println ("Error was 460");
-				throw new PluginException(DropboxDescriptor.DROPBOX_ID, String.format("Error downloading file \" %s\"", path), e);
-				//return null;
+				// Ignore the file if 460 comes up.
+				return null;
 			}
 			else
 			{

@@ -30,17 +30,25 @@ public class ZipDatasink implements Datasink {
   public String upload(Properties accessData, Storage storage,
       Progressable progressor) throws StorageException {
     
+	  System.out.println ("Start the upload");
+	  
     ZipHelper zipHelper = ZipHelper.getInstance();
     String tmpDir = accessData.getProperty ("org.backmeup.tmpdir");
     String userId = accessData.getProperty ("org.backmeup.userid");
+    
+    System.out.println ("Got the properties");
     
     if (tmpDir == null) {
       throw new PluginException(ZipDescriptor.ZIP_ID, "Error: org.backmeup.tmpDir property has not been set!");
     }
     
+    System.out.println ("Tmpdir is not null");
+    
     if (userId == null) {
       throw new PluginException(ZipDescriptor.ZIP_ID, "Error: org.backmeup.userid property has not been set!");
     }
+    
+    System.out.println ("User id is not null");
     
     String fileName = tmpDir + "_" + new Date().getTime() +".zip";
     logger.log(Level.FINE, "Creating zip backup file: " + fileName);
@@ -48,6 +56,9 @@ public class ZipDatasink implements Datasink {
     logger.log(Level.FINE, "Path zip backup path: " + path);
     FileOutputStream fos = null;
     ZipOutputStream zos = null;
+    
+    System.out.println ("Try to create the output streams");
+    
     try {      
       // create folder to file
       new File(path).getParentFile().mkdirs();
@@ -85,7 +96,6 @@ public class ZipDatasink implements Datasink {
         }
       }
     } catch (Exception ex) {
-    	ex.printStackTrace ();
       throw new PluginException(ZipDescriptor.ZIP_ID, "An exception occurred during zip creation!", ex);
     } finally {
       if (fos != null)

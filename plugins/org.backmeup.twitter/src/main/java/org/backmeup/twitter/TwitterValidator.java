@@ -1,5 +1,6 @@
 package org.backmeup.twitter;
 
+import java.util.Map;
 import java.util.Properties;
 
 import org.backmeup.model.ValidationNotes;
@@ -47,11 +48,14 @@ public class TwitterValidator implements Validationable {
         
         try {
         	//2. get ratelimit from API, to make sure it is working fine
-			RateLimitStatus rls = twitter.getRateLimitStatus();
+        	Map<String, RateLimitStatus> rls = twitter.getRateLimitStatus();
 			//3. check if there are remainig hits left 
-			if(rls.getRemainingHits()<=0){
-				notes.addValidationEntry(ValidationExceptionType.APIException, TwitterDescriptor.TWITTER_ID, new Exception("No remaining API calls left!"));
-			}
+        	if(rls.get("statuses").getRemaining()<=0){
+        		notes.addValidationEntry(ValidationExceptionType.APIException, TwitterDescriptor.TWITTER_ID, new Exception("No remaining API calls left!"));
+        	}
+        	if(rls.get("user").getRemaining()<=0){
+        		notes.addValidationEntry(ValidationExceptionType.APIException, TwitterDescriptor.TWITTER_ID, new Exception("No remaining API calls left!"));
+        	}
 		} catch (TwitterException e1) {
 			notes.addValidationEntry(ValidationExceptionType.APIException, TwitterDescriptor.TWITTER_ID, e1);
 		}

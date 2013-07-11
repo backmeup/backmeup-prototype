@@ -19,6 +19,9 @@ public class EncryptionAction implements Action
 	@Override
 	public void doAction (Properties parameters, Storage storage, BackupJob job, Progressable progressor) throws ActionException
 	{
+		System.out.println ("###############################################################");
+		System.out.println ("Start encryption Plugin");
+		
 		String password;
 		int containers;
 		long[] containersize;

@@ -51,10 +51,11 @@ public class ElasticSearchIndexClient {
 				queryString = sb.toString() + "*";
 			}
 		}
-	  
+		
 		QueryBuilder qBuilder = QueryBuilders.boolQuery()
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, user.getUserId()))
-				.must(QueryBuilders.queryString(queryString));
+				//.must(QueryBuilders.queryString(queryString));
+				.must(QueryBuilders.multiMatchQuery(queryString, "fulltext", "message", "name"));
 		
 		return client.prepareSearch(INDEX_NAME)
 				.setQuery(qBuilder)

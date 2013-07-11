@@ -294,6 +294,18 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
       if (response.response.getStatusLine().getStatusCode() != 204)    
         throw new BackMeUpException(response.content);
   }
+  
+	@Override
+	public void changeUserKeyRing(Long userId, String oldKeyRing,
+			String newKeyRing) {
+		// TODO Auto-generated method stub
+	  Result response = execute(
+        path + "/users/" + userId + "/"
+            + oldKeyRing + "/" + newKeyRing + "/changeuserkeyringpwd", ReqType.GET);
+  if (response.response.getStatusLine().getStatusCode() != 204)    
+    throw new BackMeUpException(response.content);
+  }
+
 
   // Service Operations
   @Override
@@ -450,5 +462,4 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
 
 		throw new BackMeUpException ("Failed to retrieve logs: " + response.content);
 	}
-
 }

@@ -311,7 +311,7 @@ public class DummyBusinessLogic implements BusinessLogic {
   }
 
   public BackMeUpUser changeUser(String oldUsername, String newUsername, String oldPassword,
-      String newPassword,  String newEmail) {
+      String newPassword, String oldKeyRing, String newKeyRing, String newEmail) {
     BackMeUpUser u = findUser(oldUsername);
     if (findUser(newUsername) != null) {
       throw new AlreadyRegisteredException(newUsername);

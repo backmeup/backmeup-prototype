@@ -13,9 +13,11 @@ def delete_user(user):
   answer = com.request("DELETE", "/users/" + user)
   return answer
 
-def change_user(oldUsername, newUsername, oldPassword, newPassword, newEmail):
+def change_user(oldUsername, newUsername, oldPassword, newPassword, newEmail, oldKeyRing=None, newKeyRing=None):
   answer = com.request("PUT", "/users/" + oldUsername, 
-      { "username" : newUsername, "oldPassword" : oldPassword, "password" : newPassword, "email" : newEmail })
+      { "username" : newUsername, "oldPassword" : oldPassword, "password" :
+				newPassword, "email" : newEmail, "oldKeyring" : oldKeyRing, "newKeyring" : newKeyRing
+			})
   return answer
 
 def verify_email(verificationKey):

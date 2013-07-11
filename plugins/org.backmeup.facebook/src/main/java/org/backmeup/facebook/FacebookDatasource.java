@@ -292,7 +292,9 @@ public class FacebookDatasource implements Datasource {
 					commentinfo.setBackupDate(new Date());
 					commentinfo.setId(comment.getId());
 					if (comment.getCreatedTime() != null)
-						commentinfo.setModified(comment.getCreatedTime());
+						commentinfo.setCreated(comment.getCreatedTime());
+					if (comment.getUpdatedTime() != null)
+						commentinfo.setModified(comment.getUpdatedTime());
 					commentinfo.setParent(parent);
 					commentinfo.setSource("facebook");
 					commentinfo.setType("comment");
@@ -620,9 +622,10 @@ public class FacebookDatasource implements Datasource {
 		postinfo.setDestination(getPostFilename(post.getId()));
 		postinfo.setId(post.getId());
 		postinfo.setSource("facebook");
-
 		if (post.getCreatedTime() != null)
-			postinfo.setModified(post.getCreatedTime());
+			postinfo.setCreated(post.getCreatedTime());
+		if (post.getUpdatedTime() != null)
+			postinfo.setModified(post.getUpdatedTime());
 		postinfo.setType("post");
 
 		// create HTML
@@ -739,7 +742,9 @@ public class FacebookDatasource implements Datasource {
 		albuminfo.setDestination(getAlbumFilename(name + album.getId()));
 		albuminfo.setId(album.getId());
 		if (album.getCreatedTime() != null)
-			albuminfo.setModified(album.getCreatedTime());
+			albuminfo.setCreated(album.getCreatedTime());
+		if (album.getUpdatedTime() != null)
+			albuminfo.setModified(album.getUpdatedTime());
 		albuminfo.setSource("facebook");
 		albuminfo.setType("album");
 
@@ -859,7 +864,9 @@ public class FacebookDatasource implements Datasource {
 		photoinfo.setBackupDate(new Date());
 		photoinfo.setId(photo.getId());
 		if(photo.getCreatedTime() != null)
-			photoinfo.setModified(photo.getCreatedTime());
+			photoinfo.setCreated(photo.getCreatedTime());
+		if(photo.getUpdatedTime() != null)
+			photoinfo.setModified(photo.getUpdatedTime());
 		photoinfo.setSource("facebook");
 		photoinfo.setType("photo");
 		if (!parent.equals(""))
@@ -1005,7 +1012,8 @@ public class FacebookDatasource implements Datasource {
 		groupinfo.setBackupDate(new Date());
 		groupinfo.setDestination(getGroupFilename(name + g.getId()));
 		groupinfo.setId(g.getId());
-		groupinfo.setModified(g.getUpdatedTime());
+		if(g.getUpdatedTime() != null)
+			groupinfo.setModified(g.getUpdatedTime());
 		groupinfo.setSource("facebook");
 		groupinfo.setType("group");
 		metainfo.addMetainfo(groupinfo);
@@ -1715,7 +1723,7 @@ public class FacebookDatasource implements Datasource {
 		if (str.equals(".") || str.equals("..")) {
 			str = "facebook";
 		}
-		for (int i = 0; i < str.length(); i++) {
+		/*for (int i = 0; i < str.length(); i++) {
 			if ((str.charAt(i) < ' ' || str.charAt(i) > '~')) {
 				// umlauts are allowed
 				if (str.charAt(i) != 228 && str.charAt(i) != 196
@@ -1725,7 +1733,7 @@ public class FacebookDatasource implements Datasource {
 					str = str.replace(str.charAt(i), '-');
 				}
 			}
-		}
+		}*/
 		for (int i = 0; i < illegal.length; i++) {
 			while (str.contains(illegal[i])) {
 				str = str.replace(illegal[i], " ");

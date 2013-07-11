@@ -13,6 +13,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.sort.SortOrder;
 
 public class ElasticSearchIndexClient {
 	
@@ -63,6 +64,7 @@ public class ElasticSearchIndexClient {
 		
 		return client.prepareSearch(INDEX_NAME)
 				.setQuery(qBuilder)
+				// .addSort("modified", SortOrder.DESC)
 				.addHighlightedField(IndexUtils.FIELD_FULLTEXT)
 				.setSize(10000)
 				.execute().actionGet();
@@ -89,7 +91,7 @@ public class ElasticSearchIndexClient {
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_FILE_HASH, hash))
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_BACKUP_AT, timestamp));
 		
-		return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).execute().actionGet();
+			return client.prepareSearch(INDEX_NAME).setQuery(qBuilder).execute().actionGet();
 	}
 	
 	public String getThumbnailPathForFile(String username, String fileId) {

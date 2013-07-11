@@ -14,6 +14,7 @@ public class Metainfo {
   private static final String PROP_PARENT = "parent";
   private static final String PROP_ID = "id";
   private static final String PROP_MODIFIED = "modified";
+  private static final String PROP_CREATED = "created";
   private static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss z";  
   private static final SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
   private Properties metainfo = new Properties();
@@ -25,6 +26,14 @@ public class Metainfo {
   
   public void setBackupDate(Date backupTime) {
     metainfo.setProperty(PROP_BACKUP_TIME, formatter.format(backupTime));
+  }
+  
+  public void setCreated(Date createdDate) {
+    metainfo.setProperty(PROP_CREATED, formatter.format(createdDate));
+  }
+  
+  public Date getCreated() {
+    return parseDate(getAttribute(PROP_CREATED));
   }
   
   public Date getBackupDate() {

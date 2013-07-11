@@ -52,7 +52,7 @@ public class ElasticSearchIndexClient {
 			}
 		}
 		
-		queryString = "owner_id:" + user.getUserId() + " AND ";
+		queryString = "owner_id:" + user.getUserId() + " AND " + queryString;
 		
 		System.out.println("QueryString = " + queryString);
 		

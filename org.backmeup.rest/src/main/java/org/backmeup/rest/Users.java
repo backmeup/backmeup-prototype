@@ -63,10 +63,10 @@ public class Users extends Base {
 		if (!oldUsername.equals(user.getUsername())) {
 		  rslt.addMessage(Messages.CHANGE_USER_USERNAME);
 		}
-		if (!oldPassword.equals(newPassword)) {
+		if (newPassword != null && !oldPassword.equals(newPassword)) {
 		  rslt.addMessage(Messages.CHANGE_USER_PASSWORD);
     }
-		if (!oldUser.getEmail().equals(newEmail)) {
+		if (newEmail != null && !oldUser.getEmail().equals(newEmail)) {
 		  rslt.addMessage(Messages.CHANGE_USER_EMAIL);
 		}
 		return rslt;

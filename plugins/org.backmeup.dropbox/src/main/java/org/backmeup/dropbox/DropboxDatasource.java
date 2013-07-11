@@ -38,6 +38,13 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 	private static final String DROPBOX = "dropbox";
 	private static final SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US); 
 	
+	private boolean beginsWith(List<String> collection, String beginner) {
+	  for (String s : collection) {
+	    if (beginner.startsWith(s)) 
+	      return true;
+	  }
+	  return false;
+	}
 	
 	@Override
 	public List<FilesystemURI> list(Properties items, List<String> options, FilesystemURI uri) {
@@ -73,8 +80,9 @@ public class DropboxDatasource extends FilesystemLikeDatasource {
 				meta.setDestination(e.path);
 				meta.setSource(DROPBOX);
 				meta.setType(e.isDir ? "directory" : new MimetypesFileTypeMap().getContentType(e.path));
-				furi.addMetainfo(meta);
-				uris.add(furi);
+				furi.addMetainfo(meta);				
+				if (options == null || options.isEmpty() || beginsWith(options, e.path.replace(" ", "%20")))
+				  uris.add(furi);
 			}
 		} catch (DropboxException e) {
 			throw new PluginException(DropboxDescriptor.DROPBOX_ID, String.format("Exception while metadata call with folder parameter %s, limit 100", path), e);

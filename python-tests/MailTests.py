@@ -30,9 +30,11 @@ class TestMails(TestCase):
 
   def test_send_text_mail(self):
     res = send_text_mail("backmeup71@gmx.at", "Test-Text", "This is a very simple text message")
+    print res.data
     self.assertEquals(res.code, httplib.NO_CONTENT)
     
   def test_send_html_mail(self):
     res = send_html_mail("backmeup71@gmx.at", "Test-Html", HTML_TEST_MAIL)
+    print res.data
     self.assertEquals(res.code, httplib.NO_CONTENT)
   

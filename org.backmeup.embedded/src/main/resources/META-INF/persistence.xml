@@ -13,18 +13,36 @@
 		<class>org.backmeup.model.BackupJob</class>
 		<class>org.backmeup.model.ProfileOptions</class>
 		<class>org.backmeup.model.ActionProfile</class>
+		<class>org.backmeup.model.ActionProfile$ActionProperty</class>
 		<class>org.backmeup.model.FileItem</class>
 		<class>org.backmeup.model.UserProperty</class>
 		<class>org.backmeup.model.Service</class>
+		<class>org.backmeup.model.JobProtocol</class>
+		<class>org.backmeup.model.JobProtocol$JobProtocolMember</class>
 		<class>org.backmeup.model.Token</class>
 		<class>org.backmeup.model.SearchResponse</class>
 		<properties>
+                        <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
+                        <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://127.0.0.1/bmucore" />
+                        <property name="javax.persistence.jdbc.user" value="dbu_core" />
+                        <property name="javax.persistence.jdbc.password" value="dbu_core" />
+                        <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+			<!--property name="hibernate.show_sql" value="true"/-->
+
+			<property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
+			<property name="hibernate.connection.url" value="jdbc:postgresql://127.0.0.1/bmucore" />
+			<property name="hibernate.connection.username" value="dbu_core" />
+			<property name="hibernate.connection.password" value="dbu_core" />
+			<!--<property name="hibernate.hbm2ddl.auto" value="update" />-->
+			<!--<property name="hibernate.hbm2ddl.auto" value="create-drop" />-->
+			<!--
 			<property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
 			<property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:testdb" />
 			<property name="javax.persistence.jdbc.user" value="sa" />
 			<property name="javax.persistence.jdbc.password" value="" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
 			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
+			-->
 		</properties>
 	</persistence-unit>
 </persistence>

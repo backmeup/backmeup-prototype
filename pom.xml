@@ -14,13 +14,13 @@
 	<modules>
 		<!-- build the interfaces + model first -->
 		<module>org.backmeup.model</module>
+                <module>org.backmeup.utilities</module>
 		<module>org.backmeup.dal</module>
 		<module>org.backmeup.job</module>
 		<module>org.backmeup.plugin</module>
 		<module>org.backmeup.plugin.api</module>
 		<module>org.backmeup.logic</module>
                 <!-- build utilities -->
-                <module>org.backmeup.utilities</module>
 				<module>org.backmeup.keyserver.client</module>
 
 		<!-- build the implementations -->

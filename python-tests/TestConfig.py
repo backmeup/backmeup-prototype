@@ -7,14 +7,14 @@ SOURCE_PLUGIN_ID = "org.backmeup.dropbox"
 KEY_SOURCE_TOKEN = "token"
 KEY_SOURCE_SECRET = "secret"
 
-SOURCE_SECRET = "UNDEFINED" #adjust user's secret
-SOURCE_TOKEN = "UNDEFINED" #adjust user's token
+SOURCE_SECRET = "w80dml1pd6qxowz" #adjust user's secret
+SOURCE_TOKEN = "lljeo9o6yd6hezt" #adjust user's token
 
 SINK_PLUGIN_ID = "org.backmeup.dropbox"
 
 KEY_SINK_TOKEN = "token"
 KEY_SINK_SECRET = "secret"
 
-SINK_SECRET = "UNDEFINED" #adjust user's secret
-SINK_TOKEN = "UNDEFINED" #adjust user's token 
+SINK_SECRET = "w80dml1pd6qxowz" #adjust user's secret
+SINK_TOKEN = "lljeo9o6yd6hezt" #adjust user's token
 

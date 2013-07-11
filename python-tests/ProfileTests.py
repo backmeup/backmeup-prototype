@@ -26,6 +26,7 @@ class TestProfiles(TestCase):
     verify_email(res.data["verificationKey"])
 
     res = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "MetaTestProfile", "password")
+    print res.data
     profileId = res.data["profileId"]
 
     res = update_profile(profileId, {"AKey" : "AVal", "AnotherKey" : "AnotherValue", "B" : "A"}, "password")

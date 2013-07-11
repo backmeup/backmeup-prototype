@@ -53,10 +53,12 @@ public class Users extends Base {
 	public ResultMessage changeUser(@PathParam("oldUsername") String oldUsername,
 	    @FormParam("username") String username,
 			@FormParam("oldPassword") String oldPassword,
-			@FormParam("password") String newPassword,			
+			@FormParam("password") String newPassword,
+			@FormParam("oldKeyring") String oldKeyring,
+			@FormParam("newKeyring") String newKeyring,
 			@FormParam("email") String newEmail) {
 	  BackMeUpUser oldUser = getLogic().getUser(oldUsername);
-		BackMeUpUser user = getLogic().changeUser(oldUsername, username, oldPassword, newPassword, newEmail);
+		BackMeUpUser user = getLogic().changeUser(oldUsername, username, oldPassword, newPassword, oldKeyring, newKeyring, newEmail);
 		ResultMessage rslt = new ResultMessage(Type.success);
 		if (!oldUsername.equals(user.getUsername())) {
 		  rslt.addMessage(Messages.CHANGE_USER_USERNAME);

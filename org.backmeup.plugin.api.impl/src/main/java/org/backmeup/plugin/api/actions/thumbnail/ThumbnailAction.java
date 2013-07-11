@@ -3,7 +3,9 @@ package org.backmeup.plugin.api.actions.thumbnail;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import org.backmeup.configuration.Configuration;
@@ -25,6 +27,8 @@ public class ThumbnailAction implements Action {
 	private static Configuration config = Configuration.getConfig();
 	private static File TEMP_DIR; 
 	private static Integer THUMBNAIL_DIMENSIONS;
+	
+	private static List<String> UNSUPPORTED_TYPES = Arrays.asList("css", "html", "xml");
 	
 	static {
 		try {
@@ -83,29 +87,38 @@ public class ThumbnailAction implements Action {
 			while (dobs.hasNext()) {
 				DataObject dataobject = dobs.next();
 				progressor.progress("Processing " + dataobject.getPath());
-				
+
 				// Write file to temp dir
 				String tempFilename = dataobject.getPath();
-				if (tempFilename.startsWith("/"))
-					tempFilename = tempFilename.substring(1);
 				
-				tempFilename = tempFilename.replace("/", "$").replace(" ", "_").replace("#", "_");
-				File tempFile = new File(TEMP_DIR, tempFilename);
-				FileOutputStream fos = new FileOutputStream(tempFile);
-				fos.write(dataobject.getBytes());
-				fos.close();
+				boolean supported = true;
+				for (String format : UNSUPPORTED_TYPES) {
+					if (tempFilename.toLowerCase().endsWith(format))
+							supported = false;
+				}
 				
-				try {
-					// Generate thumbnails using GraphicsMagick
-					String thumbPath = convert(tempFile);
-					Metainfo meta = new Metainfo();
-					meta.setAttribute(IndexUtils.FIELD_THUMBNAIL_PATH, thumbPath);
-					MetainfoContainer container = dataobject.getMetainfo();
-					container.addMetainfo(meta);
-					dataobject.setMetainfo(container);
-				} catch (Throwable t) {
-					System.out.println("Failed to render thumbnail for: " + dataobject.getPath());
-					System.out.println(t.getClass().getName() + ": " + t.getMessage());
+				if (supported) {
+					if (tempFilename.startsWith("/"))
+						tempFilename = tempFilename.substring(1);
+					
+					tempFilename = tempFilename.replace("/", "$").replace(" ", "_").replace("#", "_");
+					File tempFile = new File(TEMP_DIR, tempFilename);
+					FileOutputStream fos = new FileOutputStream(tempFile);
+					fos.write(dataobject.getBytes());
+					fos.close();
+					
+					try {
+						// Generate thumbnails using GraphicsMagick
+						String thumbPath = convert(tempFile);
+						Metainfo meta = new Metainfo();
+						meta.setAttribute(IndexUtils.FIELD_THUMBNAIL_PATH, thumbPath);
+						MetainfoContainer container = dataobject.getMetainfo();
+						container.addMetainfo(meta);
+						dataobject.setMetainfo(container);
+					} catch (Throwable t) {
+						System.out.println("Failed to render thumbnail for: " + dataobject.getPath());
+						System.out.println(t.getClass().getName() + ": " + t.getMessage());
+					}
 				}
 			}
 		} catch (Exception e) {

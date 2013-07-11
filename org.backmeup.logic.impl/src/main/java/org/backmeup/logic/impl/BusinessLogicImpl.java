@@ -94,9 +94,6 @@ import org.backmeup.plugin.spi.Authorizable.AuthorizationType;
 import org.backmeup.plugin.spi.InputBased;
 import org.backmeup.plugin.spi.OAuthBased;
 import org.backmeup.utilities.mail.Mailer;
-import org.elasticsearch.common.network.NetworkUtils;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
 
 /**
  * Implements the BusinessLogic interface by delegating most operations to
@@ -256,7 +253,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public BackMeUpUser changeUser(String oldUsername, String newUsername, String oldPassword,
-      String newPassword, String newEmail) {
+      String newPassword, String oldKeyRingPassword, String newKeyRingPassword, String newEmail) {
     try {
       conn.begin();
       BackMeUpUser u = getUser(oldUsername);
@@ -272,10 +269,14 @@ public class BusinessLogicImpl implements BusinessLogic {
 
       if (newPassword != null) {
         throwIfPasswordInvalid(newPassword);
-        keyserverClient.changeUserPassword(u.getUserId(), oldPassword, newPassword);      
+        keyserverClient.changeUserPassword(u.getUserId(), oldPassword, newPassword);        
       }
       
-      if (newEmail != null) {
+      if (newKeyRingPassword != null && oldKeyRingPassword != null && !oldKeyRingPassword.equals(newKeyRingPassword)) {
+        keyserverClient.changeUserKeyRing(u.getUserId(), oldKeyRingPassword, newKeyRingPassword);
+      }
+      
+      if (newEmail != null && !newEmail.equals(u.getEmail())) {
         throwIfEmailInvalid(newEmail);
         u.setEmail(newEmail);
         

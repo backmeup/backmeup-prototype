@@ -50,7 +50,7 @@ public interface BusinessLogic {
 	// user operations 
 	public BackMeUpUser getUser(String username);
 	public BackMeUpUser deleteUser(String username);
-	public BackMeUpUser changeUser(String oldUsername, String newUsername, String oldPassword, String newPassword, String newEmail);	
+	public BackMeUpUser changeUser(String oldUsername, String newUsername, String oldPassword, String newPassword, String oldKeyRingPassword, String newKeyRingPassword, String newEmail);	
 	public BackMeUpUser login(String username, String password);
 	public BackMeUpUser register(String username, String password, String keyRing, String email) throws AlreadyRegisteredException, IllegalArgumentException;
 	public BackMeUpUser verifyEmailAddress(String verificationKey);

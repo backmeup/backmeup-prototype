@@ -32,9 +32,13 @@ public class ThumbnailAction implements Action {
 	
 	static {
 		try {
-			TEMP_DIR = new File(config.getProperty("thumbnail.temp.dir"));
+			String path = config.getProperty("thumbnail.temp.dir");
+			if (!path.endsWith("/"))
+				path = path + "/";
+				
+			TEMP_DIR = new File(path);
 		} catch (Throwable t) {
-			TEMP_DIR = new File("tmp/thumbnails");
+			TEMP_DIR = new File("tmp/thumbnails/");
 			System.out.println("Thumbnail rendering temp dir not set - defaulting to 'tmp/thumbnails'");
 		}
 		
@@ -101,8 +105,12 @@ public class ThumbnailAction implements Action {
 					if (tempFilename.startsWith("/"))
 						tempFilename = tempFilename.substring(1);
 					
-					tempFilename = tempFilename.replace("/", "$").replace(" ", "_").replace("#", "_");
-					File tempFile = new File(TEMP_DIR, tempFilename);
+					tempFilename = System.currentTimeMillis() + "_" + tempFilename.replace("/", "$").replace(" ", "_").replace("#", "_");
+					File folder = new File(TEMP_DIR, job.getId().toString());
+					if (!folder.exists())
+						folder.mkdirs();
+						
+					File tempFile = new File(folder, tempFilename);
 					FileOutputStream fos = new FileOutputStream(tempFile);
 					fos.write(dataobject.getBytes());
 					fos.close();

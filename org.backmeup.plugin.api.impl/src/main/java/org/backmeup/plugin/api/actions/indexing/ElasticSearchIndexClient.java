@@ -52,6 +52,8 @@ public class ElasticSearchIndexClient {
 			}
 		}
 		
+		queryString = "owner_id:" + user.getUserId() + " AND " + queryString;
+		
 		System.out.println("QueryString = " + queryString);
 		
 		QueryBuilder qBuilder = // QueryBuilders.boolQuery()

@@ -144,7 +144,7 @@ public class FacebookDatasource implements Datasource {
 		}
 		navlist.addElement(ul);
 		applic_content_page.addElement(navlist);
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 		storage.addFile(is, "index.html", new MetainfoContainer());
 
 	}
@@ -183,7 +183,7 @@ public class FacebookDatasource implements Datasource {
 						albums.getNextPageUrl(), Album.class)) != null);
 
 		applic_content_page.addElement(applic_albums);
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 		storage.addFile(is, "albums.html", new MetainfoContainer());
 	}
 
@@ -194,7 +194,7 @@ public class FacebookDatasource implements Datasource {
 
 		downloadPhotos("me", "", doc, client, storage, progr);
 
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 		storage.addFile(is, "photos.html", new MetainfoContainer());
 	}
 
@@ -396,7 +396,7 @@ public class FacebookDatasource implements Datasource {
 
 		navlist.addElement(ul);
 		applic_content_page.addElement(navlist);
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 		storage.addFile(is, "groups.html", new MetainfoContainer());
 	}
 
@@ -443,7 +443,7 @@ public class FacebookDatasource implements Datasource {
 						Post.class)) != null);
 
 		applic_content_page.addElement(applic_posts);
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 		storage.addFile(is, "posts-" + id + ".html", new MetainfoContainer());
 	}
 
@@ -482,7 +482,7 @@ public class FacebookDatasource implements Datasource {
 						friends.getNextPageUrl(), User.class)) != null);
 
 		applic_content_page.addElement(applic_friends);
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 		storage.addFile(is, "friends.html", new MetainfoContainer());
 	}
 
@@ -516,7 +516,7 @@ public class FacebookDatasource implements Datasource {
 						CategorizedFacebookType.class)) != null);
 		navlist.addElement(ul);
 		applic_content_page.addElement(navlist);
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 		storage.addFile(is, "friendlists.html", new MetainfoContainer());
 	}
 
@@ -603,7 +603,7 @@ public class FacebookDatasource implements Datasource {
 		applic_user.addElement(applic_friends);
 		applic_content_page.addElement(applic_user);
 
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 		String filename = getFriendlistFilename(name + id);
 		storage.addFile(is, filename, metainfo);
 		return filename;
@@ -722,7 +722,7 @@ public class FacebookDatasource implements Datasource {
 
 		applic_content_page.addElement(applic_posts);
 		
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 		String filename = getPostFilename(post.getId());
 		storage.addFile(is, filename, metainfo);
 		return filename;
@@ -844,7 +844,7 @@ public class FacebookDatasource implements Datasource {
 		applic_user.addElement(applic_friends);
 		applic_content_page.addElement(applic_user);
 
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 		String filename = getAlbumFilename(name + album.getId());
 		storage.addFile(is, filename, metainfo);
 		return filename;
@@ -986,7 +986,7 @@ public class FacebookDatasource implements Datasource {
 
 		metainfo.addMetainfo(photoinfo);
 
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 		String filename = getPhotoFilename(photo.getId());
 		storage.addFile(is, filename, metainfo);
 		return filename;
@@ -1082,7 +1082,7 @@ public class FacebookDatasource implements Datasource {
 		applic_user.addElement(detail);
 		applic_content_page.addElement(applic_user);
 
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 		String filename = getGroupFilename(name + g.getId());
 		storage.addFile(is, filename, metainfo);
 		return filename;
@@ -1314,7 +1314,7 @@ public class FacebookDatasource implements Datasource {
 						+ " target='_blank'>" + u.getLink() + "</a>"));
 				detail.addElement(row);
 			}
-			InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+			InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 			String filename = getUserFilename(name + u.getId());
 			storage.addFile(is, filename, metainfo);
 
@@ -1503,7 +1503,7 @@ public class FacebookDatasource implements Datasource {
 		navlist.addElement(ul);
 		applic_content_page.addElement(navlist);
 
-		InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+		InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
 		storage.addFile(is, "accounts.html", new MetainfoContainer());
 
 	}
@@ -1601,7 +1601,7 @@ public class FacebookDatasource implements Datasource {
             }
         }
         metadata.addMetainfo(accountinfo);
-        InputStream is = new ByteArrayInputStream(doc.toString().getBytes());
+        InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
         storage.addFile(is, "Seiten/" + name + id + ".html", metadata);
 
         return "Seiten/" + name + id + ".html";
@@ -1609,6 +1609,7 @@ public class FacebookDatasource implements Datasource {
 
 	private Document createDocument(String title, String header, boolean out) {
 		Document doc = (Document) new Document();
+		doc.setCodeset("UTF-8");
 		doc.appendHead("<meta http-equiv='content-type' content='text/html; charset=UTF-8' />");
 		String backmeuplogo = "Themes/backmeuplogo.jpg";
 		String facebooklogo = "Themes/facebooklogo.jpg";

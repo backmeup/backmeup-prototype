@@ -17,7 +17,7 @@ public class ActionContainer {
 	public ActionContainer(List<ActionDescribable> actions) {
 		this.actions = new ArrayList<ActionElement>();
 		for (ActionDescribable ad : actions) {
-			this.actions.add(new ActionElement(ad.getTitle(), ad.getId(), ad.getDescription()));
+			this.actions.add(new ActionElement(ad.getTitle(), ad.getId(), ad.getDescription(), ad.getActionVisibility()));
 		}
 	}
 
@@ -33,14 +33,16 @@ public class ActionContainer {
 		private String title;
 		private String actionId;
 		private String description;
+		private String visibility;
 
 		public ActionElement() {
 		}
 		
-		public ActionElement(String title, String actionId, String description) {
+		public ActionElement(String title, String actionId, String description, String visibility) {
 			this.title = title;
 			this.actionId = actionId;
 			this.description = description;
+			this.visibility = visibility;
 		}
 
 		public String getTitle() {
@@ -66,5 +68,13 @@ public class ActionContainer {
 		public void setDescription(String description) {
 			this.description = description;
 		}
+
+    public String getVisibility() {
+      return visibility;
+    }
+
+    public void setVisibility(String visibility) {
+      this.visibility = visibility;
+    }
 	}
 }

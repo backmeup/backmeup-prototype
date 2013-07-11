@@ -58,7 +58,7 @@ public class ElasticSearchIndexClient {
 		
 		return client.prepareSearch(INDEX_NAME)
 				.setQuery(qBuilder)
-				.addHighlightedField(IndexUtils.FIELD_FULLTEXT)
+				// .addHighlightedField(IndexUtils.FIELD_FULLTEXT)
 				.setSize(10000)
 				.execute().actionGet();
 	}

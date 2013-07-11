@@ -36,7 +36,7 @@ public class FacebookAuthenticator implements OAuthBased {
 		 FacebookHelper fh = FacebookHelper.getInstance();
 		
 		return "https://www.facebook.com/dialog/oauth?client_id=" + fh.getAppKey() +
-				"&return_session=true&redirect_uri="+callback+"&scope="
+				"&return_session=false&redirect_uri="+callback+"&scope="
 				+ "user_birthday,user_photos,read_stream,user_about_me,user_activities," +
 				"user_education_history,user_events,user_groups,user_hometown,user_interests" +
 				",user_likes,user_location,user_notes,user_questions,user_relationships," +

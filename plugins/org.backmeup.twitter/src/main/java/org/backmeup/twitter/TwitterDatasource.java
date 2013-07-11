@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -111,7 +112,7 @@ public class TwitterDatasource implements Datasource {
 			downloadSimpleTable(twitter, "RetweetsOfMe", arg1);
 		}
 
-		if (options.contains("RetweetsToMe")) {
+		/*if (options.contains("RetweetsToMe")) {
 			A retweetstome = new A("RetweetsToMe.html", "Retweets an mich");
 			retweetstome.addAttribute("class", "navbutton");
 			ul.addElement(new LI().addElement(retweetstome));
@@ -127,7 +128,7 @@ public class TwitterDatasource implements Datasource {
 
 			arg2.progress("Download Retweets von mir...");
 			downloadSimpleTable(twitter, "RetweetsByMe", arg1);
-		}
+		}*/
 
 		// to create Timeline-Metadata retweets are needed
 		createUser(document, arg1);
@@ -262,7 +263,7 @@ public class TwitterDatasource implements Datasource {
 		try {
 			MediaEntity[] media = state.getMediaEntities();
 			for (MediaEntity m : media) {
-				URL url = m.getMediaURL();
+				URL url = new URL(m.getMediaURL());
 				int indexDot = url.toString().lastIndexOf('.');
 				String extension = url.toString().substring(indexDot);
 
@@ -310,7 +311,7 @@ public class TwitterDatasource implements Datasource {
 		try {
 			MetainfoContainer metadata = new MetainfoContainer();
 
-			URL url = user.getProfileImageURL();
+			URL url = new URL(user.getProfileImageURL());
 			int indexDot = url.toString().lastIndexOf('.');
 			String extension = url.toString().substring(indexDot);
 
@@ -356,6 +357,9 @@ public class TwitterDatasource implements Datasource {
 		} catch (StorageException e) {
 			throw new PluginException(TwitterDescriptor.TWITTER_ID,
 					"A twitter-error occurred while creating User-File", e);
+		} catch (MalformedURLException e1) {
+			throw new PluginException(TwitterDescriptor.TWITTER_ID,
+					"A twitter-error occurred while creating User-File", e1);
 		}
 	}
 
@@ -395,7 +399,7 @@ public class TwitterDatasource implements Datasource {
 			// save profile image in extra file (profileImage.extension) if
 			// exists
 
-			URL url = user.getProfileImageURL();
+			URL url = new URL(user.getProfileImageURL());
 			int indexDot = url.toString().lastIndexOf('.');
 			String extension = url.toString().substring(indexDot);
 
@@ -429,9 +433,9 @@ public class TwitterDatasource implements Datasource {
 			row.addElement(new TD(user.getScreenName()));
 			detail.addElement(row);
 
-			AccountTotals acct = twitter.getAccountTotals();
-
-			row = new TR();
+		//	AccountTotals acct = twitter.getAccountTotals();
+		
+			/*row = new TR();
 			row.addElement(new TD("Freund(e):").addAttribute("class",
 					"firstrow"));
 			row.addElement(new TD(" " + acct.getFriends()));
@@ -447,7 +451,7 @@ public class TwitterDatasource implements Datasource {
 					"firstrow"));
 			row.addElement(new TD(" " + acct.getUpdates()));
 			detail.addElement(row);
-
+*/
 			Div applic_timeline = new Div();
 
 			applic_timeline.addElement(new BR());
@@ -483,7 +487,8 @@ public class TwitterDatasource implements Datasource {
 					if (state.getMediaEntities() != null) {
 						String media = extractMedia(state, "index", storage,
 								text);
-						if (media != null) {
+						
+						if (media != null && !media.equals("")) {
 							td = new TD(new A(media,
 									new IMG(media).addAttribute("height",
 											"50px")).addAttribute("target",
@@ -637,10 +642,10 @@ public class TwitterDatasource implements Datasource {
 		try {
 			if (type.equals("Favorites"))
 				download = twitter.getFavorites(paging);
-			else if (type.equals("RetweetsToMe"))
+			/*else if (type.equals("RetweetsToMe"))
 				download = twitter.getRetweetedToMe(paging);
 			else if (type.equals("RetweetsByMe"))
-				download = twitter.getRetweetedByMe(paging);
+				download = twitter.getRetweetedByMe(paging);*/
 			else if (type.equals("RetweetsOfMe"))
 				download = twitter.getRetweetsOfMe(paging);
 
@@ -855,7 +860,7 @@ public class TwitterDatasource implements Datasource {
 		UL ul = new UL();
 
 		try {
-			List<UserList> lists = twitter.getAllUserLists(user.getId());
+			List<UserList> lists = twitter.getUserLists(user.getId());
 			for (UserList l : lists) {
 				A list = new A("list" + l.getId()+".html", l.getFullName());
 				list.addAttribute("class", "navbutton");
@@ -880,8 +885,8 @@ public class TwitterDatasource implements Datasource {
 	@Override
 	public List<String> getAvailableOptions(Properties accessData) {
 		List<String> twitterBackupOptions = new ArrayList<String>();
-		twitterBackupOptions.add("RetweetsToMe");
-		twitterBackupOptions.add("RetweetsByMe");
+		//twitterBackupOptions.add("RetweetsToMe");
+		//twitterBackupOptions.add("RetweetsByMe");
 		twitterBackupOptions.add("RetweetsOfMe");
 		twitterBackupOptions.add("Favourites");
 		twitterBackupOptions.add("Lists");

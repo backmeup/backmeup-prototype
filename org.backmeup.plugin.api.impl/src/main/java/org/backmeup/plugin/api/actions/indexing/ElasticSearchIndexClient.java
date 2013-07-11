@@ -66,7 +66,7 @@ public class ElasticSearchIndexClient {
 				.setQuery(qBuilder)
 				.addSort("backup_at", SortOrder.DESC)
 				.addHighlightedField(IndexUtils.FIELD_FULLTEXT)
-				.setSize(10000)
+				.setSize(100)
 				.execute().actionGet();
 	}
 	

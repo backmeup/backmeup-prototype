@@ -64,7 +64,7 @@ public class ElasticSearchIndexClient {
 		
 		return client.prepareSearch(INDEX_NAME)
 				.setQuery(qBuilder)
-				.addSort("modified", SortOrder.DESC)
+				// .addSort("modified", SortOrder.DESC)
 				.addHighlightedField(IndexUtils.FIELD_FULLTEXT)
 				.setSize(10000)
 				.execute().actionGet();

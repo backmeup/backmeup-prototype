@@ -251,7 +251,7 @@ public class TwitterDatasource implements Datasource {
 		metainfo.setBackupDate(new Date());
 		metainfo.setDestination(type + ".html#" + status.getId());
 		metainfo.setId(Long.toString(status.getId()));
-		metainfo.setModified(status.getCreatedAt());
+		metainfo.setCreated(status.getCreatedAt());
 		metainfo.setSource(TWITTER);
 		metainfo.setType("tweet");
 
@@ -323,7 +323,7 @@ public class TwitterDatasource implements Datasource {
 			userInfo.setBackupDate(new Date());
 			userInfo.setDestination("index.html");
 			userInfo.setId(Long.toString(user.getId()));
-			userInfo.setModified(user.getCreatedAt());
+			userInfo.setCreated(user.getCreatedAt());
 			userInfo.setSource(TWITTER);
 			userInfo.setType("user");
 

@@ -21,7 +21,7 @@ class TestActions(TestCase):
       self.assertIn("title", action)
       self.assertIn("actionId", action)
       self.assertIn("description", action)
-      print action["title"]
+      self.assertIn("visibility", action)
     
   @skip("Not yet implemented")
   def test_get_action_options(self):

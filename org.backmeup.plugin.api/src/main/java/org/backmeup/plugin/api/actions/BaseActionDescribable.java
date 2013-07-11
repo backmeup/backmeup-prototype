@@ -77,4 +77,9 @@ public class BaseActionDescribable implements ActionDescribable {
   {
 	  return new LinkedList<String> ();
   }
+
+  @Override
+  public String getActionVisibility() {
+    return getDescriptionEntries().getProperty("actionVisibility");
+  }
 }

@@ -267,6 +267,11 @@ public class DummyBusinessLogic implements BusinessLogic {
       {
     	  return new LinkedList<String> ();
       }
+
+      @Override
+      public String getActionVisibility() {
+        return "global";
+      }
     });
 
     List<ActionProfile> reqActions = new ArrayList<ActionProfile>();

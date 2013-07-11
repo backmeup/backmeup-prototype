@@ -875,8 +875,6 @@ public class FacebookDatasource implements Datasource {
 
 		String ending = ".jpg";// only jpg supported
 		String sourceFileName = "Alben/Fotos/" + photo.getId() + ending;
-		downloadPicture(photo.getSource(), sourceFileName, "", storage, progr,
-				photoinfo);
 
 		photoinfo.setDestination("Alben/Fotos/" + photo.getId() + ".html");
 
@@ -982,6 +980,9 @@ public class FacebookDatasource implements Datasource {
 
 		if (likes != null)
 			photoinfo.setAttribute("likes", likes);
+		
+		downloadPicture(photo.getSource(), sourceFileName, "", storage, progr,
+				photoinfo);
 
 		metainfo.addMetainfo(photoinfo);
 

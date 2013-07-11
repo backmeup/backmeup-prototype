@@ -103,11 +103,12 @@ public class IndexUtils {
 	
 	public static List<SearchEntry> convertSearchEntries(org.elasticsearch.action.search.SearchResponse esResponse, BackMeUpUser user) {	    
 	    List<SearchEntry> entries = new ArrayList<SearchResponse.SearchEntry>();
-	    
-	    System.out.println("converting " + entries.size() + " search results");
 
+	    System.out.println("converting " + esResponse.getHits().totalHits() + " search results");
+	    
 	    for (SearchHit hit : esResponse.getHits()) {
 	    	Map<String, Object> source = hit.getSource();
+	    	
 	    	
 			StringBuilder preview = null;
 			HighlightField highlight = hit.getHighlightFields().get(IndexUtils.FIELD_FULLTEXT);

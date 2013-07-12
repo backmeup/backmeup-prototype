@@ -7,7 +7,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -49,6 +51,8 @@ public class SkyDriveSupport {
 	public static final String REFRESH_TOKEN = "refreshToken";
 	public static final String CONSUMER_KEY = "key";
 	public static final String CONSUMER_SECRET = "secret";
+	
+	private static final SimpleDateFormat ISO8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
 	private static final String CRLF = "\r\n";
 
@@ -125,7 +129,22 @@ public class SkyDriveSupport {
 		private String name;
 		private String id;
 		private boolean isDirectory;
-		public String getName() {
+		private Date created;
+		private Date modified;
+		
+		public Date getCreated() {
+      return created;
+    }
+    public void setCreated(Date created) {
+      this.created = created;
+    }
+    public Date getModified() {
+      return modified;
+    }
+    public void setModified(Date modified) {
+      this.modified = modified;
+    }
+    public String getName() {
 			return name;
 		}
 		public void setName(String name) {
@@ -162,6 +181,23 @@ public class SkyDriveSupport {
 				// id.
 				Entry e = new Entry();
 				e.setName((String) item.get("name"));
+				
+				String updatedTime = (String)item.get("updated_time");
+				if (updatedTime != null) {
+				  try {
+				    e.setModified(ISO8601Format.parse(updatedTime));
+				  } catch (Exception ex) {
+				    ex.printStackTrace();
+				  }
+				}
+				String createdTime = (String)item.get("created_time");
+        if (createdTime != null) {
+          try {
+            e.setCreated(ISO8601Format.parse(createdTime));
+          } catch (Exception ex) {
+            ex.printStackTrace();
+          }
+        }
 				e.setId((String) item.get("id"));
 				e.setDirectory(item.get("id").toString().startsWith("folder"));
 				result.add(e);
@@ -503,7 +539,7 @@ public class SkyDriveSupport {
 		String url = String.format(REFRESH_URL, consumerKey, consumerSecret,
 				redirectUrl, refreshToken.getToken());
 		// Create a request based on that url.
-		System.out.println("Refresh URL: " + url);
+		// System.out.println("Refresh URL: " + url);
 		OAuthRequest accessTokenByRefreshToken = new OAuthRequest(Verb.GET, url);
 		Response result = accessTokenByRefreshToken.send();
 		if (result.isSuccessful()) {

@@ -2,17 +2,15 @@ package org.backmeup.keyserver.client.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.security.KeyStore;
 import java.security.SecureRandom;
-import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
@@ -44,10 +42,10 @@ import org.backmeup.keyserver.client.AuthUsrPwd;
 import org.backmeup.keyserver.client.TokenRequest;
 import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
-import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.exceptions.BackMeUpException;
 
 import com.google.gson.Gson;
@@ -200,9 +198,20 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   private Result execute(String path, ReqType type, String jsonParams) {
 
     HttpClient client = createClient();
-
+    int port = "http".equals(scheme) ? 80 : 443;
+    String rHost = host;
+    if (host.contains(":")) {
+      String[] sp = host.split(":");
+      rHost = sp[0];
+      try {
+        port = Integer.parseInt(sp[1]);
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
+    }
+    
     try {
-      URI registerUri = new URI(scheme, host, path, null);
+      URI registerUri = new URI(scheme, null, rHost, port, path, null, null);
       HttpUriRequest request;
       switch (type) {
       case PUT:

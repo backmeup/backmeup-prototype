@@ -4,9 +4,13 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import javax.activation.MimetypesFileTypeMap;
+
+import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.connectors.FilesystemLikeDatasource;
 import org.backmeup.plugin.api.connectors.FilesystemURI;
 import org.backmeup.skydrive.internal.SkyDriveSupport;
@@ -30,8 +34,18 @@ public class SkyDriveDatasource extends FilesystemLikeDatasource {
 		for (Entry e : SkyDriveSupport.getFolderContent(s.service, s.accessToken, path)) {
 			try {
 				FilesystemURI furi = new FilesystemURI(new URI(e.getId()), e.isDirectory());
+				Metainfo metainfo = new Metainfo();
+				metainfo.setBackupDate(new Date());
+				metainfo.setDestination(e.getName());
+				metainfo.setSource("skydrive");
+				metainfo.setCreated(e.getCreated());
+				metainfo.setModified(e.getModified());
+				metainfo.setParent(path);
+				metainfo.setType(e.isDirectory() ? "directory" : new MimetypesFileTypeMap().getContentType(e.getName()));				
 				furi.setMappedUri(new URI(mappedPath + "/" + e.getName()));
-				uris.add(furi);
+				furi.addMetainfo(metainfo);
+				if (!path.equals("me/skydrive") || options.contains(e.getName()))
+				  uris.add(furi);
 			} catch (URISyntaxException e1) {
 				e1.printStackTrace();
 			}
@@ -51,7 +65,7 @@ public class SkyDriveDatasource extends FilesystemLikeDatasource {
     String path = "me/skydrive";        
     Service s = SkyDriveSupport.getService(accessData);
     for (Entry e : SkyDriveSupport.getFolderContent(s.service, s.accessToken, path)) {
-      options.add(e.getName() + " (" + e.getId() + ")");      
+      options.add(e.getName());      
     }
     return options;
   }	

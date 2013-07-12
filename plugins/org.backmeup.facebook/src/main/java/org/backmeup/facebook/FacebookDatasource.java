@@ -364,14 +364,14 @@ public class FacebookDatasource implements Datasource {
 			for (User like : likes.getData()) {
 				div.addElement(linkUser(like.getId(),
 						checkName(like.getName()), type, client, storage, progr));
-				likers += checkName(like.getName());
+				likers += checkName(like.getName())+", ";
 				div.addElement(new BR());
 			}
 		} while (likes.hasNext()
 				&& (likes = client.fetchConnectionPage(likes.getNextPageUrl(),
 						User.class)) != null);
 
-		return likers;
+		return likers.substring(0, likers.length()-2);
 	}
 
 	private void downloadGroups(FacebookClient client, Storage storage,

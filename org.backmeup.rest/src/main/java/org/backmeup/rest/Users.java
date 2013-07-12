@@ -109,6 +109,14 @@ public class Users extends Base {
 		return Messages.MSG_DELETE_INDEX_FOR_USER;
 	}
 	
+	@DELETE
+	@Path("{username}/deleteBackup")
+	@Produces("application/json")
+	public ResultMessage deleteBackup(@PathParam("username") String username, @FormParam("job") Long jobId, @FormParam("timestamp") Long timestamp) {
+		getLogic().deleteIndexForJobAndTimestamp(jobId, timestamp);
+		return Messages.MSG_DELETE_BACKUP;
+	}
+	
 	@GET
 	@Path("{username}/newVerificationEmail")
 	@Produces("application/json")

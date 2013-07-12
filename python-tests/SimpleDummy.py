@@ -11,13 +11,7 @@ sourceId = BMU.auth_datasource("TestUser", "org.backmeup.dummy", "SinkProfile", 
 
 print "================ Job WITH encryption ==================="
 res = BMU.create_backup_job("TestUser", "password",
-		[sourceId],["org.backmeup.indexer","org.backmeup.encryption"], sinkId,
+		[sourceId],["org.backmeup.indexer","org.backmeup.filesplitting","org.backmeup.encryption"], sinkId,
 		"realtime", "Dummy To Dummy",
 		{"org.backmeup.encryption.org.backmeup.encryption.password" : "superiorEncryptionPassword"})
-print res
-
-print "================ Job without encryption ==================="
-res = BMU.create_backup_job("TestUser", "password",
-		[sourceId],["org.backmeup.indexer"], sinkId,
-		"realtime", "Dummy To Dummy")
 print res

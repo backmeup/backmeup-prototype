@@ -22,8 +22,8 @@ import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.ActionProfile;
 import org.backmeup.model.ActionProfile.ActionProperty;
-import org.backmeup.model.BackupJob.JobStatus;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.BackupJob.JobStatus;
 import org.backmeup.model.JobProtocol;
 import org.backmeup.model.JobProtocol.JobProtocolMember;
 import org.backmeup.model.ProfileOptions;
@@ -31,12 +31,14 @@ import org.backmeup.model.Status;
 import org.backmeup.model.StatusCategory;
 import org.backmeup.model.StatusType;
 import org.backmeup.model.Token;
+import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.actions.Action;
 import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.actions.encryption.EncryptionAction;
 import org.backmeup.plugin.api.actions.filesplitting.FilesplittAction;
 import org.backmeup.plugin.api.actions.indexing.IndexAction;
+import org.backmeup.plugin.api.actions.indexing.IndexDescribable;
 import org.backmeup.plugin.api.actions.thumbnail.ThumbnailAction;
 import org.backmeup.plugin.api.connectors.Datasink;
 import org.backmeup.plugin.api.connectors.Datasource;
@@ -227,15 +229,42 @@ public class BackupJobRunner {
             }
 	        }
 	        
-	        for (ActionProfile actionProfile : persistentJob.getRequiredActions()) {
+	        
+	        // Run indexing in case the user has enabled it using the 'enable.indexing' user property
+          boolean doIndexing = true; // We're using true as the default value for now
+          
+          String enableIndexing = persistentJob.getUser().getUserProperty("enable.indexing");
+          if (enableIndexing != null) {
+            if (enableIndexing.toLowerCase().trim().equals("false"));
+              doIndexing = false;
+          }
+          
+          // has the indexer been requested during creation of the backup job?
+          ActionDescribable ad = new IndexDescribable();
+          List<ActionProfile> aps = persistentJob.getRequiredActions();          
+          ActionProfile indexer = null;
+          for (ActionProfile ap : aps) {
+            if ("org.backmeup.indexer".equals(ap.getActionId())) {
+              indexer = ap;
+              break;
+            }
+          }
+          
+          if (doIndexing && indexer == null) {
+            // if we need to index, add the indexer to the requested actions
+            aps.add(new ActionProfile(ad.getId(), ad.getPriority()));
+          }
+	        
+	        for (ActionProfile actionProfile : persistentJob.getSortedRequiredActions()) {
 	        	String actionId = actionProfile.getActionId();
 	        	Client client = null;
 	        	try {   		        	
-		        	if ("org.backmeup.encryption".equals(actionId)) {
-		        		// If we do encryption, the Filesplitter needs to run before!
-		        		Action filesplitAction = new FilesplittAction();
-		        		filesplitAction.doAction(params, storage, persistentJob,  new JobStatusProgressor(persistentJob, "filesplittaction"));
-		        		
+	        	  if ("org.backmeup.filesplitting".equals(actionId)) {
+	        	    // If we do encryption, the Filesplitter needs to run before!
+	        	    Action filesplitAction = new FilesplittAction();
+                filesplitAction.doAction(params, storage, persistentJob,  new JobStatusProgressor(persistentJob, "filesplittaction"));
+	        	  }
+	        	  else if ("org.backmeup.encryption".equals(actionId)) {
 		        		// Add the encryption password to the parameters
 		        		if (authenticationData.getEncryptionPwd() != null)
 		        		  params.put("org.backmeup.encryption.password", authenticationData.getEncryptionPwd());
@@ -246,41 +275,13 @@ public class BackupJobRunner {
 		        	} else if ("org.backmeup.indexer".equals(actionId)) {
 		        		// Do nothing - we ignore index action declaration in the job description and use the info
 		        		// from the user properties instead
-		        		
-		        		/*
-		        		// If we do indexing, the Thumbnail renderer needs to run before!
-		        		Action thumbnailAction = new ThumbnailAction();
-		        		thumbnailAction.doAction(params, storage, persistentJob, new JobStatusProgressor(persistentJob, "thumbnailAction"));
-		        		
-		        		// After thumbnail rendering, run indexing
-		        		Configuration config = Configuration.getConfig();
-		        		String host = config.getProperty(INDEX_HOST);
-		        		int port = Integer.parseInt(config.getProperty(INDEX_PORT));
-		        		
-		        		client = new TransportClient()
-		        			.addTransportAddress(new InetSocketTransportAddress(host, port));
-		        		
-		        		Action indexAction = new IndexAction(client);
-		        		indexAction.doAction(params, storage, persistentJob, new JobStatusProgressor(persistentJob, "indexaction"));
-		        		client.close();
-		        		*/
+		        	  if (doIndexing)
+		              doIndexing(params, storage, persistentJob, client);
+		        	  
 		        	} else {
 		        		// Only happens in case Job was corrupted in the core - we'll handle that as a fatal error
 		        	  errorStatus.add(addStatusToDb(new Status(persistentJob, "Unsupported Action: " + actionId, StatusType.JOB_FAILED, StatusCategory.ERROR, new Date())));
 		        	}
-		        	
-		        	// Run indexing in case the user has enabled it using the 'enable.indexing' user property
-		        	boolean doIndexing = true; // We're using true as the default value for now
-		        	
-		        	String enableIndexing = persistentJob.getUser().getUserProperty("enable.indexing");
-		        	if (enableIndexing != null) {
-		        		if (enableIndexing.toLowerCase().trim().equals("false"));
-		        			doIndexing = false;
-		        	}
-		        	
-		        	if (doIndexing)
-		        		doIndexing(params, storage, persistentJob, client);
-		        	
 	        	} catch (ActionException e) {
 	        		// Should only happen in case of problems in the core (file I/O, DB access, etc.) - we'll handle that as a fatal error
 	        	  errorStatus.add(addStatusToDb(new Status(persistentJob, e.getMessage(), StatusType.JOB_FAILED, StatusCategory.ERROR, new Date())));

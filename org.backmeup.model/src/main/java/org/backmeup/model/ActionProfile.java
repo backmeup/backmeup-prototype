@@ -28,7 +28,7 @@ public class ActionProfile implements Comparable<ActionProfile> {
   
   public ActionProfile(String actionId, int priority) {
     this.actionId = actionId;
-    this.priority = priority;    
+    this.setPriority(priority);    
   }
   
   public Long getId() {
@@ -51,7 +51,7 @@ public class ActionProfile implements Comparable<ActionProfile> {
   public int compareTo(ActionProfile o) {
     if (o == null)
       return -1;    
-    return this.priority - o.priority;
+    return o.getPriority() - this.getPriority();
   }
   
   public Set<ActionProperty> getActionOptions() {
@@ -62,6 +62,14 @@ public class ActionProfile implements Comparable<ActionProfile> {
     ActionProperty ap = new ActionProperty(key, value);
     ap.setProfile(this);
     this.actionOptions.add(ap);
+  }
+
+  public int getPriority() {
+    return priority;
+  }
+
+  public void setPriority(int priority) {
+    this.priority = priority;
   }
 
   @Entity

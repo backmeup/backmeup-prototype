@@ -267,6 +267,7 @@ public class MailDatasource implements Datasource {
     String subject="N/A";
     String sentAt="N/A";
     Date receivedAt=new Date();
+    Date modified=null;
     int msgNmbr = 0;
     
     if (m instanceof Message) {
@@ -279,7 +280,8 @@ public class MailDatasource implements Datasource {
       msgNmbr = mesg.getMessageNumber();  
       subject = mesg.getSubject();
       sentAt = mesg.getSentDate().toString();
-      receivedAt = mesg.getReceivedDate();           
+      receivedAt = mesg.getReceivedDate();
+      modified = mesg.getReceivedDate() != null ? mesg.getReceivedDate() : mesg.getSentDate();
     }
     
     String destinationFileName = folderName + "content" + msgNmbr + ".html";
@@ -362,6 +364,7 @@ public class MailDatasource implements Datasource {
     metaData.setAttribute("to", to);
     metaData.setAttribute("receivedAt", receivedAt.toString());
     metaData.setAttribute("sentAt", sentAt);
+    metaData.setModified(modified);
     metaData.setAttribute("subject", subject);
     infos.addMetainfo(metaData);
     storage

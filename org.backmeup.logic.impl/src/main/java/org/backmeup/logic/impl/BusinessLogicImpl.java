@@ -1118,6 +1118,24 @@ public class BusinessLogicImpl implements BusinessLogic {
 			client.close();
 	  }
   }
+  
+  public void deleteIndexForJobAndTimestamp(Long jobId, Long timestamp) {
+	  ElasticSearchIndexClient client = null;
+	  try {
+	    conn.begin();
+
+	    try {
+		    client = getIndexClient();
+		    client.deleteRecordsForJobAndTimestamp(jobId, timestamp);
+	    } catch (Throwable t) {
+	    	t.printStackTrace();
+	    }
+	  } finally {
+		conn.rollback();
+		if (client != null)
+			client.close();
+	  }
+  }
 
   public SearchResponse queryBackup(String username, long searchId,
       String filterType, String filterValue) {

@@ -382,10 +382,10 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
 
   @Override
   public Token getToken(Long userId, String userPwd, Long[] services,
-      Long[] authinfos, Long backupdate, boolean reusable) {
+      Long[] authinfos, Long backupdate, boolean reusable, String encryptionPwd) {
     Gson g = new Gson();
     String json = g.toJson(new TokenRequest(userId, userPwd, services,
-        authinfos, backupdate, reusable));
+        authinfos, backupdate, reusable, encryptionPwd));
     //System.out.println("REQUESTING: " + json);
     Result r = execute(path + "/tokens/token", ReqType.POST, json);
     if (r.response.getStatusLine().getStatusCode() == 200) {
@@ -421,14 +421,14 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
 
   @Override
   public Token getToken(Profile profile, String userPwd, Long backupdate,
-      boolean reusable) {
+      boolean reusable, String encryptionPwd) {
     return getToken(profile.getUser().getUserId(), userPwd,
         new Long[] { profile.getProfileId() },
-        new Long[] { profile.getProfileId() }, backupdate, reusable);
+        new Long[] { profile.getProfileId() }, backupdate, reusable, encryptionPwd);
   }
 
   @Override
-  public Token getToken(BackupJob job, String userPwd, Long backupdate, boolean reusable) {
+  public Token getToken(BackupJob job, String userPwd, Long backupdate, boolean reusable, String encryptionPwd) {
     List<Long> usedServices = new ArrayList<Long>();
     List<Long> authenticationInfos = new ArrayList<Long>();
     usedServices.add(job.getSinkProfile().getProfileId());
@@ -439,7 +439,7 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     }
     Long[] serviceIds = usedServices.toArray(new Long[]{});
     Long[] authIds = authenticationInfos.toArray(new Long[]{});   
-    Token t = getToken(job.getUser().getUserId(), userPwd, serviceIds, authIds, new Date().getTime(), reusable);
+    Token t = getToken(job.getUser().getUserId(), userPwd, serviceIds, authIds, new Date().getTime(), reusable, encryptionPwd);
     return t;
   }
 

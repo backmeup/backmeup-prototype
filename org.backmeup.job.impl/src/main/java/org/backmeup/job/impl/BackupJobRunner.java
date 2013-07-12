@@ -235,7 +235,11 @@ public class BackupJobRunner {
 		        		// If we do encryption, the Filesplitter needs to run before!
 		        		Action filesplitAction = new FilesplittAction();
 		        		filesplitAction.doAction(params, storage, persistentJob,  new JobStatusProgressor(persistentJob, "filesplittaction"));
-		        			
+		        		
+		        		// Add the encryption password to the parameters
+		        		if (authenticationData.getEncryptionPwd() != null)
+		        		  params.put("org.backmeup.encryption.password", authenticationData.getEncryptionPwd());
+		        		
 		        		// After splitting, run encryption
 		        		Action encryptionAction = new EncryptionAction();
 		        		encryptionAction.doAction(params, storage, job, new JobStatusProgressor(persistentJob, "encryptionaction"));

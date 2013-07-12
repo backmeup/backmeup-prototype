@@ -8,6 +8,7 @@ import org.backmeup.model.Token;
 public class AuthDataResult {
 
   private Token newToken;  
+  private String encryption_pwd;
   
   public static class UserData {
     private Long bmu_user_id;
@@ -78,5 +79,13 @@ public class AuthDataResult {
       }
     }
     return new Properties();
+  }
+
+  public String getEncryptionPwd() {
+    return encryption_pwd;
+  }
+
+  public void setEncryptionPwd(String encryptionPwd) {
+    this.encryption_pwd = encryptionPwd;
   }
 }

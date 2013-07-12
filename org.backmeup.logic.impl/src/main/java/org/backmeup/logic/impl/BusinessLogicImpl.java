@@ -449,7 +449,7 @@ public class BusinessLogicImpl implements BusinessLogic {
         throw new IllegalArgumentException();
       }      
       Datasource source = plugins.getDatasource(p.getDescription());
-      Token t = keyserverClient.getToken(p, keyRingPassword, new Date().getTime(), false);
+      Token t = keyserverClient.getToken(p, keyRingPassword, new Date().getTime(), false, null);
       AuthDataResult authData = keyserverClient.getData(t);
       Properties accessData = authData.getByProfileId(profileId);
       return source.getAvailableOptions(accessData); 
@@ -726,7 +726,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       
       conn.rollback();
       BackupJob job = jobManager.createBackupJob(user, profiles, sink, actions,
-          execTime.getStart(), execTime.getDelay(), request.getKeyRing(), request.getJobTitle(), execTime.isReschedule());      
+          execTime.getStart(), execTime.getDelay(), request.getKeyRing(), request.getJobTitle(), execTime.isReschedule(), request.getEncryptionPwd());      
       ValidationNotes vn = validateBackupJob(username, job.getId(), request.getKeyRing());
       vn.setJob(job);
       return vn;
@@ -1026,7 +1026,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (!keyserverClient.isServiceRegistered(p.getProfileId()))
         keyserverClient.addService(p.getProfileId());
       if (keyserverClient.isAuthInformationAvailable(p, keyRing)) {
-        Token t = keyserverClient.getToken(p, keyRing, new Date().getTime(), false);
+        Token t = keyserverClient.getToken(p, keyRing, new Date().getTime(), false, null);
         AuthDataResult adr = keyserverClient.getData(t);
         if (adr.getAuthinfos().length > 0) {
           props.putAll(adr.getAuthinfos()[0].getAi_data());              
@@ -1236,7 +1236,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
   
   private Properties fetchAuthenticationData(Profile p, String password) {
-    Token t = keyserverClient.getToken(p, password, new Date().getTime(), false);
+    Token t = keyserverClient.getToken(p, password, new Date().getTime(), false, null);
     AuthDataResult result = keyserverClient.getData(t);
     Properties props = new Properties();
     if (result.getAuthinfos().length > 0)

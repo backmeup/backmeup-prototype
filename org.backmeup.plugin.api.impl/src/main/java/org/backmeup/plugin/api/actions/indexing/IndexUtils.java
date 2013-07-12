@@ -190,27 +190,28 @@ public class IndexUtils {
 	
 	public static List<CountedEntry> getBySource(org.elasticsearch.action.search.SearchResponse esResponse) {		
 		// TODO we currently group by 'list of sources' rather than source
-		return groupByField(esResponse, FIELD_JOB_NAME);
+		return groupBySource(esResponse);
 	}
 	
 	public static List<CountedEntry> getByType(org.elasticsearch.action.search.SearchResponse esResponse) {
-		// return groupByField(esResponse, FIELD_CONTENT_TYPE);
 		return groupByContentType(esResponse);
 	}
 	
-	private static List<CountedEntry> groupByField(org.elasticsearch.action.search.SearchResponse esResponse, String field) {
+	private static List<CountedEntry> groupBySource(org.elasticsearch.action.search.SearchResponse esResponse) {
 		// Now where's my Scala groupBy!? *heul*
 		Map<String, Integer> groupedHits = new HashMap<String, Integer>();
 		for (SearchHit hit : esResponse.getHits()) {
-			if (hit.getSource().get(field) != null) {
-				String sourceName = hit.getSource().get(field).toString();
-				Integer count = groupedHits.get(sourceName);
+			if (hit.getSource().get(FIELD_JOB_ID) != null) {
+				String backupSourcePluginName = hit.getSource().get(FIELD_BACKUP_SOURCE_PLUGIN_NAME).toString();
+				String backupSourceIdentification = hit.getSource().get(FIELD_BACKUP_SOURCE_IDENTIFICATION).toString();
+				String label = backupSourcePluginName + " (" + backupSourceIdentification + ")";
+				Integer count = groupedHits.get(label);
 				if (count == null) {
 					count = Integer.valueOf(1);
 				} else {
 					count = Integer.valueOf(count.intValue() + 1);
 				}
-				groupedHits.put(sourceName, count);
+				groupedHits.put(label, count);
 			}
 		}
 		

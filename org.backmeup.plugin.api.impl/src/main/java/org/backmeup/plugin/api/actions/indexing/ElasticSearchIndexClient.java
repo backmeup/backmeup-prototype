@@ -92,7 +92,6 @@ public class ElasticSearchIndexClient {
 		Long timestamp = Long.parseLong(bmuId[2]);
 		
 		QueryBuilder qBuilder = QueryBuilders.boolQuery()
-		    //.must(QueryBuilders.matchQuery(FIELD_OWNER_NAME, username))
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, owner))
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_FILE_HASH, hash))
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_BACKUP_AT, timestamp));
@@ -112,6 +111,15 @@ public class ElasticSearchIndexClient {
 				.setQuery(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, userId))
 				.execute().actionGet();
 	
+	}
+	
+	public void deleteRecordsForJobAndTimestamp(Long jobId, Long timestamp) {
+		QueryBuilder qBuilder = QueryBuilders.boolQuery()
+				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_JOB_ID, jobId))
+				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_BACKUP_AT, timestamp));
+
+		client.prepareDeleteByQuery(INDEX_NAME)
+			.setQuery(qBuilder).execute().actionGet();
 	}
 	
 	public void close() {

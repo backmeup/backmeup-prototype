@@ -13,6 +13,7 @@ public class JobCreationRequest {
   private List<SourceProfileEntry> sourceProfiles = new ArrayList<SourceProfileEntry>();
   private List<ActionProfileEntry> actions = new ArrayList<ActionProfileEntry>();
   private Long sinkProfileId;
+  private String encryptionPwd;
   
   public String getTimeExpression() {
     return timeExpression;
@@ -60,5 +61,13 @@ public class JobCreationRequest {
 
   public void setSinkProfileId(Long sinkProfileId) {
     this.sinkProfileId = sinkProfileId;
+  }
+
+  public String getEncryptionPwd() {
+    return encryptionPwd;
+  }
+
+  public void setEncryptionPwd(String encryptionPwd) {
+    this.encryptionPwd = encryptionPwd;
   }
 }

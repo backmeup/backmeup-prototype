@@ -55,6 +55,9 @@ public class JobCreationRequestParser {
     
     if (formParameters.containsKey("timeExpression"))
       jcr.setTimeExpression(formParameters.getFirst("timeExpression"));
+    
+    if (formParameters.containsKey("encryptionPwd"))
+      jcr.setEncryptionPwd(formParameters.getFirst("encryptionPwd"));
     return jcr;
   }
   

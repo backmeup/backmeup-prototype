@@ -1,5 +1,6 @@
 package org.backmeup.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Transient;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Contains the result of a search when calling BusinessLogic#queryBackup
@@ -31,6 +34,8 @@ public class SearchResponse {
 	
 	private String query;
 	
+	private String filters;
+	
 	@Transient
 	private List<SearchEntry> files;
 	
@@ -43,7 +48,12 @@ public class SearchResponse {
 	public SearchResponse() { }
 	
 	public SearchResponse(String query) {
+		this(query, new ArrayList<String>());
+	}
+	
+    public SearchResponse(String query, List<String> filters) {
 		this.query = query;
+		this.setFilters(StringUtils.join(filters, ","));
 	}	
 	
 	public SearchResponse(long id, int status, String query, List<SearchEntry> files) {
@@ -111,6 +121,14 @@ public class SearchResponse {
 		this.files = files;
 	} 
 	
+	public String getFilters() {
+		return filters;
+	}
+
+	public void setFilters(String filters) {
+		this.filters = filters;
+	}
+
 	public static class CountedEntry {
 		private String title;
 		private int count;

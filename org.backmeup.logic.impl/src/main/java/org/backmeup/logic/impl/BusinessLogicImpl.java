@@ -449,7 +449,7 @@ public class BusinessLogicImpl implements BusinessLogic {
         throw new IllegalArgumentException();
       }      
       Datasource source = plugins.getDatasource(p.getDescription());
-      Token t = keyserverClient.getToken(p, keyRingPassword, new Date().getTime(), false);
+      Token t = keyserverClient.getToken(p, keyRingPassword, new Date().getTime(), false, null);
       AuthDataResult authData = keyserverClient.getData(t);
       Properties accessData = authData.getByProfileId(profileId);
       return source.getAvailableOptions(accessData); 
@@ -726,7 +726,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       
       conn.rollback();
       BackupJob job = jobManager.createBackupJob(user, profiles, sink, actions,
-          execTime.getStart(), execTime.getDelay(), request.getKeyRing(), request.getJobTitle(), execTime.isReschedule());      
+          execTime.getStart(), execTime.getDelay(), request.getKeyRing(), request.getJobTitle(), execTime.isReschedule(), request.getEncryptionPwd());      
       ValidationNotes vn = validateBackupJob(username, job.getId(), request.getKeyRing());
       vn.setJob(job);
       return vn;
@@ -1026,7 +1026,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (!keyserverClient.isServiceRegistered(p.getProfileId()))
         keyserverClient.addService(p.getProfileId());
       if (keyserverClient.isAuthInformationAvailable(p, keyRing)) {
-        Token t = keyserverClient.getToken(p, keyRing, new Date().getTime(), false);
+        Token t = keyserverClient.getToken(p, keyRing, new Date().getTime(), false, null);
         AuthDataResult adr = keyserverClient.getData(t);
         if (adr.getAuthinfos().length > 0) {
           props.putAll(adr.getAuthinfos()[0].getAi_data());              
@@ -1072,6 +1072,10 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public long searchBackup(String username, String keyRingPassword, String query) {
+	  return searchBackup(username, keyRingPassword, query, new String[0]);
+  }
+	  
+  public long searchBackup(String username, String keyRingPassword, String query, String[] typeFilters) {  
 	  try {
 		  conn.begin();
 	      BackMeUpUser user = getUser(username);     
@@ -1079,7 +1083,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 	      if (!keyserverClient.validateUser(user.getUserId(), keyRingPassword))
 	        throw new InvalidCredentialsException();
 	      
-	      SearchResponse search = new SearchResponse(query);
+	      SearchResponse search = new SearchResponse(query, Arrays.asList(typeFilters));
 	      SearchResponseDao searchDao = getSearchResponseDao();
 	      search = searchDao.save(search);
 	      conn.commit();
@@ -1114,6 +1118,24 @@ public class BusinessLogicImpl implements BusinessLogic {
 			client.close();
 	  }
   }
+  
+  public void deleteIndexForJobAndTimestamp(Long jobId, Long timestamp) {
+	  ElasticSearchIndexClient client = null;
+	  try {
+	    conn.begin();
+
+	    try {
+		    client = getIndexClient();
+		    client.deleteRecordsForJobAndTimestamp(jobId, timestamp);
+	    } catch (Throwable t) {
+	    	t.printStackTrace();
+	    }
+	  } finally {
+		conn.rollback();
+		if (client != null)
+			client.close();
+	  }
+  }
 
   public SearchResponse queryBackup(String username, long searchId,
       String filterType, String filterValue) {
@@ -1133,7 +1155,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 		    String query = search.getQuery();
 		    
 		    client = getIndexClient();
-		    org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(user, query);
+		    org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(user, query, Arrays.asList(filterValue));
 		    search.setFiles(IndexUtils.convertSearchEntries(esResponse, user));
 		    search.setBySource(IndexUtils.getBySource(esResponse));
 		    search.setByType(IndexUtils.getByType(esResponse));
@@ -1214,7 +1236,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
   
   private Properties fetchAuthenticationData(Profile p, String password) {
-    Token t = keyserverClient.getToken(p, password, new Date().getTime(), false);
+    Token t = keyserverClient.getToken(p, password, new Date().getTime(), false, null);
     AuthDataResult result = keyserverClient.getData(t);
     Properties props = new Properties();
     if (result.getAuthinfos().length > 0)

@@ -31,9 +31,9 @@ public interface Keyserver {
   public void deleteAuthInfo(Long authInfoId);
   
   // Token operations
-  public Token getToken(Long userId, String userPwd, Long[] services, Long[] authinfos, Long backupdate, boolean reusable);
-  public Token getToken(Profile profile, String userPwd, Long backupdate, boolean reusable);
-  public Token getToken(BackupJob job, String userPwd, Long backupdate, boolean reusable);
+  public Token getToken(Long userId, String userPwd, Long[] services, Long[] authinfos, Long backupdate, boolean reusable, String encryptionPwd);
+  public Token getToken(Profile profile, String userPwd, Long backupdate, boolean reusable, String encryptionPwd);
+  public Token getToken(BackupJob job, String userPwd, Long backupdate, boolean reusable, String encryptionPwd);
   public AuthDataResult getData(Token token);
   
   // Logs

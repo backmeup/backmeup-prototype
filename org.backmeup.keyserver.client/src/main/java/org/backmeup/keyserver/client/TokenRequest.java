@@ -7,13 +7,14 @@ public class TokenRequest {
   private Long[] bmu_authinfo_ids;
   private Long backupdate;
   private boolean reusable;
+  private String encryption_pwd;
 
   public TokenRequest() {
     super();
   }
 
   public TokenRequest(Long bmu_user_id, String user_pwd,
-      Long[] bmu_service_ids, Long[] bmu_authinfo_ids, Long backupdate, boolean reusable) {
+      Long[] bmu_service_ids, Long[] bmu_authinfo_ids, Long backupdate, boolean reusable, String encryptionPwd) {
     super();
     this.bmu_user_id = bmu_user_id;
     this.user_pwd = user_pwd;
@@ -21,6 +22,7 @@ public class TokenRequest {
     this.bmu_authinfo_ids = bmu_authinfo_ids;
     this.backupdate = backupdate;
     this.reusable = reusable;
+    this.encryption_pwd = encryptionPwd;
   }
 
   public Long getBmu_user_id() {
@@ -69,6 +71,14 @@ public class TokenRequest {
 
   public void setReusable(Boolean reusable) {
     this.reusable = reusable;
+  }
+
+  public String getEncryption_pwd() {
+    return encryption_pwd;
+  }
+
+  public void setEncryption_pwd(String encryption_pwd) {
+    this.encryption_pwd = encryption_pwd;
   }
 
 }

@@ -60,7 +60,7 @@ abstract public class AkkaJobManager implements JobManager {
 	public BackupJob createBackupJob(BackMeUpUser user,
 			Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
 			List<ActionProfile> requiredActions, Date start, long delayInMs,
-			String keyRing, String jobTitle, boolean reschedule) {	    
+			String keyRing, String jobTitle, boolean reschedule, String timeExpression) {	    
 	    try {
   	    conn.begin();
   	    UserDao ud = dal.createUserDao();
@@ -72,6 +72,7 @@ abstract public class AkkaJobManager implements JobManager {
             sinkProfile,
             requiredActions, 
             start, delayInMs, jobTitle, reschedule);
+        job.setTimeExpression(timeExpression);
         job.setStatus(JobStatus.queued);
         
         Long firstExecutionDate = start.getTime() + delayInMs;

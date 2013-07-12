@@ -39,6 +39,7 @@ public class JobContainer {
 		  job.setLastFail(j.getLastFailed() != null ? j.getLastFailed().getTime() : null);
 		  job.setLastSuccessful(j.getLastSuccessful() != null ? j.getLastSuccessful().getTime() : null);
 		  job.setStatus(j.getStatus());
+		  job.setTimeExpression(j.getTimeExpression());
 		  JobProtocol protocol = j.lastProtocol();
 		  
 		  if (protocol != null) {

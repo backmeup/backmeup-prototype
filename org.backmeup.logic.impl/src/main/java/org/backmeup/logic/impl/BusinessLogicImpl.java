@@ -726,7 +726,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       
       conn.rollback();
       BackupJob job = jobManager.createBackupJob(user, profiles, sink, actions,
-          execTime.getStart(), execTime.getDelay(), request.getKeyRing(), request.getJobTitle(), execTime.isReschedule());      
+          execTime.getStart(), execTime.getDelay(), request.getKeyRing(), request.getJobTitle(), execTime.isReschedule(), request.getTimeExpression());      
       ValidationNotes vn = validateBackupJob(username, job.getId(), request.getKeyRing());
       vn.setJob(job);
       return vn;
@@ -768,6 +768,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       job.setSinkProfile(getSinkProfileFor(updateRequest));
       
       ExecutionTime et = BackUpJobCreationHelper.getExecutionTimeFor(updateRequest);
+      job.setTimeExpression(updateRequest.getTimeExpression());
       job.setDelay(et.getDelay());
       conn.commit();
       ValidationNotes vn = validateBackupJob(username, job.getId(), updateRequest.getKeyRing());

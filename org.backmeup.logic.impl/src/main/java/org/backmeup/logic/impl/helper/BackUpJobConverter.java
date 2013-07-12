@@ -26,21 +26,7 @@ public class BackUpJobConverter {
     jur.setJobId(job.getId());
     jur.setJobTitle(job.getJobTitle());
     jur.setSinkProfileId(job.getSinkProfile().getProfileId());
-    String timeExpression = null;
-    
-    if (job.getDelay() == BusinessLogicImpl.DELAY_DAILY)    
-      timeExpression = "daily";
-    else if (job.getDelay() == BusinessLogicImpl.DELAY_MONTHLY)
-      timeExpression = "monthly";      
-    else if (job.getDelay() == BusinessLogicImpl.DELAY_WEEKLY)
-      timeExpression = "weekly";
-    else if (job.getDelay() == BusinessLogicImpl.DELAY_YEARLY)    
-      timeExpression = "yearly";
-    else 
-      timeExpression = "realtime";
-    
-    jur.setTimeExpression(timeExpression);
-    
+    jur.setTimeExpression(job.getTimeExpression());
     
     // convert the action profiles
     List<ActionProfileEntry> actions = new ArrayList<ActionProfileEntry>();

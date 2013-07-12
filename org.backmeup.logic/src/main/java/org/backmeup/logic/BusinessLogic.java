@@ -115,6 +115,7 @@ public interface BusinessLogic {
 	public SearchResponse queryBackup(String username, long searchId, String filterType, String filterValue);
 	public File getThumbnail(String username, String fileId);
 	public void deleteIndexForUser(String username);
+	public void deleteIndexForJobAndTimestamp(Long jobId, Long timestamp);
 		
 	//misc operations
 	public void shutdown();

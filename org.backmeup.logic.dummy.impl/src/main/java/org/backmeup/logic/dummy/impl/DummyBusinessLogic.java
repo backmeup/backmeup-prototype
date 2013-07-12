@@ -888,6 +888,11 @@ public class DummyBusinessLogic implements BusinessLogic {
   public void deleteIndexForUser(String username) {
 	// TODO Auto-generated method stub
   }
+  
+  @Override  
+  public void deleteIndexForJobAndTimestamp(Long jobId, Long timestamp) {
+	// TODO Auto-generated method stub	  
+  }
 
   @Override
   public ValidationNotes updateBackupJob(String username,

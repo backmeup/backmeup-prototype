@@ -15,3 +15,6 @@ res = BMU.create_backup_job("TestUser", "password",
 		"realtime", "Dummy To Dummy",
 		{"org.backmeup.encryption.org.backmeup.encryption.password" : "superiorEncryptionPassword"})
 print res
+
+res = BMU.get_backup_jobs("TestUser")
+print res

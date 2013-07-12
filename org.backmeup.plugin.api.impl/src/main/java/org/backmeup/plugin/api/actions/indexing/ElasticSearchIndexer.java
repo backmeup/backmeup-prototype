@@ -59,7 +59,7 @@ public class ElasticSearchIndexer {
 		this.client = client;
 	}
 	
-	public void doIndexing(BackupJob job, DataObject dataObject, Map<String, String> meta) throws IOException {
+	public void doIndexing(BackupJob job, DataObject dataObject, Map<String, String> meta, Date timestamp) throws IOException {
 		// Build the index object
 		XContentBuilder contentBuilder = XContentFactory.jsonBuilder().startObject();
 		
@@ -73,7 +73,7 @@ public class ElasticSearchIndexer {
 		contentBuilder.field(IndexUtils.FIELD_PATH, dataObject.getPath());
 		contentBuilder.field(IndexUtils.FIELD_FILE_HASH, dataObject.getMD5Hash());
 		contentBuilder.field(IndexUtils.FIELD_BACKUP_SINK, job.getSinkProfile().getProfileName());
-		contentBuilder.field(IndexUtils.FIELD_BACKUP_AT, new Date().getTime());
+		contentBuilder.field(IndexUtils.FIELD_BACKUP_AT, timestamp.getTime());
 		contentBuilder.field(IndexUtils.FIELD_JOB_ID, job.getId());
 		contentBuilder.field(IndexUtils.FIELD_JOB_NAME, job.getJobTitle());
 				

@@ -2,6 +2,7 @@ package org.backmeup.job.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -16,12 +17,13 @@ import org.backmeup.job.JobManager;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.ActionProfile;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.ActionProfile.ActionProperty;
+import org.backmeup.model.BackupJob.JobStatus;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
-import org.backmeup.model.BackMeUpUser;
-import org.backmeup.model.BackupJob.JobStatus;
 
 import akka.actor.ActorSystem;
 import akka.util.Duration;
@@ -58,9 +60,7 @@ abstract public class AkkaJobManager implements JobManager {
 	public BackupJob createBackupJob(BackMeUpUser user,
 			Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
 			List<ActionProfile> requiredActions, Date start, long delayInMs,
-			String keyRing, String jobTitle, boolean reschedule,
-			String encryptionPwd
-			) {	    
+			String keyRing, String jobTitle, boolean reschedule) {	    
 	    try {
   	    conn.begin();
   	    UserDao ud = dal.createUserDao();
@@ -75,6 +75,15 @@ abstract public class AkkaJobManager implements JobManager {
         job.setStatus(JobStatus.queued);
         
         Long firstExecutionDate = start.getTime() + delayInMs;
+        
+        String encryptionPwd = null;
+        Properties p = new Properties();
+        for (ActionProfile ap : requiredActions) {
+          for (ActionProperty prop : ap.getActionOptions()) {
+            p.put(prop.getKey(), prop.getValue());
+          }
+        }
+        encryptionPwd = (String) p.get("org.backmeup.encryption.password");
         
         // reusable=true means, that we can get the data for the token + a new token for the next backup
         Token t = keyserver.getToken(job, keyRing, firstExecutionDate, true, encryptionPwd);

@@ -67,6 +67,8 @@ public class BackupJob {
   private Date modified;
   private String jobTitle;
   
+  private String timeExpression;
+  
   @Temporal(TemporalType.TIMESTAMP)
   private Date nextExecutionTime;
   private boolean reschedule;
@@ -265,4 +267,12 @@ public class BackupJob {
 	public void setOnHold(boolean onHold) {
 		this.onHold = onHold;
 	}
+
+  public String getTimeExpression() {
+    return timeExpression;
+  }
+
+  public void setTimeExpression(String timeExpression) {
+    this.timeExpression = timeExpression;
+  }
 }

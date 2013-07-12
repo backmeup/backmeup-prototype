@@ -2,6 +2,7 @@ package org.backmeup.plugin.api.actions.indexing;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -45,6 +46,8 @@ public class IndexAction implements Action {
 
 		TikaAnalyzer analyzer = new TikaAnalyzer();
 		
+		Date indexingTimestamp = new Date(); 
+		
 		try {
 			Iterator<DataObject> dataObjects = storage.getDataObjects();
 			while (dataObjects.hasNext()) {
@@ -69,7 +72,7 @@ public class IndexAction implements Action {
 					if (fulltext != null)
 						meta.put(IndexUtils.FIELD_FULLTEXT, fulltext);
 					
-					indexer.doIndexing(job, dob, meta);
+					indexer.doIndexing(job, dob, meta, indexingTimestamp);
 				} else {
 					progressor.progress(SKIPPING);
 				}

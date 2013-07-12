@@ -166,7 +166,10 @@ class TestUsers(TestCase):
     self.assertEquals(result.data["type"], "success", result)
     result = get_user_property("PropUser", "Unknwn")
     self.assertEquals(result.code, httplib.OK, result)
-    self.assertEquals("Unknwn", result.data, result)
+    self.assertIn("name", result.data, result)
+    self.assertIn("value", result.data, result)
+    self.assertEquals("Unknwn", result.data["name"], result)
+    self.assertEquals("Unknwn", result.data["value"], result)
 
   def test_delete_user_property(self):
     logging.debug("================== delete_user_property ========================")

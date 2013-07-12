@@ -15,6 +15,7 @@ import javax.ws.rs.Produces;
 import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.KeyserverLog;
 import org.backmeup.model.exceptions.UnknownUserPropertyException;
+import org.backmeup.rest.data.PropertyContainer;
 import org.backmeup.rest.data.ResultMessage;
 import org.backmeup.rest.data.ResultMessage.Type;
 import org.backmeup.rest.data.UserContainer;
@@ -120,13 +121,14 @@ public class Users extends Base {
 	@GET
 	@Path("{username}/properties/{property}")
 	@Produces("application/json")
-	public String getUserProperty(@PathParam("username") String username,
+	public PropertyContainer getUserProperty(@PathParam("username") String username,
 	    @PathParam("property") String property
 	    ) {
 	  String result = getLogic().getUser(username).getUserProperty(property);
 	  if (result == null)
 	    throw new UnknownUserPropertyException(property);
-	  return result;
+	  
+	  return new PropertyContainer(property, result);
 	}
 	
 	@POST 

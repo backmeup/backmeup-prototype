@@ -1,6 +1,8 @@
 package org.backmeup.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -139,6 +141,18 @@ public class BackupJob {
 
   public List<ActionProfile> getRequiredActions() {
     return requiredActions;
+  }
+  
+  public List<ActionProfile> getSortedRequiredActions() {
+    List<ActionProfile> ap = new ArrayList<ActionProfile>();
+    ap.addAll(requiredActions);
+    Collections.sort(ap, new Comparator<ActionProfile>() {
+      @Override
+      public int compare(ActionProfile o1, ActionProfile o2) {
+        return o1.compareTo(o2);
+      }
+    });
+    return ap;
   }
 
   public void setRequiredActions(List<ActionProfile> requiredActions) {

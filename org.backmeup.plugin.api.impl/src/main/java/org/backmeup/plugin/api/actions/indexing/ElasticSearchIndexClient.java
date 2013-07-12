@@ -33,6 +33,10 @@ public class ElasticSearchIndexClient {
 	}
 	
 	public SearchResponse queryBackup(BackMeUpUser user, String query) {
+		return queryBackup(user, query, new String[0]);
+	}
+	
+	public SearchResponse queryBackup(BackMeUpUser user, String query, String[] typeFilters) {		
 		String queryString = null;
 		String[] tokens = query.split(" ");
 		if (tokens.length == 0) {
@@ -54,6 +58,8 @@ public class ElasticSearchIndexClient {
 		}
 		
 		queryString = "owner_id:" + user.getUserId() + " AND " + queryString;
+		for (String filter : typeFilters)
+			queryString = "type:" + filter + " AND ";
 		
 		System.out.println("QueryString = " + queryString);
 		
@@ -86,7 +92,6 @@ public class ElasticSearchIndexClient {
 		Long timestamp = Long.parseLong(bmuId[2]);
 		
 		QueryBuilder qBuilder = QueryBuilders.boolQuery()
-		    //.must(QueryBuilders.matchQuery(FIELD_OWNER_NAME, username))
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, owner))
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_FILE_HASH, hash))
 				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_BACKUP_AT, timestamp));
@@ -106,6 +111,15 @@ public class ElasticSearchIndexClient {
 				.setQuery(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, userId))
 				.execute().actionGet();
 	
+	}
+	
+	public void deleteRecordsForJobAndTimestamp(Long jobId, Long timestamp) {
+		QueryBuilder qBuilder = QueryBuilders.boolQuery()
+				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_JOB_ID, jobId))
+				.must(QueryBuilders.matchQuery(IndexUtils.FIELD_BACKUP_AT, timestamp));
+
+		client.prepareDeleteByQuery(INDEX_NAME)
+			.setQuery(qBuilder).execute().actionGet();
 	}
 	
 	public void close() {

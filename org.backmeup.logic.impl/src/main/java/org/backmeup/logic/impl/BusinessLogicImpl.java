@@ -1155,7 +1155,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 		    String query = search.getQuery();
 		    
 		    client = getIndexClient();
-		    org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(user, query, Arrays.asList(filterValue));
+		    org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(user, query, filterValue);
 		    search.setFiles(IndexUtils.convertSearchEntries(esResponse, user));
 		    search.setBySource(IndexUtils.getBySource(esResponse));
 		    search.setByType(IndexUtils.getByType(esResponse));

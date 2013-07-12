@@ -256,30 +256,42 @@ public class IndexUtils {
 		mime = mime.toLowerCase();
 		
 		if (mime.contains("html"))
-			return "html";
-		
+			return "html";	
 		if (mime.startsWith("image"))
 			return "image";
-					
 		if (mime.startsWith("video"))
 			return "video";
-		
 		if (mime.startsWith("audio"))
 			return "audio";
-		
 		if (mime.startsWith("text"))
 			return "text";
-		
 		if (mime.contains("pdf"))
 			return "text";
-		
 		if (mime.contains("ogg"))
 			return "audio";
-					
-		// Add more special rules as needed 
 		
+		// Add more special rules as needed 
 		return "other";
 					
 	}
 
+	public static String getFilterSuffix(String filterValue) {
+		if (filterValue == null)
+			return "";
+		
+		if (filterValue.toLowerCase().equals("html")) {
+			return "Content-Type:*html* AND ";
+		} else if (filterValue.toLowerCase().equals("image")) {
+			return "Content-Type:image* AND ";
+		} else if (filterValue.toLowerCase().equals("video")) {
+			return "Content-Type:video* AND ";
+		} else if (filterValue.toLowerCase().equals("audio")) {
+			return "Content-Type:audio* AND ";
+		} else if (filterValue.toLowerCase().equals("text")) {
+			return "Content-Type:text* AND ";
+		}
+		
+		return "";
+	}
+	
 }

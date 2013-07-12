@@ -7,6 +7,7 @@ public class EncryptionTcManager
 	public void createContainer (EncryptionContainer container) throws ActionException
 	{
 		ProcessBuilder pb = new ProcessBuilder ("sudo", "/usr/local/sbin/create_container.sh", container.getContainerpath (), container.getMountpoint (), container.getSize () + "", container.getPassword ());
+		System.out.println ("sudo /usr/local/sbin/create_container.sh " + container.getContainerpath () + " " + container.getMountpoint () + " " + container.getSize () + " " + container.getPassword ());
 		try
 		{
 			Process process = pb.start ();

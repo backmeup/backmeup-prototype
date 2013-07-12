@@ -43,8 +43,13 @@ public class EncryptionAction implements Action
 			if (parameters.containsKey ("org.backmeup.filesplitting.container." + i + ".size") == true)
 			{
 				containersize[i] = new Long (parameters.getProperty ("org.backmeup.filesplitting.container." + i + ".size"));
-				// add 10% to size for filesystem
-				containersize[i] += ((containersize[i] / 100) * 200);
+				// add 30% to size for filesystem
+				containersize[i] += ((containersize[i] / 100) * 30);
+				
+				if(containersize[i] < 10485760)
+				{
+					containersize[i] = 10485760;
+				}
 			}
 			else
 			{

@@ -1072,6 +1072,10 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public long searchBackup(String username, String keyRingPassword, String query) {
+	  return searchBackup(username, keyRingPassword, query, new String[0]);
+  }
+	  
+  public long searchBackup(String username, String keyRingPassword, String query, String[] typeFilters) {  
 	  try {
 		  conn.begin();
 	      BackMeUpUser user = getUser(username);     
@@ -1079,7 +1083,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 	      if (!keyserverClient.validateUser(user.getUserId(), keyRingPassword))
 	        throw new InvalidCredentialsException();
 	      
-	      SearchResponse search = new SearchResponse(query);
+	      SearchResponse search = new SearchResponse(query, Arrays.asList(typeFilters));
 	      SearchResponseDao searchDao = getSearchResponseDao();
 	      search = searchDao.save(search);
 	      conn.commit();

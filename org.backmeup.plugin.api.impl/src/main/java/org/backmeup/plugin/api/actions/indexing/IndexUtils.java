@@ -190,7 +190,7 @@ public class IndexUtils {
 	
 	public static List<CountedEntry> getBySource(org.elasticsearch.action.search.SearchResponse esResponse) {		
 		// TODO we currently group by 'list of sources' rather than source
-		return groupByField(esResponse, FIELD_BACKUP_SOURCE_PLUGIN_NAME);
+		return groupByField(esResponse, FIELD_JOB_NAME);
 	}
 	
 	public static List<CountedEntry> getByType(org.elasticsearch.action.search.SearchResponse esResponse) {

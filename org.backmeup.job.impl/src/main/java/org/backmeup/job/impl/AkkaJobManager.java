@@ -58,7 +58,9 @@ abstract public class AkkaJobManager implements JobManager {
 	public BackupJob createBackupJob(BackMeUpUser user,
 			Set<ProfileOptions> sourceProfiles, Profile sinkProfile,
 			List<ActionProfile> requiredActions, Date start, long delayInMs,
-			String keyRing, String jobTitle, boolean reschedule) {	    
+			String keyRing, String jobTitle, boolean reschedule,
+			String encryptionPwd
+			) {	    
 	    try {
   	    conn.begin();
   	    UserDao ud = dal.createUserDao();
@@ -75,7 +77,7 @@ abstract public class AkkaJobManager implements JobManager {
         Long firstExecutionDate = start.getTime() + delayInMs;
         
         // reusable=true means, that we can get the data for the token + a new token for the next backup
-        Token t = keyserver.getToken(job, keyRing, firstExecutionDate, true);
+        Token t = keyserver.getToken(job, keyRing, firstExecutionDate, true, encryptionPwd);
         job.setToken(t);
   	    job = getDao().save(job);
   	    conn.commit();

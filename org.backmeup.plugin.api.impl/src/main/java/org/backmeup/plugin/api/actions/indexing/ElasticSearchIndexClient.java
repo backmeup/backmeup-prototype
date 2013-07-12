@@ -1,5 +1,7 @@
 package org.backmeup.plugin.api.actions.indexing;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.backmeup.model.BackMeUpUser;
@@ -33,10 +35,10 @@ public class ElasticSearchIndexClient {
 	}
 	
 	public SearchResponse queryBackup(BackMeUpUser user, String query) {
-		return queryBackup(user, query, new String[0]);
+		return queryBackup(user, query, new ArrayList<String>());
 	}
 	
-	public SearchResponse queryBackup(BackMeUpUser user, String query, String[] typeFilters) {		
+	public SearchResponse queryBackup(BackMeUpUser user, String query, List<String> typeFilters) {		
 		String queryString = null;
 		String[] tokens = query.split(" ");
 		if (tokens.length == 0) {

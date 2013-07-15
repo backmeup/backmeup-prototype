@@ -51,13 +51,6 @@ public class Backups extends Base {
 			@PathParam("searchId") Long searchId,
 			@QueryParam("source") String source, @QueryParam("type") String type) {
 		SearchResponse sr = null;
-		
-		System.out.println ("####################");
-		System.out.println ("Got search request");
-		System.out.println ("Username: " + username);
-		System.out.println ("SearchId: " + searchId);
-		System.out.println ("Source: " + source);
-		System.out.println ("Type: " + type);
 
 		if (source != null)
 			sr = getLogic().queryBackup(username,

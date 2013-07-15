@@ -130,7 +130,7 @@ public class KeyserverTest {
       ks.addAuthInfo(200L, "apassword", 201L, 204L, p3);
     
     // get a token and test 
-    Token t = ks.getToken(200L, "apassword", new Long[]{201L}, new Long[]{202L}, new Date().getTime(), true);
+    Token t = ks.getToken(200L, "apassword", new Long[]{201L}, new Long[]{202L}, new Date().getTime(), true, "blub");
     System.out.println("Token: " + t.getToken() + " / " + t.getTokenId());
     Assert.assertNotNull(t.getToken());
     Assert.assertNotNull(t.getTokenId());
@@ -160,7 +160,7 @@ public class KeyserverTest {
       Assert.assertEquals("asdfasdf2", ad.getAi_data().get("oauthpassword"));      
     }
     
-    t = ks.getToken(200L, "apassword", new Long[]{201L, 202L}, new Long[]{202L, 204L}, new Date().getTime(), true);
+    t = ks.getToken(200L, "apassword", new Long[]{201L, 202L}, new Long[]{202L, 204L}, new Date().getTime(), true, "blub");
     System.out.println("Token: " + t.getToken() + " / " + t.getTokenId());
     authData = ks.getData(t);
     for (AuthData ad  : authData.getAuthinfos()) {

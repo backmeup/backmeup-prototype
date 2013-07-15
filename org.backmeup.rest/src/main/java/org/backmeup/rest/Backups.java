@@ -49,7 +49,8 @@ public class Backups extends Base {
 	@Produces("application/json")
 	public SearchResponseContainer query(@PathParam("username") String username,
 			@PathParam("searchId") Long searchId,
-			@QueryParam("source") String source, @QueryParam("type") String type) {
+			//@QueryParam("source") String source, @QueryParam("type") String type) {
+			@FormParam("source") String source, @FormParam("type") String type) {
 		SearchResponse sr = null;
 		
 		System.out.println ("####################");

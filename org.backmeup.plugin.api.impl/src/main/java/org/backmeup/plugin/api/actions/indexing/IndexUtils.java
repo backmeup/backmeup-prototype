@@ -315,7 +315,7 @@ public class IndexUtils {
 			for (String filter : filters.get ("source"))
 			{
 				// get out the source plugin, result will be "org.backmeup.source"
-				String source = filter.substring (0, filter.indexOf (" ") - 1);
+				String source = filter.substring (0, filter.indexOf (" "));
 				
 				// get out the profile "(Profilename)"
 				String profile = filter.substring (filter.indexOf (" ") + 1, filter.length ());

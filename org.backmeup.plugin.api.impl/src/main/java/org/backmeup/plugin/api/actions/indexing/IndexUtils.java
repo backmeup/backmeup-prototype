@@ -197,6 +197,10 @@ public class IndexUtils {
 		return groupByContentType(esResponse);
 	}
 	
+	public static List<CountedEntry> getByJob(org.elasticsearch.action.search.SearchResponse esResponse) {
+		return groupByContentJob (esResponse);
+	}
+	
 	private static List<CountedEntry> groupBySource(org.elasticsearch.action.search.SearchResponse esResponse) {
 		// Now where's my Scala groupBy!? *heul*
 		Map<String, Integer> groupedHits = new HashMap<String, Integer>();
@@ -251,6 +255,40 @@ public class IndexUtils {
 		}
 		
 		return countedEntries;			
+	}
+	
+	private static List<CountedEntry> groupByContentJob (org.elasticsearch.action.search.SearchResponse esResponse)
+	{
+		// Now where's my Scala groupBy!? *heul*
+		Map<String, Integer> groupedHits = new HashMap<String, Integer> ();
+		for (SearchHit hit : esResponse.getHits ())
+		{
+			if (hit.getSource ().get (FIELD_JOB_ID) != null)
+			{
+				String backupJobName = hit.getSource ().get (FIELD_JOB_NAME).toString ();
+				String backupTimestamp = hit.getSource ().get (FIELD_BACKUP_AT).toString ();
+				String label = backupJobName + " (" + backupTimestamp + ")";
+				Integer count = groupedHits.get (label);
+				if (count == null)
+				{
+					count = Integer.valueOf (1);
+				}
+				else
+				{
+					count = Integer.valueOf (count.intValue () + 1);
+				}
+				groupedHits.put (label, count);
+			}
+		}
+
+		// ...and .map
+		List<CountedEntry> countedEntries = new ArrayList<SearchResponse.CountedEntry> ();
+		for (Entry<String, Integer> entry : groupedHits.entrySet ())
+		{
+			countedEntries.add (new CountedEntry (entry.getKey (), entry.getValue ().intValue ()));
+		}
+
+		return countedEntries;
 	}
 	
 	private static String getTypeFromMimeType(String mime) {

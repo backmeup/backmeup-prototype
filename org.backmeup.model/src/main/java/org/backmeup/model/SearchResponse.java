@@ -45,6 +45,9 @@ public class SearchResponse {
 	@Transient
 	private List<CountedEntry> byType;
 	
+	@Transient
+	private List<CountedEntry> byJob;
+	
 	public SearchResponse() { }
 	
 	public SearchResponse(String query) {
@@ -107,6 +110,14 @@ public class SearchResponse {
 
 	public void setByType(List<CountedEntry> byType) {
 		this.byType = byType;
+	}
+	
+	public List<CountedEntry> getByJob() {
+		return byJob;
+	}
+
+	public void setByJob(List<CountedEntry> byJob) {
+		this.byJob = byJob;
 	}
 
 	public long getId() {

@@ -1159,6 +1159,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 		    search.setFiles(IndexUtils.convertSearchEntries(esResponse, user));
 		    search.setBySource(IndexUtils.getBySource(esResponse));
 		    search.setByType(IndexUtils.getByType(esResponse));
+		    search.setByJob (IndexUtils.getByJob (esResponse));
 	    } catch (Throwable t) {
 	    	t.printStackTrace();
 	    }

@@ -71,7 +71,7 @@ public class Backups extends Base {
 			if (type != null)
 			{
 				List<String> filtervalue = new LinkedList<String>();
-				filtervalue.add (source);
+				filtervalue.add (type);
 				filters.put ("type", filtervalue);
 			}
 			

@@ -118,7 +118,6 @@ public class SearchResponse {
 	}
 
 	public void setByJob(List<CountedEntry> byJob) {
-		System.out.println ("Added job to Searc Response. Count: " + byJob.size ());
 		this.byJob = byJob;
 	}
 

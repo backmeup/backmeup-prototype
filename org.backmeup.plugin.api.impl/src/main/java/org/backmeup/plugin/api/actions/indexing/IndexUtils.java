@@ -281,12 +281,10 @@ public class IndexUtils {
 			}
 		}
 
-		System.out.println ("Begin add entrys. Count: " + groupedHits.size ());
 		// ...and .map
 		List<CountedEntry> countedEntries = new ArrayList<SearchResponse.CountedEntry> ();
 		for (Entry<String, Integer> entry : groupedHits.entrySet ())
 		{
-			System.out.println ("Add entry: " + entry.getKey ());
 			countedEntries.add (new CountedEntry (entry.getKey (), entry.getValue ().intValue ()));
 		}
 

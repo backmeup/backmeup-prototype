@@ -14,6 +14,7 @@ public class SearchResponseContainer {
 	private List<SearchEntryContainer> files;
 	private List<CountedEntryContainer> bySource;
 	private List<CountedEntryContainer> byType;
+	private List<CountedEntryContainer> byJob;
 	private String searchQuery;
 	private int progress;
 
@@ -32,6 +33,10 @@ public class SearchResponseContainer {
 		this.byType = new ArrayList<CountedEntryContainer>();
 		for (CountedEntry entry : resp.getByType())
 			this.byType.add(new CountedEntryContainer(entry));
+		
+		this.byJob = new ArrayList<CountedEntryContainer>();
+		for (CountedEntry entry : resp.getByJob())
+			this.byJob.add(new CountedEntryContainer(entry));
 		
 		this.searchQuery = resp.getQuery();
 
@@ -54,6 +59,16 @@ public class SearchResponseContainer {
 		this.byType = byType;
 	}
 	
+	public List<CountedEntryContainer> getByJob ()
+	{
+		return byJob;
+	}
+
+	public void setByJob (List<CountedEntryContainer> byJob)
+	{
+		this.byJob = byJob;
+	}
+
 	public String getSearchQuery() {
 		return searchQuery;
 	}

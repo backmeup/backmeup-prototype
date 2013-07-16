@@ -79,18 +79,6 @@ public class Backups extends Base {
 		
 		sr = getLogic().queryBackup(username, searchId, filters);
 		
-		/*
-		if (source != null)
-			sr = getLogic().queryBackup(username,
-					searchId, "source", source);
-		else if (type != null)
-			sr = getLogic().queryBackup(username,
-					searchId, "type", type);
-		else 
-			sr = getLogic().queryBackup(username,
-					searchId, null, null);
-		*/
-		
 		return new SearchResponseContainer(sr);
 	}
 }

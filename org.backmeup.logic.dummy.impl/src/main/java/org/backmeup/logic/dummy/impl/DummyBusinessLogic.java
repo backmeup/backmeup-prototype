@@ -690,21 +690,26 @@ public class DummyBusinessLogic implements BusinessLogic {
     return id;
   }
 
-  public SearchResponse queryBackup(String username, long searchId,
-      String filterType, String filterValue) {
+  public SearchResponse queryBackup(String username, long searchId, Map<String, List<String>> filters) {
     SearchResponse sr = searches.get(searchId);
     if (sr == null)
       throw new IllegalArgumentException("Unknown searchId " + searchId);
 
     SearchResponse sr2 = new SearchResponse("query");
-    if (filterType == null) {
+    if (filters.size () == 0) {
       sr2.setByType(sr.getByType());
       sr2.setBySource(sr.getBySource());
     } else {
       List<SearchEntry> se = new ArrayList<SearchEntry>();
       for (SearchEntry s : sr.getFiles()) {
-        if ("type".equals(filterType) && filterValue.equals(s.getType())) {
-          se.add(s);
+        if (filters.containsKey ("type")) {
+        	for (String filter : filters.get ("type"))
+        	{
+        		if (filter.equals (s.getType ()))
+        		{
+        			se.add(s);
+        		}
+        	}
         } else
           se.add(s);
       }

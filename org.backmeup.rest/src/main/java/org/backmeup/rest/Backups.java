@@ -2,6 +2,10 @@ package org.backmeup.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -51,7 +55,31 @@ public class Backups extends Base {
 			@PathParam("searchId") Long searchId,
 			@QueryParam("source") String source, @QueryParam("type") String type) {
 		SearchResponse sr = null;
-
+		Map<String, List<String>> filters = null;
+		
+		if ((source != null) || (type != null))
+		{
+			filters = new HashMap<String, List<String>>();
+			
+			if (source != null)
+			{
+				List<String> filtervalue = new LinkedList<String>();
+				filtervalue.add (source);
+				filters.put ("source", filtervalue);
+			}
+			
+			if (type != null)
+			{
+				List<String> filtervalue = new LinkedList<String>();
+				filtervalue.add (source);
+				filters.put ("type", filtervalue);
+			}
+			
+		}
+		
+		sr = getLogic().queryBackup(username, searchId, filters);
+		
+		/*
 		if (source != null)
 			sr = getLogic().queryBackup(username,
 					searchId, "source", source);
@@ -61,6 +89,7 @@ public class Backups extends Base {
 		else 
 			sr = getLogic().queryBackup(username,
 					searchId, null, null);
+		*/
 		
 		return new SearchResponseContainer(sr);
 	}

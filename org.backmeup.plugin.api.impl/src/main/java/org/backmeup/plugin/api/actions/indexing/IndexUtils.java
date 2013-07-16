@@ -276,23 +276,61 @@ public class IndexUtils {
 					
 	}
 
-	public static String getFilterSuffix(String filterValue) {
-		if (filterValue == null)
+	public static String getFilterSuffix(Map<String, List<String>> filters) {
+		if (filters == null)
 			return "";
 		
-		if (filterValue.toLowerCase().equals("html")) {
-			return "Content-Type:*html* AND ";
-		} else if (filterValue.toLowerCase().equals("image")) {
-			return "Content-Type:image* AND ";
-		} else if (filterValue.toLowerCase().equals("video")) {
-			return "Content-Type:video* AND ";
-		} else if (filterValue.toLowerCase().equals("audio")) {
-			return "Content-Type:audio* AND ";
-		} else if (filterValue.toLowerCase().equals("text")) {
-			return "Content-Type:text* AND ";
+		String filterstr = "";
+		
+		if (filters.containsKey ("type") == true)
+		{
+			filterstr += "(";
+			
+			for(String filter : filters.get ("type"))
+			{
+				if (filter.toLowerCase().equals("html")) {
+					filterstr += "Content-Type:*html* OR ";
+				} else if (filter.toLowerCase().equals("image")) {
+					filterstr += "Content-Type:image* OR ";
+				} else if (filter.toLowerCase().equals("video")) {
+					filterstr += "Content-Type:video* OR ";
+				} else if (filter.toLowerCase().equals("audio")) {
+					filterstr += "Content-Type:audio* OR ";
+				} else if (filter.toLowerCase().equals("text")) {
+					filterstr += "Content-Type:text* OR ";
+				}
+			}
+			
+			// remove the last " OR " and close the search string for this part
+			filterstr = filterstr.substring (0, filterstr.length () - 4);
+			filterstr += ") AND ";
 		}
 		
-		return "";
+		// TODO if "ProfileName" includes special chars like (,", ... we will have a problem with the search?
+		if (filters.containsKey ("source") == true)
+		{
+			filterstr += "(";
+			
+			// something like this will come "org.backmeup.source (ProfileName)"
+			for (String filter : filters.get ("source"))
+			{
+				// get out the source plugin, result will be "org.backmeup.source"
+				String source = filter.substring (0, filter.indexOf (" ") - 1);
+				
+				// get out the profile "(Profilename)"
+				String profile = filter.substring (filter.indexOf (" ") + 1, filter.length ());
+				// remove the brackets at begin and end, result will be "ProfileName"
+				profile = profile.substring (1, profile.length () - 1);
+				
+				filterstr += "(backup_source_plugin_name:" + source + " AND backup_source_identification:" + profile + ") OR ";
+			}
+			
+			// remove the last " OR " and close the search string for this part
+			filterstr = filterstr.substring (0, filterstr.length () - 4);
+			filterstr += ") AND ";
+		}
+		
+		return filterstr;
 	}
 	
 }

@@ -26,6 +26,8 @@ import org.backmeup.model.exceptions.ValidationException;
 import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
 
+import com.google.common.collect.Maps;
+
 /**
  * The BusinessLogic interface contains 
  * all available operations of this project.
@@ -112,7 +114,8 @@ public interface BusinessLogic {
 	
 	//search operations
 	public long searchBackup(String username, String keyRingPassword, String query);
-	public SearchResponse queryBackup(String username, long searchId, String filterType, String filterValue);
+	//public SearchResponse queryBackup(String username, long searchId, String filterType, String filterValue);
+	public SearchResponse queryBackup(String username, long searchId, Map<String, List<String>> filters);
 	public File getThumbnail(String username, String fileId);
 	public void deleteIndexForUser(String username);
 	public void deleteIndexForJobAndTimestamp(Long jobId, Long timestamp);

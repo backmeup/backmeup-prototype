@@ -686,7 +686,11 @@ public class DummyBusinessLogic implements BusinessLogic {
     List<CountedEntry> byType = new ArrayList<CountedEntry>();
     byType.add(new CountedEntry("Fotos", 32));
     byType.add(new CountedEntry("Word", 1));
-    searches.put(id, new SearchResponse(0, 100, "query", responses, bySource, byType));
+    
+    List<CountedEntry> byJob = new ArrayList<CountedEntry>();
+    byJob.add(new CountedEntry("FB -> Zip", 22));
+    byJob.add(new CountedEntry("Twitter -> Dropbox", 11));
+    searches.put(id, new SearchResponse(0, 100, "query", responses, bySource, byType, byJob));
     return id;
   }
 

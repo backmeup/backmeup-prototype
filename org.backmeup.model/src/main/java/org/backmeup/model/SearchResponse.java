@@ -73,19 +73,20 @@ public class SearchResponse {
 	}	
 	
 	public SearchResponse(long id, int status, String query, List<SearchEntry> files) {
-		this(id, status, query, files, null, null);
+		this(id, status, query, files, null, null, null);
 	}
 	
-	public SearchResponse(long id, int status, String query, List<CountedEntry> bySource, List<CountedEntry> byType) {
-		this(id, status, query, null, bySource, byType);
+	public SearchResponse(long id, int status, String query, List<CountedEntry> bySource, List<CountedEntry> byType, List<CountedEntry> byJob) {
+		this(id, status, query, null, bySource, byType, byJob);
 	}
 	
-	public SearchResponse(long id, int status, String query, List<SearchEntry> files, List<CountedEntry> bySource, List<CountedEntry> byType) {
+	public SearchResponse(long id, int status, String query, List<SearchEntry> files, List<CountedEntry> bySource, List<CountedEntry> byType, List<CountedEntry> byJob) {
 		this.id = id;
 		this.progress = status;
 		this.files = files;
 		this.bySource = bySource;
 		this.byType = byType;
+		this.byJob = byJob;
 	}
 	
 	public String getQuery() {
@@ -117,6 +118,7 @@ public class SearchResponse {
 	}
 
 	public void setByJob(List<CountedEntry> byJob) {
+		System.out.println ("Added job to Searc Response");
 		this.byJob = byJob;
 	}
 

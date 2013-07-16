@@ -38,7 +38,7 @@ public class ElasticSearchIndexClient {
 		return queryBackup(user, query, null);
 	}
 	
-	public SearchResponse queryBackup(BackMeUpUser user, String query, String typeFilter) {		
+	public SearchResponse queryBackup(BackMeUpUser user, String query, Map<String, List<String>> filters) {		
 		String queryString = null;
 		String[] tokens = query.split(" ");
 		if (tokens.length == 0) {
@@ -59,7 +59,7 @@ public class ElasticSearchIndexClient {
 			}
 		}
 		
-		queryString = IndexUtils.getFilterSuffix(typeFilter) + "owner_id:" + user.getUserId() + " AND " + queryString;
+		queryString = IndexUtils.getFilterSuffix(filters) + "owner_id:" + user.getUserId() + " AND " + queryString;
 		
 		System.out.println("QueryString = " + queryString);
 		

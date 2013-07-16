@@ -1138,8 +1138,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 	  }
   }
 
-  public SearchResponse queryBackup(String username, long searchId,
-      String filterType, String filterValue) {
+  public SearchResponse queryBackup(String username, long searchId, Map<String, List<String>> filters) {
     
 	  ElasticSearchIndexClient client = null;
 	  try {
@@ -1156,7 +1155,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 		    String query = search.getQuery();
 		    
 		    client = getIndexClient();
-		    org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(user, query, filterValue);
+		    org.elasticsearch.action.search.SearchResponse esResponse = client.queryBackup(user, query, filters);
 		    search.setFiles(IndexUtils.convertSearchEntries(esResponse, user));
 		    search.setBySource(IndexUtils.getBySource(esResponse));
 		    search.setByType(IndexUtils.getByType(esResponse));

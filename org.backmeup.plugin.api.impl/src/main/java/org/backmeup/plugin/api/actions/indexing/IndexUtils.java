@@ -450,7 +450,7 @@ public class IndexUtils {
 				}
 				else if (filter.toLowerCase ().equals ("image"))
 				{
-					typematches.should (QueryBuilders.matchPhraseQuery (FIELD_CONTENT_TYPE, "iamge*"));
+					typematches.should (QueryBuilders.matchPhraseQuery (FIELD_CONTENT_TYPE, "image*"));
 				}
 				else if (filter.toLowerCase ().equals ("video"))
 				{
@@ -516,6 +516,8 @@ public class IndexUtils {
 			// something like this will come "JobName (Timestamp)" (java timestamp -> 13 chars)
 			for (String filter : filters.get ("job"))
 			{
+				System.out.println ("Filterstr: " + filter);
+				
 				// get out the timestamp (also remove the "()").
 				String timestamp = filter.substring (filter.length () - 14, filter.length () - 1);
 				

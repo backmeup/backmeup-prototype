@@ -53,11 +53,12 @@ public class Backups extends Base {
 	@Produces("application/json")
 	public SearchResponseContainer query(@PathParam("username") String username,
 			@PathParam("searchId") Long searchId,
-			@QueryParam("source") String source, @QueryParam("type") String type) {
+			@QueryParam("source") String source, @QueryParam("type") String type,
+			@QueryParam("job") String job ) {
 		SearchResponse sr = null;
 		Map<String, List<String>> filters = null;
 		
-		if ((source != null) || (type != null))
+		if ((source != null) || (type != null) || (job != null))
 		{
 			filters = new HashMap<String, List<String>>();
 			
@@ -73,6 +74,13 @@ public class Backups extends Base {
 				List<String> filtervalue = new LinkedList<String>();
 				filtervalue.add (type);
 				filters.put ("type", filtervalue);
+			}
+			
+			if (job != null)
+			{
+				List<String> filtervalue = new LinkedList<String>();
+				filtervalue.add (type);
+				filters.put ("job", filtervalue);
 			}
 			
 		}

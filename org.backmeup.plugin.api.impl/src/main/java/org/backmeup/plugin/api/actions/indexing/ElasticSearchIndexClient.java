@@ -59,14 +59,19 @@ public class ElasticSearchIndexClient {
 			}
 		}
 		
+		/*
 		queryString = IndexUtils.getFilterSuffix(filters) + "owner_id:" + user.getUserId() + " AND " + queryString;
-		
 		System.out.println("QueryString = " + queryString);
+		QueryBuilder qBuilder = QueryBuilders.queryString(queryString);
+		*/
 		
-		QueryBuilder qBuilder = // QueryBuilders.boolQuery()
-				// .must(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, user.getUserId()))
-				/*.must(*/ QueryBuilders.queryString(queryString);
-				// .must(QueryBuilders.multiMatchQuery(queryString, "fulltext", "message", "name"));
+		QueryBuilder qBuilder = IndexUtils.buildQuery (user.getUserId (), queryString, filters);
+		
+		System.out.println("#######################################");
+		System.out.println("QueryString:\n" + qBuilder.toString ());
+		System.out.println("#######################################");
+		
+		
 		
 		return client.prepareSearch(INDEX_NAME)
 				.setQuery(qBuilder)

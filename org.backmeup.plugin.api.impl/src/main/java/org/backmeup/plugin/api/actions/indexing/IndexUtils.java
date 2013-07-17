@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,6 +17,9 @@ import org.backmeup.model.SearchResponse;
 import org.backmeup.model.SearchResponse.CountedEntry;
 import org.backmeup.model.SearchResponse.SearchEntry;
 import org.elasticsearch.common.text.Text;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.highlight.HighlightField;
 
@@ -50,6 +54,7 @@ public class IndexUtils {
 	public static final String FIELD_JOB_NAME = "job_name";
 	
 	public static final String FIELD_FULLTEXT = "fulltext";
+
 	
 	public static Set<FileItem> convertToFileItems(org.elasticsearch.action.search.SearchResponse esResponse) {
 		Set<FileItem> fItems = new HashSet<FileItem>();
@@ -360,7 +365,29 @@ public class IndexUtils {
 				// remove the brackets at begin and end, result will be "ProfileName"
 				profile = profile.substring (1, profile.length () - 1);
 				
-				filterstr += "(backup_source_plugin_name:" + source + " AND backup_source_identification:" + profile + ") OR ";
+				filterstr += "(" + FIELD_BACKUP_SOURCE_PLUGIN_NAME + ":" + source + " AND " + FIELD_BACKUP_SOURCE_IDENTIFICATION + ":" + profile + ") OR ";
+			}
+			
+			// remove the last " OR " and close the search string for this part
+			filterstr = filterstr.substring (0, filterstr.length () - 4);
+			filterstr += ") AND ";
+		}
+		
+		// TODO if job contains special chars ...
+		if (filters.containsKey ("job") == true)
+		{
+			filterstr += "(";
+			
+			// something like this will come "JobName (Timestamp)" (java timestamp -> 13 chars)
+			for (String filter : filters.get ("job"))
+			{
+				// get out the timestamp (also remove the "()").
+				String timestamp = filter.substring (filter.length () - 14, filter.length () - 1);
+				
+				// get out the job name
+				String jobname = filter.substring (0, filter.length () - 16);
+				
+				filterstr += "(" + FIELD_BACKUP_AT + ":" + timestamp + " AND " + FIELD_JOB_NAME + ":" + jobname + ") OR ";
 			}
 			
 			// remove the last " OR " and close the search string for this part
@@ -371,4 +398,139 @@ public class IndexUtils {
 		return filterstr;
 	}
 	
+	
+	
+	
+	public static QueryBuilder buildQuery (Long userid, String queryString, Map<String, List<String>> filters)
+	{
+		BoolQueryBuilder qBuilder = new BoolQueryBuilder();
+		qBuilder.must (QueryBuilders.matchQuery (IndexUtils.FIELD_OWNER_ID, userid));
+		qBuilder.must (QueryBuilders.queryString (queryString));
+		
+		if (filters == null)
+		{
+			return qBuilder;
+		}
+		
+		BoolQueryBuilder typematches = buildTypeQuery (filters);
+		BoolQueryBuilder sourcematches = buildSourceQuery (filters);
+		BoolQueryBuilder jobmatches = buildJobQuery (filters);
+		
+		if (typematches != null)
+		{
+			qBuilder.must(typematches);
+		}
+		if (sourcematches != null)
+		{
+			qBuilder.must(sourcematches);
+		}
+		if (jobmatches != null)
+		{
+			qBuilder.must(jobmatches);
+		}
+		
+		return qBuilder;
+	}
+	
+	private static BoolQueryBuilder buildTypeQuery (Map<String, List<String>> filters)
+	{
+		BoolQueryBuilder typematches = null;
+
+		if (filters.containsKey ("type") == true)
+		{
+			typematches = new BoolQueryBuilder();
+			// minimum 1 of the should clausels must match
+			typematches.minimumNumberShouldMatch (1);
+			
+			for (String filter : filters.get ("type"))
+			{
+				if (filter.toLowerCase ().equals ("html"))
+				{
+					typematches.should (QueryBuilders.matchPhraseQuery (FIELD_CONTENT_TYPE, "*html*"));
+				}
+				else if (filter.toLowerCase ().equals ("image"))
+				{
+					typematches.should (QueryBuilders.matchPhraseQuery (FIELD_CONTENT_TYPE, "iamge*"));
+				}
+				else if (filter.toLowerCase ().equals ("video"))
+				{
+					typematches.should (QueryBuilders.matchPhraseQuery (FIELD_CONTENT_TYPE, "video*"));
+				}
+				else if (filter.toLowerCase ().equals ("audio"))
+				{
+					typematches.should (QueryBuilders.matchPhraseQuery (FIELD_CONTENT_TYPE, "audio*"));
+				}
+				else if (filter.toLowerCase ().equals ("text"))
+				{
+					typematches.should (QueryBuilders.matchPhraseQuery (FIELD_CONTENT_TYPE, "text*"));
+				}
+			}
+		}
+		
+		return typematches;
+	}
+	
+	private static BoolQueryBuilder buildSourceQuery (Map<String, List<String>> filters)
+	{
+		BoolQueryBuilder sourcematches = null;
+		
+		if (filters.containsKey ("source") == true)
+		{
+			sourcematches = new BoolQueryBuilder();
+			// minimum 1 of the should clausels must match
+			sourcematches.minimumNumberShouldMatch (1);
+			
+			for (String filter : filters.get ("source"))
+			{
+				// get out the source plugin, result will be "org.backmeup.source"
+				String source = filter.substring (0, filter.indexOf (" "));
+				
+				// get out the profile "(Profilename)"
+				String profile = filter.substring (filter.indexOf (" ") + 1, filter.length ());
+				
+				// remove the brackets at begin and end, result will be "ProfileName"
+				profile = profile.substring (1, profile.length () - 1);
+				
+				BoolQueryBuilder tempbuilder = new BoolQueryBuilder();
+				tempbuilder.must (QueryBuilders.matchPhraseQuery (FIELD_BACKUP_SOURCE_PLUGIN_NAME, source));
+				tempbuilder.must (QueryBuilders.matchPhraseQuery (FIELD_BACKUP_SOURCE_IDENTIFICATION, profile));
+				
+				// tempbuilder1 or tempbulder2 or ...
+				sourcematches.should (tempbuilder);
+			}
+		}
+		
+		return sourcematches;
+	}
+	
+	private static BoolQueryBuilder buildJobQuery (Map<String, List<String>> filters)
+	{
+		BoolQueryBuilder jobmatches = null;
+		
+		if (filters.containsKey ("job") == true)
+		{
+			jobmatches = new BoolQueryBuilder();
+			// minimum 1 of the should clausels must match
+			jobmatches.minimumNumberShouldMatch (1);
+			
+			// something like this will come "JobName (Timestamp)" (java timestamp -> 13 chars)
+			for (String filter : filters.get ("job"))
+			{
+				// get out the timestamp (also remove the "()").
+				String timestamp = filter.substring (filter.length () - 14, filter.length () - 1);
+				
+				// get out the job name
+				String jobname = filter.substring (0, filter.length () - 16);
+				
+				BoolQueryBuilder tempbuilder = new BoolQueryBuilder();
+				tempbuilder.must (QueryBuilders.matchPhraseQuery (FIELD_BACKUP_AT, timestamp));
+				tempbuilder.must (QueryBuilders.matchPhraseQuery (FIELD_JOB_NAME, jobname));
+				
+				// tempbuilder1 or tempbulder2 or ...
+				jobmatches.should (tempbuilder);
+			}
+		}
+		
+		return jobmatches;
+	}
 }

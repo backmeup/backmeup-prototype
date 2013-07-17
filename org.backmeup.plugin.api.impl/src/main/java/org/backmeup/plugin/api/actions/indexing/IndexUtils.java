@@ -516,8 +516,6 @@ public class IndexUtils {
 			// something like this will come "JobName (Timestamp)" (java timestamp -> 13 chars)
 			for (String filter : filters.get ("job"))
 			{
-				System.out.println ("Filterstr: " + filter);
-				
 				// get out the timestamp (also remove the "()").
 				String timestamp = filter.substring (filter.length () - 14, filter.length () - 1);
 				

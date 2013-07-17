@@ -360,7 +360,29 @@ public class IndexUtils {
 				// remove the brackets at begin and end, result will be "ProfileName"
 				profile = profile.substring (1, profile.length () - 1);
 				
-				filterstr += "(backup_source_plugin_name:" + source + " AND backup_source_identification:" + profile + ") OR ";
+				filterstr += "(" + FIELD_BACKUP_SOURCE_PLUGIN_NAME + ":" + source + " AND " + FIELD_BACKUP_SOURCE_IDENTIFICATION + ":" + profile + ") OR ";
+			}
+			
+			// remove the last " OR " and close the search string for this part
+			filterstr = filterstr.substring (0, filterstr.length () - 4);
+			filterstr += ") AND ";
+		}
+		
+		// TODO if job contains special chars ...
+		if (filters.containsKey ("job") == true)
+		{
+			filterstr += "(";
+			
+			// something like this will come "JobName (Timestamp)" (java timestamp -> 13 chars)
+			for (String filter : filters.get ("job"))
+			{
+				// get out the timestamp (also remove the "()").
+				String timestamp = filter.substring (filter.length () - 14, filter.length () - 1);
+				
+				// get out the job name
+				String jobname = filter.substring (0, filter.length () - 16);
+				
+				filterstr += "(" + FIELD_BACKUP_AT + ":" + timestamp + " AND " + FIELD_JOB_NAME + ":" + jobname + ") OR ";
 			}
 			
 			// remove the last " OR " and close the search string for this part

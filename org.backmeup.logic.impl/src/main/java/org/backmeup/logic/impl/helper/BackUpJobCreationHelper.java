@@ -15,7 +15,9 @@ public class BackUpJobCreationHelper {
     } else if (request.getTimeExpression().equalsIgnoreCase("monthly")) {
       return new ExecutionTime(new Date(), BusinessLogicImpl.DELAY_MONTHLY, true);
     } else if (request.getTimeExpression().equalsIgnoreCase("yearly")) {
-      return new ExecutionTime(new Date(), BusinessLogicImpl.DELAY_YEARLY, true);      
+      return new ExecutionTime(new Date(), BusinessLogicImpl.DELAY_YEARLY, true);
+    } else if (request.getTimeExpression().equalsIgnoreCase("realtime")) {
+    	return new ExecutionTime(new Date(), BusinessLogicImpl.DELAY_REALTIME, false);
     } else {
       return new ExecutionTime(new Date(), BusinessLogicImpl.DELAY_MONTHLY, false);
     }

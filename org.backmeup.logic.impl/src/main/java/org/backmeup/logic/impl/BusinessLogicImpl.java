@@ -771,6 +771,10 @@ public class BusinessLogicImpl implements BusinessLogic {
       job.setTimeExpression(updateRequest.getTimeExpression());
       job.setDelay(et.getDelay());
       conn.commit();
+      
+      // add the updated job to the queue. (All old queue entrys get invalid and will not be executed)
+      jobManager.runBackUpJob (job);
+      
       ValidationNotes vn = validateBackupJob(username, job.getId(), updateRequest.getKeyRing());
       vn.setJob(job);
       return vn;

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -84,6 +85,7 @@ public class BackupJob {
 
   private boolean onHold = false;
 
+  private UUID validScheduleID = null;
 
   public BackupJob() {
     super();
@@ -275,4 +277,14 @@ public class BackupJob {
   public void setTimeExpression(String timeExpression) {
     this.timeExpression = timeExpression;
   }
+
+	public UUID getValidScheduleID ()
+	{
+		return validScheduleID;
+	}
+	
+	public void setValidScheduleID (UUID validScheduleID)
+	{
+		this.validScheduleID = validScheduleID;
+	}
 }

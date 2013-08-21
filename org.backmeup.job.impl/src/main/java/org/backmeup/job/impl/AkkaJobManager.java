@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -24,6 +25,7 @@ import org.backmeup.model.BackupJob.JobStatus;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
+import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 
 import akka.actor.ActorSystem;
 import akka.util.Duration;
@@ -129,6 +131,11 @@ abstract public class AkkaJobManager implements JobManager {
 	
 	protected abstract void runJob(BackupJob job);
 	
+	public void runBackUpJob(BackupJob job)
+	{
+		queueJob(job);
+	}
+	
 	// Don't call this method within a database transaction!
 	private void queueJob(BackupJob job) {
 		try {		    
@@ -158,11 +165,17 @@ abstract public class AkkaJobManager implements JobManager {
 			    job.setToken(newToken);
 			    conn.commit();
 			}
-	    
+			
+			// Add the scheduler id to the job. If the job gets executed it will be possible to check if this job is still valid
+			conn.begin();
+			UUID schedulerID = UUID.randomUUID ();
+			job.setValidScheduleID (schedulerID);
+			conn.commit ();
+			
 			// TODO we can use the 'cancellable' to terminate later on
 			system.scheduler().scheduleOnce(
 				Duration.create(executeIn, TimeUnit.MILLISECONDS), // Initial delay
-				new RunAndReschedule(job, dal));
+				new RunAndReschedule(job, dal, schedulerID));
 			
 		} catch (Exception e) {
 			// TODO there must be error handling defined in the JobManager!^
@@ -176,16 +189,23 @@ abstract public class AkkaJobManager implements JobManager {
 	private class RunAndReschedule implements Runnable {
 		
 		private BackupJob job;
-		
-		private DataAccessLayer dal;
-		
-		RunAndReschedule(BackupJob job, DataAccessLayer dal) {
+		private DataAccessLayer dal;		
+		private UUID schedulerID;
+
+		RunAndReschedule(BackupJob job, DataAccessLayer dal, UUID schedulerID) {
 			this.job = job;
 			this.dal = dal;
+			this.schedulerID = schedulerID;
 		}
 		
 		@Override
 		public void run() {
+			// check if the scheduler is still valid. If not a new scheduler was created and this one should not be executed
+			if (job.getValidScheduleID ().compareTo (schedulerID) != 0)
+			{
+				return;
+			}
+			
 			// Run the job
 			if (!job.isOnHold())
 				runJob(job);
@@ -201,7 +221,7 @@ abstract public class AkkaJobManager implements JobManager {
   				nextJob.setNextExecutionTime(execTime);
   				system.scheduler().scheduleOnce(
   						Duration.create(job.getDelay(), TimeUnit.MILLISECONDS), 
-  						new RunAndReschedule(job, dal));
+  						new RunAndReschedule(job, dal, schedulerID));
   				// store the next execution time
   				conn.commit();
   			} else {

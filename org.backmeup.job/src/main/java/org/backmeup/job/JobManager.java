@@ -31,6 +31,7 @@ public interface JobManager {
 
 	
 	public BackupJob getBackUpJob(Long jobId);
+	public void runBackUpJob(BackupJob job);
 	
 	public void start();
 	public void shutdown();

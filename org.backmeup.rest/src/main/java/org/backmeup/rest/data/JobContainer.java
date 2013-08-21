@@ -35,7 +35,7 @@ public class JobContainer {
 		this.backupJobs = new ArrayList<Job>();
 		for (BackupJob j : backupJobs) {
 		  Date nextExecTime = j.getNextExecutionTime();
-		  Job job = new Job(j.getId(), j.getSourceProfiles(), j.getSinkProfile(), j.getStart ().getTime (), j.getCreated ().getTime (), j.getModified ().getTime (), j.getJobTitle (), j.getDelay());
+		  Job job = new Job(j.getId(), j.getSourceProfiles(), j.getSinkProfile(), j.getStart ().getTime (), j.getCreated ().getTime (), j.getModified ().getTime (), j.getJobTitle (), j.getDelay(), j.isOnHold ());
 		  job.setLastFail(j.getLastFailed() != null ? j.getLastFailed().getTime() : null);
 		  job.setLastSuccessful(j.getLastSuccessful() != null ? j.getLastSuccessful().getTime() : null);
 		  job.setStatus(j.getStatus());
@@ -174,12 +174,13 @@ public class JobContainer {
 		private Long lastSuccessful;
 		private Long lastFail;
 		private JobStatus status;
+		private boolean isOnHold;
 		
 		
 		public Job() {
 		}
 		 
-		public Job(long backupJobId, Set<ProfileOptions> datasourceIds, Profile datasinkProfile, Long startDate, Long createDate, Long modifyDate, String jobTitle, Long delay) {
+		public Job(long backupJobId, Set<ProfileOptions> datasourceIds, Profile datasinkProfile, Long startDate, Long createDate, Long modifyDate, String jobTitle, Long delay, boolean isOnHold) {
 			this.backupJobId = backupJobId;
 			this.setDatasources(new ArrayList<DatasourceProfile>());
 			for (ProfileOptions po : datasourceIds) {
@@ -191,6 +192,7 @@ public class JobContainer {
 			this.modifyDate = modifyDate;
 			this.jobTitle = jobTitle;
 			this.delay = delay;
+			this.isOnHold = isOnHold;
 			
 			 if (delay == BusinessLogic.DELAY_DAILY)    
 		      setTimeExpression("daily");
@@ -315,5 +317,15 @@ public class JobContainer {
     public void setLastFail(Long lastFail) {
       this.lastFail = lastFail;
     }
+
+	public boolean isOnHold ()
+	{
+		return isOnHold;
+	}
+
+	public void setOnHold (boolean onHold)
+	{
+		this.isOnHold = onHold;
+	}
 	}
 }

@@ -739,6 +739,8 @@ public class BusinessLogicImpl implements BusinessLogic {
   @Override
   public ValidationNotes updateBackupJob(String username,
       JobUpdateRequest updateRequest) {
+	  boolean scheduleJob = false;
+	  
     if (updateRequest == null)
       throw new IllegalArgumentException("Update must not be null!");
     
@@ -768,12 +770,22 @@ public class BusinessLogicImpl implements BusinessLogic {
       job.setSinkProfile(getSinkProfileFor(updateRequest));
       
       ExecutionTime et = BackUpJobCreationHelper.getExecutionTimeFor(updateRequest);
+      
+      // check if the interval has changed
+      if (job.getTimeExpression ().compareToIgnoreCase (updateRequest.getTimeExpression()) != 0)
+      {
+    	  scheduleJob = true;
+      }
+      
       job.setTimeExpression(updateRequest.getTimeExpression());
       job.setDelay(et.getDelay());
       conn.commit();
       
-      // add the updated job to the queue. (All old queue entrys get invalid and will not be executed)
-      jobManager.runBackUpJob (job);
+      if(scheduleJob == true)
+      {
+	      // add the updated job to the queue. (All old queue entrys get invalid and will not be executed)
+	      jobManager.runBackUpJob (job);
+      }
       
       ValidationNotes vn = validateBackupJob(username, job.getId(), updateRequest.getKeyRing());
       vn.setJob(job);

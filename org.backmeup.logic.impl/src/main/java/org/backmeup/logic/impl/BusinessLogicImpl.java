@@ -779,6 +779,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       
       job.setTimeExpression(updateRequest.getTimeExpression());
       job.setDelay(et.getDelay());
+      job.setReschedule (et.isReschedule ());
       conn.commit();
       
       if(scheduleJob == true)

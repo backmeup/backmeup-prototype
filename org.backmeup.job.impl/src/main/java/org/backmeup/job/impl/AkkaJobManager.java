@@ -167,10 +167,18 @@ abstract public class AkkaJobManager implements JobManager {
 			}
 			
 			// Add the scheduler id to the job. If the job gets executed it will be possible to check if this job is still valid
+			System.out.println ("#################################################");
+			System.out.println ("begin transaction");
 			conn.begin();
+			System.out.println ("create uuid");
 			UUID schedulerID = UUID.randomUUID ();
+			
+			System.out.println ("Save uuid to job. UUID: " + schedulerID.toString ());
 			job.setValidScheduleID (schedulerID);
+			
+			System.out.println ("Commit");
 			conn.commit ();
+			System.out.println ("#################################################");
 			
 			// TODO we can use the 'cancellable' to terminate later on
 			system.scheduler().scheduleOnce(

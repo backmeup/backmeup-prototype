@@ -170,6 +170,9 @@ abstract public class AkkaJobManager implements JobManager {
 			System.out.println ("#################################################");
 			System.out.println ("begin transaction");
 			conn.begin();
+			System.out.println ("get backupjob");
+			job = getBackUpJob(job.getId());
+			
 			System.out.println ("create uuid");
 			UUID schedulerID = UUID.randomUUID ();
 			

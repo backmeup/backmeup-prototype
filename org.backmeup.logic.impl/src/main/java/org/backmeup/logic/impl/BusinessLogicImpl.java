@@ -785,6 +785,9 @@ public class BusinessLogicImpl implements BusinessLogic {
       {
 	      // add the updated job to the queue. (All old queue entrys get invalid and will not be executed)
 	      jobManager.runBackUpJob (job);
+	      System.out.println ("########################################");
+	      System.out.println ("Changed job shedule time");
+	      System.out.println ("########################################");
       }
       
       ValidationNotes vn = validateBackupJob(username, job.getId(), updateRequest.getKeyRing());

@@ -775,11 +775,25 @@ public class BusinessLogicImpl implements BusinessLogic {
       if (job.getTimeExpression ().compareToIgnoreCase (updateRequest.getTimeExpression()) != 0)
       {
     	  scheduleJob = true;
+    	  
+    	  // chage start date to now if interval has changed
+    	  job.setStart (new Date ());
       }
       
       job.setTimeExpression(updateRequest.getTimeExpression());
       job.setDelay(et.getDelay());
       job.setReschedule (et.isReschedule ());
+      
+      if (job.isReschedule () == true)
+      {
+    	  Date execTime = new Date (new Date().getTime() + job.getDelay());
+    	  job.setNextExecutionTime (execTime);
+      }
+      else
+      {
+    	  job.setNextExecutionTime (null);
+      }
+      
       conn.commit();
       
       if(scheduleJob == true)

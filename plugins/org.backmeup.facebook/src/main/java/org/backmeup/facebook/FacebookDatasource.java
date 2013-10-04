@@ -1256,7 +1256,7 @@ public class FacebookDatasource implements Datasource {
 							.getDescription() : "")
 							+ (work.getPosition() != null ? " als "
 									+ work.getPosition().getName() : "")
-							+ (work.getEmployer() != null ? " f&uuml;r "
+							+ (work.getEmployer() != null ? " für "
 									+ work.getEmployer().getName() : "")
 							+ (work.getLocation() != null ? " bei "
 									+ work.getLocation().getName() : "");

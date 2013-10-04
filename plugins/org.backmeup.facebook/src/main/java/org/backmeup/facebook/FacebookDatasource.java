@@ -1181,6 +1181,7 @@ public class FacebookDatasource implements Datasource {
 			if (u.getBio() != null) {
 				row = new TR();
 				row.addElement(new TD("Bio").addAttribute("class", "firstrow"));
+				System.out.println ("Bio: " + u.getBio());
 				row.addElement(new TD(u.getBio()));
 				detail.addElement(row);
 			}
@@ -1255,7 +1256,7 @@ public class FacebookDatasource implements Datasource {
 							.getDescription() : "")
 							+ (work.getPosition() != null ? " als "
 									+ work.getPosition().getName() : "")
-							+ (work.getEmployer() != null ? " für "
+							+ (work.getEmployer() != null ? " f&uuml;r "
 									+ work.getEmployer().getName() : "")
 							+ (work.getLocation() != null ? " bei "
 									+ work.getLocation().getName() : "");

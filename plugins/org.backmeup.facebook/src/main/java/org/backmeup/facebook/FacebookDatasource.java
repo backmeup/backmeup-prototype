@@ -1106,12 +1106,9 @@ public class FacebookDatasource implements Datasource {
 
 		try {
 			
-			System.out.println ("########################################################");
-			System.out.println ("Begin profile download");
 			User u = client.fetchObject(id, User.class);
 
 			String name = checkName(u.getName());
-			System.out.println ("Username: " + name);
 
 			userinfo.setAttribute("name", name);
 			userinfo.setDestination(getUserFilename(name + u.getId()));
@@ -1122,7 +1119,6 @@ public class FacebookDatasource implements Datasource {
 			userinfo.setType("user");
 
 			// get profile picture
-			System.out.println ("get profile picture");
 			String pic = downloadProfilePicture(name + u.getId(), u.getId(),
 					"", storage, progr);
 
@@ -1130,7 +1126,6 @@ public class FacebookDatasource implements Datasource {
 			metainfo.addMetainfo(userinfo);
 
 			// create HTML
-			System.out.println ("create html");
 			Document doc = createDocument("Mein Profil", "User", true);
 			Div applic_content_page = (Div) ce
 					.getElement("applic_content_page");
@@ -1181,7 +1176,6 @@ public class FacebookDatasource implements Datasource {
 			if (u.getBio() != null) {
 				row = new TR();
 				row.addElement(new TD("Bio").addAttribute("class", "firstrow"));
-				System.out.println ("Bio: " + u.getBio());
 				row.addElement(new TD(u.getBio()));
 				detail.addElement(row);
 			}
@@ -1330,7 +1324,6 @@ public class FacebookDatasource implements Datasource {
 				detail.addElement(row);
 			}
 			InputStream is = new ByteArrayInputStream(doc.toString("UTF-8").getBytes());
-			System.out.println ("Dokument:\n" + doc.toString("UTF-8"));
 			String filename = getUserFilename(name + u.getId());
 			storage.addFile(is, filename, metainfo);
 

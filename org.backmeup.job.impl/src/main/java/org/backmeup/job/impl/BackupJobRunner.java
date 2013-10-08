@@ -235,8 +235,10 @@ public class BackupJobRunner {
           
           String enableIndexing = persistentJob.getUser().getUserProperty("enable.indexing");
           if (enableIndexing != null) {
-            if (enableIndexing.toLowerCase().trim().equals("false"));
+            if (enableIndexing.toLowerCase().trim().equals("false"))
+            {
               doIndexing = false;
+            }
           }
           
           // has the indexer been requested during creation of the backup job?

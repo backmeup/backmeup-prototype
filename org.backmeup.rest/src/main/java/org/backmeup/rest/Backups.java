@@ -87,10 +87,12 @@ public class Backups extends Base {
 		
 		sr = getLogic().queryBackup(username, searchId, filters);
 		
+		/*
 		System.out.println ("######################################################");
 		System.out.println (sr.getQuery ());
 		System.out.println (new SearchResponseContainer(sr).toString ());
 		System.out.println ("######################################################");
+		*/
 		
 		return new SearchResponseContainer(sr);
 	}

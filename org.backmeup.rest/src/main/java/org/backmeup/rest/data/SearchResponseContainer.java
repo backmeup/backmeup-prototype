@@ -97,6 +97,7 @@ public class SearchResponseContainer {
 		this.files = files;
 	}
 	
+	/*
 	@Override
 	public String toString ()
 	{
@@ -116,4 +117,5 @@ public class SearchResponseContainer {
 		
 		return retstr;
 	}
+	*/
 }

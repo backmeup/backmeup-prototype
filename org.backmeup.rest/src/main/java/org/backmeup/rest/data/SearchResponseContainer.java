@@ -109,7 +109,7 @@ public class SearchResponseContainer {
 			}
 			catch (UnsupportedEncodingException e)
 			{
-				e.printStackTrace();
+				System.out.println (e.toString ());
 			}
 			retstr += container.getPreview () + "\n\n";
 		}

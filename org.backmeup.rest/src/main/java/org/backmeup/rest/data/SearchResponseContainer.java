@@ -92,4 +92,16 @@ public class SearchResponseContainer {
 	public void setFiles(List<SearchEntryContainer> files) {
 		this.files = files;
 	}
+	
+	@Override
+	public String toString ()
+	{
+		String retstr = "";
+		for (SearchEntryContainer container : files)
+		{
+			retstr += container.getPreview () + "\n\n";
+		}
+		
+		return retstr;
+	}
 }

@@ -89,7 +89,7 @@ public class Backups extends Base {
 		
 		System.out.println ("######################################################");
 		System.out.println (sr.getQuery ());
-		System.out.println (new SearchResponseContainer().toString ());
+		System.out.println (new SearchResponseContainer(sr).toString ());
 		System.out.println ("######################################################");
 		
 		return new SearchResponseContainer(sr);

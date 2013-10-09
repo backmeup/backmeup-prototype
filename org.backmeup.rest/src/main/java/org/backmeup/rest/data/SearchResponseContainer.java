@@ -1,13 +1,17 @@
 package org.backmeup.rest.data;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.text.html.HTML;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.tools.ant.taskdefs.Javadoc.Html;
 import org.backmeup.model.SearchResponse;
 import org.backmeup.model.SearchResponse.CountedEntry;
 import org.backmeup.model.SearchResponse.SearchEntry;
+import org.jboss.resteasy.util.Base64;
 
 @XmlRootElement
 public class SearchResponseContainer {	
@@ -99,6 +103,14 @@ public class SearchResponseContainer {
 		String retstr = "";
 		for (SearchEntryContainer container : files)
 		{
+			try
+			{
+				retstr += Base64.encodeBytes ((container.getPreview ()).getBytes ("UTF8")) + "\n";
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				e.printStackTrace();
+			}
 			retstr += container.getPreview () + "\n\n";
 		}
 		

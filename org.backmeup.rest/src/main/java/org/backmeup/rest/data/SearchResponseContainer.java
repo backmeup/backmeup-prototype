@@ -106,12 +106,12 @@ public class SearchResponseContainer {
 			try
 			{
 				retstr += Base64.encodeBytes ((container.getPreview ().replaceAll ("<em>","").replaceAll ("</em>", "")).getBytes ("UTF8")) + "\n";
+				retstr += container.getPreview ().replaceAll ("<em>", "").replaceAll ("</em>", "") + "\n\n";
 			}
 			catch (Exception e)
 			{
 				System.out.println (e.toString ());
 			}
-			retstr += container.getPreview ().replaceAll ("<em>", "").replaceAll ("</em>", "") + "\n\n";
 		}
 		
 		return retstr;

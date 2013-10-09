@@ -111,7 +111,7 @@ public class SearchResponseContainer {
 			{
 				System.out.println (e.toString ());
 			}
-			retstr += container.getPreview ().replaceAll ("<em>","").replaceAll ("</em>", "") + "\n\n";
+			retstr += container.getPreview ().replaceAll ("<em>", "").replaceAll ("</em>", "") + "\n\n";
 		}
 		
 		return retstr;

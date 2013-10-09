@@ -107,7 +107,7 @@ public class SearchResponseContainer {
 			{
 				retstr += Base64.encodeBytes ((container.getPreview ()).getBytes ("UTF8")) + "\n";
 			}
-			catch (UnsupportedEncodingException e)
+			catch (Exception e)
 			{
 				System.out.println (e.toString ());
 			}

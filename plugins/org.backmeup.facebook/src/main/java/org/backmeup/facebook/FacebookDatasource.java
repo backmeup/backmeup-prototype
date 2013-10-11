@@ -1169,7 +1169,7 @@ public class FacebookDatasource implements Datasource {
 
 			if (u.getAbout() != null) {
 				row = new TR();
-				row.addElement(new TD("Über").addAttribute("class", "firstrow"));
+				row.addElement(new TD("&Uuml;ber").addAttribute("class", "firstrow"));
 				row.addElement(new TD(u.getAbout()));
 				detail.addElement(row);
 			}

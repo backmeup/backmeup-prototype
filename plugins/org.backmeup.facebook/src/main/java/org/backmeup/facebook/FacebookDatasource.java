@@ -699,6 +699,21 @@ public class FacebookDatasource implements Datasource {
 			row.addElement(new TD(post.getSource()));
 			detail.addElement(row);
 		}
+		
+		if(post.getType().equals("photo")){
+			String linkToPic = post.getPicture();
+			String[] picture = linkToPic.split("_");
+			String id = picture[1];
+			String ending = picture[3].split("\\.")[1];
+			downloadPicture(post.getPicture(), "Posts/Fotos/" + id + "."+ending,
+			"",storage, progr, new Metainfo());
+			
+			row = new TR();
+			row.addElement(new IMG("Fotos/" + id + "."+ending)
+			.addAttribute("width", "200px"));
+			row.addElement(new TD("here: "+post.getPicture()));
+			detail.addElement(row);
+		}
 		applic_posts.addElement(detail);
 		
 		Div commentsPost = (Div) new Div()
@@ -1169,7 +1184,7 @@ public class FacebookDatasource implements Datasource {
 
 			if (u.getAbout() != null) {
 				row = new TR();
-				row.addElement(new TD("&Uuml;ber").addAttribute("class", "firstrow"));
+				row.addElement(new TD("Über").addAttribute("class", "firstrow"));
 				row.addElement(new TD(u.getAbout()));
 				detail.addElement(row);
 			}
@@ -1421,6 +1436,7 @@ public class FacebookDatasource implements Datasource {
 			URL url = new URL(path);
 			c = (HttpURLConnection) url.openConnection();
 			c.connect();
+			if(c.getContentType() != null){
 			if (c.getContentType().equals("image/jpeg")) {
 				progr.progress("Download " + path + " nach " + destination);
 				InputStream is = c.getInputStream();
@@ -1439,7 +1455,7 @@ public class FacebookDatasource implements Datasource {
 				} catch (IOException e){
 					e.printStackTrace();
 				}
-			}
+			}}
 		} catch (IOException e) {
 			if (c != null)
 				c.disconnect();
@@ -1484,7 +1500,7 @@ public class FacebookDatasource implements Datasource {
 				} catch(Exception ex) {
 				  ex.printStackTrace();
 				}
-
+			System.out.println(content.toString());
 			JSONObject json = new JSONObject(content.toString());
 			JSONArray jsonArray = json.getJSONArray("data");
 
@@ -1495,6 +1511,7 @@ public class FacebookDatasource implements Datasource {
 
 			for (JSONObject obj : jsonList) {
 				if (!obj.getString("category").equals("Application")) {
+					System.out.println(obj.getString("name"));
 					A link = new A(downloadAccount(obj.getString("id"),
 							checkName(obj.getString("name")), client, storage,
 							progr), checkName(obj.getString("name")));
@@ -1647,7 +1664,18 @@ public class FacebookDatasource implements Datasource {
 		top.addElement(topcontent);
 
 		doc.appendBody(top);
-
+		
+		if(!title.equals("Index")){
+			if(out){
+				if(title.equals("Foto")){
+					doc.appendBody(new A("../../index.html", "zur&uuml;ck zur &Uuml;bersicht"));
+				}else{
+					doc.appendBody(new A("../index.html", "zur&uuml;ck zur &Uuml;bersicht"));
+				}
+			}else{
+				doc.appendBody(new A("index.html", "zur&uuml;ck zur &Uuml;bersicht"));	
+			}
+		}
 		Div content = (Div) new Div().addAttribute("id", "content");
 		Div applic_logo = (Div) new Div().addAttribute("class", "applic_logo");
 		IMG fblogo = new IMG(facebooklogo);

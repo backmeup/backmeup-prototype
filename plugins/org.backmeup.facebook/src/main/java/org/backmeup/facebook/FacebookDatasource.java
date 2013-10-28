@@ -430,7 +430,7 @@ public class FacebookDatasource implements Datasource {
 				ul.addAttribute("class", "clearfix");
 				ul.addElement(new LI().addElement(link));
 				LI date = (LI) new LI().addAttribute("class", "poststxt_date");
-				date.addElement(new Date().toString());
+				date.addElement(post.getCreatedTime().toString());
 				ul.addElement(date);
 				LI txt = (LI) new LI().addAttribute("class", "poststxt_txt");
 				txt.addElement(new A(

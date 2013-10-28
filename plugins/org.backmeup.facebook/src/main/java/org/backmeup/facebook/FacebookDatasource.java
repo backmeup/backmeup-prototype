@@ -1183,7 +1183,7 @@ public class FacebookDatasource implements Datasource {
 
 			if (u.getAbout() != null) {
 				row = new TR();
-				row.addElement(new TD("Über").addAttribute("class", "firstrow"));
+				row.addElement(new TD("&Uuml;ber").addAttribute("class", "firstrow"));
 				row.addElement(new TD(u.getAbout()));
 				detail.addElement(row);
 			}
@@ -1499,7 +1499,7 @@ public class FacebookDatasource implements Datasource {
 				} catch(Exception ex) {
 				  ex.printStackTrace();
 				}
-			System.out.println(content.toString());
+			
 			JSONObject json = new JSONObject(content.toString());
 			JSONArray jsonArray = json.getJSONArray("data");
 
@@ -1510,7 +1510,6 @@ public class FacebookDatasource implements Datasource {
 
 			for (JSONObject obj : jsonList) {
 				if (!obj.getString("category").equals("Application")) {
-					System.out.println(obj.getString("name"));
 					A link = new A(downloadAccount(obj.getString("id"),
 							checkName(obj.getString("name")), client, storage,
 							progr), checkName(obj.getString("name")));

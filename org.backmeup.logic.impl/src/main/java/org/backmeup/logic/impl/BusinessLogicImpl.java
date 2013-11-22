@@ -108,21 +108,14 @@ import org.backmeup.utilities.mail.Mailer;
 @ApplicationScoped
 public class BusinessLogicImpl implements BusinessLogic {
 
-  private static final String VALIDATOR_NOT_AVAILABLE = "org.backmeup.logic.impl.BusinessLogicImpl.VALIDATOR_NOT_AVAILABLE";
   private static final String JOB_USER_MISSMATCH = "org.backmeup.logic.impl.BusinessLogicImpl.JOB_USER_MISSMATCH";
   private static final String NO_SUCH_JOB = "org.backmeup.logic.impl.BusinessLogicImpl.NO_SUCH_JOB";
-  private static final String CANNOT_COMPUTE_FREE = "org.backmeup.logic.impl.BusinessLogicImpl.CANNOT_COMPUTE_FREE";
-  private static final String NOT_ENOUGH_SPACE = "org.backmeup.logic.impl.BusinessLogicImpl.NOT_ENOUGH_SPACE";
-  private static final String CANNOT_COMPUTE_QUOTA = "org.backmeup.logic.impl.BusinessLogicImpl.CANNOT_COMPUTE_QUOTA";
-  private static final String NO_PLUG_IN_FOUND_WITH_ID = "org.backmeup.logic.impl.BusinessLogicImpl.NO_PLUG_IN_FOUND_WITH_ID";
   private static final String UNKNOWN_JOB_WITH_ID = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_JOB_WITH_ID";
   private static final String UNKNOWN_SOURCE_SINK = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_SOURCE_SINK";
   private static final String USER_HAS_NO_PROFILE = "org.backmeup.logic.impl.BusinessLogicImpl.USER_HAS_NO_PROFILE";
   private static final String SHUTTING_DOWN_BUSINESS_LOGIC = "org.backmeup.logic.impl.BusinessLogicImpl.SHUTTING_DOWN_BUSINESS_LOGIC";
   private static final String VALIDATION_OF_ACCESS_DATA_FAILED = "org.backmeup.logic.impl.BusinessLogicImpl.VALIDATION_OF_ACCESS_DATA_FAILED";
-  private static final String USER_DOESNT_EXIST = "org.backmeup.logic.impl.BusinessLogicImpl.USER_DOESNT_EXIST";
   private static final String PARAMETER_NULL = "org.backmeup.logic.impl.BusinessLogicImpl.PARAMETER_NULL";
-  private static final String INVALID_USER = "org.backmeup.logic.impl.BusinessLogicImpl.INVALID_USER";
   private static final String UNKNOWN_PROFILE = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_PROFILE";
   private static final String UNKNOWN_ACTION = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_ACTION";
   private static final String VERIFICATION_EMAIL_SUBJECT = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_SUBJECT";
@@ -442,7 +435,6 @@ public class BusinessLogicImpl implements BusinessLogic {
       String keyRingPassword) {
     try {
       conn.beginOrJoin();
-      getUser(username);
       ProfileDao pd = getProfileDao();
       Profile p = pd.findById(profileId);
       if (!p.getUser().getUsername().equals(username)) {
@@ -1204,7 +1196,6 @@ public class BusinessLogicImpl implements BusinessLogic {
   
   public File getThumbnail(String username, String fileId) {
 	  // TODO verify that the user is logged in!
-	  BackMeUpUser user = getUser(username);
 
 	  ElasticSearchIndexClient client = getIndexClient();	  
 	  String thumbnailPath = client.getThumbnailPathForFile(username, fileId);

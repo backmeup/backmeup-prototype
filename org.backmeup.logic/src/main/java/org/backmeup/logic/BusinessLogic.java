@@ -26,8 +26,6 @@ import org.backmeup.model.exceptions.ValidationException;
 import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
 
-import com.google.common.collect.Maps;
-
 /**
  * The BusinessLogic interface contains 
  * all available operations of this project.

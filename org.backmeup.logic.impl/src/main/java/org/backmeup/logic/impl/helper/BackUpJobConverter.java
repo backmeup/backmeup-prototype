@@ -3,11 +3,10 @@ package org.backmeup.logic.impl.helper;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.backmeup.logic.impl.BusinessLogicImpl;
 import org.backmeup.model.ActionProfile;
-import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.ActionProfile.ActionProperty;
 import org.backmeup.model.BackupJob;
+import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.dto.ActionProfileEntry;
 import org.backmeup.model.dto.JobUpdateRequest;
 import org.backmeup.model.dto.SourceProfileEntry;

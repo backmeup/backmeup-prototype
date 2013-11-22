@@ -1,9 +1,5 @@
 package org.backmeup.logic.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 import javax.enterprise.inject.Produces;
 import javax.inject.Named;
 

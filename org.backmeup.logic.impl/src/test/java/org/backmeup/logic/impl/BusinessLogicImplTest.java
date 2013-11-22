@@ -2,7 +2,6 @@ package org.backmeup.logic.impl;
 
 import java.io.IOException;
 
-import org.backmeup.logic.BusinessLogic;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -11,7 +10,7 @@ import org.junit.Test;
 //TODO: Remove plugin based tests from this class; they should be performed from within python or within the plugin itself!
 public class BusinessLogicImplTest {
 
-  private static BusinessLogic logic;
+  //private static BusinessLogic logic;
 
   @BeforeClass
   public static void setUp() {

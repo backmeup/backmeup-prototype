@@ -510,12 +510,6 @@ public class DummyBusinessLogic implements BusinessLogic {
       throw new IllegalArgumentException("Unknown profile " + profileId);
     if (!passwords.get(p.getUser()).equals(keyRing))
       throw new InvalidCredentialsException();
-
-    for (Object keyObj : props.keySet()) {
-      String key = (String) keyObj;
-      String value = props.getProperty(key);
-      // p.putEntry(key, value);
-    }
   }
 
   public void uploadDatasinkPlugin(String filename, InputStream data) {

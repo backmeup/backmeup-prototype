@@ -10,7 +10,6 @@ public class FileContainers
 {
 	private static int CONTAINER_LIMIT = 999;
 	private static String PART_NUM_FORMAT = "%03d";
-	private static String PATH_SEPARATOR = "/";
 	private static final String CONTAINER_CRYPT_EXTENSION = ".tc";
 	
 	private List<FileContainer> filecontainers;
@@ -25,29 +24,6 @@ public class FileContainers
 		
 		filecontainers = new LinkedList<FileContainer> ();
 		currcontainer = null;
-	}
-	
-	@Deprecated
-	private String getNewContainerpath (String path) throws ActionException
-	{
-		String containerpath = path.split(PATH_SEPARATOR)[0];
-		
-		if (encrypt == false)
-		{
-			containerpath = containerpath + "_part" + String.format (PART_NUM_FORMAT, filecontainers.size () + 1);
-		}
-		else
-		{
-			containerpath = containerpath + "_part" + String.format (PART_NUM_FORMAT, filecontainers.size () + 1) + CONTAINER_CRYPT_EXTENSION;	
-		}
-		
-		if (filecontainers.size () > CONTAINER_LIMIT)
-		{
-			// TODO throw new ToMuchSplitt...
-			throw new ActionException ("Can't split data in more than " + CONTAINER_LIMIT + " containers");
-		}
-		
-		return containerpath;
 	}
 	
 	private String getNewContainerpath () throws ActionException

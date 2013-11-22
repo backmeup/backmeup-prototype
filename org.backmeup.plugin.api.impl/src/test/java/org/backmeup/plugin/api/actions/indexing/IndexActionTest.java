@@ -2,17 +2,12 @@ package org.backmeup.plugin.api.actions.indexing;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
 import org.backmeup.model.BackupJob;
-import org.backmeup.model.FileItem;
-import org.backmeup.model.SearchResponse.CountedEntry;
-import org.backmeup.model.SearchResponse.SearchEntry;
 import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;

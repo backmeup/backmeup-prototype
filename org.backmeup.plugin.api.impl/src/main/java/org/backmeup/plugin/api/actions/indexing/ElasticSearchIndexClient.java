@@ -1,6 +1,5 @@
 package org.backmeup.plugin.api.actions.indexing;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 

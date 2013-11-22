@@ -1,7 +1,6 @@
 package org.backmeup.rest.data;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

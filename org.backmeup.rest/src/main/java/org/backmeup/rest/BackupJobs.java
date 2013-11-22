@@ -1,7 +1,5 @@
 package org.backmeup.rest;
 
-import java.util.Date;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -15,7 +13,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.backmeup.model.BackMeUpUser;
-import org.backmeup.model.BackupJob;
 import org.backmeup.model.dto.JobCreationRequest;
 import org.backmeup.model.dto.JobUpdateRequest;
 import org.backmeup.rest.data.JobContainer;
@@ -138,14 +135,6 @@ public class BackupJobs extends Base {
       @PathParam("username") String username,
       @QueryParam("fromDate") String fromDate,
       @QueryParam("toDate") String toDate) {
-    Date fDate = null;
-    Date tDate = null;
-    if (fromDate != null) {
-      fDate = new Date(Long.parseLong(fromDate));
-    }
-    if (toDate != null) {
-      tDate = new Date(Long.parseLong(toDate));
-    }
     return new StatusContainer(getLogic().getStatus(username, null));
   }
   

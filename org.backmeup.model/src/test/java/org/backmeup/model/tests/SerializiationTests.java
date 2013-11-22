@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.backmeup.model.ActionProfile;
+import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
-import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.model.spi.SourceSinkDescribable.Type;
 import org.junit.Assert;

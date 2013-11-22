@@ -18,14 +18,13 @@ import org.backmeup.job.JobManager;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.model.ActionProfile;
+import org.backmeup.model.ActionProfile.ActionProperty;
 import org.backmeup.model.BackMeUpUser;
 import org.backmeup.model.BackupJob;
-import org.backmeup.model.ActionProfile.ActionProperty;
 import org.backmeup.model.BackupJob.JobStatus;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
-import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 
 import akka.actor.ActorSystem;
 import akka.util.Duration;

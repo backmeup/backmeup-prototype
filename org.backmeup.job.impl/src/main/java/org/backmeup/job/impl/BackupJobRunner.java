@@ -382,64 +382,6 @@ public class BackupJobRunner {
 			return text;
 		}
 	}
-  
-  private void testActions(BackupJob job, Storage storage) {
-      // TODO remove this. Created by ft only for actionPlugin tests
-      System.out.println ("######################################################");
-      System.out.println ("Test action Plugins");
-      System.out.println ("######################################################");
-      try
-      {
-      	executeActions (job, storage);
-      }
-      catch (ActionException e)
-      {
-      	System.out.println("ERROR: " + e.getMessage());
-      }
-      catch (StorageException e)
-		{
-			// TODO error handling
-			System.out.println ("ERROR: " + e.getMessage ());
-		}
-      System.out.println ("######################################################");	  
-  }
-  
-	// TODO remove this. Created by ft only for actionPlugin tests
-	private void executeActions (BackupJob job, Storage storage) throws ActionException, StorageException
-	{
-		if (job.getUser ().getUsername ().equals ("irgend@x-net.at") == false)
-		{
-			return;
-		}
-		
-		Action filesplitter = new FilesplittAction ();
-
-		Progressable progressor = new Progressable ()
-		{
-			@Override
-			public void progress (String message)
-			{
-				System.out.println (message);
-			}
-		};
-		
-		Properties parameters = new Properties ();
-		
-		System.out.println ("######################################################");
-		System.out.println ("Filesplitter");
-		System.out.println ("######################################################");
-		filesplitter.doAction (parameters, storage, job, progressor);
-		
-		System.out.println ("######################################################");
-		System.out.println ("Encryption");
-		System.out.println ("######################################################");
-		Action encryption = new EncryptionAction ();
-		
-		parameters.setProperty ("org.backmeup.encryption.password", "Test1234!");
-		encryption.doAction (parameters, storage, job, progressor);
-		
-		storage.close ();
-	}
 	
 	private class JobStatusProgressor implements Progressable {
 		

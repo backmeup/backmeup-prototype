@@ -9,7 +9,6 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MiniMRCluster;
 import org.backmeup.job.impl.AkkaJobManager;
-import org.backmeup.job.impl.hadoop.HadoopJobRunner;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.serializer.JsonSerializer;
 

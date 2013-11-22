@@ -25,11 +25,11 @@
 		<class>org.backmeup.model.SearchResponse</class>
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
-			<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://192.168.80.131/bmucore" />
+			<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://127.0.0.1/bmucore" />
 			<property name="javax.persistence.jdbc.user" value="dbu_core" />
 			<property name="javax.persistence.jdbc.password" value="dbu_core" />
 			<property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
-			<property name="hibernate.connection.url" value="jdbc:postgresql://192.168.80.131/bmucore" />
+			<property name="hibernate.connection.url" value="jdbc:postgresql://127.0.0.1/bmucore" />
 			<property name="hibernate.connection.username" value="dbu_core" />
 			<property name="hibernate.connection.password" value="dbu_core" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />

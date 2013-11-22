@@ -1,7 +1,6 @@
 package org.backmeup.keyserver.client;
 
 import java.util.Properties;
-import java.util.Set;
 
 public class AuthUsrPwd {
   

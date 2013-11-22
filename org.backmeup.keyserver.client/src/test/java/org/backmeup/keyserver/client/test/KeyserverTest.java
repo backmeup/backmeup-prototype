@@ -1,21 +1,9 @@
 package org.backmeup.keyserver.client.test;
 
-import java.util.Date;
-import java.util.Properties;
-
-import junit.framework.Assert;
-
-import org.backmeup.keyserver.client.AuthData;
-import org.backmeup.keyserver.client.AuthDataResult;
-import org.backmeup.keyserver.client.Keyserver;
-import org.backmeup.model.Token;
-import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.environment.se.WeldContainer;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 public class KeyserverTest {
-  private static Keyserver ks;
+  //private static Keyserver ks;
 
   @BeforeClass
   public static void setUp() {
@@ -25,9 +13,9 @@ public class KeyserverTest {
        * String[] { "spring.xml" }); logic =
        * context.getBean(BusinessLogic.class);
        */
-      Weld weld = new Weld();
-      WeldContainer container = weld.initialize();
-      ks = container.instance().select(Keyserver.class).get();
+      //Weld weld = new Weld();
+      //WeldContainer container = weld.initialize();
+     // ks = container.instance().select(Keyserver.class).get();
 
     } catch (Throwable e) {
       do {

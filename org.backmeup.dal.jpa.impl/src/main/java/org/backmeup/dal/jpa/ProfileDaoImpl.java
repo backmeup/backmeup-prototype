@@ -49,11 +49,13 @@ public class ProfileDaoImpl extends BaseDaoImpl<Profile> implements ProfileDao {
     return profiles;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<Profile> findProfilesByUsername(String username) {
     Query q = em.createQuery("SELECT p FROM " + entityClass.getName() +" p WHERE p.user.username = :username");
     q.setParameter("username", username);            
-    return q.getResultList();
+	List<Profile> profiles = q.getResultList();
+    return profiles;
   }
 
 }

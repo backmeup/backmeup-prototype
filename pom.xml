@@ -14,24 +14,24 @@
 	<modules>
 		<!-- build the interfaces + model first -->
 		<module>org.backmeup.model</module>
-                <module>org.backmeup.utilities</module>
+        <module>org.backmeup.utilities</module>
 		<module>org.backmeup.dal</module>
 		<module>org.backmeup.job</module>
 		<module>org.backmeup.plugin</module>
 		<module>org.backmeup.plugin.api</module>
 		<module>org.backmeup.logic</module>
-                <!-- build utilities -->
-				<module>org.backmeup.keyserver.client</module>
+                
+        <!-- build utilities -->
+		<module>org.backmeup.keyserver.client</module>
 
 		<!-- build the implementations -->
-                <module>org.backmeup.dal.jpa.impl</module>
-                <module>org.backmeup.plugin.api.impl</module>
+        <module>org.backmeup.dal.jpa.impl</module>
+        <module>org.backmeup.plugin.api.impl</module>
 		<module>org.backmeup.job.impl</module>
 		<module>org.backmeup.plugin.osgi.impl</module>
 		<module>org.backmeup.logic.dummy.impl</module>
 		<module>org.backmeup.logic.impl</module>
 		<module>org.backmeup.rest</module>
-		<module>org.backmeup.embedded</module>
 	</modules>
 
 	<build>

@@ -15,7 +15,7 @@ import org.backmeup.job.impl.rabbitmq.RabbitMQJobReceiver;
 import org.backmeup.logic.BusinessLogic;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.network.NetworkUtils;
-import org.elasticsearch.node.Node;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.NodeBuilder;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
@@ -27,7 +27,8 @@ public class ContextListener implements ServletContextListener {
   
   
   public static List<RabbitMQJobReceiver> startRabbitMQWorker() throws IOException {
-    File autodeploy = new File("autodeploy");
+    //File autodeploy = new File("autodeploy");
+    File autodeploy = new File("C:\\Program Files (Dev)\\apache-tomcat-7.0.42\\data\\rest\\autodeploy");
     
     int numberOfReceivers;
     try {
@@ -52,7 +53,9 @@ public class ContextListener implements ServletContextListener {
   
   public static Client startIndexClient() {
 	  String clusterName = "es-cluster-" + NetworkUtils.getLocalAddress().getHostName();
-    return NodeBuilder.nodeBuilder().clusterName(clusterName).node().client();
+	  ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder();
+	  settings.put("path.data", "C:\\Program Files (Dev)\\apache-tomcat-7.0.42\\data\\rest\\index");
+    return NodeBuilder.nodeBuilder().settings(settings).clusterName(clusterName).node().client();
   }
 
   @Override

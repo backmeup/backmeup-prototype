@@ -80,7 +80,8 @@ public class RabbitMQJobReceiver {
 	// TODO that's just a quick hack...
 	public static void initSystem(String pluginsDir) throws IOException {
 		// Start up the Plugin manager
-		File osgiTemp = File.createTempFile("osgi-temp", Long.toString(System.nanoTime()));
+		//File osgiTemp = File.createTempFile("C:\\...\\apache-tomcat...\\data\\...\\osgiTmp", Long.toString(System.nanoTime()));
+		File osgiTemp = File.createTempFile("osgiTemp", Long.toString(System.nanoTime()));
 		plugins = new PluginImpl(pluginsDir, osgiTemp.getAbsolutePath(), EXPORTED_PACKAGES);
 		plugins.startup();
 	    ((PluginImpl)plugins).waitForInitialStartup();

@@ -78,10 +78,19 @@ public class PluginImpl implements Plugin {
 
   private boolean started;
 
+  /*
   public PluginImpl() {
     this(
         "autodeploy",
         "osgiTmp",
+        "org.backmeup.plugin.spi org.backmeup.model org.backmeup.model.spi org.backmeup.plugin.api.connectors org.backmeup.plugin.api.storage");
+  }
+  */
+
+  public PluginImpl() {
+    this(
+        "C:\\Program Files (Dev)\\apache-tomcat-7.0.42\\data\\rest\\autodeploy",
+        "C:\\Program Files (Dev)\\apache-tomcat-7.0.42\\data\\rest\\osgiTmp",
         "org.backmeup.plugin.spi org.backmeup.model org.backmeup.model.spi org.backmeup.plugin.api.connectors org.backmeup.plugin.api.storage");
   }
 

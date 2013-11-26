@@ -66,7 +66,8 @@
 			<groupId>org.backmeup</groupId>
 			<artifactId>utilities</artifactId>
 			<version>${project.version}</version>
-		</dependency>	
+		</dependency>
+		<!-- 	
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-core</artifactId>
@@ -83,6 +84,7 @@
 			<artifactId>hadoop-test</artifactId>
 			<version>1.0.3</version>
 		</dependency>
+		 -->
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-frontend-jaxrs</artifactId>

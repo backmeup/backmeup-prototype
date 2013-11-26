@@ -135,7 +135,11 @@ public class BusinessLogicImpl implements BusinessLogic {
   @Inject
   private Keyserver keyserverClient;
 
+  @Inject
+  @Named("plugin")
   private Plugin plugins;
+  
+  // See setJobManager()
   private JobManager jobManager;
 
   @Inject
@@ -164,7 +168,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       .getBundle(BusinessLogicImpl.class.getSimpleName());
 
   public BusinessLogicImpl() {
-
+	  System.out.println("********** NEW BUSINESSLOGICIMPL ************");
   }
 
   public ProfileDao getProfileDao() {
@@ -1228,10 +1232,10 @@ public class BusinessLogicImpl implements BusinessLogic {
     return plugins;
   }
 
-  @Inject
+  //@Inject
   public void setPlugins(Plugin plugins) {
     this.plugins = plugins;
-    this.plugins.startup();
+    //this.plugins.startup();
   }
 
   public void shutdown() {

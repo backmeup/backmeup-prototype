@@ -10,9 +10,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.apache.felix.framework.FrameworkFactory;
 import org.backmeup.model.exceptions.PluginException;
@@ -59,24 +62,27 @@ import org.osgi.framework.launch.Framework;
  * 
  */
 @ApplicationScoped
+@Default
+@Named("plugin")
 @SuppressWarnings("rawtypes")
 public class PluginImpl implements Plugin {
 
   private Framework osgiFramework;
 
-  @Inject
-  @Named("osgi.deploymentDirectory")
+  //@Inject
+  //@Named("osgi.deploymentDirectory")
   private File deploymentDirectory;
-  @Inject
-  @Named("osgi.temporaryDirectory")
+  //@Inject
+  //@Named("osgi.temporaryDirectory")
   private File temporaryDirectory;
-  @Inject
-  @Named("osgi.exportedPackages")
+  //@Inject
+  //@Named("osgi.exportedPackages")
   private String exportedPackages;
 
   private DeployMonitor deploymentMonitor;
 
   private boolean started;
+  
 
   /*
   public PluginImpl() {
@@ -86,26 +92,46 @@ public class PluginImpl implements Plugin {
         "org.backmeup.plugin.spi org.backmeup.model org.backmeup.model.spi org.backmeup.plugin.api.connectors org.backmeup.plugin.api.storage");
   }
   */
+  
+	private static final String EXPORTED_PACKAGES = ""
+			+ "org.backmeup.plugin.spi "
+			+ "org.backmeup.model " 
+			+ "org.backmeup.model.spi "
+			+ "org.backmeup.plugin.api.connectors "
+			+ "org.backmeup.plugin.api.storage " 
+			+ "com.google.gson "
+			+ "org.backmeup.plugin.api " 
+			+ "org.backmeup.plugin.api.actions "
+			+ "javax.mail " 
+			+ "com.sun.imap ";
 
   public PluginImpl() {
     this(
         "C:\\Program Files (Dev)\\apache-tomcat-7.0.42\\data\\rest\\autodeploy",
-        "C:\\Program Files (Dev)\\apache-tomcat-7.0.42\\data\\rest\\osgiTmp",
-        "org.backmeup.plugin.spi org.backmeup.model org.backmeup.model.spi org.backmeup.plugin.api.connectors org.backmeup.plugin.api.storage");
+        /*"C:\\Program Files (Dev)\\apache-tomcat-7.0.42\\data\\rest\\osgiTmp"*/
+        "osgiTemp" + Long.toString(System.nanoTime()),
+        /*"org.backmeup.plugin.spi org.backmeup.model org.backmeup.model.spi org.backmeup.plugin.api.connectors org.backmeup.plugin.api.storage")*/
+        EXPORTED_PACKAGES
+        );
   }
 
   public PluginImpl(String deploymentDirectory, String temporaryDirectory,
       String exportedPackages) {
+	  System.out.println("********** NEW PLUGINIMPL **********");
     this.deploymentDirectory = new File(deploymentDirectory);
     this.temporaryDirectory = new File(temporaryDirectory);
     this.exportedPackages = exportedPackages;
+    this.started = false;
   }
+  
 
+  @PostConstruct
   public void startup() {
     if (!started) {
       System.out.println("Starting up PluginImpl!");
       initOSGiFramework();
       startDeploymentMonitor();
+      deploymentMonitor.waitForInitialRun();
       started = true;
     }
   }
@@ -153,7 +179,7 @@ public class PluginImpl implements Plugin {
       }
       Map<String, String> config = new HashMap<String, String>();
       config.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, exportedPackages);
-      config.put(Constants.FRAMEWORK_STORAGE,
+      config.put(Constants.FRAMEWORK_STORAGE, 
           temporaryDirectory.getAbsolutePath());
       config.put(Constants.FRAMEWORK_STORAGE_CLEAN, "true");
       config.put(Constants.FRAMEWORK_BUNDLE_PARENT,

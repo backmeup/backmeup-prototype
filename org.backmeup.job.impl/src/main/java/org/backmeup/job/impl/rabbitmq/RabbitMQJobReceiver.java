@@ -3,6 +3,8 @@ package org.backmeup.job.impl.rabbitmq;
 import java.io.File;
 import java.io.IOException;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
@@ -45,11 +47,41 @@ public class RabbitMQJobReceiver {
 			"javax.mail " +
 			"com.sun.imap ";
 	
-	private static Plugin plugins;
+	@Inject
+	@Named("plugin")
+	private Plugin plugins;
 	
+	@Inject
 	private Keyserver keyserver;
 	
+	@Inject
 	private DataAccessLayer dal;
+	
+	
+	public Plugin getPlugins() {
+		return plugins;
+	}
+
+	public void setPlugins(Plugin plugins) {
+		this.plugins = plugins;
+	}
+
+	public Keyserver getKeyserver() {
+		return keyserver;
+	}
+
+	public void setKeyserver(Keyserver keyserver) {
+		this.keyserver = keyserver;
+	}
+
+	public DataAccessLayer getDal() {
+		return dal;
+	}
+
+	public void setDal(DataAccessLayer dal) {
+		this.dal = dal;
+	}
+
 	private org.backmeup.dal.Connection conn;
 	
 	/**
@@ -78,24 +110,17 @@ public class RabbitMQJobReceiver {
 	
 	
 	// TODO that's just a quick hack...
-	public static void initSystem(String pluginsDir) throws IOException {
-		// Start up the Plugin manager
-		//File osgiTemp = File.createTempFile("C:\\...\\apache-tomcat...\\data\\...\\osgiTmp", Long.toString(System.nanoTime()));
-		File osgiTemp = File.createTempFile("osgiTemp", Long.toString(System.nanoTime()));
-		plugins = new PluginImpl(pluginsDir, osgiTemp.getAbsolutePath(), EXPORTED_PACKAGES);
-		plugins.startup();
-	    ((PluginImpl)plugins).waitForInitialStartup();
-	}
+//	public static void initSystem(String pluginsDir) throws IOException {
+//		// Start up the Plugin manager
+//		//File osgiTemp = File.createTempFile("C:\\Program Files (Dev)\\apache-tomcat-7.0.42\\data\\rest\\osgiTmp", Long.toString(System.nanoTime()));
+//		File osgiTemp = File.createTempFile("osgiTemp", Long.toString(System.nanoTime()));
+//		plugins = new PluginImpl(pluginsDir, osgiTemp.getAbsolutePath(), EXPORTED_PACKAGES);
+//		plugins.startup();
+//	    ((PluginImpl)plugins).waitForInitialStartup();
+//	}
 	
 	public RabbitMQJobReceiver(String mqHost, String mqName) throws IOException {
 		this.mqName = mqName;
-	    
-	  //TODO: Exchange with https constructor; use parameters from bl.properties + truststores from plone
-	    keyserver = new org.backmeup.keyserver.client.impl.Keyserver(
-	      Configuration.getConfig().getProperty("keyserver.host"),
-	      Configuration.getConfig().getProperty("keyserver.path"),
-	      true
-	    );
 	    
 	    // Connect to the message queue
 	    log.info("Connecting to the message queue");
@@ -107,8 +132,6 @@ public class RabbitMQJobReceiver {
 	    mqChannel.queueDeclare(mqName, false, false, false, null);
 	  
 	  // prepare data access layer
-	  // TODO: Use weld to setup the RabbitMQJobReceiver instead of manual weaving 
-	  dal = new DataAccessLayerImpl();
 	  // make sure you have a valid META-INF/persistence.xml file pointing to the core database 
 	  emFactory = Persistence.createEntityManagerFactory("org.backmeup.jpa");
 	  conn = new ConnectionImpl();

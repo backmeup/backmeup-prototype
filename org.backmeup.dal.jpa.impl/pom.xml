@@ -19,5 +19,10 @@
 			<artifactId>dal</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+      		<groupId>javax.enterprise</groupId>
+      		<artifactId>cdi-api</artifactId>
+      		<version>1.0</version>
+    	</dependency>
 	</dependencies>
 </project>

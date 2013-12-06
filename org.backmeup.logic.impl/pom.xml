@@ -23,11 +23,13 @@
 			<artifactId>job</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 			<version>1.4</version>
 		</dependency>
+		 -->
 		<dependency>
 			<groupId>org.backmeup</groupId>
 			<artifactId>keyserver.client</artifactId>
@@ -62,12 +64,13 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.10</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss.weld.se</groupId>
-			<artifactId>weld-se</artifactId>
-			<version>${weld.version}</version>
-		</dependency>
+      		<groupId>javax.enterprise</groupId>
+      		<artifactId>cdi-api</artifactId>
+      		<version>1.0</version>
+    	</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>

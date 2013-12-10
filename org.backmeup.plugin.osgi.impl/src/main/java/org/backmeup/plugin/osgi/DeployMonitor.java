@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The DeployMonitor class starts a thread which will periodically check the
@@ -23,6 +25,7 @@ import org.osgi.framework.Constants;
  * 
  */
 public class DeployMonitor implements Runnable {
+  private final Logger logger = LoggerFactory.getLogger(DeployMonitor.class);
 
   private Map<File, Bundle> deployed = new HashMap<File, Bundle>();
   private ScheduledExecutorService executor;
@@ -53,7 +56,7 @@ public class DeployMonitor implements Runnable {
           monitor.wait();
         }
     } catch (InterruptedException e) {
-      e.printStackTrace();
+    	logger.error("", e);
     }
   }
 
@@ -62,13 +65,13 @@ public class DeployMonitor implements Runnable {
     executor.shutdownNow();
     try {
       executor.awaitTermination(1, TimeUnit.MINUTES);
-      System.err.println("Awaited termination of executor!");
+      logger.error("Awaited termination of executor!");
       synchronized (monitor) {
         firstRun = true;
         monitor.notifyAll();
       }
     } catch (InterruptedException e) {
-      e.printStackTrace();
+    	logger.error("", e);
     }
   }
 
@@ -85,7 +88,7 @@ public class DeployMonitor implements Runnable {
             deployed.put(f, b);
             newlyInstalledBundles.add(b);
           } catch (Exception e) {
-            e.printStackTrace();
+        	  logger.error("", e);
           }
         }
       }
@@ -97,7 +100,7 @@ public class DeployMonitor implements Runnable {
           newlyInstalledBundle.start();
         }
       } catch (Exception e) {
-        e.printStackTrace();
+    	  logger.error("", e);
       }
     }
     newlyInstalledBundles.clear();
@@ -114,7 +117,7 @@ public class DeployMonitor implements Runnable {
           }
           toBeRemovedBundles.add(f);
         } catch (Exception e) {
-          e.printStackTrace();
+          logger.error("", e);
         }
       }
     }

@@ -14,8 +14,12 @@ import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LocalFilesystemStorage extends Storage {
+	
+	private final Logger logger = LoggerFactory.getLogger(LocalFilesystemStorage.class);
 	
 	private File rootDir;
 	private long totalStorageSize = 0;
@@ -71,7 +75,7 @@ public class LocalFilesystemStorage extends Storage {
 
 			public DataObject next() {
 				DataObject obj = flatList.get(idx);
-				//Logger.info("Retrieving from Storage: " + obj.getPath());
+				logger.info("Retrieving from Storage: " + obj.getPath());
 				idx++;
 				return obj;
 			}
@@ -146,10 +150,10 @@ public class LocalFilesystemStorage extends Storage {
 			File from = new File(rootDir, fromPath);
 			File to = new File(rootDir, toPath);
 			
-//			System.out.println ("Move File from: " + from.getPath ());
-//			System.out.println ("Move File from absolute path: " + from.getAbsolutePath ());
-//			System.out.println ("Move File to: " + to.getPath ());
-//			System.out.println ("Move File to absolute path: " + to.getAbsolutePath ());
+//			logger.debug("Move File from: " + from.getPath ());
+//			logger.debug("Move File from absolute path: " + from.getAbsolutePath ());
+//			logger.debug("Move File to: " + to.getPath ());
+//			logger.debug("Move File to absolute path: " + to.getAbsolutePath ());
 			
 			
 			if (!from.exists())

@@ -11,7 +11,6 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.backmeup.configuration.Configuration;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
@@ -53,6 +52,8 @@ import org.elasticsearch.common.network.NetworkUtils;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements the actual BackupJob execution.
@@ -72,7 +73,7 @@ public class BackupJobRunner {
   private Connection conn;
   private DataAccessLayer dal;
   
-  private Logger logger = Logger.getLogger(BackupJobRunner.class);
+  private final Logger logger = LoggerFactory.getLogger(BackupJobRunner.class);
   
   private ResourceBundle textBundle = ResourceBundle
       .getBundle(BackupJobRunner.class.getSimpleName());
@@ -86,7 +87,7 @@ public class BackupJobRunner {
   }
 
   private Status addStatusToDb(Status status) {
-	System.out.println("STATUS: " + status.getMessage());
+	logger.debug("STATUS: {}", status.getMessage());
     conn.beginOrJoin();    
     StatusDao sd = dal.createStatusDao();
     sd.save(status); // store job within database    

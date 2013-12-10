@@ -21,9 +21,11 @@ import org.backmeup.plugin.api.storage.Storage;
 import org.im4java.core.ConvertCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ThumbnailAction implements Action {
-	
+	private static final Logger logger = LoggerFactory.getLogger(ThumbnailAction.class);
 	private static Configuration config = Configuration.getConfig();
 	private static File TEMP_DIR; 
 	private static Integer THUMBNAIL_DIMENSIONS;
@@ -39,13 +41,13 @@ public class ThumbnailAction implements Action {
 			TEMP_DIR = new File(path);
 		} catch (Throwable t) {
 			TEMP_DIR = new File("tmp/thumbnails/");
-			System.out.println("Thumbnail rendering temp dir not set - defaulting to 'tmp/thumbnails'");
+			logger.debug("Thumbnail rendering temp dir not set - defaulting to 'tmp/thumbnails'");
 		}
 		
 		try {
 			THUMBNAIL_DIMENSIONS = Integer.valueOf(Integer.parseInt(config.getProperty("thumbnail.dimensions")));
 		} catch (Throwable t) {
-			System.out.println("Thumbnail dimensions not set - defaulting to 120px");
+			logger.debug("Thumbnail dimensions not set - defaulting to 120px");
 		}
 		
 		if (!TEMP_DIR.exists())
@@ -124,8 +126,8 @@ public class ThumbnailAction implements Action {
 						container.addMetainfo(meta);
 						dataobject.setMetainfo(container);
 					} catch (Throwable t) {
-						System.out.println("Failed to render thumbnail for: " + dataobject.getPath());
-						System.out.println(t.getClass().getName() + ": " + t.getMessage());
+						logger.debug("Failed to render thumbnail for: " + dataobject.getPath());
+						logger.debug(t.getClass().getName() + ": " + t.getMessage());
 					}
 				}
 			}

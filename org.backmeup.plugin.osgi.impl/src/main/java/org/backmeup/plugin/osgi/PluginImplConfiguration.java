@@ -8,6 +8,9 @@ import java.util.Properties;
 import javax.enterprise.inject.Produces;
 import javax.inject.Named;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * The PluginImplConfiguration provides
  * the configuration values for the OSGi container. 
@@ -16,6 +19,8 @@ import javax.inject.Named;
  *
  */
 public class PluginImplConfiguration {
+  private Logger logger = LoggerFactory.getLogger(PluginImplConfiguration.class);
+  
   private Properties loadProperties() {
     Properties props = new Properties();
     InputStream is = null;
@@ -28,7 +33,7 @@ public class PluginImplConfiguration {
         try {
           is.close();
         } catch (IOException e) {
-          e.printStackTrace();
+        	logger.error("", e);
         }
     }
     return props;

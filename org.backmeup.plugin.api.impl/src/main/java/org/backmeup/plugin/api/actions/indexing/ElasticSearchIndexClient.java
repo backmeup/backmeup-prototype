@@ -15,8 +15,11 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ElasticSearchIndexClient {
+	private final Logger logger = LoggerFactory.getLogger(ElasticSearchIndexClient.class);
 	
 	private static final String INDEX_NAME = "backmeup";
 	
@@ -60,15 +63,15 @@ public class ElasticSearchIndexClient {
 		
 		/*
 		queryString = IndexUtils.getFilterSuffix(filters) + "owner_id:" + user.getUserId() + " AND " + queryString;
-		System.out.println("QueryString = " + queryString);
+		logger.debug("QueryString = " + queryString);
 		QueryBuilder qBuilder = QueryBuilders.queryString(queryString);
 		*/
 		
 		QueryBuilder qBuilder = IndexUtils.buildQuery (user.getUserId (), queryString, filters);
 		
-		System.out.println("#######################################");
-		System.out.println("QueryString:\n" + qBuilder.toString ());
-		System.out.println("#######################################");
+		logger.debug("#######################################");
+		logger.debug("QueryString:\n" + qBuilder.toString ());
+		logger.debug("#######################################");
 		
 		
 		

@@ -1,11 +1,8 @@
 package org.backmeup.rest.listener;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -15,13 +12,14 @@ import org.backmeup.job.impl.rabbitmq.RabbitMQJobReceiver;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.logic.BusinessLogic;
 import org.backmeup.plugin.Plugin;
-import org.backmeup.plugin.osgi.PluginImpl;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.network.NetworkUtils;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.NodeBuilder;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ContextListener implements ServletContextListener {
 
@@ -37,7 +35,7 @@ public class ContextListener implements ServletContextListener {
 			+ "javax.mail " 
 			+ "com.sun.imap ";
 
-	private Logger logger = Logger.getLogger(ContextListener.class.getName());
+	private final Logger logger = LoggerFactory.getLogger(ContextListener.class);
 	private BusinessLogic logic;
 	private Plugin plugins;
 	private Keyserver keyserver;
@@ -133,7 +131,7 @@ public class ContextListener implements ServletContextListener {
 				sce.getServletContext().setAttribute("org.backmeup.logic", logic);
 			} catch (Throwable e) {
 				do {
-					logger.log(Level.SEVERE, "Error during startup of business logic / job workers", e);
+					logger.error("Error during startup of business logic / job workers", e);
 					e = e.getCause();
 				} while (e.getCause() != e && e.getCause() != null);
 			}

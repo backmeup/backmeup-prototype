@@ -6,6 +6,8 @@ import javax.ws.rs.core.Context;
 import org.backmeup.logic.BusinessLogic;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * All rest classes derive from this class to 
@@ -18,6 +20,8 @@ import org.jboss.weld.environment.se.WeldContainer;
  *
  */
 public class Base {
+	private final Logger logger = LoggerFactory.getLogger(Base.class);
+	
 	//@Context
 	//private Providers providers;
 	private BusinessLogic logic;
@@ -37,8 +41,8 @@ public class Base {
           context.setAttribute("org.backmeup.logic", logic);
       } catch (Throwable e) {
         do {      
-          e.printStackTrace();
-          e = e.getCause();
+        	logger.error("", e);
+        	e = e.getCause();
         } while (e.getCause() != e && e.getCause() != null);
       }
 		}

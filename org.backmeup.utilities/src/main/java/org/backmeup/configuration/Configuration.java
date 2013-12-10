@@ -7,7 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Configuration {
+  private final Logger logger = LoggerFactory.getLogger(Configuration.class);	
   
   static {
     Configuration.getConfig();
@@ -50,7 +54,7 @@ public class Configuration {
         if (is != null)
           is.close();
       } catch(Exception ex) {
-        ex.printStackTrace();
+        logger.error("", ex);
       }
     }
   }

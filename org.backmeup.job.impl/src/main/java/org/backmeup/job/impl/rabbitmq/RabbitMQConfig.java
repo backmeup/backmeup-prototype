@@ -7,7 +7,11 @@ import java.util.Properties;
 import javax.enterprise.inject.Produces;
 import javax.inject.Named;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RabbitMQConfig {
+	private final Logger logger = LoggerFactory.getLogger(RabbitMQConfig.class);
 	
 	private Properties loadProperties() {
 	    Properties props = new Properties();
@@ -21,7 +25,7 @@ public class RabbitMQConfig {
 	        try {
 	          is.close();
 	        } catch (IOException  e) {
-	          e.printStackTrace();
+	        	logger.error("", e);
 	        }
 	    }
 	    return props;

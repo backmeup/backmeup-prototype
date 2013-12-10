@@ -6,7 +6,12 @@ import java.util.Date;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Metainfo {
+  private final Logger logger = LoggerFactory.getLogger(Metainfo.class);	
+	
   private static final String PROP_DESTINATION = "destination";
   private static final String PROP_TYPE = "type";
   private static final String PROP_SOURCE = "source";
@@ -81,7 +86,7 @@ public class Metainfo {
       try {
         return formatter.parse(input);
       } catch (ParseException e) { 
-        e.printStackTrace();
+    	  logger.error("", e);
       }
     }
     return null;

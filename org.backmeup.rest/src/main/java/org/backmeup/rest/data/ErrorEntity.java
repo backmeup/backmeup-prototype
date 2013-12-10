@@ -10,9 +10,13 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.backmeup.model.exceptions.BackMeUpException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @XmlRootElement
 public class ErrorEntity {
+  private final Logger logger = LoggerFactory.getLogger(ErrorEntity.class);	
+	
   private String errorMessage;
   private String errorType;
   private String[] trace;
@@ -29,7 +33,7 @@ public class ErrorEntity {
   public ErrorEntity(String type, Exception exception) {    
     StringWriter sw = new StringWriter();
     PrintWriter pw = new PrintWriter(sw);
-    exception.printStackTrace(pw);    
+    logger.error("", exception);
     try {
       pw.close();
     } catch (Exception e) {}    
@@ -59,13 +63,13 @@ public class ErrorEntity {
           }
         } catch (IllegalArgumentException e) {
           // TODO Auto-generated catch block
-          e.printStackTrace();
+        	logger.error("", e);
         } catch (IllegalAccessException e) {
           // TODO Auto-generated catch block
-          e.printStackTrace();
+        	logger.error("", e);
         } catch (InvocationTargetException e) {
           // TODO Auto-generated catch block
-          e.printStackTrace();
+        	logger.error("", e);
         }
       }
     }

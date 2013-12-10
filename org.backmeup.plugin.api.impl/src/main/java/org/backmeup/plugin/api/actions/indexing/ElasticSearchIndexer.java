@@ -21,6 +21,8 @@ import org.elasticsearch.common.text.StringText;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The indexer must be handed an ElasticSearch client in order to work. (This must be done
@@ -39,6 +41,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
  * @author Rainer Simon <rainer.simon@ait.ac.at>
  */
 public class ElasticSearchIndexer {
+	private final Logger logger = LoggerFactory.getLogger(ElasticSearchIndexer.class);
 	
 	private static final String DOCUMENT_TYPE_BACKUP = "backup";
 	
@@ -101,12 +104,12 @@ public class ElasticSearchIndexer {
 		
 		contentBuilder = contentBuilder.endObject();
 		
-		System.out.print("Pushing to ES index...");
+		logger.debug("Pushing to ES index...");
 		
 		// Push to ES index
 		client.prepareIndex(INDEX_NAME, DOCUMENT_TYPE_BACKUP).setSource(contentBuilder)
 			.setRefresh(true).execute().actionGet();
-		System.out.println(" done.");
+		logger.debug(" done.");
 	}
 	
 	private String getFilename(String path) {

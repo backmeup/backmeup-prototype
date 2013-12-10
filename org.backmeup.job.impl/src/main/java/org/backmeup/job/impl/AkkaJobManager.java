@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
@@ -25,6 +24,8 @@ import org.backmeup.model.BackupJob.JobStatus;
 import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorSystem;
 import akka.util.Duration;
@@ -51,7 +52,7 @@ abstract public class AkkaJobManager implements JobManager {
 	@Inject
 	private Keyserver keyserver;
 	
-	protected Logger log = Logger.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(AkkaJobManager.class);
 
 	private BackupJobDao getDao() {
 		return dal.createBackupJobDao();
@@ -179,7 +180,7 @@ abstract public class AkkaJobManager implements JobManager {
 			
 		} catch (Exception e) {
 			// TODO there must be error handling defined in the JobManager!^
-		  Logger.getLogger(AkkaJobManager.class).error("Error during startup", e);
+		  logger.error("Error during startup", e);
 			//throw new BackMeUpException(e);
 		} finally {
 		  conn.rollback();
@@ -187,6 +188,7 @@ abstract public class AkkaJobManager implements JobManager {
 	}
 	
 	private class RunAndReschedule implements Runnable {
+		private final Logger logger = LoggerFactory.getLogger(RunAndReschedule.class);
 		
 		private BackupJob job;
 		private DataAccessLayer dal;		
@@ -216,7 +218,7 @@ abstract public class AkkaJobManager implements JobManager {
 			
   			BackupJob nextJob = dal.createBackupJobDao().findById(job.getId());
   			if (nextJob != null && nextJob.isReschedule()) {
-  				System.out.println("Rescheduling job for execution in " + job.getDelay() + "ms");
+  				logger.debug("Rescheduling job for execution in " + job.getDelay() + "ms");
   				Date execTime = new Date(new Date().getTime() + job.getDelay());  				
   				nextJob.setNextExecutionTime(execTime);
   				system.scheduler().scheduleOnce(
@@ -225,7 +227,7 @@ abstract public class AkkaJobManager implements JobManager {
   				// store the next execution time
   				conn.commit();
   			} else {
-  				System.out.println("Job deleted in the mean time - no re-scheduling.");
+  				logger.debug("Job deleted in the mean time - no re-scheduling.");
   			}
 			} finally {
 			  conn.rollback();

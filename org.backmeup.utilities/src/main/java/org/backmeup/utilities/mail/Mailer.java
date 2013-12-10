@@ -14,7 +14,11 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Mailer {
+  private static final Logger logger = LoggerFactory.getLogger(Mailer.class);
   private static ExecutorService service;
   static {
     service = Executors.newFixedThreadPool(4);
@@ -51,7 +55,7 @@ public class Mailer {
     } catch (Exception e) {
       //TODO: Log exception
       throw new RuntimeException(e);
-      //e.printStackTrace();
+      //logger.error("", e);
     } 
   }
   
@@ -80,7 +84,7 @@ public class Mailer {
           try {
             is.close();
           } catch (IOException e) {
-            e.printStackTrace();
+        	  logger.error("", e);
           }
       }
     }

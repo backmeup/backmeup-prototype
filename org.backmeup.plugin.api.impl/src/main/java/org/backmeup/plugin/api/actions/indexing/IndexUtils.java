@@ -21,8 +21,11 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.highlight.HighlightField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IndexUtils {
+	private static final Logger logger = LoggerFactory.getLogger(IndexUtils.class);
 	
 	public static final String FIELD_OWNER_ID = "owner_id";
 	
@@ -108,7 +111,7 @@ public class IndexUtils {
 	public static List<SearchEntry> convertSearchEntries(org.elasticsearch.action.search.SearchResponse esResponse, BackMeUpUser user) {	    
 	    List<SearchEntry> entries = new ArrayList<SearchResponse.SearchEntry>();
 
-	    System.out.println("converting " + esResponse.getHits().totalHits() + " search results");
+	    logger.debug("converting " + esResponse.getHits().totalHits() + " search results");
 	    
 	    for (SearchHit hit : esResponse.getHits()) {
 	    	Map<String, Object> source = hit.getSource();

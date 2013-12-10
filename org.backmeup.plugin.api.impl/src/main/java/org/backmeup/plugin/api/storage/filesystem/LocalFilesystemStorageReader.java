@@ -8,9 +8,12 @@ import java.util.List;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.StorageException;
 import org.backmeup.plugin.api.storage.StorageReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Deprecated
 public class LocalFilesystemStorageReader extends StorageReader {
+	private final Logger logger = LoggerFactory.getLogger(LocalFilesystemStorageReader.class);
 
 	private File directory;
 	
@@ -36,7 +39,7 @@ public class LocalFilesystemStorageReader extends StorageReader {
 
 			public DataObject next() {
 				DataObject obj = flatList.get(idx);
-				//Logger.info("Retrieving from Storage: " + obj.getPath());
+				logger.info("Retrieving from Storage: " + obj.getPath());
 				idx++;
 				return obj;
 			}

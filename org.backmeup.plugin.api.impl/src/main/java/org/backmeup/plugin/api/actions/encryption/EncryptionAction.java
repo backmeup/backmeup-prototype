@@ -10,17 +10,21 @@ import org.backmeup.plugin.api.actions.ActionException;
 import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.Storage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EncryptionAction implements Action
 {
+	private final Logger logger = LoggerFactory.getLogger(EncryptionAction.class);
+	
 	private final String PROP_CONT_COUNT = "org.backmeup.filesplitting.containercount";
 	private final String PROP_PASSWORD = "org.backmeup.encryption.password";
 	
 	@Override
 	public void doAction (Properties parameters, Storage storage, BackupJob job, Progressable progressor) throws ActionException
 	{
-		System.out.println ("###############################################################");
-		System.out.println ("Start encryption Plugin");
+		logger.debug("###############################################################");
+		logger.debug("Start encryption Plugin");
 		
 		String password;
 		int containers;
@@ -94,18 +98,18 @@ public class EncryptionAction implements Action
 		{
 			try
 			{
-				System.out.println ("Write container start");
+				logger.debug("Write container start");
 				container.writeContainer ();
-				System.out.println ("Write container finished");
+				logger.debug("Write container finished");
 				
-				System.out.println ("Delete files start");
+				logger.debug("Delete files start");
 				// remove the partxxx folder in the storage
 				storage.removeDir (container.getContainername ());
-				System.out.println ("Delete files finished");
+				logger.debug("Delete files finished");
 				
-				System.out.println ("Move containers to FS start");
+				logger.debug("Move containers to FS start");
 				storage.addFile (container.getContainer (), container.getContainername (), new MetainfoContainer ());
-				System.out.println ("Move containers to FS finished");
+				logger.debug("Move containers to FS finished");
 				container.deleteContainer ();
 			}
 			catch (Exception e)

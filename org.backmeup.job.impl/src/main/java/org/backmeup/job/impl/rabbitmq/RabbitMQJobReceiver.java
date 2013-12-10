@@ -1,6 +1,5 @@
 package org.backmeup.job.impl.rabbitmq;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.inject.Inject;
@@ -8,10 +7,7 @@ import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.apache.log4j.Logger;
-import org.backmeup.configuration.Configuration;
 import org.backmeup.dal.DataAccessLayer;
-import org.backmeup.dal.jpa.DataAccessLayerImpl;
 import org.backmeup.dal.jpa.util.ConnectionImpl;
 import org.backmeup.job.impl.BackupJobRunner;
 import org.backmeup.keyserver.client.Keyserver;
@@ -20,7 +16,8 @@ import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorage;
-import org.backmeup.plugin.osgi.PluginImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -106,7 +103,7 @@ public class RabbitMQJobReceiver {
 	
 	private EntityManagerFactory emFactory;
 	
-	private Logger log = Logger.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(RabbitMQJobReceiver.class);
 	
 	
 	// TODO that's just a quick hack...
@@ -123,7 +120,7 @@ public class RabbitMQJobReceiver {
 		this.mqName = mqName;
 	    
 	    // Connect to the message queue
-	    log.info("Connecting to the message queue");
+	    logger.info("Connecting to the message queue");
 		ConnectionFactory factory = new ConnectionFactory();
 	    factory.setHost(mqHost);
 	    
@@ -151,7 +148,7 @@ public class RabbitMQJobReceiver {
 				@Override
 				public void run() {
 					try {
-						log.info("Starting message queue receiver");
+						logger.info("Starting message queue receiver");
 					    QueueingConsumer consumer = new QueueingConsumer(mqChannel);
 					    mqChannel.basicConsume(mqName, true, consumer);
 						
@@ -159,7 +156,7 @@ public class RabbitMQJobReceiver {
 					      try {
   					    	QueueingConsumer.Delivery delivery = consumer.nextDelivery();
   					    	String message = new String(delivery.getBody());
-  					    	log.info("Received: " + message);
+  					    	logger.info("Received: " + message);
   					    	
   					    	BackupJob job = JsonSerializer.deserialize(message, BackupJob.class);
   					    	
@@ -167,21 +164,19 @@ public class RabbitMQJobReceiver {
   			        		BackupJobRunner runner = new BackupJobRunner(plugins, keyserver, conn, dal);
   			        		runner.executeBackup(job, storage);
 					      } catch (Exception ex) {
-					        //TODO Log exception
-					        ex.printStackTrace();
-					        log.fatal(ex.getMessage() + " - failed to process job");
+					        logger.error("failed to process job", ex);
 					      }
 					    }
 					    
-					    log.info("Stopping message queue receiver");
+					    logger.info("Stopping message queue receiver");
 					    mqChannel.close();
 					    mqConnection.close();
 					    plugins.shutdown();
 					    emFactory.close();
-					    log.info("Message queue receiver stopped");
+					    logger.info("Message queue receiver stopped");
 					} catch (IOException e) {
 						// Should only happen if message queue is down
-						log.fatal(e.getMessage() + " - message queue down?");
+						logger.error("message queue down",e);
 						throw new RuntimeException(e);
 					}
 				}

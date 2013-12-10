@@ -50,6 +50,8 @@ import org.backmeup.model.spi.ActionDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable;
 import org.backmeup.model.spi.SourceSinkDescribable.Type;
 import org.backmeup.model.spi.ValidationExceptionType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The dummy businness logic stores all data within Lists and Maps (in-memory).
@@ -61,7 +63,9 @@ import org.backmeup.model.spi.ValidationExceptionType;
  */
 @ApplicationScoped
 public class DummyBusinessLogic implements BusinessLogic {
-  Long maxId = 3l;
+  private final Logger logger = LoggerFactory.getLogger(DummyBusinessLogic.class);
+  
+  private Long maxId = 3l;
 
   private List<BackMeUpUser> knownUsers;
   private List<SourceSinkDescribable> sources;
@@ -428,7 +432,7 @@ public class DummyBusinessLogic implements BusinessLogic {
     File f = new File("tmp");
     if (!f.exists())
       f.mkdir();
-    System.out.println(f.getAbsolutePath());
+    logger.debug(f.getAbsolutePath());
     File name = new File(filename);
     try {
       FileOutputStream fos = new FileOutputStream(new File("tmp/"
@@ -441,9 +445,9 @@ public class DummyBusinessLogic implements BusinessLogic {
       }
       fos.close();
     } catch (FileNotFoundException e) {
-      e.printStackTrace();
+    	logger.error("", e);
     } catch (IOException e) {
-      e.printStackTrace();
+    	logger.error("", e);
     }
   }
 

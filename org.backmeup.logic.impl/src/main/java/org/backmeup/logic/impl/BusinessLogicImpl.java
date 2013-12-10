@@ -26,7 +26,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.log4j.Logger;
 import org.backmeup.configuration.Configuration;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
@@ -94,6 +93,8 @@ import org.backmeup.plugin.spi.Authorizable.AuthorizationType;
 import org.backmeup.plugin.spi.InputBased;
 import org.backmeup.plugin.spi.OAuthBased;
 import org.backmeup.utilities.mail.Mailer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements the BusinessLogic interface by delegating most operations to
@@ -161,14 +162,14 @@ public class BusinessLogicImpl implements BusinessLogic {
   @Named("emailVerificationUrl")
   private String verificationUrl;
   
-  private Logger logger = Logger.getLogger(BusinessLogicImpl.class);
+  private final Logger logger = LoggerFactory.getLogger(BusinessLogicImpl.class);
   
 
   private ResourceBundle textBundle = ResourceBundle
       .getBundle(BusinessLogicImpl.class.getSimpleName());
 
   public BusinessLogicImpl() {
-	  System.out.println("********** NEW BUSINESSLOGICIMPL ************");
+	  logger.debug("********** NEW BUSINESSLOGICIMPL ************");
   }
 
   public ProfileDao getProfileDao() {
@@ -878,7 +879,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     	    stat.setFiles(fileItems);
     		return status;
 	    } catch (Throwable t) {
-	    	t.printStackTrace();
+	    	logger.error("", t);
 	    }           
       return null;
     } finally {
@@ -933,7 +934,7 @@ public class BusinessLogicImpl implements BusinessLogic {
         pd.setFileInfo(IndexUtils.convertToFileInfo(esResponse));
         return pd;
       } catch (Throwable t) {
-        t.printStackTrace();
+    	  logger.error("", t);
       }
       return new ProtocolDetails();
     } finally {
@@ -1092,7 +1093,7 @@ public class BusinessLogicImpl implements BusinessLogic {
       }
     } catch (PluginException pe) {
       // TODO: Log exception
-      pe.printStackTrace();
+    	logger.error("", pe);
       throw pe;
     } finally {
       conn.rollback();
@@ -1138,7 +1139,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 		    client = getIndexClient();
 		    client.deleteRecordsForUser(user.getUserId());
 	    } catch (Throwable t) {
-	    	t.printStackTrace();
+	    	logger.error("", t);
 	    }
 	  } finally {
 		conn.rollback();
@@ -1156,7 +1157,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 		    client = getIndexClient();
 		    client.deleteRecordsForJobAndTimestamp(jobId, timestamp);
 	    } catch (Throwable t) {
-	    	t.printStackTrace();
+	    	logger.error("", t);
 	    }
 	  } finally {
 		conn.rollback();
@@ -1188,7 +1189,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 		    search.setByType(IndexUtils.getByType(esResponse));
 		    search.setByJob (IndexUtils.getByJob (esResponse));
 	    } catch (Throwable t) {
-	    	t.printStackTrace();
+	    	logger.error("", t);
 	    }
 	    return search;
 	  } finally {
@@ -1203,7 +1204,7 @@ public class BusinessLogicImpl implements BusinessLogic {
 
 	  ElasticSearchIndexClient client = getIndexClient();	  
 	  String thumbnailPath = client.getThumbnailPathForFile(username, fileId);
-	  System.out.println("Got thumbnail path: " + thumbnailPath);
+	  logger.debug("Got thumbnail path: " + thumbnailPath);
 	  if (thumbnailPath != null)
 		  return new File(thumbnailPath);
 	  
@@ -1239,7 +1240,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
 
   public void shutdown() {
-    System.out.println(textBundle.getString(SHUTTING_DOWN_BUSINESS_LOGIC));
+    logger.debug(textBundle.getString(SHUTTING_DOWN_BUSINESS_LOGIC));
     this.jobManager.shutdown();
     this.plugins.shutdown();
   }

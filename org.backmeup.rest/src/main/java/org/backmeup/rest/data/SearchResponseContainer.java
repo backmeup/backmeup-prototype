@@ -107,7 +107,7 @@ public class SearchResponseContainer {
 			}
 			catch (Exception e)
 			{
-				System.out.println (e.toString ());
+				logger.debug(e.toString ());
 			}
 		}
 		

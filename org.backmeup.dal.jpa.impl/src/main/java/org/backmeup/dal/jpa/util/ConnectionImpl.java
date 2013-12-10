@@ -10,6 +10,8 @@ import javax.persistence.FlushModeType;
 
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * The Connection class makes the JPA transaction handling
  * easier for the BusinessLogicImpl class.
@@ -19,6 +21,8 @@ import org.backmeup.dal.DataAccessLayer;
  */
 @ApplicationScoped
 public class ConnectionImpl implements Connection {
+	private final Logger logger = LoggerFactory.getLogger(ConnectionImpl.class);
+	
 	private EntityManagerFactory emFactory;
 	private ThreadLocal<EntityManager> threadLocalEntityManager;
 	private ThreadLocal<Stack<Boolean>> joinedTransactions;
@@ -55,7 +59,7 @@ public class ConnectionImpl implements Connection {
 	  EntityManager em = getOrCreateEntityManager(); 
 		
 		if (em.getTransaction().isActive()) {
-		  System.out.println("Warning: Transaction already active! Rolling back");
+		  logger.debug("Warning: Transaction already active! Rolling back");
 		  em.getTransaction().rollback();
 		}
 		
@@ -91,7 +95,7 @@ public class ConnectionImpl implements Connection {
 	  EntityManager em = getEntityManager();
 	  
 		if (em == null) {
-		  System.err.println("Has already been committed/rolled back!");
+			logger.debug("Has already been committed/rolled back!");
 			return;
 		}
 		if (em.getTransaction().isActive()) {

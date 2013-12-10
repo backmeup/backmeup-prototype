@@ -47,6 +47,8 @@ import org.backmeup.model.Profile;
 import org.backmeup.model.ProfileOptions;
 import org.backmeup.model.Token;
 import org.backmeup.model.exceptions.BackMeUpException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -59,6 +61,7 @@ import com.google.gson.reflect.TypeToken;
 
 @ApplicationScoped
 public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
+  private final Logger logger = LoggerFactory.getLogger(Keyserver.class);
 
   private static class Result {
     public HttpResponse response;
@@ -206,7 +209,7 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
       try {
         port = Integer.parseInt(sp[1]);
       } catch (Exception ex) {
-        ex.printStackTrace();
+    	  logger.error("", ex);
       }
     }
     
@@ -395,7 +398,6 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     Gson g = new Gson();
     String json = g.toJson(new TokenRequest(userId, userPwd, services,
         authinfos, backupdate, reusable, encryptionPwd));
-    //System.out.println("REQUESTING: " + json);
     Result r = execute(path + "/tokens/token", ReqType.POST, json);
     if (r.response.getStatusLine().getStatusCode() == 200) {
       return g.fromJson(r.content, Token.class);
@@ -408,7 +410,6 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     Gson g = new Gson();
     String json = g.toJson(token);
     Result r = execute(path + "/tokens/data", ReqType.POST, json);
-    //System.out.println("REQUESTING: " + json);
     if (r.response.getStatusLine().getStatusCode() == 200) {
       return g.fromJson(r.content, AuthDataResult.class);
     }

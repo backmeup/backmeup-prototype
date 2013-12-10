@@ -20,10 +20,13 @@ import org.backmeup.plugin.api.connectors.Progressable;
 import org.backmeup.plugin.api.storage.DataObject;
 import org.backmeup.plugin.api.storage.Storage;
 import org.elasticsearch.client.Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 public class IndexAction implements Action {
+	private final Logger logger = LoggerFactory.getLogger(IndexAction.class);
 	
 	private Client client;
 	
@@ -41,7 +44,7 @@ public class IndexAction implements Action {
 	public void doAction(Properties parameters, Storage storage, BackupJob job, Progressable progressor)
 			throws ActionException {
 		
-		System.out.println("Starting file analysis...");
+		logger.debug("Starting file analysis...");
 		progressor.progress(START_INDEX_PROCESS);
 
 		TikaAnalyzer analyzer = new TikaAnalyzer();
@@ -66,7 +69,7 @@ public class IndexAction implements Action {
 					ElasticSearchIndexer indexer = new ElasticSearchIndexer(client);
 					
 					// TODO username needs to be available to action
-					System.out.println("Indexing " + dob.getPath());
+					logger.debug("Indexing " + dob.getPath());
 					meta = new HashMap<String, String>();
 					meta.put(IndexUtils.FIELD_CONTENT_TYPE, mime);
 					if (fulltext != null)

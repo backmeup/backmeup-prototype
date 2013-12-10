@@ -12,7 +12,11 @@ import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class URLReader {
+  private static final Logger logger = LoggerFactory.getLogger(URLReader.class);	
   
   public static String waitForResult() {
 		try {
@@ -35,22 +39,22 @@ public class URLReader {
 				res = res.split("\\?")[1];
 			return res;
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		return null;
 	}
 	
 	public static void launchBrowser(String url) {
 		if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Action.BROWSE)) {
-			System.err.println("no browser support");
-			System.out.println("Start manually: " + url);
+			logger.debug("no browser support");
+			logger.debug("Start manually: " + url);
 		}
 		try {
 			Desktop.getDesktop().browse(new URI(url));
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
+			logger.error("", e);
 		}
 	}
 }

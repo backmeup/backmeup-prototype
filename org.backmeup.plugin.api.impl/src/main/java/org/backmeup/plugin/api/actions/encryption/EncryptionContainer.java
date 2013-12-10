@@ -48,7 +48,7 @@ public class EncryptionContainer
 				dirpath += "/" + parts[i];
 			}
 			
-			System.out.println ("Write file to container: " + fspath);
+			//System.out.println ("Write file to container: " + fspath);
 			
 			File dirs = new File (dirpath);
 			dirs.mkdirs ();

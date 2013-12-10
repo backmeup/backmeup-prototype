@@ -60,7 +60,7 @@ public class LocalFilesystemStorageWriter extends StorageWriter {
 	@Override
 	public void addFile(InputStream is, String path, MetainfoContainer metadata) throws StorageException {
 		try {
-		  System.out.println(path);
+		  //System.out.println(path);
 			File out = new File(directory, path);
 			out.getParentFile().mkdirs();
 			

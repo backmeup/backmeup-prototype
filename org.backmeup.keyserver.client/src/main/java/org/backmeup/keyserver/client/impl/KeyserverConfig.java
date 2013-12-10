@@ -7,7 +7,12 @@ import java.util.Properties;
 import javax.enterprise.inject.Produces;
 import javax.inject.Named;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class KeyserverConfig {
+  private final Logger logger = LoggerFactory.getLogger(KeyserverConfig.class);	
+	
   private Properties loadProperties() {
     Properties props = new Properties();
     InputStream is = null;
@@ -20,7 +25,7 @@ public class KeyserverConfig {
         try {
           is.close();
         } catch (IOException e) {
-          e.printStackTrace();
+        	logger.error("", e);
         }
     }
     return props;

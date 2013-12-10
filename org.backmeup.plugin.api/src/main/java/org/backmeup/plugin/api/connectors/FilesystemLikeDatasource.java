@@ -8,6 +8,8 @@ import java.util.Properties;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.StorageException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An abstract base class for datasources following a filesystem-like paradigm.
@@ -16,6 +18,8 @@ import org.backmeup.plugin.api.storage.StorageException;
  * @author Rainer Simon <rainer.simon@ait.ac.at>
  */
 public abstract class FilesystemLikeDatasource implements Datasource { 
+	
+	private final Logger logger = LoggerFactory.getLogger(FilesystemLikeDatasource.class);
 	
 	public void downloadAll(Properties accessData, List<String> options, Storage storage, Progressable progressor) throws StorageException {
 		List<FilesystemURI> files = list(accessData, options);
@@ -28,16 +32,16 @@ public abstract class FilesystemLikeDatasource implements Datasource {
 	private void download(Properties accessData, List<String> options, FilesystemURI uri, Storage storage, Progressable progressor) throws StorageException {
 	  MetainfoContainer metainfo = uri.getMetainfoContainer();	  
 		if (uri.isDirectory()) {
-			//Logger.info("Downloading contents of directory " + uri);
+			logger.info("Downloading contents of directory " + uri);
 			for (FilesystemURI child : list(accessData, options, uri)) {
 				download(accessData, options, child, storage, progressor);
 			}
 		} else {
-			//Logger.info("Downloading file " + uri);
+			logger.info("Downloading file " + uri);
 			progressor.progress(String.format("Downloading file %s ...", uri.toString()));
 			InputStream is = getFile(accessData, options, uri);
 			if (is == null) {
-				//Logger.warn("Got a null input stream for " + uri.getUri().getPath().toString());
+				logger.warn("Got a null input stream for " + uri.getUri().getPath().toString());
 				progressor.progress(String.format("Downloading file %s failed!", uri.toString()));
 			} else {
 			  URI destination = uri.getMappedUri();

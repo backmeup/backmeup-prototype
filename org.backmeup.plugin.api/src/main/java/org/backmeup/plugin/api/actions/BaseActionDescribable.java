@@ -8,8 +8,11 @@ import java.util.Properties;
 
 import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.model.spi.ActionDescribable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BaseActionDescribable implements ActionDescribable {
+  private final Logger logger = LoggerFactory.getLogger(BaseActionDescribable.class);
 
   private Properties descriptionEntries;
   
@@ -40,7 +43,7 @@ public class BaseActionDescribable implements ActionDescribable {
           if (is != null)
             is.close();
         } catch (Exception ex) {
-          ex.printStackTrace();
+        	logger.error("", ex);
         }
       }
     }

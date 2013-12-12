@@ -4,8 +4,7 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 
 import org.backmeup.logic.BusinessLogic;
-import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.environment.se.WeldContainer;
+import org.backmeup.rest.cdi.JNDIBeanManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +21,6 @@ import org.slf4j.LoggerFactory;
 public class Base {
 	private final Logger logger = LoggerFactory.getLogger(Base.class);
 	
-	//@Context
-	//private Providers providers;
 	private BusinessLogic logic;
 	
 	@Context
@@ -35,10 +32,9 @@ public class Base {
 		if (logic == null) {
 		  // just in case we are running in an embedded server
 		  try {
-          Weld weld = new Weld();
-          WeldContainer container = weld.initialize();          
-          logic = container.instance().select(BusinessLogic.class).get();
-          context.setAttribute("org.backmeup.logic", logic);
+			  JNDIBeanManager jndiManager = JNDIBeanManager.getInstance();
+			  logic = jndiManager.getBean(BusinessLogic.class);
+			  context.setAttribute("org.backmeup.logic", logic);
       } catch (Throwable e) {
         do {      
         	logger.error("", e);

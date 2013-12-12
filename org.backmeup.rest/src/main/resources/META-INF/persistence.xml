@@ -17,8 +17,6 @@
 		<class>org.backmeup.model.FileItem</class>
 		<class>org.backmeup.model.UserProperty</class>
 		<class>org.backmeup.model.Service</class>
-		<!-- class>org.backmeup.model.ProtocolOverview</class>
-		<class>org.backmeup.model.ProtocolOverview$Entry</class> -->
 		<class>org.backmeup.model.JobProtocol</class>
 		<class>org.backmeup.model.JobProtocol$JobProtocolMember</class>
 		<class>org.backmeup.model.Token</class>

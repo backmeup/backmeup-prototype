@@ -11,7 +11,9 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import org.backmeup.configuration.Configuration;
+import javax.inject.Inject;
+
+import org.backmeup.configuration.cdi.Configuration;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
@@ -65,25 +67,35 @@ public class BackupJobRunner {
   private static final String ERROR_EMAIL_TEXT = "ERROR_EMAIL_TEXT";
   private static final String ERROR_EMAIL_SUBJECT = "ERROR_EMAIL_SUBJECT";
   private static final String ERROR_EMAIL_MIMETYPE = "ERROR_EMAIL_MIMETYPE";
-  private static final String INDEX_HOST = "index.host";
-  private static final String INDEX_PORT = "index.port";
 
+  private String indexHost;
+  
+  private int indexPort;
+  
+  private String jobTempDir;
+  
+  private String backupName;
+  
   private Plugin plugins;
   private Keyserver keyserver;
   private Connection conn;
   private DataAccessLayer dal;
-  
+    
   private final Logger logger = LoggerFactory.getLogger(BackupJobRunner.class);
   
   private ResourceBundle textBundle = ResourceBundle
       .getBundle(BackupJobRunner.class.getSimpleName());
 
   public BackupJobRunner(Plugin plugins, Keyserver keyserver, Connection conn,
-      DataAccessLayer dal) {
+      DataAccessLayer dal, String indexHost, int indexPort, String jobTempDir, String backupName) {
     this.plugins = plugins;
     this.keyserver = keyserver;
     this.conn = conn;
     this.dal = dal;
+    this.indexHost = indexHost;
+    this.indexPort = indexPort;
+    this.jobTempDir = jobTempDir;
+    this.backupName = backupName;
   }
 
   private Status addStatusToDb(Status status) {
@@ -337,15 +349,12 @@ public class BackupJobRunner {
 		thumbnailAction.doAction(params, storage, job, new JobStatusProgressor(job, "thumbnailAction"));
 		
 		// After thumbnail rendering, run indexing
-		Configuration config = Configuration.getConfig();
-		String host = config.getProperty(INDEX_HOST);
-		int port = Integer.parseInt(config.getProperty(INDEX_PORT));
 		
 		String clusterName = "es-cluster-" + NetworkUtils.getLocalAddress().getHostName();
 		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", clusterName).build();
 		
 		client = new TransportClient(settings)
-			.addTransportAddress(new InetSocketTransportAddress(host, port));
+			.addTransportAddress(new InetSocketTransportAddress(indexHost, indexPort));
 	
 		
 		Action indexAction = new IndexAction(client);
@@ -355,8 +364,6 @@ public class BackupJobRunner {
 
   private String generateTmpDirName (BackupJob job, ProfileOptions po)
 	{
-		String conftempdir = Configuration.getConfig ().getProperty ("job.temporaryDirectory");
-		String formatstring = Configuration.getConfig ().getProperty ("job.backupname");
 		SimpleDateFormat formatter = null;
 		Date date = new Date ();
 
@@ -365,9 +372,9 @@ public class BackupJobRunner {
 		// Take only last part of "org.backmeup.xxxx" (xxxx)
 		String profilename = getLastSplitElement (po.getProfile ().getDescription (), "\\.");
 		
-		formatter = new SimpleDateFormat (formatstring.replaceAll ("%PROFILEID%", profileid.toString ()).replaceAll ("%SOURCE%", profilename));
+		formatter = new SimpleDateFormat (backupName.replaceAll ("%PROFILEID%", profileid.toString ()).replaceAll ("%SOURCE%", profilename));
 		
-		return conftempdir + "/" + jobid + "/" + formatter.format (date);
+		return jobTempDir + "/" + jobid + "/" + formatter.format (date);
 	}
 	
 	private String getLastSplitElement (String text, String regex)
@@ -398,7 +405,5 @@ public class BackupJobRunner {
 		public void progress(String message) {
 			addStatusToDb(new Status(job, message, "info", category, new Date()));
 		}
-		
 	}
-
 }

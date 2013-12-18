@@ -9,7 +9,6 @@ import javax.servlet.ServletContextListener;
 
 import org.backmeup.configuration.Configuration;
 import org.backmeup.job.impl.rabbitmq.RabbitMQJobReceiver;
-import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.logic.BusinessLogic;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.network.NetworkUtils;
@@ -23,20 +22,23 @@ public class ContextListener implements ServletContextListener {
 	
 	//private BusinessLogic logic;
 	//private Plugin plugins;
-	private Keyserver keyserver;
+	//private Keyserver keyserver;
 	//private BeanManager beanManager;
 
 	public void InitializePluginInfrastructure() {
 		
 	}
 
+	
 	public void startKeyServer() {
 		  //TODO: Exchange with https constructor; use parameters from bl.properties + truststores from plone
+		/*
 	    keyserver = new org.backmeup.keyserver.client.impl.Keyserver(
 	      Configuration.getConfig().getProperty("keyserver.host"),
 	      Configuration.getConfig().getProperty("keyserver.path"),
 	      true
 	    );
+	    */
 	    
 	    //TODO: inject to RabbitMQJobReceiver
 
@@ -79,14 +81,14 @@ public class ContextListener implements ServletContextListener {
 		try {
 			logger.info("Inititialize BackMeUp");
 
-			logger.info("Initialize plugin infrastructure");
+			//logger.info("Initialize plugin infrastructure");
 
 			logger.info("Starting index client");
 			Client client = startIndexClient();
 			sce.getServletContext().setAttribute("org.backmeup.indexclient", client);
 
-			logger.info("Starting keyserver");
-			startKeyServer();
+			//logger.info("Starting keyserver");
+			//startKeyServer();
 
 			logger.info("Starting job workers");
 			List<RabbitMQJobReceiver> receivers = startRabbitMQWorker();

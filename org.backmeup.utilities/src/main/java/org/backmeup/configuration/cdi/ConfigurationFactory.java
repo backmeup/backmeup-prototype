@@ -81,7 +81,7 @@ public class ConfigurationFactory {
 	
 	@Produces
 	@Configuration
-	public int getConfigurationInt(InjectionPoint ip) {
+	public Integer getConfigurationInt(InjectionPoint ip) {
 		String value = getConfiguration(ip);
 		return Integer.parseInt(value);
 	}
@@ -91,5 +91,12 @@ public class ConfigurationFactory {
 	public Double getConfigurationDouble(InjectionPoint ip) {
 		String value = getConfiguration(ip);
 		return Double.parseDouble(value);
+	}
+	
+	@Produces
+	@Configuration
+	public Boolean getConfigurationBoolean(InjectionPoint ip) {
+		String value = getConfiguration(ip);
+		return Boolean.parseBoolean(value);
 	}
 }

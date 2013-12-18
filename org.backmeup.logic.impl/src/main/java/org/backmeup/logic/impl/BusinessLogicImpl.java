@@ -26,7 +26,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.codec.binary.Base64;
-import org.backmeup.configuration.Configuration;
+import org.backmeup.configuration.cdi.Configuration;
 import org.backmeup.dal.BackupJobDao;
 import org.backmeup.dal.Connection;
 import org.backmeup.dal.DataAccessLayer;
@@ -124,11 +124,31 @@ public class BusinessLogicImpl implements BusinessLogic {
   private static final String VERIFICATION_EMAIL_MIME_TYPE = "org.backmeup.logic.impl.BusinessLogicImpl.VERIFICATION_EMAIL_MIME_TYPE";
   private static final String ERROR_OCCURED = "org.backmeup.logic.impl.BusinessLogicImpl.ERROR_OCCURED";
   private static final String UNKNOWN_SEARCH_ID = "org.backmeup.logic.impl.BusinessLogicImpl.UNKNOWN_SEARCH_ID";
-  private static final String NO_PROFILE_WITHIN_JOB = "org.backmeup.logic.impl.BusinessLogicImpl.NO_PROFILE_WITHIN_JOB";
+  private static final String NO_PROFILE_WITHIN_JOB = "org.backmeup.logic.impl.BusinessLogicImpl.NO_PROFILE_WITHIN_JOB"; 
   
-  private static final String INDEX_HOST = "index.host";
-  private static final String INDEX_PORT = "index.port";  
+  @Inject
+  @Configuration(key="backmeup.callbackUrl")
+  private String callbackUrl;
   
+  @Inject
+  @Configuration(key="backmeup.minimalPasswordLength")
+  private Integer minimalPasswordLength;
+  
+  @Inject
+  @Configuration(key="backmeup.emailRegex")
+  private String emailRegex;
+  
+  @Inject
+  @Configuration(key="backmeup.emailVerificationUrl")
+  private String verificationUrl;
+  
+  @Inject
+  @Configuration(key="backmeup.index.host")
+  private String indexHost;
+  
+  @Inject
+  @Configuration(key="backmeup.index.port")
+  private Integer indexPort;
 
   @Inject
   private DataAccessLayer dal;
@@ -141,26 +161,10 @@ public class BusinessLogicImpl implements BusinessLogic {
   private Plugin plugins;
   
   // See setJobManager()
-  private JobManager jobManager;
-
-  @Inject
-  @Named("callbackUrl")
-  private String callbackUrl;
-
-  @Inject
-  @Named("minimalPasswordLength")
-  private int minimalPasswordLength;
+  private JobManager jobManager; 
 
   @Inject
   private Connection conn;
-
-  @Inject
-  @Named("emailRegex")
-  private String emailRegex;
-  
-  @Inject
-  @Named("emailVerificationUrl")
-  private String verificationUrl;
   
   private final Logger logger = LoggerFactory.getLogger(BusinessLogicImpl.class);
   
@@ -864,13 +868,8 @@ public class BusinessLogicImpl implements BusinessLogic {
       List<Status> status = sd.findLastByJob(job.getUser().getUsername(), job.getId());
           
       // Getting all files for job.getId()
-      try {	
-    	  // <TODO> redundant code - move this (from here) to a private method
-    	  Configuration config = Configuration.getConfig();
-    	  String host = config.getProperty(INDEX_HOST);
-    	  int port = Integer.parseInt(config.getProperty(INDEX_PORT));
-		    
-    	  ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);
+      try {		    
+    	  ElasticSearchIndexClient client = new ElasticSearchIndexClient(indexHost, indexPort);
     	  org.elasticsearch.action.search.SearchResponse esResponse = client.searchByJobId(job.getId());
 		  // </TODO>
 
@@ -923,12 +922,8 @@ public class BusinessLogicImpl implements BusinessLogic {
     try {
       conn.begin();
       
-      try {
-        Configuration config = Configuration.getConfig();
-        String host = config.getProperty(INDEX_HOST);
-        int port = Integer.parseInt(config.getProperty(INDEX_PORT));
-        
-        ElasticSearchIndexClient client = new ElasticSearchIndexClient(host, port);
+      try {      
+        ElasticSearchIndexClient client = new ElasticSearchIndexClient(indexHost, indexPort);
         org.elasticsearch.action.search.SearchResponse esResponse = client.getFileById(username, fileId);        
         ProtocolDetails pd = new ProtocolDetails();
         pd.setFileInfo(IndexUtils.convertToFileInfo(esResponse));
@@ -1214,10 +1209,7 @@ public class BusinessLogicImpl implements BusinessLogic {
   }
   
   private ElasticSearchIndexClient getIndexClient() {
-	  Configuration config = Configuration.getConfig();
-	  String host = config.getProperty(INDEX_HOST);
-	  int port = Integer.parseInt(config.getProperty(INDEX_PORT));	  
-	  return new ElasticSearchIndexClient(host, port);	  	  
+	  return new ElasticSearchIndexClient(indexHost, indexPort);	  	  
   }
 
   public DataAccessLayer getDataAccessLayer() {

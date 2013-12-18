@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import org.backmeup.configuration.Configuration;
 import org.backmeup.model.BackupJob;
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.MetainfoContainer;
@@ -26,15 +25,20 @@ import org.slf4j.LoggerFactory;
 
 public class ThumbnailAction implements Action {
 	private static final Logger logger = LoggerFactory.getLogger(ThumbnailAction.class);
-	private static Configuration config = Configuration.getConfig();
+	//private static Configuration config = Configuration.getConfig();
+	
+	private static final String THUMBNAIL_TEMP_DIR = "thumbnails";
+	private static final Integer THUMBNAIL_DIMENSIONS = 120;
+	
 	private static File TEMP_DIR; 
-	private static Integer THUMBNAIL_DIMENSIONS;
+	//private static Integer THUMBNAIL_DIMENSIONS;
 	
 	private static List<String> UNSUPPORTED_TYPES = Arrays.asList("css", "html", "xml");
 	
 	static {
 		try {
-			String path = config.getProperty("thumbnail.temp.dir");
+			//String path = config.getProperty("thumbnail.temp.dir");
+			String path = THUMBNAIL_TEMP_DIR;
 			if (!path.endsWith("/"))
 				path = path + "/";
 				
@@ -45,7 +49,7 @@ public class ThumbnailAction implements Action {
 		}
 		
 		try {
-			THUMBNAIL_DIMENSIONS = Integer.valueOf(Integer.parseInt(config.getProperty("thumbnail.dimensions")));
+			//THUMBNAIL_DIMENSIONS = Integer.valueOf(Integer.parseInt(config.getProperty("thumbnail.dimensions")));
 		} catch (Throwable t) {
 			logger.debug("Thumbnail dimensions not set - defaulting to 120px");
 		}

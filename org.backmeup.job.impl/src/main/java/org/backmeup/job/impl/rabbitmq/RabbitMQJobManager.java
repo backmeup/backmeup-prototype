@@ -4,10 +4,9 @@ import java.io.IOException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
 
+import org.backmeup.configuration.cdi.Configuration;
 import org.backmeup.job.impl.AkkaJobManager;
-import org.backmeup.job.impl.BackupJobRunner;
 import org.backmeup.model.BackupJob;
 import org.backmeup.model.exceptions.BackMeUpException;
 import org.backmeup.model.serializer.JsonSerializer;
@@ -26,39 +25,31 @@ import com.rabbitmq.client.ConnectionFactory;
  */
 @ApplicationScoped
 public class RabbitMQJobManager extends AkkaJobManager {
-	
 	private final Logger logger = LoggerFactory.getLogger(RabbitMQJobManager.class);
 	
 	@Inject
-	@Named("message.queue.host")
+	@Configuration(key="backmeup.message.queue.host")
 	private String mqHost;
 	
-	/**
-	 * Message queue name
-	 */
 	@Inject
-	@Named("message.queue.name")
+	@Configuration(key="backmeup.message.queue.name")
 	private String mqName;
 	
-	/**
-	 * Message queue connection
-	 */
 	private Connection mqConnection;
 	
-	/**
-	 * Message queue channel
-	 */
 	private Channel mqChannel;
-	
+	/*
 	public RabbitMQJobManager() throws IOException {
 		//init();
 	}
-	
+	*/
+	/*
 	RabbitMQJobManager(String mqHost, String mqName) throws IOException {
 		this.mqHost = mqHost;
 		this.mqName = mqName;
 		init();
 	}
+	*/
 	
 	@Override
 	public void start() {

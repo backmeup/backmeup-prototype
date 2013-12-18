@@ -17,7 +17,6 @@ import java.util.Scanner;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -37,6 +36,7 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
+import org.backmeup.configuration.cdi.Configuration;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.AuthUsrPwd;
 import org.backmeup.keyserver.client.TokenRequest;
@@ -73,48 +73,50 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
   }
 
   @Inject
-  @Named("keyserver.scheme")
+  @Configuration(key="keyserver.scheme")
   private String scheme;
 
   @Inject
-  @Named("keyserver.host")
+  @Configuration(key="keyserver.host")
   private String host;
 
   @Inject
-  @Named("keyserver.path")
+  @Configuration(key="keyserver.path")
   private String path;
 
   @Inject
-  @Named("keyserver.keystore")
+  @Configuration(key="keyserver.keystore")
   private String keystore;
 
   @Inject
-  @Named("keyserver.keystoreType")
+  @Configuration(key="keyserver.keystoreType")
   private String keystoreType;
 
   @Inject
-  @Named("keyserver.keystorePwd")
+  @Configuration(key="keyserver.keystorePwd")
   private String keystorePwd;
 
   @Inject
-  @Named("keyserver.truststore")
+  @Configuration(key="keyserver.truststore")
   private String truststore;
 
   @Inject
-  @Named("keyserver.truststoreType")
+  @Configuration(key="keyserver.truststoreType")
   private String truststoreType;
 
   @Inject
-  @Named("keyserver.truststorePwd")
+  @Configuration(key="keyserver.truststorePwd")
   private String truststorePwd;
 
   @Inject
-  @Named("keyserver.allowAllHostnames")
-  private boolean allowAllHostnames;
+  @Configuration(key="keyserver.allowAllHostnames")
+  private Boolean allowAllHostnames;
 
   public Keyserver() {
 
   }
+  
+  /*
   
   // use for http communication
   public Keyserver(String host, String path, boolean allowAllHostnames) {
@@ -142,6 +144,8 @@ public class Keyserver implements org.backmeup.keyserver.client.Keyserver {
     this.truststorePwd = truststorePwd;
     this.allowAllHostnames = allowAllHostnames;
   }
+  
+  */
 
 
 

@@ -47,13 +47,16 @@ public class ElasticSearchIndexer {
 	
 	private static final String INDEX_NAME = "backmeup";
 	
+	private static final String ES_CLUSTER_NAME = "es-backmeup-cluster";
+	
 	private Client client;
 	
 	public ElasticSearchIndexer(String host, int port) {
 		host = NetworkUtils.getLocalAddress().getHostName();
-		String clusterName = "es-cluster-" + NetworkUtils.getLocalAddress().getHostName();
+		//String clusterName = "es-cluster-" + NetworkUtils.getLocalAddress().getHostName();
 
-		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", clusterName).build();
+		//Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", clusterName).build();
+		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", ES_CLUSTER_NAME).build();
 		client = new TransportClient(settings)
 			.addTransportAddress(new InetSocketTransportAddress(host, port));
 	}

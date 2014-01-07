@@ -67,6 +67,8 @@ public class BackupJobRunner {
   private static final String ERROR_EMAIL_TEXT = "ERROR_EMAIL_TEXT";
   private static final String ERROR_EMAIL_SUBJECT = "ERROR_EMAIL_SUBJECT";
   private static final String ERROR_EMAIL_MIMETYPE = "ERROR_EMAIL_MIMETYPE";
+  
+  private static final String ES_CLUSTER_NAME = "es-backmeup-cluster";
 
   private String indexHost;
   
@@ -350,8 +352,9 @@ public class BackupJobRunner {
 		
 		// After thumbnail rendering, run indexing
 		
-		String clusterName = "es-cluster-" + NetworkUtils.getLocalAddress().getHostName();
-		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", clusterName).build();
+		//String clusterName = "es-cluster-" + NetworkUtils.getLocalAddress().getHostName();
+		//Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", clusterName).build();
+		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", ES_CLUSTER_NAME).build();
 		
 		client = new TransportClient(settings)
 			.addTransportAddress(new InetSocketTransportAddress(indexHost, indexPort));

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.backmeup.model.BackMeUpUser;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -23,11 +24,14 @@ public class ElasticSearchIndexClient {
 	
 	private static final String INDEX_NAME = "backmeup";
 	
+	private static final String CLUSTER_NAME = "es-backmeup-cluster";
+	
 	private Client client;
 	
 	public ElasticSearchIndexClient(String host, int port) {
-		host = NetworkUtils.getLocalAddress().getHostName();
-		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "es-cluster-" + NetworkUtils.getLocalAddress().getHostName()).build();
+		//host = NetworkUtils.getLocalAddress().getHostName();
+		//Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", "es-cluster-" + NetworkUtils.getLocalAddress().getHostName()).build();
+		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", CLUSTER_NAME).build();
 		client = new TransportClient(settings)
 			.addTransportAddress(new InetSocketTransportAddress(host, port));
 	}
@@ -114,10 +118,13 @@ public class ElasticSearchIndexClient {
 	}
 	
 	public void deleteRecordsForUser(Long userId) {
-		client.prepareDeleteByQuery(INDEX_NAME)
+		boolean hasIndex = client.admin().indices().exists(
+				new IndicesExistsRequest("indexName")).actionGet().isExists();
+		if(hasIndex){
+			client.prepareDeleteByQuery(INDEX_NAME)
 				.setQuery(QueryBuilders.matchQuery(IndexUtils.FIELD_OWNER_ID, userId))
 				.execute().actionGet();
-	
+		}
 	}
 	
 	public void deleteRecordsForJobAndTimestamp(Long jobId, Long timestamp) {

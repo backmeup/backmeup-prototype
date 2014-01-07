@@ -93,6 +93,7 @@ import org.backmeup.plugin.spi.Authorizable.AuthorizationType;
 import org.backmeup.plugin.spi.InputBased;
 import org.backmeup.plugin.spi.OAuthBased;
 import org.backmeup.utilities.mail.Mailer;
+import org.elasticsearch.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,6 +166,9 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   @Inject
   private Connection conn;
+  
+  @Inject
+  private Node esNode;
   
   private final Logger logger = LoggerFactory.getLogger(BusinessLogicImpl.class);
   
@@ -1235,6 +1239,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     logger.debug(textBundle.getString(SHUTTING_DOWN_BUSINESS_LOGIC));
     this.jobManager.shutdown();
     this.plugins.shutdown();
+    this.esNode.close();
   }
 
   public JobManager getJobManager() {

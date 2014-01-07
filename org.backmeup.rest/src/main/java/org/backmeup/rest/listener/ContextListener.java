@@ -84,8 +84,8 @@ public class ContextListener implements ServletContextListener {
 			//logger.info("Initialize plugin infrastructure");
 
 			logger.info("Starting index client");
-			Client client = startIndexClient();
-			sce.getServletContext().setAttribute("org.backmeup.indexclient", client);
+			//Client client = startIndexClient();
+			//sce.getServletContext().setAttribute("org.backmeup.indexclient", client);
 
 			//logger.info("Starting keyserver");
 			//startKeyServer();
@@ -106,13 +106,14 @@ public class ContextListener implements ServletContextListener {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
+		logger.info("Shutting down business logic...");
+		
 		// call shutdown on exit
 		BusinessLogic logic = (BusinessLogic) sce.getServletContext().getAttribute("org.backmeup.logic");
-
-		logger.info("Shutting down business logic...");
-		logic.shutdown();
-		
-		logic = null;
+		if(logic != null) {
+			logic.shutdown();
+			logic = null;
+		}
 
 		List<RabbitMQJobReceiver> receivers = (List<RabbitMQJobReceiver>) sce
 				.getServletContext().getAttribute("org.backmeup.worker");
@@ -123,12 +124,14 @@ public class ContextListener implements ServletContextListener {
 			}
 		}
 
+		/*
 		Client indexClient = (Client) sce.getServletContext().getAttribute(
 				"org.backmeup.indexclient");
 		if (indexClient != null) {
 			logger.info("Shutting down index client");
 			indexClient.close();
 		}
+		*/
 
 		logger.info("Shutdown completed");
 	}

@@ -1,9 +1,21 @@
-*/target/*
-*/*/target/*
 */autodeploy/*
 plugins/build/*
 */osgiTmp/*
 *.pyc
 .metadata
-.settings
 RemoteSystemsTempFiles
+
+# Maven
+target/
+
+# IDEA
+.idea/
+*.iml
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Mac OS X
+.DS_Store

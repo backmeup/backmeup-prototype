@@ -1,4 +1,4 @@
-package org.backmuep.plugin.osgi.impl.test;
+package org.backmeup.plugin.osgi.impl.test;
 
 import java.util.List;
 

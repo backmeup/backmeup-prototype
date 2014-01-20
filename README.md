@@ -20,12 +20,12 @@ Instructions on how to set up Maven on your machine are [available here]
 
 2. Configure the platform to your needs: [Configuration](https://github.com/backmeup/backmeup-prototype/wiki/configuration)
 
-3. Build parts of the project: `mvn clean package install` (Note: use `mvn clean package install -DskipTests` to build without running tests)
+3. Build parts of the project: `mvn clean install` (Note: use `mvn clean install -DskipTests` to build without running tests)
 
 4. Build plugins: 
 ```
 cd plugins
-mvn clean package install
+mvn clean install
 ```
 
 5. Setup standard-plugins and built plugins (dropbox and skydrive currently):
@@ -44,9 +44,9 @@ cp ../plugins/build/*.jar autodeploy
 
 9. To start the rest server in debug mode, use the additional debug profile: `mvn -P standard,debug exec:exec` (the debug-port will be 1044)
 
-10. All parts are eclipse-projects aswell. To add them to your workspace use the eclipse command `Add Existing Projects`
+10. To use Maven within Eclipse, install the Maven Integration (m2e) Plugin (http://www.eclipse.org/m2e/)
 
-11. To use maven within eclipse, install the Maven Integration (m2e) Plugin (http://www.eclipse.org/m2e/)
+11. All parts are Eclipse projects aswell. To add them to your workspace use the Eclipse command `Import Existing Maven Projects`
 
 ## Further Information 
 

@@ -8,7 +8,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>${packaging.type}</packaging>
 	<parent>
-		<artifactId>app</artifactId>
+		<artifactId>backmeup-service</artifactId>
 		<groupId>org.backmeup</groupId>
 		<version>0.0.1</version>
 	</parent>

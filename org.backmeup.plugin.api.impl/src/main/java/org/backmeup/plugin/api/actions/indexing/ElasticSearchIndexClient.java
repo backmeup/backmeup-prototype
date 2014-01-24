@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.backmeup.model.BackMeUpUser;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.network.NetworkUtils;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -34,6 +36,18 @@ public class ElasticSearchIndexClient {
 		Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", CLUSTER_NAME).build();
 		client = new TransportClient(settings)
 			.addTransportAddress(new InetSocketTransportAddress(host, port));
+		
+		// Check if index exists and if not create it.   
+	    IndicesExistsResponse existsResponse = client.admin().indices().prepareExists(INDEX_NAME).execute().actionGet();
+        if (!existsResponse.isExists()) {
+            CreateIndexRequestBuilder cirb = client.admin().indices().prepareCreate(INDEX_NAME);
+            CreateIndexResponse createIndexResponse = cirb.execute().actionGet();
+            if (!createIndexResponse.isAcknowledged()) {
+//            	throw new Exception("Could not create index ["+ INDEX_NAME +"].");
+            	logger.info("Could not create index [" + INDEX_NAME +" ].");
+            }
+        }
+		
 	}
 	
 	public ElasticSearchIndexClient(Client client) {

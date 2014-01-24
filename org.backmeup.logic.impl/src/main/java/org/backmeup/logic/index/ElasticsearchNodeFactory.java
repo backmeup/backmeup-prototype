@@ -26,6 +26,10 @@ public class ElasticsearchNodeFactory {
 	@Inject
 	@Configuration(key = "backmeup.index.port", defaultValue = "9300")
 	private Integer indexPort;
+	
+	@Inject
+	@Configuration(key = "backmeup.index.name")
+	private String indexName;
 
 	@Inject
 	@Configuration(key = "backmeup.index.node.data", defaultValue = "true")
@@ -47,6 +51,20 @@ public class ElasticsearchNodeFactory {
 
 	@Produces
 	public Node getElasticSearchNode() {
+		if (node == null) {
+			node = initializeNode();
+		}
+
+		return node;
+	}
+	
+	// on shutdown stop the node
+	public void closeNode(@Disposes Node node) {
+		logger.debug("Closing elasticsearch node");
+		node.close();
+	}
+	
+	private Node initializeNode(){
 		Builder settingsBuilder = ImmutableSettings.settingsBuilder().put(
 				"node.http.enabled", true);
 
@@ -59,7 +77,7 @@ public class ElasticsearchNodeFactory {
 					.put("index.number_of_shards", 1)
 					.put("index.number_of_replicas", 0);
 		}
-		
+
 		// .put("path.logs","target/elasticsearch/logs")
 		Settings settings = settingsBuilder.build();
 
@@ -68,25 +86,21 @@ public class ElasticsearchNodeFactory {
 			// node allocates indices and shards
 			// 'local' Node: local discovery and transport, local to JVM
 			// for unit/integration tests
-			node = NodeBuilder.nodeBuilder().settings(settings).node();
+			return NodeBuilder.nodeBuilder().settings(settings).node();
 		} else {
 			// node just as client
-			node = NodeBuilder.nodeBuilder().client(true).settings(settings).node();
+			return NodeBuilder.nodeBuilder().client(true)
+					.settings(settings).node();
 		}
-
-		return node;
-	}
-	
-	// on shutdown stop the node
-	public void closeNode(@Disposes Node node) {
-		logger.debug("Closing elasticsearch node");
-		node.close();
 	}
 	
 	/*
 	@Produces
 	public Client getElasticSearchClient() {
-		return null;
+		if(node == null){
+			node = initializeNode();
+		}
+		return node.client();
 	}
 	
 	// close elasticsearch client

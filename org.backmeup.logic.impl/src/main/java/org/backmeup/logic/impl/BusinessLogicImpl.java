@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -36,6 +37,7 @@ import org.backmeup.dal.SearchResponseDao;
 import org.backmeup.dal.StatusDao;
 import org.backmeup.dal.UserDao;
 import org.backmeup.job.JobManager;
+import org.backmeup.job.impl.rabbitmq.RabbitMQJobReceiver;
 import org.backmeup.keyserver.client.AuthDataResult;
 import org.backmeup.keyserver.client.Keyserver;
 import org.backmeup.logic.BusinessLogic;
@@ -170,6 +172,30 @@ public class BusinessLogicImpl implements BusinessLogic {
   @Inject
   private Node esNode;
   
+  // RabbitMQJobReceiver -------------------
+  @Inject
+  @Configuration(key="backmeup.message.queue.host")
+  private String mqHost;
+  
+  @Inject
+  @Configuration(key="backmeup.message.queue.name")
+  private String mqName;
+  
+  @Inject
+  @Configuration(key="backmeup.message.queue.receivers")
+  private Integer numberOfJobWorker;
+  
+  @Inject
+  @Configuration(key="backmeup.job.backupname")
+  private String backupName;
+  
+  @Inject
+  @Configuration(key="backmeup.job.temporaryDirectory")
+  private String jobTempDir;
+  
+  private List<RabbitMQJobReceiver> jobWorker;
+  // ---------------------------------------
+  
   private final Logger logger = LoggerFactory.getLogger(BusinessLogicImpl.class);
   
 
@@ -179,7 +205,24 @@ public class BusinessLogicImpl implements BusinessLogic {
   public BusinessLogicImpl() {
 	  logger.debug("********** NEW BUSINESSLOGICIMPL ************");
   }
-
+  
+  @PostConstruct
+	public void startup() {
+		logger.info("Starting job workers");
+		try {
+			jobWorker = new ArrayList<RabbitMQJobReceiver>();
+			for (int i = 0; i < numberOfJobWorker; i++) {
+				RabbitMQJobReceiver rec = new RabbitMQJobReceiver(mqHost,
+						mqName, indexHost, indexPort, backupName, jobTempDir,
+						plugins, keyserverClient, dal);
+				rec.start();
+				jobWorker.add(rec);
+			}
+		} catch (Exception e) {
+			logger.error("Error while starting job receivers", e);
+		}
+	}
+  
   public ProfileDao getProfileDao() {
     return dal.createProfileDao();
   }
@@ -1240,6 +1283,11 @@ public class BusinessLogicImpl implements BusinessLogic {
     this.jobManager.shutdown();
     this.plugins.shutdown();
     this.esNode.close();
+    
+    logger.info("Shutting down job workers!");
+	for (RabbitMQJobReceiver receiver : jobWorker) {
+		receiver.stop();
+	}
   }
 
   public JobManager getJobManager() {

@@ -42,6 +42,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.backmeup</groupId>
+			<artifactId>job.impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.backmeup</groupId>
 			<artifactId>plugin</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -94,12 +99,6 @@
 		<dependency>
 			<groupId>org.backmeup</groupId>
 			<artifactId>plugin.osgi.impl</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.backmeup</groupId>
-			<artifactId>job.impl</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

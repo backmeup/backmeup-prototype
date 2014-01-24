@@ -17,6 +17,7 @@ import org.backmeup.model.serializer.JsonSerializer;
 import org.backmeup.plugin.Plugin;
 import org.backmeup.plugin.api.storage.Storage;
 import org.backmeup.plugin.api.storage.filesystem.LocalFilesystemStorage;
+import org.backmeup.plugin.osgi.PluginImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,83 +41,40 @@ public class RabbitMQJobReceiver {
 	 * "org.backmeup.plugin.api " + "org.backmeup.plugin.api.actions " +
 	 * "javax.mail " + "com.sun.imap ";
 	 */
-
-	@Inject
-	@Named("plugin")
-	private Plugin plugins;
-
-	@Inject
-	private Keyserver keyserver;
-
-	@Inject
-	private DataAccessLayer dal;
-
-	@Inject
-	@Configuration(key = "backmeup.index.host", mandatory = true)
+	private final Logger logger = LoggerFactory.getLogger(RabbitMQJobReceiver.class);
+	
 	private String indexHost;
 
-	@Inject
-	@Configuration(key = "backmeup.index.port")
 	private Integer indexPort;
 
-	@Inject
-	@Configuration(key = "backmeup.job.temporaryDirectory", defaultValue = "/data/tmp_files")
 	private String jobTempDir;
 
-	@Inject
-	@Configuration(key = "backmeup.job.backupname")
 	private String backupName;
+	
+	private String mqName;
+	
+	private String mqHost;
+	
+	
+	
+	private Plugin plugins;
 
-	public Plugin getPlugins() {
-		return plugins;
-	}
+	private Keyserver keyserver;
 
-	public void setPlugins(Plugin plugins) {
-		this.plugins = plugins;
-	}
+	private DataAccessLayer dal;
 
-	public Keyserver getKeyserver() {
-		return keyserver;
-	}
-
-	public void setKeyserver(Keyserver keyserver) {
-		this.keyserver = keyserver;
-	}
-
-	public DataAccessLayer getDal() {
-		return dal;
-	}
-
-	public void setDal(DataAccessLayer dal) {
-		this.dal = dal;
-	}
+	
 
 	private org.backmeup.dal.Connection conn;
-
-	/**
-	 * Message queue name
-	 */
-	private String mqName;
-
-	/**
-	 * Message queue connection
-	 */
-	private Connection mqConnection;
-
-	/**
-	 * Message queue channel
-	 */
-	private Channel mqChannel;
-
-	/**
-	 * Flag to switch message listening on and off
-	 */
-	private boolean listening = false;
-
+	
 	private EntityManagerFactory emFactory;
 
-	private final Logger logger = LoggerFactory
-			.getLogger(RabbitMQJobReceiver.class);
+	private Connection mqConnection;
+
+	private Channel mqChannel;
+
+	private boolean listening;
+
 
 	// TODO that's just a quick hack...
 	// public static void initSystem(String pluginsDir) throws IOException {
@@ -132,8 +90,19 @@ public class RabbitMQJobReceiver {
 	// ((PluginImpl)plugins).waitForInitialStartup();
 	// }
 
-	public RabbitMQJobReceiver(String mqHost, String mqName) throws IOException {
+	public RabbitMQJobReceiver(String mqHost, String mqName, String indexHost, Integer indexPort, String backupName, String jobTempDir, Plugin plugins, Keyserver keyserver, DataAccessLayer dal) throws IOException {
 		this.mqName = mqName;
+		this.mqHost = mqHost;
+		this.indexHost = indexHost;
+		this.indexPort = indexPort;
+		this.backupName = backupName;
+		this.jobTempDir = jobTempDir;
+		
+		this.plugins = plugins;
+		this.keyserver = keyserver;
+		this.dal = dal;
+		
+		this.listening = false;
 
 		// Connect to the message queue
 		logger.info("Connecting to the message queue");

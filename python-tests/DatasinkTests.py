@@ -3,7 +3,6 @@
 from RESTBackMeUp import *
 from unittest import TestCase
 import httplib
-
 import logging
 
 logger = logging.getLogger(__name__)
@@ -51,7 +50,7 @@ class TestDatasinks(TestCase):
     res = auth_datasink("TestUser", "org.backmeup.dropbox", "Dropbox", "password")
     logger.debug("After auth_datasink")
     logger.debug(str(res))
-    #post_auth_datasink("TestUser", res.data["profileId"], "key", {})
+    # post_auth_datasink("TestUser", res.data["profileId"], "key", {})
     res = get_datasink_profiles("TestUser")
     self.assertEquals(res.code, httplib.OK)
     self.assertEquals(len(res.data["sinkProfiles"]), 1)
@@ -73,7 +72,7 @@ class TestDatasinks(TestCase):
 
     # perform auth + post + delete
     res = auth_datasink("TestUser2", "org.backmeup.dropbox", "Dropbox", "password")
-    #post_auth_datasink("TestUser2", res.data["profileId"], "key", {})
+    # post_auth_datasink("TestUser2", res.data["profileId"], "key", {})
     res = delete_datasink_profile("TestUser2", res.data["profileId"])
     self.assertEquals(res.code, httplib.NO_CONTENT)
     res = get_datasink_profiles("TestUser2")

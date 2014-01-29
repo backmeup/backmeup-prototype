@@ -1,6 +1,4 @@
 from REST import Comm
-from time import mktime
-from json import dumps
 
 ##### User operations #####
 com = Comm()
@@ -14,7 +12,7 @@ def delete_user(user):
   return answer
 
 def change_user(oldUsername, newUsername, oldPassword, newPassword, newEmail, oldKeyRing=None, newKeyRing=None):
-  answer = com.request("PUT", "/users/" + oldUsername, 
+  answer = com.request("PUT", "/users/" + oldUsername,
       { "username" : newUsername, "oldPassword" : oldPassword, "password" :
 				newPassword, "email" : newEmail, "oldKeyring" : oldKeyRing, "newKeyring" : newKeyRing
 			})
@@ -41,7 +39,7 @@ def get_user_property(user, prop):
   return answer
 
 def set_user_property(user, prop, value):
-  answer = com.request("POST", "/users/" + user + "/properties/" + prop + "/"  + value)
+  answer = com.request("POST", "/users/" + user + "/properties/" + prop + "/" + value)
   return answer
 
 def delete_user_property(user, prop):
@@ -66,7 +64,7 @@ def get_stored_datasource_options(user, profileId, jobId):
   return com.request("GET", "/datasources/" + user + "/profiles/" + str(profileId) + "/" + str(jobId) + "/storedOptions")
 
 def change_datasource_profile(user, jobId, profileId, options):
-  return com.request("PUT", "/datasources/" + user + "/profiles/" + str(profileId) +"/" + str(jobId), {"sourceOptions" : options})
+  return com.request("PUT", "/datasources/" + user + "/profiles/" + str(profileId) + "/" + str(jobId), {"sourceOptions" : options})
 
 def auth_datasource(user, datasourceId, profileName, keyRing):
   return com.request("POST", "/datasources/" + user + "/" + str(datasourceId) + "/auth", {"profileName" : profileName, "keyRing" : keyRing})
@@ -88,7 +86,7 @@ def delete_datasink_profile(user, profileId):
   return com.request("DELETE", "/datasinks/" + user + "/profiles/" + str(profileId))
 
 def change_datasink_profile(user, profileId, options):
-  return com.request("PUT", "/datasinks/" + user + "/profiles/" + str(profileId), {sourceOptions : options})
+  return com.request("PUT", "/datasinks/" + user + "/profiles/" + str(profileId), {"sourceOptions" : options})
 
 def auth_datasink(user, datasinkId, profileName, keyRing):
   return com.request("POST", "/datasinks/" + user + "/" + str(datasinkId) + "/auth", {"profileName" : profileName, "keyRing" : keyRing})
@@ -133,7 +131,7 @@ def update_backup_job(user, keyRing, jobId, sourceProfiles, requiredActions, sin
            }
   if (settings != None):
     params.update(settings)
-  #print dumps(params, indent=2)
+  # print dumps(params, indent=2)
   return com.request("PUT", "/jobs/" + user + "/" + str(jobId), params)
 
 def create_backup_job(user, keyRing, sourceProfiles, requiredActions, sinkProfileId, when, jobTitle, settings=None):
@@ -146,7 +144,7 @@ def create_backup_job(user, keyRing, sourceProfiles, requiredActions, sinkProfil
            }
   if (settings != None):
     params.update(settings)
-  #print dumps(params, indent=2)
+  # print dumps(params, indent=2)
   return com.request("POST", "/jobs/" + user, params)
 
 '''def create_backup_job(user, keyRing, sourceProfileIds, requiredActions, sinkProfileId, when, jobTitle, sourceOptions=None):
@@ -177,7 +175,7 @@ def get_file_details(user, fileId):
 def get_overview(user, duration):
   return com.request("GET", "/jobs/" + user + "/status/overview?duration=" + duration)
 
-#def validate_profile(user, profileId):
+# def validate_profile(user, profileId):
 #  return request("GET", "/datasources
 
 ######### Action Operations #########

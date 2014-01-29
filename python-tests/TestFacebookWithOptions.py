@@ -1,6 +1,9 @@
+# -*- coding: ISO-8859-1 -*-
+
 import RESTBackMeUp as BMU
-user="fbtest@trash-mail.com"
-pw="password"
+
+user = "fbtest@trash-mail.com"
+pw = "password"
 
 BMU.delete_user(user)
 res = BMU.register_user(user, pw, pw, user)

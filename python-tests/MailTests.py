@@ -1,7 +1,7 @@
 # -*- coding: ISO-8859-1 -*-
 
 from RESTBackMeUp import *
-from unittest import TestCase, skip
+from unittest import TestCase
 import httplib
 
 HTML_TEST_MAIL = """

@@ -1,6 +1,6 @@
 # -*- coding: ISO-8859-1 -*-
 
-from RESTBackMeUp import *
+from RESTBackMeUp import get_actions
 from unittest import TestCase, skip
 import httplib
 

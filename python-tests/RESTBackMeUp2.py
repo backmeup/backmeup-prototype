@@ -1,5 +1,5 @@
+
 from REST import Comm
-from time import mktime
 
 class BMU:
   ##### User operations #####
@@ -15,7 +15,7 @@ class BMU:
     return answer
   
   def change_user(self, oldUsername, newUsername, oldPassword, newPassword, newEmail):
-    answer = self.com.request("PUT", "/users/" + oldUsername, 
+    answer = self.com.request("PUT", "/users/" + oldUsername,
         { "username" : newUsername, "oldPassword" : oldPassword, "password" : newPassword, "email" : newEmail })
     return answer
   
@@ -40,7 +40,7 @@ class BMU:
     return answer
   
   def set_user_property(self, user, prop, value):
-    answer = self.com.request("POST", "/users/" + user + "/properties/" + prop + "/"  + value)
+    answer = self.com.request("POST", "/users/" + user + "/properties/" + prop + "/" + value)
     return answer
   
   def delete_user_property(self, user, prop):
@@ -65,7 +65,7 @@ class BMU:
     return self.com.request("GET", "/datasources/" + user + "/profiles/" + str(profileId) + "/" + str(jobId) + "/storedOptions")
   
   def change_datasource_profile(self, user, jobId, profileId, options):
-    return self.com.request("PUT", "/datasources/" + user + "/profiles/" + str(profileId) +"/" + str(jobId), {"sourceOptions" : options})
+    return self.com.request("PUT", "/datasources/" + user + "/profiles/" + str(profileId) + "/" + str(jobId), {"sourceOptions" : options})
   
   def auth_datasource(self, user, datasourceId, profileName, keyRing):
     return self.com.request("POST", "/datasources/" + user + "/" + str(datasourceId) + "/auth", {"profileName" : profileName, "keyRing" : keyRing})
@@ -87,7 +87,7 @@ class BMU:
     return self.com.request("DELETE", "/datasinks/" + user + "/profiles/" + str(profileId))
   
   def change_datasink_profile(self, user, profileId, options):
-    return self.com.request("PUT", "/datasinks/" + user + "/profiles/" + str(profileId), {sourceOptions : options})
+    return self.com.request("PUT", "/datasinks/" + user + "/profiles/" + str(profileId), {"sourceOptions" : options})
   
   def auth_datasink(self, user, datasinkId, profileName, keyRing):
     return self.com.request("POST", "/datasinks/" + user + "/" + str(datasinkId) + "/auth", {"profileName" : profileName, "keyRing" : keyRing})
@@ -119,10 +119,10 @@ class BMU:
   def validate_backup_job(self, user, jobId, keyRing):
     return self.com.request("POST", "/jobs/" + user + "/validate/" + str(jobId), {"keyRing" : keyRing})
 
-  def get_backup_job(user, jobId):
-    return com.request("GET", "/jobs/" + user + "/" + str(jobId))
+  def get_backup_job(self, user, jobId):
+    return self.com.request("GET", "/jobs/" + user + "/" + str(jobId))
 
-  def update_backup_job(user, keyRing, jobId, sourceProfiles, requiredActions, sinkProfileId, when, jobTitle, settings=None):
+  def update_backup_job(self, user, keyRing, jobId, sourceProfiles, requiredActions, sinkProfileId, when, jobTitle, settings=None):
     params = {"sourceProfiles" : sourceProfiles,
             "keyRing" : keyRing,
             "jobId" : jobId,
@@ -132,8 +132,8 @@ class BMU:
            }
     if (settings != None):
       params.update(settings)
-    #print dumps(params, indent=2)
-    return com.request("PUT", "/jobs/" + user + "/" + str(jobId), params)
+    # print dumps(params, indent=2)
+    return self.com.request("PUT", "/jobs/" + user + "/" + str(jobId), params)
 
   def create_backup_job(self, user, keyRing, sourceProfiles, requiredActions, sinkProfileId, when, jobTitle, settings=None):
     params = {"sourceProfiles" : sourceProfiles,
@@ -164,11 +164,11 @@ class BMU:
   def get_overview(self, user, duration):
     return self.com.request("GET", "/jobs/" + user + "/status/overview?duration=" + duration)
   
-  #def validate_profile(self, user, profileId):
+  # def validate_profile(self, user, profileId):
   #  return request("GET", "/datasources
   
   ######### Action Operations #########
-  def get_actions(self ):
+  def get_actions(self):
     return self.com.request("GET", "/actions")
   
   def get_action_options(self, actionId):

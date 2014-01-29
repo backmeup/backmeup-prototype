@@ -4,7 +4,6 @@ from RESTBackMeUp import *
 from unittest import TestCase, skip
 from TestConfig import *
 import httplib
-
 import logging
 
 logger = logging.getLogger(__name__)
@@ -52,7 +51,7 @@ class TestDatasources(TestCase):
     res = auth_datasource("TestUser", "org.backmeup.dropbox", "Dropbox", "password")
     logger.debug("After auth_datasource")
     logger.debug(str(res))
-    #post_auth_datasource("TestUser", res.data["profileId"], "password", {})
+    # post_auth_datasource("TestUser", res.data["profileId"], "password", {})
     res = get_datasource_profiles("TestUser")
     self.assertEquals(res.code, httplib.OK)
     self.assertEquals(len(res.data["sourceProfiles"]), 1)
@@ -74,7 +73,7 @@ class TestDatasources(TestCase):
 
     # perform auth + post + delete
     res = auth_datasource("TestUser2", "org.backmeup.dropbox", "Dropbox", "password")
-    #post_auth_datasource("TestUser2", res.data["profileId"], "password", {})
+    # post_auth_datasource("TestUser2", res.data["profileId"], "password", {})
     res = delete_datasource_profile("TestUser2", res.data["profileId"])
     self.assertEquals(res.code, httplib.NO_CONTENT)
     res = get_datasource_profiles("TestUser2")
@@ -85,7 +84,7 @@ class TestDatasources(TestCase):
     res = auth_datasource("TestUser3", "org.backmeup.dropbox", "Dropbox", "password")
     logger.debug("After auth_datasource")
     logger.debug(str(res))
-    #post_auth_datasource("TestUser3", res.data["profileId"], "password", {})
+    # post_auth_datasource("TestUser3", res.data["profileId"], "password", {})
     # note that is specific for user and plug-in
     update_profile(res.data["profileId"], {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET}, "password")
     res = generate_datasource_options("TestUser3", res.data["profileId"], "password")

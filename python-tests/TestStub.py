@@ -2,7 +2,6 @@
 
 from RESTBackMeUp import *
 from unittest import TestCase
-import httplib
 
 class TestStub(TestCase):
   def setUp(self):

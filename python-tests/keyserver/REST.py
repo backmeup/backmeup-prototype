@@ -2,12 +2,8 @@ from urllib import urlencode
 from httplib import HTTPConnection, HTTP
 from mimetypes import guess_type
 from json import loads, dumps
-
 from RESTConfig import SERVER, PORT, BASE_URL
-import logging
 import logging.config
-from socket import error as socket_error
-from datetime import datetime
 
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger(__name__)
@@ -39,7 +35,7 @@ class Comm :
     except:
       pass
     self.con = HTTPConnection(SERVER, PORT)
-    #self.con.set_debuglevel(100)    
+    # self.con.set_debuglevel(100)    
 
   def __init__(self):
     self._create_connection()
@@ -62,7 +58,7 @@ class Comm :
         fh = open(fileName, "rb")
         data = fh.read()
         fh.close()
-        data = self._post_multipart(SERVER+":"+str(PORT), url, None, [[name, fileName, data]])
+        data = self._post_multipart(SERVER + ":" + str(PORT), url, None, [[name, fileName, data]])
         return data
       headers = {"Accept" : "application/json", "Connection" : "Keep-Alive", "Cache-Control" : "max-age=0", "User-Agent" : "Mozilla/5.0 (Windows NT 6.1; WOW64)"}
       if (not self._isJsonEncoded):
@@ -71,11 +67,11 @@ class Comm :
         headers["Content-Type"] = "application/json" 
       if params <> None and not self._isJsonEncoded:
         encoded = urlencode(params, doseq=True)
-        logger.debug("REQUEST: "+ op + " http://" + SERVER + ":" + str(PORT) + url + " " + str(encoded))
+        logger.debug("REQUEST: " + op + " http://" + SERVER + ":" + str(PORT) + url + " " + str(encoded))
         self.con.request(op, url, encoded, headers)
       elif params <> None and self._isJsonEncoded:
         encoded = dumps(params)
-        logger.debug("JSON-REQUEST: "+ op + " http://" + SERVER + ":" + str(PORT) + url + " " + str(encoded))
+        logger.debug("JSON-REQUEST: " + op + " http://" + SERVER + ":" + str(PORT) + url + " " + str(encoded))
         self.con.request(op, url, encoded, headers)
       else:
         logger.debug("REQUEST: " + op + " http://" + SERVER + ":" + str(PORT) + url)
@@ -140,7 +136,7 @@ class Comm :
     for (key, filename, value) in files:
         L.append('--' + BOUNDARY)
         L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
-        L.append('Content-Type: %s' % _get_content_type(filename))
+        L.append('Content-Type: %s' % self._get_content_type(filename))
         L.append('')
         L.append(value)
     L.append('--' + BOUNDARY + '--')

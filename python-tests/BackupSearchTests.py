@@ -1,8 +1,7 @@
 # -*- coding: ISO-8859-1 -*-
 
 from RESTBackMeUp import *
-from unittest import TestCase, skip
-import httplib
+from unittest import TestCase
 
 class TestBackupSearch(TestCase):
   def setUp(self):

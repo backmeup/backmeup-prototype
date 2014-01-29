@@ -1,11 +1,9 @@
 # -*- coding: ISO-8859-1 -*-
 
 from RESTBackMeUp import *
-from unittest import TestCase
-from urllib import quote
 import httplib
-import logging
 import logging.config
+from unittest import TestCase
 
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger(__name__)
@@ -34,7 +32,7 @@ class TestUsers(TestCase):
     self.assertEquals(result.code, httplib.OK, result)
     self.assertIn("verificationKey", result.data, result)
     result = register_user("TestUser", "password", "password", "TestUser@trash-mail.com")
-    self.assertEquals(result.code, httplib.BAD_REQUEST, result) #already created
+    self.assertEquals(result.code, httplib.BAD_REQUEST, result)  # already created
     result = register_user("TestUser", "pass", "password", "TestUser@trash-mail.com")
     self.assertEquals(result.code, httplib.BAD_REQUEST, result)
     result = register_user("TestUser", "password", "pass", "TestUser@trash-mail.com")
@@ -71,7 +69,7 @@ class TestUsers(TestCase):
     self.assertIn("messages", result.data, result)
     self.assertIn("type", result.data, result)
     result = delete_user("DeleteTestUser")
-    self.assertEquals(result.code, httplib.NOT_FOUND, result) #user already deleted
+    self.assertEquals(result.code, httplib.NOT_FOUND, result)  # user already deleted
 
   def test_change_user(self):
     logging.debug("================== change_user ========================")

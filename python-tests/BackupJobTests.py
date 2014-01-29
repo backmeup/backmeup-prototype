@@ -5,8 +5,8 @@ from unittest import TestCase, skip
 from TestConfig import *
 from datetime import datetime, timedelta
 import httplib
-
 import logging
+
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
@@ -117,12 +117,12 @@ class TestBackupJobs(TestCase):
 
     # test bad things
     res = validate_backup_job("UnknwnUser", 1234, "password");
-    self.assertEquals(res.code, httplib.NOT_FOUND); # unknown user
+    self.assertEquals(res.code, httplib.NOT_FOUND);  # unknown user
     
     res = validate_backup_job("TestUser3", 1234, "password");
-    self.assertEquals(res.code, httplib.BAD_REQUEST); # invalid job
+    self.assertEquals(res.code, httplib.BAD_REQUEST);  # invalid job
 
-    res = validate_backup_job("TestUser3", jobId, "password"); # valid user + job
+    res = validate_backup_job("TestUser3", jobId, "password");  # valid user + job
     self.assertEquals(res.code, httplib.OK);
     self.assertEquals(res.data["hasErrors"], False);
     # TODO: More complex test cases which analyze hasErrors = true
@@ -142,14 +142,14 @@ class TestBackupJobs(TestCase):
     res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly", "TestUser3Job")
     jobId = res.data["jobId"]
     
-    res = delete_backup_job("UnknownUser", jobId); # delete a job of an unknown user
+    res = delete_backup_job("UnknownUser", jobId);  # delete a job of an unknown user
     self.assertEquals(res.code, httplib.NOT_FOUND);
     
-    res = delete_backup_job("TestUser3", 9999); # delete an unknown job
+    res = delete_backup_job("TestUser3", 9999);  # delete an unknown job
     self.assertEquals(res.code, httplib.BAD_REQUEST);
 
     res = delete_backup_job("TestUser3", jobId);
-    self.assertEquals(res.code, httplib.NO_CONTENT); # delete a valid job
+    self.assertEquals(res.code, httplib.NO_CONTENT);  # delete a valid job
 
   def test_get_status(self):
     res = register_user("TestUser3", "password", "password", "TestUser3@trash-mail.com")    
@@ -165,18 +165,18 @@ class TestBackupJobs(TestCase):
     res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly", "TestUser3Job")
     jobId = res.data["jobId"]
 
-    res = get_backup_job_status("UnknownUser", jobId) # invalid user
+    res = get_backup_job_status("UnknownUser", jobId)  # invalid user
     self.assertEquals(res.code, httplib.NOT_FOUND)
 
     res = get_backup_job_status("TestUser3", 5000)
-    self.assertEquals(res.code, httplib.BAD_REQUEST) # invalid job
+    self.assertEquals(res.code, httplib.BAD_REQUEST)  # invalid job
 
-    res = get_backup_job_status("TestUser3", jobId) # valid user + job
+    res = get_backup_job_status("TestUser3", jobId)  # valid user + job
     self.assertEquals(res.code, httplib.OK)
     self.assertIn("backupStatus", res.data)
     
     ts = timedelta(seconds=10)
-    res = get_backup_job_status("TestUser3", jobId, datetime.now() - ts, datetime.now()) # valid user + job + time range
+    res = get_backup_job_status("TestUser3", jobId, datetime.now() - ts, datetime.now())  # valid user + job + time range
     self.assertEquals(res.code, httplib.OK)
     self.assertIn("backupStatus", res.data)
 
@@ -206,10 +206,10 @@ class TestBackupJobs(TestCase):
     res = create_backup_job("TestUser3", "password", [sourceId], [], sinkId, "weekly", "TestUser3Job")
     jobId = res.data["jobId"]
 
-    res = get_all_backup_job_status("UnknownUser") # invalid user
+    res = get_all_backup_job_status("UnknownUser")  # invalid user
     self.assertEquals(res.code, httplib.NOT_FOUND)
 
-    res = get_all_backup_job_status("TestUser3") # valid user 
+    res = get_all_backup_job_status("TestUser3")  # valid user 
     self.assertEquals(res.code, httplib.OK)
     self.assertIn("backupStatus", res.data)
     

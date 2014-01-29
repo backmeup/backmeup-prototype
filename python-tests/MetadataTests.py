@@ -4,7 +4,6 @@ from RESTBackMeUp import *
 from unittest import TestCase
 from TestConfig import *
 import httplib
-
 import logging
 
 logger = logging.getLogger(__name__)
@@ -23,7 +22,7 @@ class TestMetadata(TestCase):
     result = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "MetaTestProfile", "password")
     profileId = result.data["profileId"]
 
-    result2 = update_profile(profileId, 
+    result2 = update_profile(profileId,
         {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET}, "password")
     
     # get metadata for unknown user; should not work!
@@ -52,7 +51,7 @@ class TestMetadata(TestCase):
     result = auth_datasource("TestUser", SOURCE_PLUGIN_ID, "MetaTestProfile", "password")
     profileId = result.data["profileId"]
 
-    result2 = update_profile(profileId, 
+    result2 = update_profile(profileId,
         {KEY_SOURCE_TOKEN : SOURCE_TOKEN, KEY_SOURCE_SECRET : SOURCE_SECRET}, "password")
    
     # get metadata for unknown user; should not work!

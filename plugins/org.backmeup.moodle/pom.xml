@@ -12,13 +12,13 @@
 		<dependency>
 			<groupId>org.backmeup</groupId>
 			<artifactId>model</artifactId>
-			<version>0.0.1</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.backmeup</groupId>
 			<artifactId>plugin.api</artifactId>
-			<version>0.0.1</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jdom</groupId>

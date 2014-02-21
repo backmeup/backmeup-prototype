@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>app</artifactId>
 		<groupId>org.backmeup</groupId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>1.0.1</version>
 	</parent>
 	<artifactId>plugin.api.impl</artifactId>
 	<name>Plugin API Implementation</name>

@@ -10,7 +10,7 @@
 	<parent>
 		<artifactId>backmeup-service</artifactId>
 		<groupId>org.backmeup</groupId>
-		<version>0.0.1</version>
+		<version>1.0.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>rest</artifactId>
 	<!-- <packaging>war</packaging> -->

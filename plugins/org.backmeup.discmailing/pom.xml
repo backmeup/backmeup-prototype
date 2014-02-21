@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.backmeup</groupId>
 		<artifactId>plugins</artifactId>
-		<version>0.0.1</version>
+		<version>1.0.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>discmailing</artifactId>
 	<packaging>bundle</packaging>
@@ -24,12 +24,12 @@
 		<dependency>
 			<groupId>org.backmeup</groupId>
 			<artifactId>model</artifactId>
-			<version>0.0.1</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.backmeup</groupId>
 			<artifactId>plugin.api</artifactId>
-			<version>0.0.1</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -39,7 +39,7 @@
 		<dependency>
 			<groupId>org.backmeup</groupId>
 			<artifactId>plugin.api.impl</artifactId>
-			<version>0.0.1</version>
+			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
         <dependency>

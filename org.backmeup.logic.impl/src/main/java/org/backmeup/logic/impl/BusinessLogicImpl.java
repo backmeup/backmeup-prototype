@@ -263,10 +263,12 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   public BackMeUpUser deleteUser(String username) {
     conn.begin();
+    ElasticSearchIndexClient client = null;
     try {
       BackMeUpUser u = getUser(username, false);
       Long uid = u.getUserId();
       UserDao userDao = getUserDao();
+      
       
       try {
         keyserverClient.deleteUser(u.getUserId());
@@ -291,11 +293,15 @@ public class BusinessLogicImpl implements BusinessLogic {
       userDao.delete(u);      
       conn.commit();
       
-      ElasticSearchIndexClient client = getIndexClient();
+      client = getIndexClient();
       client.deleteRecordsForUser(uid);
       return u;
     } finally {
-      conn.rollback();
+    	if (client != null)
+    	{
+    		client.close ();
+    	}
+    	conn.rollback();
     }
     
 
@@ -915,8 +921,9 @@ public class BusinessLogicImpl implements BusinessLogic {
       List<Status> status = sd.findLastByJob(job.getUser().getUsername(), job.getId());
           
       // Getting all files for job.getId()
-      try {		    
-    	  ElasticSearchIndexClient client = new ElasticSearchIndexClient(indexHost, indexPort);
+      ElasticSearchIndexClient client = null;
+      try {	
+          client = new ElasticSearchIndexClient(indexHost, indexPort);
     	  org.elasticsearch.action.search.SearchResponse esResponse = client.searchByJobId(job.getId());
 		  // </TODO>
 
@@ -926,7 +933,14 @@ public class BusinessLogicImpl implements BusinessLogic {
     		return status;
 	    } catch (Throwable t) {
 	    	logger.error("", t);
-	    }           
+	    }
+      	finally
+      	{
+      		if (client != null)
+      		{
+      			client.close();
+      		}
+      	}
       return null;
     } finally {
       conn.rollback();
@@ -969,8 +983,10 @@ public class BusinessLogicImpl implements BusinessLogic {
     try {
       conn.begin();
       
-      try {      
-        ElasticSearchIndexClient client = new ElasticSearchIndexClient(indexHost, indexPort);
+      ElasticSearchIndexClient client = null;
+      
+      try {
+        client = new ElasticSearchIndexClient(indexHost, indexPort);
         org.elasticsearch.action.search.SearchResponse esResponse = client.getFileById(username, fileId);        
         ProtocolDetails pd = new ProtocolDetails();
         pd.setFileInfo(IndexUtils.convertToFileInfo(esResponse));
@@ -978,6 +994,14 @@ public class BusinessLogicImpl implements BusinessLogic {
       } catch (Throwable t) {
     	  logger.error("", t);
       }
+      finally
+      {
+    	  if (client != null)
+    	  {
+    		  client.close();
+    	  }
+      }
+      
       return new ProtocolDetails();
     } finally {
     conn.rollback();

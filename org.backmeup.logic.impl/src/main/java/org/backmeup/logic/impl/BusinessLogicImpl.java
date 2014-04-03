@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.mail.internet.MimeUtility;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
@@ -369,7 +370,12 @@ public class BusinessLogicImpl implements BusinessLogic {
 
   private void sendVerificationEmail(BackMeUpUser u) {
     String verifierUrl = String.format(verificationUrl, u.getVerificationKey());     
-    Mailer.send(u.getEmail(), textBundle.getString(VERIFICATION_EMAIL_SUBJECT), MessageFormat.format(textBundle.getString(VERIFICATION_EMAIL_CONTENT), verifierUrl, u.getVerificationKey()), textBundle.getString(VERIFICATION_EMAIL_MIME_TYPE));
+    try {
+    	// TODO remove ISO-8859-1 workarround
+		Mailer.send(u.getEmail(), MimeUtility.encodeText(new String(textBundle.getString(VERIFICATION_EMAIL_SUBJECT).getBytes("ISO-8859-1"), "UTF-8"), "Q", "UTF-8"), MessageFormat.format(textBundle.getString(VERIFICATION_EMAIL_CONTENT), verifierUrl, u.getVerificationKey()), textBundle.getString(VERIFICATION_EMAIL_MIME_TYPE));
+	} catch (UnsupportedEncodingException e) {
+		logger.error("Something went wrong in sendVerificationEmail", e);
+	}
   }
   
   private void generateNewVerificationKey(BackMeUpUser u, String additionalPart) {

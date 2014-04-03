@@ -607,7 +607,7 @@ public class TwitterDatasource implements Datasource {
 		}
 	}
 
-	private void downloadList(Twitter twitter, int listId, Storage storage) {
+	private void downloadList(Twitter twitter, long listId, Storage storage) {
 		try {
 
 			MetainfoContainer metadata = new MetainfoContainer();

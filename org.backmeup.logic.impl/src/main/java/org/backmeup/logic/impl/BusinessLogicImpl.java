@@ -372,7 +372,7 @@ public class BusinessLogicImpl implements BusinessLogic {
     String verifierUrl = String.format(verificationUrl, u.getVerificationKey());     
     try {
     	// TODO remove ISO-8859-1 workarround
-		Mailer.send(u.getEmail(), MimeUtility.encodeText(new String(textBundle.getString(VERIFICATION_EMAIL_SUBJECT).getBytes("ISO-8859-1"), "UTF-8"), "Q", "UTF-8"), MessageFormat.format(textBundle.getString(VERIFICATION_EMAIL_CONTENT), verifierUrl, u.getVerificationKey()), textBundle.getString(VERIFICATION_EMAIL_MIME_TYPE));
+		Mailer.send(u.getEmail(), MimeUtility.encodeText(new String(textBundle.getString(VERIFICATION_EMAIL_SUBJECT).getBytes("ISO-8859-1"), "UTF-8"), "UTF-8", "Q"), MessageFormat.format(textBundle.getString(VERIFICATION_EMAIL_CONTENT), verifierUrl, u.getVerificationKey()), textBundle.getString(VERIFICATION_EMAIL_MIME_TYPE));
 	} catch (UnsupportedEncodingException e) {
 		logger.error("Something went wrong in sendVerificationEmail", e);
 	}

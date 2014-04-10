@@ -286,8 +286,8 @@ public class FacebookDatasource implements Datasource {
 
 					commentinfo = new Metainfo();
 					commentinfo.setAttribute("destination", destination);
-					commentinfo.setAttribute("author", checkName(comment
-							.getFrom().getName()));
+					if(comment.getFrom() != null)
+						commentinfo.setAttribute("author", checkName(comment.getFrom().getName()));
 					commentinfo.setAttribute("message", comment.getMessage());
 					commentinfo.setBackupDate(new Date());
 					commentinfo.setId(comment.getId());
@@ -299,10 +299,13 @@ public class FacebookDatasource implements Datasource {
 					commentinfo.setSource("facebook");
 					commentinfo.setType("comment");
 
-					div.addElement(linkUser(comment.getFrom().getId(),
-							checkName(comment.getFrom().getName()), type,
-							client, storage, progr)
-							+ ":");
+					if(comment.getFrom() != null){
+						div.addElement(linkUser(comment.getFrom().getId(),
+								checkName(comment.getFrom().getName()), type,
+								client, storage, progr)
+								+ ":");
+					}else{
+						div.addElement("Comment:");					}
 					div.addElement(comment.getMessage());
 
 					Div likesComments = (Div) new Div().addAttribute("class",
@@ -323,55 +326,6 @@ public class FacebookDatasource implements Datasource {
 							comments.getNextPageUrl(), Post.class)) != null);
 		}
 		return metainfo;
-	}
-
-	/**
-	 * likes are added to the document
-	 * 
-	 * @param id
-	 *            can be anything that has a connection "likes"
-	 */
-	private String downloadLikes(String id, String type, Document doc,
-			FacebookClient client, Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
-		String likers = "";
-		Div div = null;
-		Connection<User> likes = client.fetchConnection(id + "/likes",
-				User.class);
-		if (type.equals("comment"))
-			div = (Div) ce.getElement("likesComments");
-		if (type.equals("post"))
-			div = (Div) ce.getElement("likesPost");
-		if (type.equals("photo"))
-			div = (Div) ce.getElement("likesPhoto");
-		if (type.equals("album"))
-			div = (Div) ce.getElement("likesAlbum");
-		if (div == null)
-			return null;
-		if (likes.getData() == null)
-			return null;
-		if (likes.getData().size() == 0)
-			return null;
-
-		if (type == "comment") {
-			div.addElement("\tLikes:");
-		} else{
-			div.addElement(new BR());
-			div.addElement(new H2("Likes").addAttribute("class", "detailhead2"));
-		}
-
-		do {
-			for (User like : likes.getData()) {
-				div.addElement(linkUser(like.getId(),
-						checkName(like.getName()), type, client, storage, progr));
-				likers += checkName(like.getName())+", ";
-				div.addElement(new BR());
-			}
-		} while (likes.hasNext()
-				&& (likes = client.fetchConnectionPage(likes.getNextPageUrl(),
-						User.class)) != null);
-
-		return likers.substring(0, likers.length()-2);
 	}
 
 	private void downloadGroups(FacebookClient client, Storage storage,
@@ -609,6 +563,55 @@ public class FacebookDatasource implements Datasource {
 		String filename = getFriendlistFilename(name + id);
 		storage.addFile(is, filename, metainfo);
 		return filename;
+	}
+
+	/**
+	 * likes are added to the document
+	 * 
+	 * @param id
+	 *            can be anything that has a connection "likes"
+	 */
+	private String downloadLikes(String id, String type, Document doc,
+			FacebookClient client, Storage storage, Progressable progr)
+			throws DatasourceException, StorageException {
+		String likers = "";
+		Div div = null;
+		Connection<User> likes = client.fetchConnection(id + "/likes",
+				User.class);
+		if (type.equals("comment"))
+			div = (Div) ce.getElement("likesComments");
+		if (type.equals("post"))
+			div = (Div) ce.getElement("likesPost");
+		if (type.equals("photo"))
+			div = (Div) ce.getElement("likesPhoto");
+		if (type.equals("album"))
+			div = (Div) ce.getElement("likesAlbum");
+		if (div == null)
+			return null;
+		if (likes.getData() == null)
+			return null;
+		if (likes.getData().size() == 0)
+			return null;
+	
+		if (type == "comment") {
+			div.addElement("\tLikes:");
+		} else{
+			div.addElement(new BR());
+			div.addElement(new H2("Likes").addAttribute("class", "detailhead2"));
+		}
+	
+		do {
+			for (User like : likes.getData()) {
+				div.addElement(linkUser(like.getId(),
+						checkName(like.getName()), type, client, storage, progr));
+				likers += checkName(like.getName())+", ";
+				div.addElement(new BR());
+			}
+		} while (likes.hasNext()
+				&& (likes = client.fetchConnectionPage(likes.getNextPageUrl(),
+						User.class)) != null);
+	
+		return likers.substring(0, likers.length()-2);
 	}
 
 	private String downloadPost(Post post, FacebookClient client,

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -32,10 +33,10 @@ public class MoodleValidator implements Validationable {
 		String password = accessData.getProperty("Password");
 
 		serverurl = serverurl.endsWith("/") ? serverurl : serverurl + "/";
-		String authurl = serverurl + "blocks/backmeup/service.php?username="
-				+ username + "&password=" + password + "&action=auth";
 
 		try {
+			String authurl = serverurl + "blocks/backmeup/service.php?username="
+					+ username + "&password=" + URLEncoder.encode(password, "ASCII") + "&action=auth";
 			// 1. Check if the Moodle server can be reached
 			if (getResponseCode(serverurl) >= 400) {			  
 				notes.addValidationEntry(ValidationExceptionType.APIException,
@@ -59,10 +60,10 @@ public class MoodleValidator implements Validationable {
 					notes.addValidationEntry(
 							ValidationExceptionType.AuthException,
 							MoodleDescriptor.MOODLE_ID, new Exception("Invalid credentials!"));
-				else {
+				/*else {
 					authurl = serverurl
 							+ "blocks/backmeup/service.php?username="
-							+ username + "&password=" + password
+							+ username + "&password=" + URLEncoder.encode(password, "ASCII")
 							+ "&action=list";
 
 					doc = docBuilder.parse(authurl);
@@ -73,7 +74,7 @@ public class MoodleValidator implements Validationable {
 								ValidationExceptionType.AuthException,
 								MoodleDescriptor.MOODLE_ID,
 								new Exception("Login was successfull, but the user is not enrolled in any course, so there's no data to backup!"));
-				}
+				}*/
 			}
 		} catch (MalformedURLException e) {
 			notes.addValidationEntry(

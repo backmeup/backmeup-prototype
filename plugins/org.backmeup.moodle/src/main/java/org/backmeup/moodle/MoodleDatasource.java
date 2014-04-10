@@ -3,6 +3,7 @@ package org.backmeup.moodle;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -73,7 +74,7 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 		try {
 			String authUrl = serverurl
 					+ "blocks/backmeup/service.php?username=" + username
-					+ "&password=" + password + "&action=list";
+					+ "&password=" + URLEncoder.encode(password, "ASCII") + "&action=list";
 
 			if(!options.isEmpty()) {
 				authUrl = authUrl + "&options=" + httpOptions;
@@ -86,6 +87,7 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 
 			Iterator<Element> courseIterator = courses.iterator();
 			while (courseIterator.hasNext()) {
+
 				Element course = courseIterator.next();
 				List<Element> sections = course.getChildren("section");
 				Iterator<Element> sectionIterator = sections.iterator();
@@ -98,6 +100,7 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 				courseMeta.setBackupDate(new Date());
 
 				while (sectionIterator.hasNext()) {
+
 					Element section = sectionIterator.next();
 					List<Element> sequences = section.getChildren("sequence");
 					Iterator<Element> sequenceIterator = sequences.iterator();
@@ -114,8 +117,8 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 								section.getAttributeValue("summary"));
 
 					while (sequenceIterator.hasNext()) {
+
 						Element sequence = sequenceIterator.next();
-						
 						if(!options.contains(sequence.getChildText("type")))
 							continue;
 						
@@ -136,6 +139,7 @@ public class MoodleDatasource extends FilesystemLikeDatasource {
 							List<Element> files = data.getChildren("file");
 							Iterator<Element> fileIterator = files.iterator();
 							while (fileIterator.hasNext()) {
+
 								Element file = fileIterator.next();
 								String mappedPath = (file.getAttribute("path") != null) ? course
 										.getAttributeValue("name")

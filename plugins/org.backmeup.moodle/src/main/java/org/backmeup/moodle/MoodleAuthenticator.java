@@ -1,5 +1,6 @@
 package org.backmeup.moodle;
 
+import java.net.URLEncoder;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,9 @@ public class MoodleAuthenticator implements InputBased {
 		try {
 			String authUrl = serverurl
 					+ "blocks/backmeup/service.php?username=" + username
-					+ "&password=" + password + "&action=auth";
+					+ "&password=" + URLEncoder.encode(password, "UTF-8") + "&action=auth";
+			
+			System.out.println(authUrl);
 			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
 					.newInstance();
 			DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();

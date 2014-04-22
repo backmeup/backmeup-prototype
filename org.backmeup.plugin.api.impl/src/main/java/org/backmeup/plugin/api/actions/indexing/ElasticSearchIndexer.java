@@ -115,5 +115,10 @@ public class ElasticSearchIndexer {
 		
 		return path;
 	}
+	
+        public void close() {
+                if (client != null)
+                        client.close();
+        }
 
 }

@@ -73,6 +73,7 @@ public class IndexAction implements Action {
 						meta.put(IndexUtils.FIELD_FULLTEXT, fulltext);
 					
 					indexer.doIndexing(job, dob, meta, indexingTimestamp);
+					indexer.close();
 				} else {
 					progressor.progress(SKIPPING);
 				}

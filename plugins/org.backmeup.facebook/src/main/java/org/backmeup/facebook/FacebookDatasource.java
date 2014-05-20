@@ -27,6 +27,7 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.apache.ecs.html.UL;
+import org.backmeup.model.exceptions.PluginException;
 import org.backmeup.plugin.api.Metainfo;
 import org.backmeup.plugin.api.MetainfoContainer;
 import org.backmeup.plugin.api.connectors.Datasource;
@@ -155,7 +156,7 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private void downloadAlbums(FacebookClient client, Storage storage,
-			Progressable progr) throws DatasourceException, StorageException {
+			Progressable progr) throws StorageException {
 
 		Document doc = createDocument("Alben", "Facebook - Alben", false);
 		Div applic_content_page = (Div) ce.getElement("applic_content_page");
@@ -193,7 +194,7 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private void downloadPhotos(FacebookClient client, Storage storage,
-			Progressable progr) throws DatasourceException, StorageException {
+			Progressable progr) throws StorageException {
 
 		Document doc = createDocument("Fotos", "Facebook - Fotos", false);
 
@@ -211,7 +212,7 @@ public class FacebookDatasource implements Datasource {
 	 */
 	private void downloadPhotos(String id, String type, Document doc,
 			FacebookClient client, Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+			throws StorageException {
 		Div applic_content_page = (Div) ce.getElement("applic_content_page");
 		if(type.equals("site")){
 			applic_content_page = (Div) ce.getElement("detail_row2");
@@ -267,7 +268,7 @@ public class FacebookDatasource implements Datasource {
 	 */
 	private MetainfoContainer downloadComments(String id, String destination,
 			String parent, String type, Document doc, FacebookClient client,
-			Storage storage, Progressable progr) throws DatasourceException,
+			Storage storage, Progressable progr) throws
 			StorageException {
 
 		Div div = null;
@@ -348,7 +349,7 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private void downloadGroups(FacebookClient client, Storage storage,
-			Progressable progr) throws DatasourceException, StorageException {
+			Progressable progr) throws StorageException {
 
 		Document doc = createDocument("Gruppen", "Facebook - Gruppen", false);
 
@@ -380,7 +381,7 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private void downloadPosts(String id, FacebookClient client,
-			Storage storage, Progressable progr) throws DatasourceException,
+			Storage storage, Progressable progr) throws
 			StorageException {
 
 		Document doc = createDocument("Pinwand", "Facebook - Pinwand", false);
@@ -438,7 +439,7 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private void downloadFriends(FacebookClient client, Storage storage,
-			Progressable progr) throws DatasourceException, StorageException {
+			Progressable progr) throws StorageException {
 
 		Document doc = createDocument("Freunde", "Facebook - Freunde", false);
 
@@ -479,7 +480,7 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private void downloadFriendlists(FacebookClient client, Storage storage,
-			Progressable progr) throws DatasourceException, StorageException {
+			Progressable progr) throws StorageException {
 
 		Document doc = createDocument("Freundesliste",
 				"Facebook - Freundesliste", false);
@@ -518,7 +519,7 @@ public class FacebookDatasource implements Datasource {
 
 	private String downloadFriendlist(String id, String name,
 			FacebookClient client, Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+			throws StorageException {
 
 		MetainfoContainer metainfo = new MetainfoContainer();
 		Metainfo listinfo = new Metainfo();
@@ -617,7 +618,7 @@ public class FacebookDatasource implements Datasource {
 	 */
 	private String downloadLikes(String id, String type, Document doc,
 			FacebookClient client, Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+			throws StorageException {
 		String likers = "";
 		Div div = null;
 		Connection<User> likes = client.fetchConnection(id + "/likes",
@@ -663,7 +664,7 @@ public class FacebookDatasource implements Datasource {
 	}
 
 	private String downloadPost(Post post, FacebookClient client,
-			Storage storage, Progressable progr) throws DatasourceException,
+			Storage storage, Progressable progr) throws
 			StorageException {
 
 			if(post.getId()!= null){
@@ -766,7 +767,7 @@ public class FacebookDatasource implements Datasource {
 				detail.addElement(row);
 			}
 			
-			if(post.getType().equals("photo")){
+			if(post.getType() != null && post.getType().equals("photo")){
 				if(post.getPicture() != null){
 					String linkToPic = post.getPicture();
 					String[] picture = linkToPic.split("_");
@@ -813,11 +814,11 @@ public class FacebookDatasource implements Datasource {
 			storage.addFile(is, filename, metainfo);
 			
 			return filename;
-		}else return null;
+		}else throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while downloading post");
 	}
 
 	private String downloadAlbum(Album album, FacebookClient client,
-			Storage storage, Progressable progr) throws DatasourceException,
+			Storage storage, Progressable progr) throws 
 			StorageException {
 		if(album.getId() != null && album.getName() != null){
 			String name = checkName(album.getName());
@@ -941,12 +942,13 @@ public class FacebookDatasource implements Datasource {
 			String filename = getAlbumFilename(name + album.getId());
 			storage.addFile(is, filename, metainfo);
 			return filename;
-		}else return null;
+		}else throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while downloading album");
+		
 	}
 
 	private String downloadPhoto(Photo photo, String parent,
 			FacebookClient client, Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+			throws StorageException {
 
 		if(photo.getId() != null){
 			Metainfo photoinfo = new Metainfo();
@@ -1018,7 +1020,7 @@ public class FacebookDatasource implements Datasource {
 				detail.addElement(row);
 			}
 			if (photo.getSource() == null) {
-				throw new DatasourceException("error while downloading photos");
+				throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while downloading photos");
 			}
 	
 			TR row = new TR();
@@ -1087,11 +1089,11 @@ public class FacebookDatasource implements Datasource {
 			String filename = getPhotoFilename(photo.getId());
 			storage.addFile(is, filename, metainfo);
 			return filename;
-		}else return null;
+		}else throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while downloading photo");
 	}
 
 	private String downloadGroup(String id, FacebookClient client,
-			Storage storage, Progressable progr) throws DatasourceException,
+			Storage storage, Progressable progr) throws
 			StorageException {
 		Group g = client.fetchObject(id, Group.class);
 		
@@ -1187,11 +1189,11 @@ public class FacebookDatasource implements Datasource {
 			String filename = getGroupFilename(name + g.getId());
 			storage.addFile(is, filename, metainfo);
 			return filename;
-		}else return null;
+		}else throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while downloading group");
 	}
 
 	private String downloadUser(String id, FacebookClient client,
-			Storage storage, Progressable progr) throws DatasourceException,
+			Storage storage, Progressable progr) throws 
 			StorageException {
 
 		MetainfoContainer metainfo = new MetainfoContainer();
@@ -1424,9 +1426,10 @@ public class FacebookDatasource implements Datasource {
 	
 				allUsers.add(id);
 				return filename;
-			}else return null;
+			}else throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while downloading user (id or name not set)");
 		} catch (FacebookException e) {
-			return null;
+			throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while downloading user", e);
+			
 		}
 	}
 
@@ -1467,7 +1470,7 @@ public class FacebookDatasource implements Datasource {
 	 * @throws StorageException
 	 */
 	private String downloadProfilePicture(String name, String id, String type,
-			Storage storage, Progressable progr) throws StorageException {
+			Storage storage, Progressable progr){
 		String fileName = "";
 		if (type.equals("site"))
 			fileName = "Seiten/Fotos/" + name + ".jpg";
@@ -1492,7 +1495,11 @@ public class FacebookDatasource implements Datasource {
 		else
 			uPicLoc = getGraphUrl(id + "/picture", "type=large");
 		if (uPicLoc != null) {
-			downloadPicture(uPicLoc, fileName, type, storage, progr, photoinfo);
+			try {
+				downloadPicture(uPicLoc, fileName, type, storage, progr, photoinfo);
+			} catch (StorageException e) {
+				throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while download profile picture", e);
+			}
 		} else {
 			progr.progress("no picture URL...");
 		}
@@ -1517,8 +1524,7 @@ public class FacebookDatasource implements Datasource {
 			URL url = new URL(path);
 			c = (HttpURLConnection) url.openConnection();
 			c.connect();
-			if(c.getContentType() != null){
-			if (c.getContentType().equals("image/jpeg")) {
+			if (c.getContentType() != null && c.getContentType().equals("image/jpeg")) {
 				progr.progress("Download " + path + " nach " + destination);
 				InputStream is = c.getInputStream();
 				storage.addFile(is, destination, metainfo);
@@ -1531,17 +1537,18 @@ public class FacebookDatasource implements Datasource {
 					isAlt = this.getClass().getResourceAsStream("/alternative.jpg");
 					storage.addFile(isAlt, destination, null);
 					isAlt.close();
+					return true;
 				} catch (FileNotFoundException e) {
-					e.printStackTrace();
+					throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while linking alternative picture", e);
 				} catch (IOException e){
-					e.printStackTrace();
+					throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while linking alternative picture", e);
 				}
-			}}
+			}
 		} catch (IOException e) {
 			if (c != null)
 				c.disconnect();
+			throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while fetching picture", e);
 		}
-		return false;
 	}
 
 	/**
@@ -1549,7 +1556,7 @@ public class FacebookDatasource implements Datasource {
 	 * 
 	 */
 	private void downloadAccounts(FacebookClient client, Storage storage,
-			Progressable progr) throws DatasourceException, StorageException {
+			Progressable progr) throws StorageException {
 
 		Document doc = createDocument("Seiten", "Facebook - Seiten", false);
 
@@ -1579,7 +1586,7 @@ public class FacebookDatasource implements Datasource {
 			try {
 				  reader.close();
 				} catch(Exception ex) {
-				  ex.printStackTrace();
+					throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while downloading accounts", ex);
 				}
 			
 			JSONObject json = new JSONObject(content.toString());
@@ -1604,6 +1611,8 @@ public class FacebookDatasource implements Datasource {
 			if (c != null) {
 				c.disconnect();
 			}
+			throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while downloading accounts", e);
+			
 		}
 
 		navlist.addElement(ul);
@@ -1616,7 +1625,7 @@ public class FacebookDatasource implements Datasource {
 
 	private String downloadAccount(String id, String name,
 			FacebookClient client, Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+			throws StorageException {
 		MetainfoContainer metadata = new MetainfoContainer();
         Metainfo accountinfo = new Metainfo();
         accountinfo.setBackupDate(new Date());
@@ -1648,7 +1657,7 @@ public class FacebookDatasource implements Datasource {
             try {
   			  reader.close();
   			} catch (Exception ex) {
-  			  ex.printStackTrace();
+  				throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while fetching account", ex);
   			}
             
             JSONObject json = new JSONObject(content.toString());
@@ -1799,8 +1808,7 @@ public class FacebookDatasource implements Datasource {
 	 * name)
 	 */
 	private String linkUser(String id, String name, String type,
-			FacebookClient client, Storage storage, Progressable progr)
-			throws DatasourceException, StorageException {
+			FacebookClient client, Storage storage, Progressable progr){
 
 		String nameUser = name;
 
@@ -1811,9 +1819,13 @@ public class FacebookDatasource implements Datasource {
 			if (allUsers.contains(id)) {
 				nameUser = "<a href = '../" + path + "'>" + name + "</a>";
 			} else {
-				if (DOWNLOAD_NON_FRIEND_USERS
-						&& downloadUser(id, client, storage, progr) != null) {
-					nameUser = "<a href = '../" + path + "'>" + name + "</a>";
+				try {
+					if (DOWNLOAD_NON_FRIEND_USERS
+							&& downloadUser(id, client, storage, progr) != null) {
+						nameUser = "<a href = '../" + path + "'>" + name + "</a>";
+					}
+				} catch (StorageException e) {
+					throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while linking user", e);
 				}
 			}
 		}
@@ -1832,17 +1844,7 @@ public class FacebookDatasource implements Datasource {
 		if (str.equals(".") || str.equals("..")) {
 			str = "facebook";
 		}
-		/*for (int i = 0; i < str.length(); i++) {
-			if ((str.charAt(i) < ' ' || str.charAt(i) > '~')) {
-				// umlauts are allowed
-				if (str.charAt(i) != 228 && str.charAt(i) != 196
-						&& str.charAt(i) != 246 && str.charAt(i) != 214
-						&& str.charAt(i) != 252 && str.charAt(i) != 220
-						&& str.charAt(i) != 223) {
-					str = str.replace(str.charAt(i), '-');
-				}
-			}
-		}*/
+		
 		for (int i = 0; i < illegal.length; i++) {
 			while (str.contains(illegal[i])) {
 				str = str.replace(illegal[i], " ");
@@ -1882,9 +1884,9 @@ public class FacebookDatasource implements Datasource {
 			if(is!=null)
 			is.close();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while downloading Themes", e);
 		} catch (IOException e){
-			e.printStackTrace();
+			throw new PluginException(FacebookDescriptor.FACEBOOK_ID, "An error occurred while downloading Themes", e);
 		}
 	}
 }

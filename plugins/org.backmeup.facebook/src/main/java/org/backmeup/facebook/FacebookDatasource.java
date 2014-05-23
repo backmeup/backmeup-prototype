@@ -1631,6 +1631,7 @@ public class FacebookDatasource implements Datasource {
 					null);
 		else
 			uPicLoc = getGraphUrl(id + "/picture", "type=large");
+		
 		if (uPicLoc != null) {
 			try {
 				downloadPicture(uPicLoc, fileName, type, storage, progr,
@@ -1679,24 +1680,20 @@ public class FacebookDatasource implements Datasource {
 					storage.addFile(isAlt, destination, null);
 					isAlt.close();
 					return true;
-				} catch (FileNotFoundException e) {
-					throw new PluginException(
+				} catch (Exception e) {
+					/*throw new PluginException(
 							FacebookDescriptor.FACEBOOK_ID,
 							"An error occurred while linking alternative picture",
-							e);
-				} catch (IOException e) {
-					throw new PluginException(
-							FacebookDescriptor.FACEBOOK_ID,
-							"An error occurred while linking alternative picture",
-							e);
+							e);*/
 				}
 			}
 		} catch (IOException e) {
 			if (c != null)
 				c.disconnect();
-			throw new PluginException(FacebookDescriptor.FACEBOOK_ID,
-					"An error occurred while fetching picture", e);
+			/*throw new PluginException(FacebookDescriptor.FACEBOOK_ID,
+					"An error occurred while fetching picture", e);*/
 		}
+		return false;
 	}
 
 	/**
